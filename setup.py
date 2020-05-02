@@ -1,6 +1,7 @@
 import subprocess
 from abc import ABC
 from distutils.cmd import Command
+from sys import stdout
 from typing import List
 
 import pipfile
@@ -35,7 +36,7 @@ class PylintCommand(CommandAdapter):
 
 class UnittestCommand(CommandAdapter):
 	def run(self) -> None:
-		subprocess.check_call(args='python -m unittest discover', cwd='src', shell=True)
+		subprocess.check_call(args='python -m unittest discover', cwd='src', shell=True, stderr=stdout)
 
 
 setup(
