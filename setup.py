@@ -30,7 +30,7 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
-		subprocess.check_call(args='pylint capacity', cwd='src', shell=True)
+		subprocess.check_call(args='pylint mesh_city', cwd='src', shell=True)
 
 
 class UnittestCommand(CommandAdapter):
