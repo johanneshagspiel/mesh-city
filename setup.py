@@ -39,6 +39,11 @@ class UnittestCommand(CommandAdapter):
 		subprocess.check_call(args='python -m unittest discover', cwd='src', shell=True, stderr=stdout)
 
 
+class CoverageCommand(CommandAdapter):
+	def run(self) -> None:
+		subprocess.check_call(args='coverage run --branch -m unittest discover', cwd='src', shell=True, stderr=stdout)
+
+
 setup(
 	name='mesh-city',
 	version='0.1.0',
@@ -51,5 +56,6 @@ setup(
 	cmdclass={
 		'lint': PylintCommand,
 		'test': UnittestCommand,
+		'coverage': CoverageCommand,
 	},
 )
