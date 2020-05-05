@@ -1,0 +1,7 @@
+[MASTER]
+disable =
+	design,
+	elif,
+	fixme,
+	format,
+	spelling,
