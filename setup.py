@@ -36,7 +36,7 @@ class PylintCommand(CommandAdapter):
 
 class CoverageTestCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="coverage run --branch --source=src/mesh_city -m unittest discover src", shell=True, stderr=stdout)
+		check_call(args="coverage run --branch --source=src/mesh_city --module unittest discover src", shell=True, stderr=stdout)
 
 
 class CoverageReportCommand(CommandAdapter):
@@ -54,6 +54,22 @@ class YapfFixCommand(CommandAdapter):
 		check_call(args="yapf --in-place --parallel --recursive src", shell=True)
 
 
+class IsortCheckCommand(CommandAdapter):
+	def run(self) -> None:
+		check_call(args="isort --check-only --diff --recursive src", shell=True)
+
+
+class IsortFixCommand(CommandAdapter):
+	def run(self) -> None:
+		check_call(args="isort --recursive src", shell=True)
+
+
+class FixCommand(CommandAdapter):
+	def run(self) -> None:
+		self.run_command("imports_fix")
+		self.run_command("format_fix")
+
+
 try:
 	setup(
 		name="mesh-city",
@@ -66,8 +82,11 @@ try:
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
 			"coverage": CoverageReportCommand,
+			"fix": FixCommand,
 			"format_check": YapfCheckCommand,
 			"format_fix": YapfFixCommand,
+			"imports_check": IsortCheckCommand,
+			"imports_fix": IsortFixCommand,
 			"lint": PylintCommand,
 			"test": CoverageTestCommand,
 		},
