@@ -34,9 +34,14 @@ class PylintCommand(CommandAdapter):
 		check_call(args="pylint -j 0 src", shell=True)
 
 
-class CoverageUnittestCommand(CommandAdapter):
+class CoverageTestCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="coverage run --branch -m unittest discover", cwd="src", shell=True, stderr=stdout)
+		check_call(args="coverage run --branch --source=src/mesh_city -m unittest discover src", shell=True, stderr=stdout)
+
+
+class CoverageReportCommand(CommandAdapter):
+	def run(self) -> None:
+		check_call(args="coverage report --fail-under 70", shell=True)
 
 
 class YapfCheckCommand(CommandAdapter):
@@ -60,10 +65,11 @@ try:
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
+			"coverage": CoverageReportCommand,
 			"format_check": YapfCheckCommand,
 			"format_fix": YapfFixCommand,
 			"lint": PylintCommand,
-			"test": CoverageUnittestCommand,
+			"test": CoverageTestCommand,
 		},
 	)
 except CalledProcessError as cpe:

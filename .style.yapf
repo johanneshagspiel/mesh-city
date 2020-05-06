@@ -1,7 +1,8 @@
 [style]
 based_on_style = facebook
 column_limit = 88
-continuation_align_style = FIXED
+continuation_align_style = fixed
 continuation_indent_width = 1
+split_all_comma_separated_values = true
 split_complex_comprehension = true
 use_tabs = true
