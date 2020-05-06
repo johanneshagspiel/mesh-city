@@ -1,6 +1,6 @@
-import subprocess
 from abc import ABC
 from distutils.cmd import Command
+from subprocess import CalledProcessError, check_call
 from sys import stdout
 from typing import List
 
@@ -10,11 +10,11 @@ from setuptools import find_packages, setup
 
 
 def get_pipfile_dependencies(category: str) -> List[str]:
-	project_pipfile: Pipfile = pipfile.load('Pipfile')
+	project_pipfile: Pipfile = pipfile.load("Pipfile")
 	dependencies: List[str] = []
 	for name, version in project_pipfile.data[category].items():
-		if version == '*':
-			version = ''
+		if version == "*":
+			version = ""
 		dependencies.append(name + version)
 	return dependencies
 
@@ -31,31 +31,41 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
-		subprocess.check_call(args='pylint mesh_city', cwd='src', shell=True)
+		check_call(args="pylint -j 0 src", shell=True)
 
 
-class UnittestCommand(CommandAdapter):
+class CoverageUnittestCommand(CommandAdapter):
 	def run(self) -> None:
-		subprocess.check_call(args='python -m unittest discover', cwd='src', shell=True, stderr=stdout)
+		check_call(args="coverage run --branch -m unittest discover", cwd="src", shell=True, stderr=stdout)
 
 
-class CoverageCommand(CommandAdapter):
+class YapfCheckCommand(CommandAdapter):
 	def run(self) -> None:
-		subprocess.check_call(args='coverage run --branch -m unittest discover', cwd='src', shell=True, stderr=stdout)
+		check_call(args="yapf --diff --parallel --recursive src", shell=True)
 
 
-setup(
-	name='mesh-city',
-	version='0.1.0',
-	url='https://gitlab.ewi.tudelft.nl/cse2000-software-project/2019-2020-q4/cluster-3/mesh-city/mesh-city',
-	package_dir={'': 'src'},
-	packages=find_packages(where='src'),
-	python_requires='>=3.8',
-	install_requires=get_pipfile_dependencies('default'),
-	extras_require={'dev': get_pipfile_dependencies('develop')},
-	cmdclass={
-		'lint': PylintCommand,
-		'test': UnittestCommand,
-		'coverage': CoverageCommand,
-	},
-)
+class YapfFixCommand(CommandAdapter):
+	def run(self) -> None:
+		check_call(args="yapf --in-place --parallel --recursive src", shell=True)
+
+
+try:
+	setup(
+		name="mesh-city",
+		version="0.1.0",
+		url="https://gitlab.ewi.tudelft.nl/cse2000-software-project/2019-2020-q4/cluster-3/mesh-city/mesh-city",
+		package_dir={"": "src"},
+		packages=find_packages(where="src"),
+		python_requires=">=3.8",
+		install_requires=get_pipfile_dependencies("default"),
+		extras_require={"dev": get_pipfile_dependencies("develop")},
+		cmdclass={
+			"format_check": YapfCheckCommand,
+			"format_fix": YapfFixCommand,
+			"lint": PylintCommand,
+			"test": CoverageUnittestCommand,
+		},
+	)
+except CalledProcessError as cpe:
+	print("\nTask failed")
+	exit(1)
