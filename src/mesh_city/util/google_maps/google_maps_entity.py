@@ -45,7 +45,3 @@ class google_maps_entity:
 	def increase_request_number(self):
 		old_usage = self.request_number
 		self.request_number = old_usage + 1
-
-	def test(self):
-		self.google_api_util.increase_usage()
-		self.increase_request_number()
