@@ -2,9 +2,15 @@ default:
     image: archlinux
 
 stages:
+    - setup
     - build
     - check
     - test
+
+setup:
+    stage: setup
+    script:
+        - ping google.com
 
 build:
     stage: build
