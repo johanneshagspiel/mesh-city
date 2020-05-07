@@ -24,7 +24,7 @@ build:
 check:
     stage: check
     script:
-        - ls -lAh cache || true
+        - ls -lAh cache/.local/share/virtualenvs/mesh-city-TOfIyfl-/bin || true
         - pipenv run python -c "from subprocess import call; call(args=\"echo \$PATH\", shell=True)"
 #        - pipenv shell "\
 #        -     python setup.py imports_check && \
