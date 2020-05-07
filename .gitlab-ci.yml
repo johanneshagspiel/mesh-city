@@ -8,5 +8,8 @@ stages:
 
 build:
     stage: build
+    cache:
+        paths:
+            - ~/.local/share/virtualenvs/*
     script:
         - pipenv sync
