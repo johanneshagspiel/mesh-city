@@ -1,5 +1,5 @@
 default:
-    image: archlinux/base
+    image: archlinux
 
 stages:
     - setup
@@ -10,7 +10,7 @@ stages:
 setup:
     stage: setup
     script:
-        - ping google.com
+        - pacman -Syu
 
 build:
     stage: build
