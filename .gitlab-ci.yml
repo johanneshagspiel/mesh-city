@@ -1,5 +1,14 @@
 image: kennethreitz/pipenv
 
+variables:
+    XDG_CACHE_HOME: "$CI_PROJECT_DIR/cache/.cache/"
+    XDG_DATA_HOME: "$CI_PROJECT_DIR/cache/.local/share/"
+
+cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+        - cache/
+
 stages:
     - build
     - check
@@ -8,6 +17,8 @@ stages:
 build:
     stage: build
     script:
+        - ls -lAh cache
+        - pipenv clean
         - pipenv sync
 
 check:
