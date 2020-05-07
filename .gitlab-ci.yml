@@ -24,6 +24,7 @@ build:
 check:
     stage: check
     script:
+        - ls -lAh cache || true
         - pipenv run python setup.py imports_check
         - pipenv run python setup.py format_check
         - pipenv run python setup.py lint
