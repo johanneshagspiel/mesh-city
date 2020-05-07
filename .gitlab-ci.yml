@@ -25,6 +25,9 @@ check:
     stage: check
     script:
         - ls -lAh cache || true
-        - pipenv run python setup.py imports_check
-        - pipenv run python setup.py format_check
-        - pipenv run python setup.py lint
+        - pipenv run python -c "from subprocess import call; call(args=\"echo \$PATH\", shell=True)"
+#        - pipenv shell "\
+#        -     python setup.py imports_check && \
+#        -     python setup.py format_check && \
+#        -     python setup.py lint ; \
+#        -     exit"
