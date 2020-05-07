@@ -9,10 +9,14 @@ stages:
 
 setup:
     stage: setup
+    cache:
+        paths:
+            - /usr/*
     script:
-        - pacman -Syu
+        - pacman --noconfirm -S python-pipenv
 
 build:
     stage: build
     script:
+        - pwd
         - ls -lAh
