@@ -1,5 +1,8 @@
-default:
-    image: kennethreitz/pipenv
+image: kennethreitz/pipenv
+
+cache:
+    paths:
+        - /root/.local/share/virtualenvs/
 
 stages:
     - build
@@ -8,8 +11,5 @@ stages:
 
 build:
     stage: build
-    cache:
-        paths:
-            - ~/.local/share/virtualenvs/
     script:
         - pipenv sync
