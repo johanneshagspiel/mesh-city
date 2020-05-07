@@ -26,6 +26,9 @@ check:
     script:
         - ls -lAh cache/.local/share/virtualenvs/mesh-city-TOfIyfl-/bin || true
         - pipenv run python -c "from subprocess import call; call(args=\"echo \$PATH\", shell=True)"
+        - pipenv run python setup.py imports_check
+        - pipenv run python setup.py format_check
+        - pipenv run python setup.py lint
 #        - pipenv shell "\
 #        -     python setup.py imports_check && \
 #        -     python setup.py format_check && \
