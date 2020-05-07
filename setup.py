@@ -77,7 +77,7 @@ try:
 		url="https://gitlab.ewi.tudelft.nl/cse2000-software-project/2019-2020-q4/cluster-3/mesh-city/mesh-city",
 		package_dir={"": "src"},
 		packages=find_packages(where="src"),
-		python_requires=">=3.8",
+		python_requires=">=3.7",
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={

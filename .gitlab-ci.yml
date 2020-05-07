@@ -1,22 +1,12 @@
 default:
-    image: archlinux
+    image: kennethreitz/pipenv
 
 stages:
-    - setup
     - build
     - check
     - test
 
-setup:
-    stage: setup
-    cache:
-        paths:
-            - /*
-    script:
-        - pacman --noconfirm -Sy python-pipenv
-
 build:
     stage: build
     script:
-        - pwd
-        - ls -lAh
+        - pipenv sync
