@@ -9,5 +9,7 @@ pylint = "==2.5.0"
 yapf = "==0.30.0"
 
 [packages]
+googlemaps = "==4.3.1"
 pipfile = "==0.0.2"
 setuptools = "==46.1.3"
+

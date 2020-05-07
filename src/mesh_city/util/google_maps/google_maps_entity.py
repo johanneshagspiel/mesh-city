@@ -2,6 +2,8 @@ import googlemaps.maps
 import googlemaps
 from pathlib import Path
 
+from ..google_maps import google_api_util
+
 class google_maps_entity:
 	temp_path = Path(__file__).parents[2]
 	images_folder_path = Path.joinpath(temp_path, 'resources','images')
@@ -16,8 +18,8 @@ class google_maps_entity:
 		size = (640, 640)
 		center = (x, y)
 		zoom = 20
-		scale = 1
-		format = "PNG"
+		scale = 2
+		format = "png"
 		maptype = "satellite"
 		language = None
 		region = None
@@ -43,3 +45,7 @@ class google_maps_entity:
 	def increase_request_number(self):
 		old_usage = self.request_number
 		self.request_number = old_usage + 1
+
+	def test(self):
+		self.google_api_util.increase_usage()
+		self.increase_request_number()

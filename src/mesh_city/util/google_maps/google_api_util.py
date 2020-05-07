@@ -26,7 +26,7 @@ class google_api_util:
 			print("There is no apy-key stored")
 			return -1
 		with open(self.api_file_path, 'r') as storage:
-			return storage.readlines()
+			return storage.readline()
 
 	def check_file_exist(self):
 		if(os.path.exists(self.api_file_path) == False):
@@ -41,10 +41,11 @@ class google_api_util:
 		return True
 
 	def check_usage_against_quota(self, oldUsage):
-		if(self.quota - oldUsage) <= 100:
+		quota = int(self.quota)
+		if(quota - oldUsage) <= 100:
 			print("Warning, you are getting close to your quota limit!")
 
 	def increase_usage(self):
 		old_usage = self.usage
-		self.check_usage_against_quota(self, old_usage)
+		self.check_usage_against_quota(old_usage)
 		self.usage = old_usage + 1
