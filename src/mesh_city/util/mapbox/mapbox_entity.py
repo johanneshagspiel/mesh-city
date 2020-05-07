@@ -1,0 +1,3 @@
+from mapbox import Static
+
+

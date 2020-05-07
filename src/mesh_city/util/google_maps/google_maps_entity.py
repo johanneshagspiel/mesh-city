@@ -1,8 +1,6 @@
-import googlemaps.maps
 import googlemaps
+import math
 from pathlib import Path
-
-from ..google_maps import google_api_util
 
 class google_maps_entity:
 	temp_path = Path(__file__).parents[2]
@@ -41,6 +39,18 @@ class google_maps_entity:
 
 		self.google_api_util.increase_usage()
 		self.increase_request_number()
+
+	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x):
+		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		next_center_distance_meters = metersPerPx * image_size_x
+		new_latitude = latitude + (next_center_distance_meters / 6378137) * (180 / math.pi)
+		return new_latitude
+
+	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y):
+		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		next_center_distance_meters = metersPerPx * image_size_y
+		new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180);
+		return new_longitude
 
 	def increase_request_number(self):
 		old_usage = self.request_number
