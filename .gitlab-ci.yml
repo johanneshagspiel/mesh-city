@@ -1,9 +1,5 @@
 image: kennethreitz/pipenv
 
-cache:
-    paths:
-        - /root/.local/share/virtualenvs/
-
 stages:
     - build
     - check
@@ -13,3 +9,10 @@ build:
     stage: build
     script:
         - pipenv sync
+
+check:
+    stage: check
+    script:
+        - pipenv run python setup.py imports_check
+        - pipenv run python setup.py format_check
+        - pipenv run python setup.py lint
