@@ -19,7 +19,7 @@ build:
     script:
         - ls -lAh cache || true
         - pipenv clean
-        - pipenv sync
+        - pipenv sync --dev
 
 check:
     stage: check
