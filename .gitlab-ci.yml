@@ -11,9 +11,9 @@ setup:
     stage: setup
     cache:
         paths:
-            - /usr/*
+            - /*
     script:
-        - pacman --noconfirm -S python-pipenv
+        - pacman --noconfirm -Sy python-pipenv
 
 build:
     stage: build
