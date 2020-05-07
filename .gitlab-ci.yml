@@ -1,0 +1,12 @@
+default:
+    image: archlinux
+
+stages:
+    - build
+    - check
+    - test
+
+build:
+    stage: build
+    script:
+        - ls -lAh
