@@ -4,6 +4,7 @@ variables:
     PYTHONPATH: "$CI_PROJECT_DIR/src:$PYTHONPATH"
     XDG_CACHE_HOME: "$CI_PROJECT_DIR/cache/.cache/"
     XDG_DATA_HOME: "$CI_PROJECT_DIR/cache/.local/share/"
+    BUILD_TOOL: "pipenv run python setup.py"
 
 cache:
     # Cache per branch
@@ -18,16 +19,23 @@ stages:
 
 build:
     stage: build
+    artifacts:
+        expose_as: Source code
+        paths:
+            - dist
     script:
         - pipenv clean
         - pipenv sync --dev
+        - $BUILD_TOOL sdist
 
 check:
     stage: check
-    script:
-        - pipenv run python setup.py check
+    script: $BUILD_TOOL check
 
 test:
     stage: test
-    script:
-        - pipenv run python setup.py test
+    artifacts:
+        expose_as: Test coverage report
+        paths:
+            - build/coverage
+    script: $BUILD_TOOL test
