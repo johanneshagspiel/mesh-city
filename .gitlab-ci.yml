@@ -18,6 +18,7 @@ stages:
 build:
     stage: build
     script:
+        - rm -rf cache
         - ls -lAh cache || true
         - pipenv clean
         - pipenv sync --dev

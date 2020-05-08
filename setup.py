@@ -31,6 +31,7 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
+		check_call(args="python --version", shell=True)
 		check_call(args="pylint -j 0 src", shell=True)
 
 
