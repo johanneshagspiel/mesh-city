@@ -40,9 +40,14 @@ class CoverageTestCommand(CommandAdapter):
 		check_call(args="coverage run --branch --source=src/mesh_city --module unittest discover src", shell=True, stderr=stdout)
 
 
+class CoverageCheckCommand(CommandAdapter):
+	def run(self) -> None:
+		check_call(args="coverage report --fail-under 70 --skip-empty --show-missing", shell=True)
+
+
 class CoverageReportCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="coverage report --fail-under 70", shell=True)
+		check_call(args="coverage html --directory=build/coverage", shell=True)
 
 
 class YapfCheckCommand(CommandAdapter):
@@ -82,7 +87,8 @@ try:
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
-			"coverage": CoverageReportCommand,
+			"coverage_check": CoverageCheckCommand,
+			"coverage_report": CoverageReportCommand,
 			"fix": FixCommand,
 			"format_check": YapfCheckCommand,
 			"format_fix": YapfFixCommand,
