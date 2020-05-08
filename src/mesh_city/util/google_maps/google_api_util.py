@@ -9,15 +9,14 @@ class google_api_util:
 	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 
 	def __init__(self):
-		# self.quota = input("Please enter your quota\n")
-		self.usage = 0
 		# If it's the first time that the user is entering their key and quota
 		if (self.get_api_key()) == -1:
 			self.api_key = input("Please enter your api-key\n")
 			self.quota = input("Please enter your quota\n")
 			self.name = input(
 				"Please enter your name\n")  # A nickname for future entries
-			self.store_user_info(self.api_key, self.quota, self.name)
+			self.usage = 0
+			self.store_user_info(self.api_key, self.quota, self.usage ,self.name)
 
 		else:
 			init_name = input("Please enter your name\n")
@@ -27,12 +26,13 @@ class google_api_util:
 				self.name = self.get_name()
 				print("Welcome " + self.name + " your quota is " + self.quota)
 
-	def store_user_info(self, api_key, init_quota, chosen_name):
+	def store_user_info(self, api_key, init_quota, usage_so_far ,chosen_name):
 		with open(self.api_file_path, 'w') as storage_json:
 			user_info = {
 				"name": chosen_name,
 				"api_key": api_key,
 				"quota": init_quota,
+				"usage": usage_so_far,
 				"year": datetime.now().year,
 				"month": datetime.now().month,
 				"day": datetime.now().day,
