@@ -31,7 +31,8 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="pylint -j 0 .", cwd="src", shell=True)
+		check_call(args="pylint -j 0 src/mesh_city", shell=True)
+		check_call(args="pylint -j 0 src/test_mesh_city", shell=True)
 
 
 class CoverageTestCommand(CommandAdapter):
