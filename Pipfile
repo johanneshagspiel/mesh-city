@@ -15,4 +15,3 @@ mapbox = "==0.18.0"
 Pillow = "==7.1.2"
 pipfile = "==0.0.2"
 setuptools = "==46.1.3"
-
