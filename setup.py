@@ -70,10 +70,24 @@ class IsortFixCommand(CommandAdapter):
 		check_call(args="isort --recursive src", shell=True)
 
 
+class CheckCommand(CommandAdapter):
+	def run(self) -> None:
+		self.run_command("imports_check")
+		self.run_command("format_check")
+		self.run_command("lint")
+
+
 class FixCommand(CommandAdapter):
 	def run(self) -> None:
 		self.run_command("imports_fix")
 		self.run_command("format_fix")
+
+
+class TestCommand(CommandAdapter):
+	def run(self) -> None:
+		self.run_command("test_run")
+		self.run_command("coverage_check")
+		self.run_command("coverage_report")
 
 
 try:
@@ -87,6 +101,7 @@ try:
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
+			"check": CheckCommand,
 			"coverage_check": CoverageCheckCommand,
 			"coverage_report": CoverageReportCommand,
 			"fix": FixCommand,
@@ -95,7 +110,8 @@ try:
 			"imports_check": IsortCheckCommand,
 			"imports_fix": IsortFixCommand,
 			"lint": PylintCommand,
-			"test": CoverageTestCommand,
+			"test": TestCommand,
+			"test_run": CoverageTestCommand,
 		},
 	)
 except CalledProcessError as cpe:

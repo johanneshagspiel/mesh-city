@@ -25,12 +25,9 @@ build:
 check:
     stage: check
     script:
-        - pipenv run python setup.py imports_check
-        - pipenv run python setup.py format_check
-        - pipenv run python setup.py lint
+        - pipenv run python setup.py check
 
 test:
     stage: test
     script:
         - pipenv run python setup.py test
-        - pipenv run python setup.py coverage_check
