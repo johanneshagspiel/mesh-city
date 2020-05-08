@@ -5,6 +5,7 @@ variables:
     XDG_DATA_HOME: "$CI_PROJECT_DIR/cache/.local/share/"
 
 cache:
+    # Cache per branch
     key: ${CI_COMMIT_REF_SLUG}
     paths:
         - cache/

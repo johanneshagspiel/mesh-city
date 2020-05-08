@@ -31,8 +31,7 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="pylint -j 0 mesh_city", cwd="src", shell=True)
-		check_call(args="pylint -j 0 test_mesh_city", cwd="src", shell=True)
+		check_call(args="pylint -j 0 src", shell=True)
 
 
 class CoverageTestCommand(CommandAdapter):
@@ -78,7 +77,7 @@ try:
 		url="https://gitlab.ewi.tudelft.nl/cse2000-software-project/2019-2020-q4/cluster-3/mesh-city/mesh-city",
 		package_dir={"": "src"},
 		packages=find_packages(where="src"),
-		python_requires=">=3.7",
+		python_requires=">=3.8",
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
