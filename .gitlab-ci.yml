@@ -19,8 +19,6 @@ stages:
 build:
     stage: build
     script:
-        - rm -rf cache
-        - ls -lAh cache || true
         - pipenv clean
         - pipenv sync --dev
 
@@ -32,8 +30,3 @@ check:
         - pipenv run python setup.py imports_check
         - pipenv run python setup.py format_check
         - pipenv run python setup.py lint
-#        - pipenv shell "\
-#        -     python setup.py imports_check && \
-#        -     python setup.py format_check && \
-#        -     python setup.py lint ; \
-#        -     exit"
