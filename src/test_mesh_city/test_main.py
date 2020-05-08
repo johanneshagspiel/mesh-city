@@ -1,3 +1,5 @@
+# pylint: disable=C,R
+
 import unittest
 
 from mesh_city.main import print_start_info
