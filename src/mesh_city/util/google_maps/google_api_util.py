@@ -16,7 +16,7 @@ class google_api_util:
 			self.name = input(
 				"Please enter your name\n")  # A nickname for future entries
 			self.usage = 0
-			self.store_user_info(self.api_key, self.quota, self.usage ,self.name)
+			self.store_user_info(self.api_key, self.quota, self.usage, self.name)
 
 		else:
 			init_name = input("Please enter your name\n")
@@ -26,7 +26,7 @@ class google_api_util:
 				self.name = self.get_name()
 				print("Welcome " + self.name + " your quota is " + self.quota)
 
-	def store_user_info(self, api_key, init_quota, usage_so_far ,chosen_name):
+	def store_user_info(self, api_key, init_quota, usage_so_far, chosen_name):
 		with open(self.api_file_path, 'w') as storage_json:
 			user_info = {
 				"name": chosen_name,
@@ -42,6 +42,10 @@ class google_api_util:
 			}
 			storage_json.write(json.dumps(user_info))
 			storage_json.close()  # not sure if we need this line
+
+	def get_user_info(self):
+		with open(self.api_file_path, 'r') as storage_json:
+			return json.loads(storage_json.read())
 
 	def get_api_key(self):
 		if (self.check_key_exist() & self.check_file_exist()) == False:
@@ -67,6 +71,21 @@ class google_api_util:
 		quota = int(self.quota)
 		if (quota - old_usage) <= 100:
 			print("Warning, you are getting close to your quota limit!")
+
+	def check_monthly_limit(self):
+		init_date = datetime(self.get_user_info()["year"],
+		                     self.get_user_info()["month"],
+		                     self.get_user_info()["day"])
+		diff_months = datetime.now().month - init_date.month
+		diff_days = datetime.now().day - init_date.day
+
+		if diff_months == 0:
+				# We good? or are there edge cases in the monthly billing?
+			print("within the monthly limit")
+		if diff_months == 1 & diff_days >= -3:
+			print("You are getting close to the end of the month on your quota.")
+		else:
+			print("You should renew your quota.")
 
 	def increase_usage(self):
 		old_usage = self.usage
