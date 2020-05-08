@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 coverage = "==5.1"
+isort = "==4.3.21"
 pylint = "==2.5.0"
 yapf = "==0.30.0"
 
