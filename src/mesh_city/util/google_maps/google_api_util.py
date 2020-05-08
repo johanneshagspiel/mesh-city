@@ -1,15 +1,15 @@
 import os
 import json
 from pathlib import Path
+from datetime import datetime
 
 
 class google_api_util:
 	temp_path = Path(__file__).parents[2]
 	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 
-
 	def __init__(self):
-		#self.quota = input("Please enter your quota\n")
+		# self.quota = input("Please enter your quota\n")
 		self.usage = 0
 		# If it's the first time that the user is entering their key and quota
 		if (self.get_api_key()) == -1:
@@ -22,16 +22,20 @@ class google_api_util:
 			self.quota = self.get_quota()
 			print("Your quota is " + self.quota)
 
-	def store_key_and_quota(self, api_key , init_quota):
+	def store_key_and_quota(self, api_key, init_quota):
 		with open(self.api_file_path, 'w') as storage_json:
 			user_info = {
-				"api_key" : api_key,
-				"quota" : init_quota
+				"api_key": api_key,
+				"quota": init_quota,
+				"year": datetime.now().year,
+				"month": datetime.now().month,
+				"day": datetime.now().day,
+				"hour": datetime.now().hour,
+				"minute": datetime.now().minute,
+				"second": datetime.now().second
 			}
 			storage_json.write(json.dumps(user_info))
-			storage_json.close()
-
-
+			storage_json.close()  # not sure if we need this line
 
 	def get_api_key(self):
 		if (self.check_key_exist() & self.check_file_exist()) == False:
@@ -67,7 +71,6 @@ class google_api_util:
 		with open(self.api_file_path, 'r') as storage:
 			user_info = json.loads(storage.read())
 			return user_info["quota"]
-
 
 
 def main():
