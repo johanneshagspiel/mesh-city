@@ -1,11 +1,7 @@
 {
     "_meta": {
         "hash": {
-<<<<<<< HEAD
-            "sha256": "0e24c4ade8dbed49bc05f8f5e48af96e5e0c4f7324c8083c39f0a67582acb871"
-=======
-            "sha256": "2e0a0077b79a5b9ef30385350035c35772540bb5b115ca0228e46eb0610b1620"
->>>>>>> develop
+            "sha256": "8c7443b82a9e4cc21381cb686df1bae66dc3384c503e1f326640e3c154fa5221"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -20,17 +16,17 @@
     "default": {
         "boto3": {
             "hashes": [
-                "sha256:33b6a07f9ca3d979543eeb70ad08eb1949a9767901569c10309da46b8520c952",
-                "sha256:69d2f78d3f9915fc789001d634d14fd05be5125f8f454a9e891ddfb98f3e2d11"
+                "sha256:60d9833685713815fb3fd72a513813a2810d75179c35d781388825a09cccf6cb",
+                "sha256:85155ebc55a4437ce48e45e900c10794f8372bba74e2c4c3c738b3b56d08139a"
             ],
-            "version": "==1.13.4"
+            "version": "==1.13.5"
         },
         "botocore": {
             "hashes": [
-                "sha256:62e5ad459ffb3fbc32e1d871b91790ba403cef3ed17307a43be2d79ac993b960",
-                "sha256:c97721df7aa738538569ef27b41c68a254582bfde67b199b4909d9d42a269422"
+                "sha256:75fb94cb4dac9fd4967a536a212fd0cc1def9ef8f41d97fc52e1f14b4c465647",
+                "sha256:eaaffe84db50281f589c8eee343064294d82eee9966b172778f5c795ffe43149"
             ],
-            "version": "==1.16.4"
+            "version": "==1.16.5"
         },
         "cachecontrol": {
             "hashes": [
@@ -220,14 +216,6 @@
                 "sha256:d8506842a3faf734b81599c8b98dcc423de863adcc1999248480b18bd31a0f38"
             ],
             "version": "==2.4.1"
-        },
-        "colorama": {
-            "hashes": [
-                "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff",
-                "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
-            ],
-            "markers": "sys_platform == 'win32'",
-            "version": "==0.4.3"
         },
         "coverage": {
             "hashes": [
