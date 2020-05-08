@@ -1,5 +1,6 @@
 import googlemaps
 import math
+import geopy.distance
 from pathlib import Path
 
 class google_maps_entity:
@@ -40,18 +41,47 @@ class google_maps_entity:
 		self.google_api_util.increase_usage()
 		self.increase_request_number()
 
+	# TODO remove the magic numbers: this is only defined for zoom level 20
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		metersPerPx = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = metersPerPx * image_size_x
 		new_latitude = latitude + (next_center_distance_meters / 6378137) * (180 / math.pi)
 		return new_latitude
 
+	# TODO remove the magic numbers: this is only defined for zoom level 20
 	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		metersPerPx = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = metersPerPx * image_size_y
-		new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180);
+		new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180)
 		return new_longitude
+
+	def calc_meters_per_px(self, latitude, zoom):
+		return 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
 
 	def increase_request_number(self):
 		old_usage = self.request_number
 		self.request_number = old_usage + 1
+
+	# TODO remove magic number 640
+	def get_area(self, left_top_latitude, left_top_longitude, right_bottom_latitude, right_bottom_longitude, zoom):
+		right_top_latitude = right_bottom_latitude
+		right_top_longitude = left_top_longitude
+		left_bottom_latitude = left_top_latitude
+		left_bottom_longitude = right_bottom_longitude
+
+		horizontal_width = geopy.distance.distance((left_top_latitude, left_top_longitude), (right_top_latitude, right_top_longitude)).km
+		vertical_length = geopy.distance.distance((left_top_latitude, left_top_longitude), (left_bottom_latitude, left_bottom_longitude)).km
+
+		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(left_top_latitude, zoom)
+		# TODO do we need a different calculation for vertical?
+		total_vertical_pixels = vertical_length / self.calc_meters_per_px(right_bottom_latitude, zoom)
+
+		num_of_images_horizontal = total_horizontal_pixels / 640
+		num_of_images_vertical = total_vertical_pixels / 640
+
+		for vertical in range(num_of_images_vertical):
+
+			for horizontal in range(num_of_images_horizontal):
+
+
+
