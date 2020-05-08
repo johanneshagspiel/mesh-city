@@ -15,16 +15,22 @@ class google_api_util:
 		if (self.get_api_key()) == -1:
 			self.api_key = input("Please enter your api-key\n")
 			self.quota = input("Please enter your quota\n")
-			self.store_key_and_quota(self.api_key, self.quota)
+			self.name = input(
+				"Please enter your name\n")  # A nickname for future entries
+			self.store_user_info(self.api_key, self.quota, self.name)
 
 		else:
-			self.api_key = self.get_api_key()
-			self.quota = self.get_quota()
-			print("Your quota is " + self.quota)
+			init_name = input("Please enter your name\n")
+			if self.get_name() == init_name:
+				self.api_key = self.get_api_key()
+				self.quota = self.get_quota()
+				self.name = self.get_name()
+				print("Welcome " + self.name + " your quota is " + self.quota)
 
-	def store_key_and_quota(self, api_key, init_quota):
+	def store_user_info(self, api_key, init_quota, chosen_name):
 		with open(self.api_file_path, 'w') as storage_json:
 			user_info = {
+				"name": chosen_name,
 				"api_key": api_key,
 				"quota": init_quota,
 				"year": datetime.now().year,
@@ -71,6 +77,11 @@ class google_api_util:
 		with open(self.api_file_path, 'r') as storage:
 			user_info = json.loads(storage.read())
 			return user_info["quota"]
+
+	def get_name(self):
+		with open(self.api_file_path, 'r') as storage:
+			user_info = json.loads(storage.read())
+			return user_info["name"]
 
 
 def main():
