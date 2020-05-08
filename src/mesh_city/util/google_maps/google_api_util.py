@@ -5,7 +5,7 @@ from pathlib import Path
 
 class google_api_util:
 	temp_path = Path(__file__).parents[2]
-	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.txt')
+	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 
 
 	def __init__(self):
@@ -19,6 +19,8 @@ class google_api_util:
 
 		else:
 			self.api_key = self.get_api_key()
+			self.quota = self.get_quota()
+			print("Your quota is " + self.quota)
 
 	def store_key_and_quota(self, api_key , init_quota):
 		with open(self.api_file_path, 'w') as storage_json:
@@ -36,8 +38,7 @@ class google_api_util:
 			print("There is no apy-key stored")
 			return -1
 		with open(self.api_file_path, 'r') as storage:
-			#return storage.readline()
-			user_info = json.loads(storage)
+			user_info = json.loads(storage.read())
 			return user_info["api_key"]
 
 	def check_file_exist(self):
@@ -52,9 +53,9 @@ class google_api_util:
 			return False
 		return True
 
-	def check_usage_against_quota(self, oldUsage):
+	def check_usage_against_quota(self, old_usage):
 		quota = int(self.quota)
-		if (quota - oldUsage) <= 100:
+		if (quota - old_usage) <= 100:
 			print("Warning, you are getting close to your quota limit!")
 
 	def increase_usage(self):
@@ -64,8 +65,7 @@ class google_api_util:
 
 	def get_quota(self):
 		with open(self.api_file_path, 'r') as storage:
-			# return storage.readline()
-			user_info = json.loads(storage)
+			user_info = json.loads(storage.read())
 			return user_info["quota"]
 
 
