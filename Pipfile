@@ -14,4 +14,3 @@ googlemaps = "==4.3.1"
 mapbox = "==0.18.0"
 pipfile = "==0.0.2"
 setuptools = "==46.1.3"
-

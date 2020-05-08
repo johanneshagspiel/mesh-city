@@ -101,12 +101,3 @@ class google_api_util:
 		with open(self.api_file_path, 'r') as storage:
 			user_info = json.loads(storage.read())
 			return user_info["name"]
-
-
-def main():
-	test = google_api_util()
-	test.check_key_exist()
-
-
-if __name__ == "__main__":
-	main()
