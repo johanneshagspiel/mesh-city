@@ -1,3 +1,10 @@
 """ Entry point of the application """
 
-print('Running main...')
+
+def print_start_info() -> None:
+	print("Welcome to Mesh City")
+	print("--------------------")
+
+
+if __name__ == "__main__":
+	print_start_info()
