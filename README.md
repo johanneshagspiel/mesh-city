@@ -42,3 +42,18 @@ and this to run all the tests with coverage:
 ```
 The coverage report can then be found in `build/coverage` in HTML format. For more tasks
 see the `cmdclass` section in `setup.py`.
+
+To run the application first add the source directory to the `PYTHONPATH` environment
+variable. On Linux and other *nix run:
+```
+$ export PYTHONPATH="full_path/mesh-city/src:$PYTHONPATH"
+```
+And on Windows run:
+```
+> set PYTHONPATH=full_path\mesh-city\src;%PYTHONPATH%
+```
+Where `full_path` is the absolute path to the directory of the project. Then to launch
+the application run:
+```
+(mesh-city) $ python -m mesh_city.main
+```
