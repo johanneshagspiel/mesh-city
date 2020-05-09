@@ -124,7 +124,7 @@ try:
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
-			"check": CheckCommand,
+			"check_code": CheckCommand,
 			"coverage_check": CoverageCheckCommand,
 			"coverage_report": CoverageReportCommand,
 			"fix": FixCommand,

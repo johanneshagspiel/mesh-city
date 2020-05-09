@@ -30,7 +30,7 @@ $ pipenv shell
 ```
 Now you can run the following to check your code for formatting and linting issues:
 ```
-(mesh-city) $ python setup.py check
+(mesh-city) $ python setup.py check_code
 ```
 and the following to automatically fix the formatting:
 ```
