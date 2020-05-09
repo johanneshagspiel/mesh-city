@@ -1,4 +1,3 @@
-from mapbox import Static
 import math
 from pathlib import Path
 import requests
@@ -10,6 +9,7 @@ class mapbox_entity:
 	def __init__(self, google_api_util):
 		self.google_api_util = google_api_util
 		self.request_number = 0
+		self.geocoder = Geocoder(access_token=google_api_util.get_api_key())
 
 	def get_and_store_location(self, x, y, name):
 		username = "mapbox"
@@ -32,8 +32,6 @@ class mapbox_entity:
 		                        + height + scale + "?access_token=" + access_token
 		                        + "&" + attribution + "&" + logo)
 
-		print(response.status_code)
-
 		filename = name
 		to_store = Path.joinpath(self.images_folder_path, filename)
 
@@ -42,6 +40,31 @@ class mapbox_entity:
 
 		self.google_api_util.increase_usage()
 		#self.increase_request_number()
+
+	def get_location_from_name(self, name):
+		#Format to use {house number} {street} {postcode} {city} {state}
+		#No semicolons, URL-encoded UTF-8 string, at most 20 words, at most 256 characters
+		response = self.geocoder.forward(name)
+
+		if(response.status_code != 200):
+				print("No adress could be found")
+
+		collection = response.json()
+		most_relevant_response = collection['features'][0]
+		coordinates = most_relevant_response['center']
+		#coordinates is a list with x and y in reverse order
+		return coordinates
+
+	def get_name_from_location(self, x, y):
+		response = self.geocoder.reverse(y, x)
+
+		if(response.status_code != 200):
+				print("No adress could be found")
+
+		collection = response.json()
+		most_relevant_response = collection['features'][0]
+		address = most_relevant_response['place_name']
+		return address
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
 		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)

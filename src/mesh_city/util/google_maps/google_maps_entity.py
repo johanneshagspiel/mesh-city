@@ -40,6 +40,14 @@ class google_maps_entity:
 		self.google_api_util.increase_usage()
 		#self.increase_request_number()
 
+	def get_location_from_name(self, name):
+		result = googlemaps.client.geocode(client=self.client, address=name)
+		print(result)
+
+	def get_name_from_location(self, x, y):
+		result = googlemaps.client.reverse_geocode(client=self.client,latlng=(x, y))
+		print(result)
+
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
 		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
 		next_center_distance_meters = metersPerPx * image_size_x
