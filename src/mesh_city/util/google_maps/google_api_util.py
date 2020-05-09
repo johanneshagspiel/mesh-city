@@ -1,23 +1,22 @@
-import os
 import json
-from pathlib import Path
+import os
 from datetime import datetime
+from pathlib import Path
 
 
-class google_api_util:
+class GoogleApiUtil:
 	temp_path = Path(__file__).parents[2]
 	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 
 	def __init__(self):
 		# If it's the first time that the user is entering their key and quota
-		if (self.get_api_key()) == -1:
+		if self.get_api_key() == -1:
 			self.api_key = input("Please enter your api-key\n")
 			self.quota = input("Please enter your quota\n")
-			self.name = input(
-				"Please enter your name\n")  # A nickname for future entries
+			# A nickname for future entries
+			self.name = input("Please enter your name\n")
 			self.usage = 0
 			self.store_user_info(self.api_key, self.quota, self.usage, self.name)
-
 		else:
 			init_name = input("Please enter your name\n")
 			if self.get_name() == init_name:
@@ -38,17 +37,16 @@ class google_api_util:
 				"day": datetime.now().day,
 				"hour": datetime.now().hour,
 				"minute": datetime.now().minute,
-				"second": datetime.now().second
+				"second": datetime.now().second,
 			}
 			storage_json.write(json.dumps(user_info))
-			storage_json.close()  # not sure if we need this line
 
 	def get_user_info(self):
 		with open(self.api_file_path, 'r') as storage_json:
 			return json.loads(storage_json.read())
 
 	def get_api_key(self):
-		if (self.check_key_exist() & self.check_file_exist()) == False:
+		if not (self.check_key_exist() and self.check_file_exist()):
 			print("There is no apy-key stored")
 			return -1
 		with open(self.api_file_path, 'r') as storage:
@@ -56,7 +54,7 @@ class google_api_util:
 			return user_info["api_key"]
 
 	def check_file_exist(self):
-		if os.path.exists(self.api_file_path) == False:
+		if not os.path.exists(self.api_file_path):
 			print("api-key.txt has been deleted - new file will be created")
 			open(self.api_file_path, "x")
 			return True
@@ -73,14 +71,16 @@ class google_api_util:
 			print("Warning, you are getting close to your quota limit!")
 
 	def check_monthly_limit(self):
-		init_date = datetime(self.get_user_info()["year"],
-		                     self.get_user_info()["month"],
-		                     self.get_user_info()["day"])
+		init_date = datetime(
+			self.get_user_info()["year"],
+			self.get_user_info()["month"],
+			self.get_user_info()["day"],
+		)
 		diff_months = datetime.now().month - init_date.month
 		diff_days = datetime.now().day - init_date.day
 
 		if diff_months == 0:
-				# We good? or are there edge cases in the monthly billing?
+			# We good? or are there edge cases in the monthly billing?
 			print("within the monthly limit")
 		if diff_months == 1 & diff_days >= -3:
 			print("You are getting close to the end of the month on your quota.")

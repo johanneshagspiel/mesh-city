@@ -1,6 +1,6 @@
 """ Entry point of the application """
 
-from mesh_city.util.google_maps.google_api_util import google_api_util
+from mesh_city.util.google_maps.google_api_util import GoogleApiUtil
 
 
 def print_start_info() -> None:
@@ -12,7 +12,7 @@ def print_start_info() -> None:
 def main() -> None:
 	print_start_info()
 
-	test = google_api_util()
+	test = GoogleApiUtil()
 	test.check_key_exist()
 
 
