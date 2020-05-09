@@ -16,21 +16,17 @@ stages:
     - build
     - check
     - test
+    - dist
 
 build:
     stage: build
-    artifacts:
-        expose_as: Source code
-        paths:
-            - dist
     script:
         - pipenv clean
         - pipenv sync --dev
-        - $BUILD_TOOL sdist
 
 check:
     stage: check
-    script: $BUILD_TOOL check
+    script: $BUILD_TOOL check_code
 
 test:
     stage: test
@@ -39,3 +35,11 @@ test:
         paths:
             - build/coverage
     script: $BUILD_TOOL test
+
+dist:
+    stage: dist
+    artifacts:
+        expose_as: Source code
+        paths:
+            - dist
+    script: $BUILD_TOOL sdist
