@@ -53,20 +53,18 @@ class GoogleMapsEntity:
 		self.google_api_util.increase_usage()
 		self.increase_request_number()
 
-	# TODO remove the magic numbers: this is only defined for zoom level 20
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x):
-		meters_per_px = self.calc_meters_per_px(latitude, zoom)
-		next_center_distance_meters = meters_per_px * image_size_x
-		new_latitude = latitude + (next_center_distance_meters /
-			6378137) * (180 / math.pi)
+		metersPerPx = self.calc_meters_per_px(latitude, zoom)
+		next_center_distance_meters = metersPerPx * image_size_x
+		new_latitude = latitude + (next_center_distance_meters / 6378137) * (
+			180 / math.pi)
 		return new_latitude
 
-	# TODO remove the magic numbers: this is only defined for zoom level 20
 	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y):
-		meters_per_px = self.calc_meters_per_px(latitude, zoom)
-		next_center_distance_meters = meters_per_px * image_size_y
-		new_longitude = longitude + (next_center_distance_meters /
-			6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180)
+		metersPerPx = self.calc_meters_per_px(latitude, zoom)
+		next_center_distance_meters = metersPerPx * image_size_y
+		new_longitude = longitude + (next_center_distance_meters / 6378137) * (
+			180 / math.pi) / math.cos(latitude * math.pi / 180)
 		return new_longitude
 
 	def calc_meters_per_px(self, latitude, zoom):
@@ -76,40 +74,48 @@ class GoogleMapsEntity:
 		old_usage = self.request_number
 		self.request_number = old_usage + 1
 
-	# TODO remove magic number 640
-	def get_area(
-		self,
-		left_top_latitude,
-		left_top_longitude,
-		right_bottom_latitude,
-		right_bottom_longitude,
-		zoom,
-	):
-		right_top_latitude = right_bottom_latitude
-		right_top_longitude = left_top_longitude
-		left_bottom_latitude = left_top_latitude
-		left_bottom_longitude = right_bottom_longitude
+	# box defined by bottom left and top right coordinate!!!
+	def get_area(self, bottom_latitude, left_longitude, top_latitude, right_longitude, zoom, image_size):
 
-		horizontal_width = geopy.distance.distance(
-			(left_top_latitude, left_top_longitude),
-			(right_top_latitude, right_top_longitude),
-		).km
-		vertical_length = geopy.distance.distance(
-			(left_top_latitude, left_top_longitude),
-			(left_bottom_latitude, left_bottom_longitude),
-		).km
+		horizontal_width = geopy.distance.distance((bottom_latitude, left_longitude), (bottom_latitude, right_longitude)).m
+		vertical_length = geopy.distance.distance((bottom_latitude, left_longitude), (top_latitude, left_longitude)).m
 
-		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(
-			left_top_latitude, zoom
-		)
-		# TODO do we need a different calculation for vertical?
-		total_vertical_pixels = vertical_length / self.calc_meters_per_px(
-			right_bottom_latitude, zoom
-		)
+		print("horizontal_width in meters = ", horizontal_width, "\nvertical_length in meters = ", vertical_length)
+		print("meters per pixel = ", self.calc_meters_per_px(top_latitude, zoom))
 
-		num_of_images_horizontal = total_horizontal_pixels / 640
-		num_of_images_vertical = total_vertical_pixels / 640
+		# TODO do we need a different calculation for vertical? Bottom latitude is biggest: safe call
+		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(top_latitude, zoom)
+		total_vertical_pixels = vertical_length / self.calc_meters_per_px(top_latitude, zoom)
+
+		print("total_horizontal_pixels = ", total_horizontal_pixels, "\ntotal_vertical_pixels = ", total_vertical_pixels)
+
+		num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / image_size))
+		num_of_images_vertical = int(math.ceil(total_vertical_pixels / image_size))
+
+		print("num_of_images_horizontal = ", num_of_images_horizontal, "\nnum_of_images_vertical = ", num_of_images_vertical)
+
+		latitude_first_image = self.calc_next_location_latitude(bottom_latitude, left_longitude, zoom, image_size / 2)
+			# bottom_latitude + ((top_latitude - bottom_latitude) / (num_of_images_vertical * 2))
+		longitude_first_image = self.calc_next_location_longitude(bottom_latitude, left_longitude, zoom, image_size / 2)
+			# left_longitude + ((left_longitude - right_longitude) / (num_of_images_horizontal * 2))
+
+		current_latitude = latitude_first_image
+		current_longitude = longitude_first_image
+
+		number_of_calls = 0
 
 		for vertical in range(num_of_images_vertical):
 			for horizontal in range(num_of_images_horizontal):
-				pass
+				self.get_and_store_location(current_latitude, current_longitude)
+				print(current_latitude, ",", current_longitude)
+
+				number_of_calls += 1
+				print(number_of_calls)
+
+				current_longitude = self.calc_next_location_longitude(current_latitude, current_longitude, zoom, image_size)
+
+			current_longitude = longitude_first_image
+			current_latitude = self.calc_next_location_latitude(current_latitude, current_longitude, zoom, image_size)
+
+
+
