@@ -10,6 +10,7 @@ pylint = "==2.5.0"
 yapf = "==0.30.0"
 
 [packages]
+geopy = "==1.21.0"
 googlemaps = "==4.3.1"
 mapbox = "==0.18.0"
 pipfile = "==0.0.2"
