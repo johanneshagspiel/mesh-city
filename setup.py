@@ -1,12 +1,26 @@
 from abc import ABC
 from distutils.cmd import Command
-from subprocess import CalledProcessError, check_call
-from sys import stdout
+from os import (
+	environ,
+	getcwd,
+	path,
+	pathsep
+)
+from subprocess import (
+	CalledProcessError,
+	check_call,
+)
+from sys import (
+	stdout,
+)
 from typing import List
 
 import pipfile
 from pipfile import Pipfile
-from setuptools import find_packages, setup
+from setuptools import (
+	find_packages,
+	setup,
+)
 
 
 def get_pipfile_dependencies(category: str) -> List[str]:
@@ -17,6 +31,10 @@ def get_pipfile_dependencies(category: str) -> List[str]:
 			version = ""
 		dependencies.append(name + version)
 	return dependencies
+
+
+subprocess_env = environ.copy()
+subprocess_env["PYTHONPATH"] = path.join(getcwd(), "src") + pathsep + subprocess_env.get("PYTHONPATH", "")
 
 
 class CommandAdapter(Command, ABC):
@@ -31,8 +49,8 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="pylint -j 0 --rcfile=../.pylintrc mesh_city", cwd="src", shell=True)
-		check_call(args="pylint -j 0 --rcfile=../.pylintrc test_mesh_city", cwd="src", shell=True)
+		check_call(args="pylint -j 0 mesh_city", env=subprocess_env, shell=True)
+		check_call(args="pylint -j 0 test_mesh_city", env=subprocess_env, shell=True)
 
 
 class CoverageTestCommand(CommandAdapter):
@@ -70,6 +88,11 @@ class IsortFixCommand(CommandAdapter):
 		check_call(args="isort --recursive src", shell=True)
 
 
+class RunCommand(CommandAdapter):
+	def run(self) -> None:
+		check_call(args="python -m mesh_city.main", env=subprocess_env, shell=True)
+
+
 class CheckCommand(CommandAdapter):
 	def run(self) -> None:
 		self.run_command("imports_check")
@@ -101,7 +124,7 @@ try:
 		install_requires=get_pipfile_dependencies("default"),
 		extras_require={"dev": get_pipfile_dependencies("develop")},
 		cmdclass={
-			"check": CheckCommand,
+			"check_code": CheckCommand,
 			"coverage_check": CoverageCheckCommand,
 			"coverage_report": CoverageReportCommand,
 			"fix": FixCommand,
@@ -110,10 +133,11 @@ try:
 			"imports_check": IsortCheckCommand,
 			"imports_fix": IsortFixCommand,
 			"lint": PylintCommand,
+			"run": RunCommand,
 			"test": TestCommand,
 			"test_run": CoverageTestCommand,
 		},
 	)
-except CalledProcessError as cpe:
+except CalledProcessError:
 	print("\nTask failed")
 	exit(1)
