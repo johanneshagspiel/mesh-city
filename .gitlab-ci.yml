@@ -21,13 +21,12 @@ stages:
 build:
     stage: build
     script:
-        - rm -rf cache
         - pipenv clean
         - pipenv sync --dev
 
 check:
     stage: check
-    script: $BUILD_TOOL check
+    script: $BUILD_TOOL check_code
 
 test:
     stage: test
