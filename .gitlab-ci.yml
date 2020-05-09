@@ -21,6 +21,7 @@ stages:
 build:
     stage: build
     script:
+        - rm -rf cache
         - pipenv clean
         - pipenv sync --dev
 
