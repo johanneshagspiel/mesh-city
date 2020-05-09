@@ -1,6 +1,8 @@
-from tkinter import *
 from pathlib import Path
+from tkinter import *
+
 from PIL import Image, ImageTk
+
 
 class self_made_map:
 	temp_path = Path(__file__).parents[1]

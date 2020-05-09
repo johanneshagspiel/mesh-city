@@ -1,12 +1,16 @@
 import os
 from pathlib import Path
 
+
 class google_api_util:
 	temp_path = Path(__file__).parents[2]
 	api_file_path = Path.joinpath(temp_path, 'resources','api_key.txt')
 
-	def __init__(self):
-		self.quota = input("Please enter your quota\n")
+	def __init__(self,quota = None):
+		if quota==None:
+			self.quota = input("Please enter your quota\n")
+		else:
+			self.quota = quota
 		self.usage = 0
 
 		if((self.get_api_key()) == -1):
@@ -42,7 +46,7 @@ class google_api_util:
 
 	def check_usage_against_quota(self, oldUsage):
 		quota = int(self.quota)
-		if(quota - oldUsage) <= 100:
+		if(quota - oldUsage) <= quota/10:
 			print("Warning, you are getting close to your quota limit!")
 
 	def increase_usage(self):

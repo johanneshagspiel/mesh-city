@@ -1,7 +1,10 @@
-from mapbox import Static
 import math
 from pathlib import Path
+
 import requests
+
+from mapbox import Static
+
 
 class mapbox_entity:
 	temp_path = Path(__file__).parents[2]

@@ -1,6 +1,8 @@
-import googlemaps
 import math
 from pathlib import Path
+
+import googlemaps
+
 
 class google_maps_entity:
 	temp_path = Path(__file__).parents[2]
@@ -77,6 +79,7 @@ class google_maps_entity:
 		down_left = self.get_and_store_location(down, left, "down_left.png")
 		down_center = self.get_and_store_location(down, y, "down_center.png")
 		down_right = self.get_and_store_location(down, right, "down_right.png")
+		return [up_left,up_center,up_right,center_left,center_center,center_right,down_left,down_center,down_right]
 
 	def increase_request_number(self):
 		old_usage = self.request_number
