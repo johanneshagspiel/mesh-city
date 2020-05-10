@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c0bde085bea3ac14c0a334755409e348a48787133fe6fe9448d6d5e33d112e0e"
+            "sha256": "0c406af7f798c8e101fe140d3d4eb7566e2b37b7b86946c90741ec81c1a850c1"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -16,17 +16,17 @@
     "default": {
         "boto3": {
             "hashes": [
-                "sha256:33b6a07f9ca3d979543eeb70ad08eb1949a9767901569c10309da46b8520c952",
-                "sha256:69d2f78d3f9915fc789001d634d14fd05be5125f8f454a9e891ddfb98f3e2d11"
+                "sha256:05f75d30aa10094eb96bba22b25b6005126de748188f196a5fffab8a76d821ac",
+                "sha256:f1ac7eb23ff8b1d7e314123668ff1e93b874dd396ac5424adc443d68bd8a6fbf"
             ],
-            "version": "==1.13.4"
+            "version": "==1.13.6"
         },
         "botocore": {
             "hashes": [
-                "sha256:62e5ad459ffb3fbc32e1d871b91790ba403cef3ed17307a43be2d79ac993b960",
-                "sha256:c97721df7aa738538569ef27b41c68a254582bfde67b199b4909d9d42a269422"
+                "sha256:1f5e57f41f9f9400feffc62f17b517a601643ffec69f7ee927555604112cc012",
+                "sha256:b9c8e0aa07770b7b371d586db41eef46e70bfc4ab47f7a1ee1acd4e9c811c6c9"
             ],
-            "version": "==1.16.4"
+            "version": "==1.16.6"
         },
         "cachecontrol": {
             "hashes": [
@@ -56,6 +56,21 @@
                 "sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
             ],
             "version": "==0.15.2"
+        },
+        "geographiclib": {
+            "hashes": [
+                "sha256:12bd46ee7ec25b291ea139b17aa991e7ef373e21abd053949b75c0e9ca55c632",
+                "sha256:51cfa698e7183792bce27d8fb63ac8e83689cd8170a730bf35e1a5c5bf8849b9"
+            ],
+            "version": "==1.50"
+        },
+        "geopy": {
+            "hashes": [
+                "sha256:5de6fed0ee982e43a8e4243410477567cfccac22f8530edffc422761adf4e612",
+                "sha256:dc02b43ca5202696907b6b4f72431c8df455c812889dbb4e1240a672857f3adc"
+            ],
+            "index": "pypi",
+            "version": "==1.21.0"
         },
         "googlemaps": {
             "hashes": [
@@ -239,6 +254,7 @@
                 "sha256:54da7e92468955c4fceacd0c86bd0ec997b0e1ee80d97f67c35a78b719dccab1",
                 "sha256:6e811fcb295968434526407adb8796944f1988c5b65e8139058f2014cbe100fd"
             ],
+            "index": "pypi",
             "version": "==4.3.21"
         },
         "lazy-object-proxy": {
