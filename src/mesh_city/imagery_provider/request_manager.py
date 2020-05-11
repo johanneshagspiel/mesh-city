@@ -1,10 +1,10 @@
 import math
 from pathlib import Path
-from PIL import Image
+
 import geopy
-from mesh_city.imagery_provider.map_provider.mapbox_entity import MapboxEntity
-from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
-from mesh_city.imagery_provider.map_provider.ahn_entity import AhnEntity
+from PIL import Image
+
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 
 
 class RequestManager:
@@ -14,13 +14,13 @@ class RequestManager:
 	def __init__(self, user_entity):
 		self.user_entity = user_entity
 		#self.map_entity = GoogleMapsEntity(user_entity)
-		self.map_entity = AhnEntity(user_entity)
+		self.map_entity = AhnProvider(user_entity)
 		#self.map_entity = MapboxEntity(user_entity)
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
 		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
 		next_center_distance_meters = metersPerPx * image_size_x
-		if(direction == True):
+		if direction:
 			new_latitude = latitude + (next_center_distance_meters / 6378137) * (
 				180 / math.pi)
 		else:
@@ -29,9 +29,9 @@ class RequestManager:
 		return new_latitude
 
 	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
-		next_center_distance_meters = metersPerPx * image_size_y
-		if (direction == True):
+		meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		next_center_distance_meters = meters_per_px * image_size_y
+		if direction:
 			new_longitude = longitude + (next_center_distance_meters / 6378137) * (
 				180 / math.pi) / math.cos(latitude * math.pi / 180)
 		else:
@@ -58,7 +58,7 @@ class RequestManager:
 
 		self.concat_images()
 
-# box defined by bottom left and top right coordinate!!!
+	# box defined by bottom left and top right coordinate!!!
 	def get_area(
 		self,
 		bottom_latitude,
@@ -68,7 +68,6 @@ class RequestManager:
 		zoom,
 		image_size
 	):
-
 		horizontal_width = geopy.distance.distance(
 			(bottom_latitude, left_longitude), (bottom_latitude, right_longitude)
 		).m
@@ -167,7 +166,6 @@ class RequestManager:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
-
 
 	def get_concat_vertically(self, image_1, image_2):
 		temp = Image.new('RGB', (image_1.width, image_1.height + image_2.height))

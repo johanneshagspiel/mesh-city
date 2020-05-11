@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-class MapEntity(ABC):
+
+class TopDownProvider(ABC):
 	temp_path = None
 	images_folder_path = None
 

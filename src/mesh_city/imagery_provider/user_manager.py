@@ -3,7 +3,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-class UserEntity:
+
+class UserManager:
 	temp_path = Path(__file__).parents[1]
 	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 

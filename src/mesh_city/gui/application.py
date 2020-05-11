@@ -1,20 +1,21 @@
 from os import path
-from tkinter import *
 from pathlib import Path
 from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainloop
 
 from PIL import Image, ImageTk
 
-from mesh_city.imagery_provider.user_entity import UserEntity
-from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import (
+	GoogleMapsProvider,
+)
+from mesh_city.imagery_provider.user_manager import UserManager
 
 
 def set_entry(entry, value):
-    entry.delete(0,END)
-    entry.insert(0,value)
+	entry.delete(0, END)
+	entry.insert(0, value)
 
 
-class self_made_map:
+class Application:
 
 	def __init__(self, request_manager):
 		self.temp_path = Path(__file__).parents[1]
@@ -26,13 +27,13 @@ class self_made_map:
 	def select_dir(self):
 		self.file = filedialog.askdirectory(initialdir=path.dirname(__file__))
 		set_entry(self.file_entry, self.file)
-		print("Selected: %s" % (self.file))
+		print("Selected: %s" % self.file)
 
 	def clear_canvas(self):
 		self.canvas.delete("all")
 
 	def request_data(self):
-		maps_entity = GoogleMapsEntity(UserEntity(int(self.quota_entry.get())))
+		maps_entity = GoogleMapsProvider(UserManager(int(self.quota_entry.get())))
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
 		self.google_maps_entity.load_images_map(latitude,longitude)
 		# photo_list = self.load_images()
@@ -42,14 +43,13 @@ class self_made_map:
 		large_photo = self.load_large_image()
 		self.load_large_image_on_map(self.canvas, large_photo)
 
-
 	def start(self):
 		master = Tk()
 		master.title("Google maps extractor")
 		master.geometry("")
 
 		self.canvas = Canvas(master, width=651, height=636)
-		self.canvas.grid(column=3,columnspan=30,row=0,rowspan=30)
+		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
 
 		self.file_entry = Entry(master)
 		self.file_entry.grid(row=0,columnspan=3)
@@ -76,7 +76,6 @@ class self_made_map:
 
 		mainloop()
 
-
 	def load_large_image_on_map(self, canvas, large_image):
 		canvas.create_image(15, 0, anchor=NW, image=large_image)
 
@@ -96,7 +95,6 @@ class self_made_map:
 				y = y + 212
 			else:
 				x = x + 212
-
 
 	def load_images(self):
 		path_list = [Path.joinpath(self.image_path, "up_left.png"),

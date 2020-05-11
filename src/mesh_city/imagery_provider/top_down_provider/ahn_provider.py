@@ -1,9 +1,14 @@
-from pathlib import Path
-import requests
-from mesh_city.imagery_provider.map_provider.map_entity import MapEntity
 import math
+from pathlib import Path
 
-class AhnEntity(MapEntity):
+import requests
+
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import (
+	TopDownProvider,
+)
+
+
+class AhnProvider(TopDownProvider):
 	color_to_height = {(12, 52, 124) : -7.5,
 	                   (12, 68, 132) : -6.5,
 	                   (12, 84, 132) : -5.5,
@@ -50,10 +55,9 @@ class AhnEntity(MapEntity):
 	                   }
 
 	def __init__(self, user_entity):
-		MapEntity.__init__(self, user_entity=user_entity)
+		TopDownProvider.__init__(self, user_entity=user_entity)
 
 	def get_and_store_location(self, x, y, name):
-
 		bounding_box_coordinates = self.calculate_bounding_box(x, y, 20, 640, 640)
 
 		xmin = str(bounding_box_coordinates[0])
