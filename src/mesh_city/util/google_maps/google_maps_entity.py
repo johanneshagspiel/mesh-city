@@ -8,12 +8,12 @@ import googlemaps
 
 class GoogleMapsEntity:
 	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 
-	def __init__(self, google_api_util):
-		self.google_api_util = google_api_util
+	def __init__(self, user_info,quota_manager):
+		# self.google_api_util = google_api_util
 		self.request_number = 0
-		self.client = googlemaps.Client(key=self.google_api_util.get_api_key())
+		self.client = googlemaps.Client(key=user_info.api_key)
 
 	def get_and_store_location(self, x_coord, y_coord):
 		size = (640, 640)
@@ -30,7 +30,7 @@ class GoogleMapsEntity:
 		style = None
 
 		filename = str(self.request_number
-						) + "_" + str(x_coord) + "_" + str(y_coord) + ".png"
+		               ) + "_" + str(x_coord) + "_" + str(y_coord) + ".png"
 		to_store = Path.joinpath(self.images_folder_path, filename)
 
 		with open(to_store, 'wb') as file:
@@ -59,14 +59,15 @@ class GoogleMapsEntity:
 		metersPerPx = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = metersPerPx * image_size_x
 		new_latitude = latitude + (next_center_distance_meters /
-			6378137) * (180 / math.pi)
+		                           6378137) * (180 / math.pi)
 		return new_latitude
 
 	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y):
 		metersPerPx = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = metersPerPx * image_size_y
 		new_longitude = longitude + (next_center_distance_meters /
-			6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180)
+		                             6378137) * (180 / math.pi) / math.cos(
+			latitude * math.pi / 180)
 		return new_longitude
 
 	def calc_meters_per_px(self, latitude, zoom):
