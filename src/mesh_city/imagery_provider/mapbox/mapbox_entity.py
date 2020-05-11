@@ -1,9 +1,13 @@
 import math
 from pathlib import Path
+
 import requests
+import json
 from mapbox import Geocoder
 
 class mapbox_entity:
+
+class MapboxEntity:
 	temp_path = Path(__file__).parents[2]
 	images_folder_path = Path.joinpath(temp_path, 'resources','images')
 
@@ -27,17 +31,18 @@ class mapbox_entity:
 		logo = "logo=false"
 		access_token = self.google_api_util.get_api_key()
 
-		response = requests.get("https://api.mapbox.com/styles/v1/" + username + "/"
-		                        + style_id + "/" + "static/" + lon + "," + lat + ","
-		                        + zoom + "," + bearing + "," + pitch + "/" + width + "x"
-		                        + height + scale + "?access_token=" + access_token
-		                        + "&" + attribution + "&" + logo)
+		response = requests.get(
+			"https://api.mapbox.com/styles/v1/" + username + "/" + style_id + "/" +
+			"static/" + lon + "," + lat + "," + zoom + "," + bearing + "," + pitch + "/" +
+			width + "x" + height + scale + "?access_token=" + access_token + "&" +
+			attribution + "&" + logo
+		)
 
 		filename = name
 		to_store = Path.joinpath(self.images_folder_path, filename)
 
 		with open(to_store, 'wb') as output:
-			_ = output.write(response.content)
+			output.write(response.content)
 
 		self.google_api_util.increase_usage()
 		#self.increase_request_number()
@@ -47,8 +52,8 @@ class mapbox_entity:
 		#No semicolons, URL-encoded UTF-8 string, at most 20 words, at most 256 characters
 		response = self.geocoder.forward(name)
 
-		if(response.status_code != 200):
-				print("No adress could be found")
+		if (response.status_code != 200):
+			print("No adress could be found")
 
 		collection = response.json()
 		most_relevant_response = collection['features'][0]
@@ -59,8 +64,8 @@ class mapbox_entity:
 	def get_name_from_location(self, x, y):
 		response = self.geocoder.reverse(y, x)
 
-		if(response.status_code != 200):
-				print("No adress could be found")
+		if (response.status_code != 200):
+			print("No adress could be found")
 
 		collection = response.json()
 		most_relevant_response = collection['features'][0]

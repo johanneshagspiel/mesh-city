@@ -1,7 +1,9 @@
 import math
 from pathlib import Path
+
 import requests
 from PIL import Image
+
 
 class ahn_entity:
 	temp_path = Path(__file__).parents[2]
@@ -97,7 +99,7 @@ class ahn_entity:
 		return [left, down, right, up]
 
 	def check_in_netherlands(self, x, y):
-		if(x < 50.671799068129744 or x > 53.61086457823865
+		if (x < 50.671799068129744 or x > 53.61086457823865
 			or y < 3.197334098049271 or y > 7.275203841667622):
 			print("Height information is only available in the Netherlands - Sorry!")
 
@@ -142,5 +144,3 @@ class ahn_entity:
 	def increase_request_number(self):
 		old_usage = self.request_number
 		self.request_number = old_usage + 1
-
-	

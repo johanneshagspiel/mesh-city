@@ -1,13 +1,17 @@
+import googlemaps
 import math
 from pathlib import Path
 from PIL import Image
 import requests
 import geopy.distance
 import googlemaps
+import requests
+from PIL import Image
+
 
 class GoogleMapsEntity:
 	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 
 	def __init__(self, google_api_util):
 		self.google_api_util = google_api_util
@@ -31,11 +35,12 @@ class GoogleMapsEntity:
 		visible = None
 		style = None
 
-		response = requests.get("https://maps.googleapis.com/maps/api/staticmap?" +
-		                        "center=" + x + "," + y + "&zoom=" + zoom +
-		                        "&size=" + width + "x" + height + "&scale=" + scale +
-		                        "&format=" + format + "&maptype=" + maptype +
-		                        "&key=" + self.google_api_util.get_api_key())
+		response = requests.get(
+			"https://maps.googleapis.com/maps/api/staticmap?" + "center=" + x + "," + y +
+			"&zoom=" + zoom + "&size=" + width + "x" + height + "&scale=" + scale +
+			"&format=" + format + "&maptype=" + maptype + "&key=" +
+			self.google_api_util.get_api_key()
+		)
 
 		# filename = str(self.request_number) + "_" + str(x) + "_" + str(y) + ".png"
 		filename = name
@@ -64,7 +69,7 @@ class GoogleMapsEntity:
 		print(result)
 
 	def get_name_from_location(self, x, y):
-		result = googlemaps.client.reverse_geocode(client=self.client,latlng=(x, y))
+		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(x, y))
 		print(result)
 
 	def increase_request_number(self):
