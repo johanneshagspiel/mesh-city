@@ -23,7 +23,12 @@ class GoogleApiUtil:
 				self.api_key = self.get_api_key()
 				self.quota = self.get_quota()
 				self.name = self.get_name()
-				print("Welcome " + self.name + " your quota is " + self.quota)
+				self.usage = self.get_usage()
+				remaining = int(self.quota) - self.usage
+				print(
+					"Welcome " + self.name + " of your initial quota of " +
+					self.get_quota() + " , " + str(remaining) + " remains."
+				)
 
 	def store_user_info(self, api_key, init_quota, usage_so_far, chosen_name):
 		with open(self.api_file_path, 'w') as storage_json:
@@ -50,6 +55,7 @@ class GoogleApiUtil:
 			print("There is no apy-key stored")
 			return -1
 		with open(self.api_file_path, 'r') as storage:
+			self.increase_usage()  # Temporary place for increasing usage.
 			user_info = json.loads(storage.read())
 			return user_info["api_key"]
 
@@ -88,9 +94,15 @@ class GoogleApiUtil:
 			print("You should renew your quota.")
 
 	def increase_usage(self):
-		old_usage = self.usage
-		self.check_usage_against_quota(old_usage)
-		self.usage = old_usage + 1
+		old_usage = self.get_usage()
+		new_usage = old_usage + 1
+		with open(self.api_file_path, 'r') as storage:
+			user_info = json.loads(storage.read())
+			user_info["usage"] = new_usage  # An amount of increase (1 or more?)
+			storage.close()
+		with open(self.api_file_path, 'w') as storage:
+			storage.write(json.dumps(user_info))
+			storage.close()
 
 	def get_quota(self):
 		with open(self.api_file_path, 'r') as storage:
@@ -101,3 +113,8 @@ class GoogleApiUtil:
 		with open(self.api_file_path, 'r') as storage:
 			user_info = json.loads(storage.read())
 			return user_info["name"]
+
+	def get_usage(self):
+		with open(self.api_file_path, 'r') as storage:
+			user_info = json.loads(storage.read())
+			return user_info["usage"]
