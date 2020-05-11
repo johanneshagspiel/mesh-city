@@ -2,15 +2,14 @@ from pathlib import Path
 import googlemaps
 import requests
 from PIL import Image
+from mesh_city.imagery_provider.map_provider.map_entity import MapEntity
 
-class GoogleMapsEntity:
-	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
+class GoogleMapsEntity(MapEntity):
 
-	def __init__(self, google_api_util):
-		self.google_api_util = google_api_util
-		self.request_number = 0
-		self.client = googlemaps.Client(key=self.google_api_util.get_api_key())
+	def __init__(self, user_entity):
+		MapEntity.__init__(self, user_entity=user_entity)
+		self.client = googlemaps.Client(key=self.user_entity.get_api_key())
+		self.padding = 40
 
 	def get_and_store_location(self, x, y, name):
 		x = str(x)
@@ -33,7 +32,7 @@ class GoogleMapsEntity:
 			"https://maps.googleapis.com/maps/api/staticmap?" + "center=" + x + "," + y +
 			"&zoom=" + zoom + "&size=" + width + "x" + height + "&scale=" + scale +
 			"&format=" + format + "&maptype=" + maptype + "&key=" +
-			self.google_api_util.get_api_key()
+			self.user_entity.get_api_key()
 		)
 
 		# filename = str(self.request_number) + "_" + str(x) + "_" + str(y) + ".png"
@@ -55,8 +54,7 @@ class GoogleMapsEntity:
 		im1 = get_image.crop(box=(left, top, right, bottom))
 		im1.save(fp=to_store)
 
-		self.google_api_util.increase_usage()
-		self.increase_request_number()
+		self.user_entity.increase_usage()
 
 	def get_location_from_name(self, name):
 		result = googlemaps.client.geocode(client=self.client, address=name)
@@ -65,7 +63,3 @@ class GoogleMapsEntity:
 	def get_name_from_location(self, x, y):
 		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(x, y))
 		print(result)
-
-	def increase_request_number(self):
-		old_usage = self.request_number
-		self.request_number = old_usage + 1

@@ -1,10 +1,9 @@
-import math
 from pathlib import Path
 import requests
+from mesh_city.imagery_provider.map_provider.map_entity import MapEntity
+import math
 
-class AhnEntity:
-	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+class AhnEntity(MapEntity):
 	color_to_height = {(12, 52, 124) : -7.5,
 	                   (12, 68, 132) : -6.5,
 	                   (12, 84, 132) : -5.5,
@@ -50,9 +49,8 @@ class AhnEntity:
 	                   (196, 84, 60) : 250, #200-250, 250-300
 	                   }
 
-	def __init__(self, user_entry):
-		self.request_number = 0
-		self.user_entry = user_entry
+	def __init__(self, user_entity):
+		MapEntity.__init__(self, user_entity=user_entity)
 
 	def get_and_store_location(self, x, y, name):
 
@@ -82,8 +80,6 @@ class AhnEntity:
 
 		with open(to_store, 'wb') as output:
 			_ = output.write(response.content)
-
-		#self.increase_request_number()
 
 	def calculate_bounding_box(self, x, y, zoom, image_size_x, image_size_y):
 		right = self.calc_next_location_latitude(x, y, zoom, image_size_x / 2, True)
@@ -122,23 +118,3 @@ class AhnEntity:
 			new_longitude = longitude - (next_center_distance_meters / 6378137) * (
 				180 / math.pi) / math.cos(latitude * math.pi / 180)
 		return new_longitude
-
-	def load_images_map(self, x, y):
-		down = self.calc_next_location_latitude(x,y,20,640,False)
-		up = self.calc_next_location_latitude(x,y,20,640,True)
-		right = self.calc_next_location_longitude(x,y,20,640,True)
-		left = self.calc_next_location_longitude(x,y,20,640,False)
-
-		up_left = self.get_and_store_location(up, left,"up_left.png")
-		up_center = self.get_and_store_location(up, y,"up_center.png")
-		up_right = self.get_and_store_location(up, right, "up_right.png")
-		center_left = self.get_and_store_location(x, left, "center_left.png")
-		center_center = self.get_and_store_location(x, y, "center_center.png")
-		center_right = self.get_and_store_location(x, right, "center_right.png")
-		down_left = self.get_and_store_location(down, left, "down_left.png")
-		down_center = self.get_and_store_location(down, y, "down_center.png")
-		down_right = self.get_and_store_location(down, right, "down_right.png")
-
-	def increase_request_number(self):
-		old_usage = self.request_number
-		self.request_number = old_usage + 1

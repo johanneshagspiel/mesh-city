@@ -1,15 +1,13 @@
 from pathlib import Path
 import requests
 from mapbox import Geocoder
+from mesh_city.imagery_provider.map_provider.map_entity import MapEntity
 
-class MapboxEntity:
-	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+class MapboxEntity(MapEntity):
 
-	def __init__(self, google_api_util):
-		self.google_api_util = google_api_util
-		self.request_number = 0
-		self.geocoder = Geocoder(access_token=google_api_util.get_api_key())
+	def __init__(self, user_entity):
+		MapEntity.__init__(self, user_entity=user_entity)
+		self.geocoder = Geocoder(access_token=user_entity.get_api_key())
 
 	def get_and_store_location(self, x, y, name):
 		username = "mapbox"
@@ -24,7 +22,7 @@ class MapboxEntity:
 		scale = "@2x"
 		attribution = "attribution=false"
 		logo = "logo=false"
-		access_token = self.google_api_util.get_api_key()
+		access_token = self.user_entity.get_api_key()
 
 		response = requests.get(
 			"https://api.mapbox.com/styles/v1/" + username + "/" + style_id + "/" +
@@ -39,8 +37,7 @@ class MapboxEntity:
 		with open(to_store, 'wb') as output:
 			output.write(response.content)
 
-		self.google_api_util.increase_usage()
-		#self.increase_request_number()
+		self.user_entity.increase_usage()
 
 	def get_location_from_name(self, name):
 		#Format to use {house number} {street} {postcode} {city} {state}
@@ -66,7 +63,3 @@ class MapboxEntity:
 		most_relevant_response = collection['features'][0]
 		address = most_relevant_response['place_name']
 		return address
-
-	def increase_request_number(self):
-		old_usage = self.request_number
-		self.request_number = old_usage + 1
