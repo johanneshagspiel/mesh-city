@@ -4,9 +4,9 @@ from pathlib import Path
 from PIL import Image
 import geopy
 import glob
-from mesh_city.imagery_provider.map_provider.mapbox_entity import MapboxEntity
-from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
-from mesh_city.imagery_provider.map_provider.ahn_entity import AhnEntity
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 
 
 class RequestManager:
@@ -16,7 +16,7 @@ class RequestManager:
 
 	def __init__(self, user_entity):
 		self.user_entity = user_entity
-		self.map_entity = GoogleMapsEntity(user_entity)
+		self.map_entity = GoogleMapsProvider(user_entity)
 		#self.map_entity = AhnEntity(user_entity)
 		#self.map_entity = MapboxEntity(user_entity)
 
