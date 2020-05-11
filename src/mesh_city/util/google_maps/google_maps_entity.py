@@ -1,3 +1,4 @@
+import googlemaps
 import math
 from pathlib import Path
 
@@ -7,7 +8,7 @@ import googlemaps
 
 class GoogleMapsEntity:
 	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
+	images_folder_path = Path.joinpath(temp_path, 'resources','images')
 
 	def __init__(self, google_api_util):
 		self.google_api_util = google_api_util

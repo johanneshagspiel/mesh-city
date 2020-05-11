@@ -13,6 +13,6 @@ yapf = "==0.30.0"
 geopy = "==1.21.0"
 googlemaps = "==4.3.1"
 mapbox = "==0.18.0"
+Pillow = "==7.1.2"
 pipfile = "==0.0.2"
 setuptools = "==46.1.3"
-
