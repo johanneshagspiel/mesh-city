@@ -97,8 +97,8 @@ class FixCommand(CommandAdapter):
 class TestCommand(CommandAdapter):
 	def run(self) -> None:
 		self.run_command("test_run")
-		self.run_command("coverage_check")
 		self.run_command("coverage_report")
+		self.run_command("coverage_check")
 
 
 try:
