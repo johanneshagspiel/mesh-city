@@ -1,26 +1,14 @@
 from abc import ABC
 from distutils.cmd import Command
-from os import (
-	environ,
-	getcwd,
-	path,
-	pathsep
-)
-from subprocess import (
-	CalledProcessError,
-	check_call,
-)
-from sys import (
-	stdout,
-)
+from os import environ, getcwd, path, pathsep
+
+from subprocess import CalledProcessError, check_call
+from sys import stdout
 from typing import List
 
 import pipfile
 from pipfile import Pipfile
-from setuptools import (
-	find_packages,
-	setup,
-)
+from setuptools import find_packages, setup
 
 
 def get_pipfile_dependencies(category: str) -> List[str]:
@@ -109,8 +97,8 @@ class FixCommand(CommandAdapter):
 class TestCommand(CommandAdapter):
 	def run(self) -> None:
 		self.run_command("test_run")
-		self.run_command("coverage_check")
 		self.run_command("coverage_report")
+		self.run_command("coverage_check")
 
 
 try:
