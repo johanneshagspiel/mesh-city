@@ -1,12 +1,9 @@
+import glob
 from os import path
 from pathlib import Path
-from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainloop
+from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
 
 from PIL import Image, ImageTk
-import glob
-from mesh_city.imagery_provider.user_manager import UserManager
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.request_manager import RequestManager
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.user_manager import UserManager
@@ -21,7 +18,7 @@ class Application:
 
 	def __init__(self, request_manager):
 		self.temp_path = Path(__file__).parents[1]
-		self.image_path = Path.joinpath(self.temp_path, 'resources', 'images')
+		self.image_path = Path.joinpath(self.temp_path, "resources", "images")
 		self.file = path.dirname(__file__)
 		self.request_manager = request_manager
 		self.start()
@@ -81,8 +78,12 @@ class Application:
 		canvas.create_image(15, 0, anchor=NW, image=large_image)
 
 	def load_large_image(self):
-		get_image = Image.open(glob.glob(Path.joinpath(self.request_manager.path_to_map_image,
-		                                               'concat_image_*').absolute().as_posix()).pop())
+		get_image = Image.open(
+			glob.glob(
+			Path.joinpath(self.request_manager.path_to_map_image,
+			"concat_image_*").absolute().as_posix()
+			).pop()
+		)
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo

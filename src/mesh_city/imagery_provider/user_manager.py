@@ -31,7 +31,7 @@ class UserManager:
 				)
 
 	def store_user_info(self, api_key, init_quota, usage_so_far, chosen_name):
-		with open(self.api_file_path, 'w') as storage_json:
+		with open(self.api_file_path, "w") as storage_json:
 			user_info = {
 				"name": chosen_name,
 				"api_key": api_key,
@@ -47,7 +47,7 @@ class UserManager:
 			storage_json.write(json.dumps(user_info))
 
 	def get_user_info(self):
-		with open(self.api_file_path, 'r') as storage_json:
+		with open(self.api_file_path, "r") as storage_json:
 			return json.loads(storage_json.read())
 
 	def get_api_key(self):

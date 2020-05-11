@@ -1,5 +1,6 @@
 import math
 from pathlib import Path
+
 import requests
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider

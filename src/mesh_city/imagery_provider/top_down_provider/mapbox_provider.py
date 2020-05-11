@@ -64,8 +64,8 @@ class MapboxProvider(TopDownProvider):
 			print("No adress could be found")
 
 		collection = response.json()
-		most_relevant_response = collection['features'][0]
-		coordinates = most_relevant_response['center']
+		most_relevant_response = collection["features"][0]
+		coordinates = most_relevant_response["center"]
 		#coordinates is a list with x and y in reverse order
 		return coordinates
 
@@ -76,6 +76,6 @@ class MapboxProvider(TopDownProvider):
 			print("No adress could be found")
 
 		collection = response.json()
-		most_relevant_response = collection['features'][0]
-		address = most_relevant_response['place_name']
+		most_relevant_response = collection["features"][0]
+		address = most_relevant_response["place_name"]
 		return address
