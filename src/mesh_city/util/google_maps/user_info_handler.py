@@ -9,10 +9,10 @@ class GoogleApiUtil:
 	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 
 	def __init__(self):
-		# If it's the first time that the user is entering their key and quota
-		if self.get_api_key() == -1:
-			self.api_key = input("Please enter your api-key\n")
-			self.quota = input("Please enter your quota\n")
+		#
+		self.api_key = -1
+		self.quota = -1
+		self.usage = 0
 			# A nickname for future entries
 			self.name = input("Please enter your name\n")
 			self.usage = 0
@@ -49,6 +49,9 @@ class GoogleApiUtil:
 	def get_user_info(self):
 		with open(self.api_file_path, 'r') as storage_json:
 			return json.loads(storage_json.read())
+
+	def has_api_key(self):
+		return self.get_api_key() != -1
 
 	def get_api_key(self):
 		if not (self.check_key_exist() and self.check_file_exist()):
@@ -93,16 +96,6 @@ class GoogleApiUtil:
 		else:
 			print("You should renew your quota.")
 
-	def increase_usage(self):
-		old_usage = self.get_usage()
-		new_usage = old_usage + 1
-		with open(self.api_file_path, 'r') as storage:
-			user_info = json.loads(storage.read())
-			user_info["usage"] = new_usage  # An amount of increase (1 or more?)
-			storage.close()
-		with open(self.api_file_path, 'w') as storage:
-			storage.write(json.dumps(user_info))
-			storage.close()
 
 	def get_quota(self):
 		with open(self.api_file_path, 'r') as storage:
