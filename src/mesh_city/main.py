@@ -47,25 +47,28 @@ class App:
 	def start(self):
 		master = Tk()
 		master.title("Google maps extractor")
-		master.geometry("800x800+300+300")
-		# side_bar = Label(master, text="")
-		# side_bar.grid(column=0,columnspan=20,row=0,rowspan=10,sticky=W)
+		master.geometry("")
+
 		self.canvas = Canvas(master, width=651, height=636)
 		self.canvas.grid(column=3,columnspan=30,row=0,rowspan=30)
+
 		self.file_entry = Entry(master)
 		self.file_entry.grid(row=0,columnspan=3)
 		set_entry(self.file_entry,self.file)
 		btn1 = Button(master, text="Change output folder", command=self.select_dir)
 		btn1.grid(row=1,columnspan=3)
+
 		Label(master, text="Quota").grid(row=2)
 		Label(master, text="Latitude").grid(row=3)
 		Label(master, text="Longitude").grid(row=4)
+
 		self.lat_entry = Entry(master)
 		self.long_entry = Entry(master)
 		self.quota_entry = Entry(master)
 		self.quota_entry.grid(row=2, column=1)
 		self.lat_entry.grid(row=3, column=1)
 		self.long_entry.grid(row=4, column=1)
+
 		btn2 = Button(master, text="Extract imagery to output folder",
 		              command=self.request_data)
 		btn2.grid(row=5,columnspan=3)
@@ -84,7 +87,7 @@ class App:
 		y = 0
 		for photo in photo_list:
 			canvas.create_image(x, y, anchor=NW, image=photo)
-			if (x == 439):
+			if x == 439:
 				x = 15
 				y = y + 212
 			else:
