@@ -142,3 +142,5 @@ class ahn_entity:
 	def increase_request_number(self):
 		old_usage = self.request_number
 		self.request_number = old_usage + 1
+
+	
