@@ -73,7 +73,7 @@ class GoogleApiUtil:
 
 	def check_usage_against_quota(self, old_usage):
 		quota = int(self.quota)
-		if(quota - old_usage) <= quota/10:
+		if (quota - old_usage) <= quota / 10:
 			print("Warning, you are getting close to your quota limit!")
 
 	def check_monthly_limit(self):

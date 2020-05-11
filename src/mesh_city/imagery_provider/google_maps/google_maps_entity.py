@@ -1,16 +1,15 @@
-import googlemaps
 import math
 from pathlib import Path
-from PIL import Image
-import requests
 
 import geopy.distance
 import googlemaps
+import requests
+from PIL import Image
 
 
 class GoogleMapsEntity:
 	temp_path = Path(__file__).parents[2]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 
 	def __init__(self, google_api_util):
 		self.google_api_util = google_api_util
@@ -34,11 +33,12 @@ class GoogleMapsEntity:
 		visible = None
 		style = None
 
-		response = requests.get("https://maps.googleapis.com/maps/api/staticmap?" +
-		                        "center=" + x + "," + y + "&zoom=" + zoom +
-		                        "&size=" + width + "x" + height + "&scale=" + scale +
-		                        "&format=" + format + "&maptype=" + maptype +
-		                        "&key=" + self.google_api_util.get_api_key())
+		response = requests.get(
+			"https://maps.googleapis.com/maps/api/staticmap?" + "center=" + x + "," + y +
+			"&zoom=" + zoom + "&size=" + width + "x" + height + "&scale=" + scale +
+			"&format=" + format + "&maptype=" + maptype + "&key=" +
+			self.google_api_util.get_api_key()
+		)
 
 		# filename = str(self.request_number) + "_" + str(x) + "_" + str(y) + ".png"
 		filename = name
@@ -67,39 +67,45 @@ class GoogleMapsEntity:
 		print(result)
 
 	def get_name_from_location(self, x, y):
-		result = googlemaps.client.reverse_geocode(client=self.client,latlng=(x, y))
+		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(x, y))
 		print(result)
 
-	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+	def calc_next_location_latitude(
+		self, latitude, longitude, zoom, image_size_x, direction
+	):
+		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180
+												) / math.pow(2, zoom)
 		next_center_distance_meters = metersPerPx * image_size_x
-		if(direction == True):
-			new_latitude = latitude + (next_center_distance_meters / 6378137) * (
-				180 / math.pi)
+		if (direction == True):
+			new_latitude = latitude + (next_center_distance_meters /
+				6378137) * (180 / math.pi)
 		else:
-			new_latitude = latitude - (next_center_distance_meters / 6378137) * (
-					180 / math.pi)
+			new_latitude = latitude - (next_center_distance_meters /
+				6378137) * (180 / math.pi)
 		return new_latitude
 
-	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+	def calc_next_location_longitude(
+		self, latitude, longitude, zoom, image_size_y, direction
+	):
+		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180
+												) / math.pow(2, zoom)
 		next_center_distance_meters = metersPerPx * image_size_y
 		if (direction == True):
-			new_longitude = longitude + (next_center_distance_meters / 6378137) * (
-				180 / math.pi) / math.cos(latitude * math.pi / 180)
+			new_longitude = longitude + (next_center_distance_meters /
+				6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180)
 		else:
-			new_longitude = longitude - (next_center_distance_meters / 6378137) * (
-				180 / math.pi) / math.cos(latitude * math.pi / 180)
+			new_longitude = longitude - (next_center_distance_meters /
+				6378137) * (180 / math.pi) / math.cos(latitude * math.pi / 180)
 		return new_longitude
 
 	def load_images_map(self, x, y):
-		down = self.calc_next_location_latitude(x,y,20,600,False)
-		up = self.calc_next_location_latitude(x,y,20,600,True)
-		right = self.calc_next_location_longitude(x,y,20,600,True)
-		left = self.calc_next_location_longitude(x,y,20,600,False)
+		down = self.calc_next_location_latitude(x, y, 20, 600, False)
+		up = self.calc_next_location_latitude(x, y, 20, 600, True)
+		right = self.calc_next_location_longitude(x, y, 20, 600, True)
+		left = self.calc_next_location_longitude(x, y, 20, 600, False)
 
-		up_left = self.get_and_store_location(up, left,"up_left.png")
-		up_center = self.get_and_store_location(up, y,"up_center.png")
+		up_left = self.get_and_store_location(up, left, "up_left.png")
+		up_center = self.get_and_store_location(up, y, "up_center.png")
 		up_right = self.get_and_store_location(up, right, "up_right.png")
 		center_left = self.get_and_store_location(x, left, "center_left.png")
 		center_center = self.get_and_store_location(x, y, "center_center.png")

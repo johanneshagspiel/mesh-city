@@ -1,23 +1,19 @@
-from pathlib import Path
 from os import path
-from tkinter import *
-from tkinter import filedialog
+from pathlib import Path
+from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainloop
 
-from PIL import (
-	Image,
-	ImageTk,
-)
+from PIL import Image, ImageTk
 
-from mesh_city.util.google_maps.google_api_util import google_api_util
-from mesh_city.util.google_maps.google_maps_entity import google_maps_entity
+from mesh_city.imagery_provider.google_maps.google_api_util import GoogleApiUtil
+from mesh_city.imagery_provider.google_maps.google_maps_entity import GoogleMapsEntity
 
 
 def set_entry(entry, value):
-    entry.delete(0,END)
-    entry.insert(0,value)
+	entry.delete(0, END)
+	entry.insert(0, value)
 
 
-class self_made_map:
+class SelfMadeMap:
 
 	def __init__(self):
 		self.temp_path = Path(__file__).parents[1]
@@ -34,7 +30,7 @@ class self_made_map:
 		self.canvas.delete("all")
 
 	def request_data(self):
-		maps_entity = google_maps_entity(google_api_util(int(self.quota_entry.get())))
+		maps_entity = GoogleMapsEntity(GoogleApiUtil(int(self.quota_entry.get())))
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
 		maps_entity.load_images_map(latitude,longitude)
 		# photo_list = self.load_images()
@@ -43,7 +39,6 @@ class self_made_map:
 		self.concat_images()
 		large_photo = self.load_large_image()
 		self.load_large_image_on_map(self.canvas, large_photo)
-
 
 	def start(self):
 		master = Tk()
@@ -78,10 +73,8 @@ class self_made_map:
 
 		mainloop()
 
-
 	def load_large_image_on_map(self, canvas, large_image):
 		canvas.create_image(15, 0, anchor=NW, image=large_image)
-
 
 	def load_images_on_map(self, canvas, photo_list):
 		x = 15
@@ -93,7 +86,6 @@ class self_made_map:
 				y = y + 212
 			else:
 				x = x + 212
-
 
 	def load_images(self):
 		path_list = [Path.joinpath(self.image_path, "up_left.png"),
@@ -114,13 +106,11 @@ class self_made_map:
 		photo_list = list(map(get_photo, resize_image_list))
 		return photo_list
 
-
 	def load_large_image(self):
 		get_image = Image.open(Path.joinpath(self.image_path, "large_image.png"))
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo
-
 
 	def concat_images(self):
 		up_left = Image.open(Path.joinpath(self.image_path, "up_left.png"))
@@ -150,7 +140,6 @@ class self_made_map:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
-
 
 	def get_concat_vertically(self, image_1, image_2):
 		temp = Image.new('RGB', (image_1.width, image_1.height + image_2.height))
