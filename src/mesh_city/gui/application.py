@@ -2,23 +2,31 @@ from os import path
 from tkinter import *
 from pathlib import Path
 from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainloop
+
 from PIL import Image, ImageTk
 import glob
 from mesh_city.imagery_provider.user_entity import UserEntity
 from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
 from mesh_city.imagery_provider.request_manager import RequestManager
 
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import (
+	GoogleMapsProvider,
+)
+from mesh_city.imagery_provider.user_manager import UserManager
+
 
 def set_entry(entry, value):
-    entry.delete(0,END)
-    entry.insert(0,value)
+	entry.delete(0, END)
+	entry.insert(0, value)
 
-class self_made_map:
+
+class Application:
 
 	def __init__(self, request_manager):
 		self.temp_path = Path(__file__).parents[1]
 		self.image_path = Path.joinpath(self.temp_path, 'resources', 'images')
 		self.file = path.dirname(__file__)
+		self.start()
 		self.request_manager = request_manager
 		self.start()
 
@@ -31,7 +39,7 @@ class self_made_map:
 		self.canvas.delete("all")
 
 	def request_data(self):
-		maps_entity = GoogleMapsEntity(UserEntity(int(self.quota_entry.get())))
+		maps_entity = GoogleMapsProvider(UserManager(int(self.quota_entry.get())))
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
 		self.google_maps_entity.load_images_location(latitude, longitude)
 		# photo_list = self.load_images()
@@ -48,7 +56,7 @@ class self_made_map:
 		master.geometry("")
 
 		self.canvas = Canvas(master, width=651, height=636)
-		self.canvas.grid(column=3,columnspan=30,row=0,rowspan=30)
+		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
 
 		self.file_entry = Entry(master)
 		self.file_entry.grid(row=0,columnspan=3)
@@ -95,6 +103,7 @@ class self_made_map:
 				y = y + 212
 			else:
 				x = x + 212
+
 
 	def load_images(self):
 		path_list = [Path.joinpath(self.image_path, "up_left.png"),

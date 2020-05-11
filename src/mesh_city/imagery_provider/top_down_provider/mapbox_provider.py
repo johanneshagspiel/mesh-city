@@ -1,12 +1,17 @@
 from pathlib import Path
+
 import requests
 from mapbox import Geocoder
-from mesh_city.imagery_provider.map_provider.map_entity import MapEntity
 
-class MapboxEntity(MapEntity):
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import (
+	TopDownProvider,
+)
+
+
+class MapboxProvider(TopDownProvider):
 
 	def __init__(self, user_entity):
-		MapEntity.__init__(self, user_entity=user_entity)
+		TopDownProvider.__init__(self, user_entity=user_entity)
 		self.geocoder = Geocoder(access_token=user_entity.get_api_key())
 		self.name = "mapbox"
 

@@ -1,13 +1,18 @@
 from pathlib import Path
+
 import googlemaps
 import requests
 from PIL import Image
-from mesh_city.imagery_provider.map_provider.map_entity import MapEntity
 
-class GoogleMapsEntity(MapEntity):
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import (
+	TopDownProvider,
+)
+
+
+class GoogleMapsProvider(TopDownProvider):
 
 	def __init__(self, user_entity):
-		MapEntity.__init__(self, user_entity=user_entity)
+		TopDownProvider.__init__(self, user_entity=user_entity)
 		self.client = googlemaps.Client(key=self.user_entity.get_api_key())
 		self.padding = 40
 		self.name = "google_maps"

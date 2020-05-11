@@ -74,7 +74,7 @@ class RequestManager:
 			        (down, right)]
 
 	# box defined by bottom left and top right coordinate!!!
-	def load_images_area(
+	def get_area(
 		self,
 		bottom_latitude,
 		left_longitude,
@@ -207,6 +207,7 @@ class RequestManager:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
+
 
 	def get_concat_vertically(self, image_1, image_2):
 		temp = Image.new('RGB', (image_1.width, image_1.height + image_2.height))
