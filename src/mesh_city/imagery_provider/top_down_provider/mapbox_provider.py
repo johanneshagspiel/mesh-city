@@ -3,9 +3,7 @@ from pathlib import Path
 import requests
 from mapbox import Geocoder
 
-from mesh_city.imagery_provider.top_down_provider.top_down_provider import (
-	TopDownProvider,
-)
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
 
 class MapboxProvider(TopDownProvider):
@@ -24,22 +22,34 @@ class MapboxProvider(TopDownProvider):
 		pitch = str(2)
 		width = str(640)
 		height = str(640)
-		scale = "@2x"
+		scale = "2x"
 		attribution = "attribution=false"
 		logo = "logo=false"
 		access_token = self.user_entity.get_api_key()
 
 		response = requests.get(
-			"https://api.mapbox.com/styles/v1/" + username + "/" + style_id + "/" +
-			"static/" + lon + "," + lat + "," + zoom + "," + bearing + "," + pitch + "/" +
-			width + "x" + height + scale + "?access_token=" + access_token + "&" +
-			attribution + "&" + logo
+			"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
+			% (
+			username,
+			style_id,
+			lon,
+			lat,
+			zoom,
+			bearing,
+			pitch,
+			width,
+			height,
+			scale,
+			access_token,
+			attribution,
+			logo,
+			)
 		)
 
 		filename = name
 		to_store = Path.joinpath(self.images_folder_path, filename)
 
-		with open(to_store, 'wb') as output:
+		with open(to_store, "wb") as output:
 			output.write(response.content)
 
 		self.user_entity.increase_usage()
@@ -49,7 +59,7 @@ class MapboxProvider(TopDownProvider):
 		#No semicolons, URL-encoded UTF-8 string, at most 20 words, at most 256 characters
 		response = self.geocoder.forward(name)
 
-		if (response.status_code != 200):
+		if response.status_code != 200:
 			print("No adress could be found")
 
 		collection = response.json()
@@ -61,7 +71,7 @@ class MapboxProvider(TopDownProvider):
 	def get_name_from_location(self, x, y):
 		response = self.geocoder.reverse(y, x)
 
-		if (response.status_code != 200):
+		if response.status_code != 200:
 			print("No adress could be found")
 
 		collection = response.json()

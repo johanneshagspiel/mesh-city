@@ -4,9 +4,7 @@ from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainl
 
 from PIL import Image, ImageTk
 
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import (
-	GoogleMapsProvider,
-)
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.user_manager import UserManager
 
 
@@ -35,7 +33,7 @@ class Application:
 	def request_data(self):
 		maps_entity = GoogleMapsProvider(UserManager(int(self.quota_entry.get())))
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
-		self.google_maps_entity.load_images_map(latitude,longitude)
+		self.google_maps_entity.load_images_map(latitude, longitude)
 		# photo_list = self.load_images()
 		# self.load_images_on_map(self.canvas, photo_list)
 		self.clear_canvas()
@@ -52,10 +50,10 @@ class Application:
 		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
 
 		self.file_entry = Entry(master)
-		self.file_entry.grid(row=0,columnspan=3)
-		set_entry(self.file_entry,self.file)
+		self.file_entry.grid(row=0, columnspan=3)
+		set_entry(self.file_entry, self.file)
 		btn1 = Button(master, text="Change output folder", command=self.select_dir)
-		btn1.grid(row=1,columnspan=3)
+		btn1.grid(row=1, columnspan=3)
 
 		Label(master, text="Quota").grid(row=2)
 		Label(master, text="Latitude").grid(row=3)
@@ -68,9 +66,8 @@ class Application:
 		self.lat_entry.grid(row=3, column=1)
 		self.long_entry.grid(row=4, column=1)
 
-		btn2 = Button(master, text="Extract imagery to output folder",
-		              command=self.request_data)
-		btn2.grid(row=5,columnspan=3)
+		btn2 = Button(master, text="Extract imagery to output folder", command=self.request_data)
+		btn2.grid(row=5, columnspan=3)
 		large_photo = self.load_large_image()
 		self.load_large_image_on_map(self.canvas, large_photo)
 
@@ -97,15 +94,17 @@ class Application:
 				x = x + 212
 
 	def load_images(self):
-		path_list = [Path.joinpath(self.image_path, "up_left.png"),
-		             Path.joinpath(self.image_path, "up_center.png"),
-		             Path.joinpath(self.image_path, "up_right.png"),
-		             Path.joinpath(self.image_path, "center_left.png"),
-		             Path.joinpath(self.image_path, "center_center.png"),
-		             Path.joinpath(self.image_path, "center_right.png"),
-		             Path.joinpath(self.image_path, "down_left.png"),
-		             Path.joinpath(self.image_path, "down_center.png"),
-		             Path.joinpath(self.image_path, "down_right.png")]
+		path_list = [
+			Path.joinpath(self.image_path, "up_left.png"),
+			Path.joinpath(self.image_path, "up_center.png"),
+			Path.joinpath(self.image_path, "up_right.png"),
+			Path.joinpath(self.image_path, "center_left.png"),
+			Path.joinpath(self.image_path, "center_center.png"),
+			Path.joinpath(self.image_path, "center_right.png"),
+			Path.joinpath(self.image_path, "down_left.png"),
+			Path.joinpath(self.image_path, "down_center.png"),
+			Path.joinpath(self.image_path, "down_right.png"),
+		]
 
 		get_image = lambda x: Image.open(x)
 		image_list = list(map(get_image, path_list))
