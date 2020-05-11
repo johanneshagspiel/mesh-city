@@ -2,17 +2,16 @@ from os import path
 from tkinter import *
 from pathlib import Path
 from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainloop
-
 from PIL import Image, ImageTk
-
+import glob
 from mesh_city.imagery_provider.user_entity import UserEntity
 from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
+from mesh_city.imagery_provider.request_manager import RequestManager
 
 
 def set_entry(entry, value):
     entry.delete(0,END)
     entry.insert(0,value)
-
 
 class self_made_map:
 
@@ -20,8 +19,8 @@ class self_made_map:
 		self.temp_path = Path(__file__).parents[1]
 		self.image_path = Path.joinpath(self.temp_path, 'resources', 'images')
 		self.file = path.dirname(__file__)
-		self.start()
 		self.request_manager = request_manager
+		self.start()
 
 	def select_dir(self):
 		self.file = filedialog.askdirectory(initialdir=path.dirname(__file__))
@@ -34,7 +33,7 @@ class self_made_map:
 	def request_data(self):
 		maps_entity = GoogleMapsEntity(UserEntity(int(self.quota_entry.get())))
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
-		self.google_maps_entity.load_images_map(latitude,longitude)
+		self.google_maps_entity.load_images_location(latitude, longitude)
 		# photo_list = self.load_images()
 		# self.load_images_on_map(self.canvas, photo_list)
 		self.clear_canvas()
@@ -81,7 +80,7 @@ class self_made_map:
 		canvas.create_image(15, 0, anchor=NW, image=large_image)
 
 	def load_large_image(self):
-		get_image = Image.open(Path.joinpath(self.image_path, "large_image.png"))
+		get_image = Image.open(glob.glob(Path.joinpath(self.request_manager.path_to_map_image, 'concat_image_*').absolute().as_posix()).pop())
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo
@@ -96,7 +95,6 @@ class self_made_map:
 				y = y + 212
 			else:
 				x = x + 212
-
 
 	def load_images(self):
 		path_list = [Path.joinpath(self.image_path, "up_left.png"),

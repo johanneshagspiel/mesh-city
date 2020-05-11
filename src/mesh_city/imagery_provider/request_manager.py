@@ -1,7 +1,9 @@
 import math
+import os
 from pathlib import Path
 from PIL import Image
 import geopy
+import glob
 from mesh_city.imagery_provider.map_provider.mapbox_entity import MapboxEntity
 from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
 from mesh_city.imagery_provider.map_provider.ahn_entity import AhnEntity
@@ -10,56 +12,69 @@ from mesh_city.imagery_provider.map_provider.ahn_entity import AhnEntity
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	path_to_map_image = None
 
 	def __init__(self, user_entity):
 		self.user_entity = user_entity
-		#self.map_entity = GoogleMapsEntity(user_entity)
-		self.map_entity = AhnEntity(user_entity)
+		self.map_entity = GoogleMapsEntity(user_entity)
+		#self.map_entity = AhnEntity(user_entity)
 		#self.map_entity = MapboxEntity(user_entity)
 
-	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
-		next_center_distance_meters = metersPerPx * image_size_x
-		if(direction == True):
-			new_latitude = latitude + (next_center_distance_meters / 6378137) * (
-				180 / math.pi)
-		else:
-			new_latitude = latitude - (next_center_distance_meters / 6378137) * (
-					180 / math.pi)
-		return new_latitude
+	def make_request(self, coordinates):
 
-	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
-		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
-		next_center_distance_meters = metersPerPx * image_size_y
-		if (direction == True):
-			new_longitude = longitude + (next_center_distance_meters / 6378137) * (
-				180 / math.pi) / math.cos(latitude * math.pi / 180)
-		else:
-			new_longitude = longitude - (next_center_distance_meters / 6378137) * (
-				180 / math.pi) / math.cos(latitude * math.pi / 180)
-		return new_longitude
+		request_number = 0
+		request_number_string = str(request_number)
 
-	def load_images_map(self, x, y):
-		image_size = 640 - self.map_entity.padding
-		down = self.calc_next_location_latitude(x,y,20,image_size,False)
-		up = self.calc_next_location_latitude(x,y,20,image_size,True)
-		right = self.calc_next_location_longitude(x,y,20,image_size,True)
-		left = self.calc_next_location_longitude(x,y,20,image_size,False)
+		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
+		os.makedirs(new_folder_path)
 
-		up_left = self.map_entity.get_and_store_location(up, left, "up_left.png")
-		up_center = self.map_entity.get_and_store_location(up, y, "up_center.png")
-		up_right = self.map_entity.get_and_store_location(up, right, "up_right.png")
-		center_left = self.map_entity.get_and_store_location(x, left, "center_left.png")
-		center_center = self.map_entity.get_and_store_location(x, y, "center_center.png")
-		center_right = self.map_entity.get_and_store_location(x, right, "center_right.png")
-		down_left = self.map_entity.get_and_store_location(down, left, "down_left.png")
-		down_center = self.map_entity.get_and_store_location(down, y, "down_center.png")
-		down_right = self.map_entity.get_and_store_location(down, right, "down_right.png")
+		tile_number = 0
+		temp_tile_number = str(tile_number)
+		new_folder_path = Path.joinpath(new_folder_path, 'tile_' + temp_tile_number)
+		os.makedirs(new_folder_path)
+		tile_number += 1
 
-		self.concat_images()
+		locations = self.calculate_locations(coordinates)
+		number_map_calls = len(locations)
 
-# box defined by bottom left and top right coordinate!!!
-	def get_area(
+		counter = 1
+		lastRound = True
+
+		for location in locations:
+				number = str(counter)
+				x = str(location[0])
+				y = str(location[1])
+				temp_name = str(number + "_" + x + "_" + y + ".png")
+				self.map_entity.get_and_store_location(location[0], location[1], temp_name, new_folder_path)
+				counter += 1
+
+				if (counter == 10 and lastRound == False):
+						self.concat_images(new_folder_path, counter, tile_number)
+						temp_tile_number = str(tile_number)
+						new_folder_path = Path.joinpath(new_folder_path, 'tile_' + temp_tile_number)
+						os.makedirs(new_folder_path)
+						counter = 0
+						tile_number += 1
+				if (counter == 10 and lastRound == True):
+						self.concat_images(new_folder_path, request_number, tile_number - 1)
+						self.path_to_map_image = new_folder_path
+
+	def calculate_locations(self, coordinates):
+		if (len(coordinates) == 2):
+			longitude = coordinates[0]
+			latitude = coordinates[1]
+			image_size = 640 - self.map_entity.padding
+			down = self.calc_next_location_latitude(longitude, latitude, 20, image_size, False)
+			up = self.calc_next_location_latitude(longitude, latitude, 20, image_size, True)
+			right = self.calc_next_location_longitude(longitude, latitude, 20, image_size, True)
+			left = self.calc_next_location_longitude(longitude, latitude, 20, image_size, False)
+
+			return [(up, left), (up, latitude), (up, right), (longitude, left),
+			        (longitude, latitude), (longitude, right), (down, left), (down, latitude),
+			        (down, right)]
+
+	# box defined by bottom left and top right coordinate!!!
+	def load_images_area(
 		self,
 		bottom_latitude,
 		left_longitude,
@@ -140,16 +155,38 @@ class RequestManager:
 				current_latitude, current_longitude, zoom, image_size
 			)
 
-	def concat_images(self):
-		up_left = Image.open(Path.joinpath(self.images_folder_path, "up_left.png"))
-		up_center = Image.open(Path.joinpath(self.images_folder_path, "up_center.png"))
-		up_right = Image.open(Path.joinpath(self.images_folder_path, "up_right.png"))
-		center_left = Image.open(Path.joinpath(self.images_folder_path, "center_left.png"))
-		center_center = Image.open(Path.joinpath(self.images_folder_path, "center_center.png"))
-		center_right = Image.open(Path.joinpath(self.images_folder_path, "center_right.png"))
-		down_left = Image.open(Path.joinpath(self.images_folder_path, "down_left.png"))
-		down_center = Image.open(Path.joinpath(self.images_folder_path, "down_center.png"))
-		down_right = Image.open(Path.joinpath(self.images_folder_path, "down_right.png"))
+	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
+		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		next_center_distance_meters = metersPerPx * image_size_x
+		if(direction == True):
+			new_latitude = latitude + (next_center_distance_meters / 6378137) * (
+				180 / math.pi)
+		else:
+			new_latitude = latitude - (next_center_distance_meters / 6378137) * (
+					180 / math.pi)
+		return new_latitude
+
+	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
+		metersPerPx = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+		next_center_distance_meters = metersPerPx * image_size_y
+		if (direction == True):
+			new_longitude = longitude + (next_center_distance_meters / 6378137) * (
+				180 / math.pi) / math.cos(latitude * math.pi / 180)
+		else:
+			new_longitude = longitude - (next_center_distance_meters / 6378137) * (
+				180 / math.pi) / math.cos(latitude * math.pi / 180)
+		return new_longitude
+
+	def concat_images(self, new_folder_path, request, tile_number):
+		up_left = Image.open(glob.glob(Path.joinpath(new_folder_path, '1_*').absolute().as_posix()).pop())
+		up_center = Image.open(glob.glob(Path.joinpath(new_folder_path, '2_*').absolute().as_posix()).pop())
+		up_right = Image.open(glob.glob(Path.joinpath(new_folder_path, '3_*').absolute().as_posix()).pop())
+		center_left = Image.open(glob.glob(Path.joinpath(new_folder_path, '4_*').absolute().as_posix()).pop())
+		center_center = Image.open(glob.glob(Path.joinpath(new_folder_path, '5_*').absolute().as_posix()).pop())
+		center_right = Image.open(glob.glob(Path.joinpath(new_folder_path, '6_*').absolute().as_posix()).pop())
+		down_left = Image.open(glob.glob(Path.joinpath(new_folder_path, '7_*').absolute().as_posix()).pop())
+		down_center = Image.open(glob.glob(Path.joinpath(new_folder_path, '8_*').absolute().as_posix()).pop())
+		down_right = Image.open(glob.glob(Path.joinpath(new_folder_path, '9_*').absolute().as_posix()).pop())
 
 		level_0 = self.get_concat_horizontally(self.get_concat_horizontally(
 			up_left, up_center), up_right)
@@ -158,16 +195,18 @@ class RequestManager:
 		level_2 = self.get_concat_horizontally(self.get_concat_horizontally(
 			down_left, down_center), down_right)
 
+		request_string = str(request)
+		tile_number_string = str(tile_number)
+		temp_name = "request_" + request_string + "_tile_"+ tile_number_string
 		self.get_concat_vertically(self.get_concat_vertically(
 			level_0, level_1), level_2).save(
-			Path.joinpath(self.images_folder_path, "large_image.png"))
+			Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	def get_concat_horizontally(self, image_1, image_2):
 		temp = Image.new('RGB', (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
-
 
 	def get_concat_vertically(self, image_1, image_2):
 		temp = Image.new('RGB', (image_1.width, image_1.height + image_2.height))

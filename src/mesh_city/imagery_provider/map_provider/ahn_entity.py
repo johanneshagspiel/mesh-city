@@ -51,8 +51,9 @@ class AhnEntity(MapEntity):
 
 	def __init__(self, user_entity):
 		MapEntity.__init__(self, user_entity=user_entity)
+		self.name = "ahn"
 
-	def get_and_store_location(self, x, y, name):
+	def get_and_store_location(self, x, y, name, new_folder_path):
 
 		bounding_box_coordinates = self.calculate_bounding_box(x, y, 20, 640, 640)
 
@@ -76,7 +77,7 @@ class AhnEntity(MapEntity):
 		                        "&version=1.30")
 
 		filename = name
-		to_store = Path.joinpath(self.images_folder_path, filename)
+		to_store = Path.joinpath(new_folder_path, filename)
 
 		with open(to_store, 'wb') as output:
 			_ = output.write(response.content)

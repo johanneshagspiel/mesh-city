@@ -8,8 +8,9 @@ class MapboxEntity(MapEntity):
 	def __init__(self, user_entity):
 		MapEntity.__init__(self, user_entity=user_entity)
 		self.geocoder = Geocoder(access_token=user_entity.get_api_key())
+		self.name = "mapbox"
 
-	def get_and_store_location(self, x, y, name):
+	def get_and_store_location(self, x, y, name, new_folder_path):
 		username = "mapbox"
 		style_id = "satellite-v9"
 		lat = str(x)
@@ -32,7 +33,7 @@ class MapboxEntity(MapEntity):
 		)
 
 		filename = name
-		to_store = Path.joinpath(self.images_folder_path, filename)
+		to_store = Path.joinpath(new_folder_path, filename)
 
 		with open(to_store, 'wb') as output:
 			output.write(response.content)
