@@ -1,11 +1,8 @@
 import math
 from pathlib import Path
-
 import requests
-from PIL import Image
 
-
-class ahn_entity:
+class AhnEntity:
 	temp_path = Path(__file__).parents[2]
 	images_folder_path = Path.joinpath(temp_path, 'resources','images')
 	color_to_height = {(12, 52, 124) : -7.5,
@@ -53,8 +50,9 @@ class ahn_entity:
 	                   (196, 84, 60) : 250, #200-250, 250-300
 	                   }
 
-	def __init__(self):
+	def __init__(self, user_entry):
 		self.request_number = 0
+		self.user_entry = user_entry
 
 	def get_and_store_location(self, x, y, name):
 

@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-class GoogleApiUtil:
-	temp_path = Path(__file__).parents[2]
+class UserEntity:
+	temp_path = Path(__file__).parents[1]
 	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
 
 	def __init__(self):

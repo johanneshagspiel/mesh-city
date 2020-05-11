@@ -1,15 +1,12 @@
-from pathlib import Path
 from os import path
 from tkinter import *
-from tkinter import filedialog
-from PIL import Image, ImageTk
 from pathlib import Path
 from tkinter import END, NW, Button, Canvas, Entry, Label, Tk, filedialog, mainloop
 
 from PIL import Image, ImageTk
 
-from mesh_city.imagery_provider.google_maps.google_api_util import GoogleApiUtil
-from mesh_city.imagery_provider.google_maps.google_maps_entity import GoogleMapsEntity
+from mesh_city.imagery_provider.user_entity import UserEntity
+from mesh_city.imagery_provider.map_provider.google_maps_entity import GoogleMapsEntity
 
 
 def set_entry(entry, value):
@@ -35,7 +32,7 @@ class self_made_map:
 		self.canvas.delete("all")
 
 	def request_data(self):
-		maps_entity = GoogleMapsEntity(GoogleApiUtil(int(self.quota_entry.get())))
+		maps_entity = GoogleMapsEntity(UserEntity(int(self.quota_entry.get())))
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
 		self.google_maps_entity.load_images_map(latitude,longitude)
 		# photo_list = self.load_images()

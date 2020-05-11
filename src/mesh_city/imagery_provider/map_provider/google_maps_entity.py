@@ -1,13 +1,7 @@
-import googlemaps
-import math
 from pathlib import Path
-from PIL import Image
-import requests
-import geopy.distance
 import googlemaps
 import requests
 from PIL import Image
-
 
 class GoogleMapsEntity:
 	temp_path = Path(__file__).parents[2]
