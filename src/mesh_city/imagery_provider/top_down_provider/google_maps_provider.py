@@ -13,8 +13,9 @@ class GoogleMapsProvider(TopDownProvider):
 		TopDownProvider.__init__(self, user_entity=user_entity)
 		self.client = googlemaps.Client(key=self.user_entity.get_api_key())
 		self.padding = 40
+		self.name = "google_maps"
 
-	def get_and_store_location(self, x, y, name):
+	def get_and_store_location(self, x, y, name, new_folder_path):
 		x = str(x)
 		y = str(y)
 		zoom = str(20)
@@ -39,7 +40,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 		# filename = str(self.request_number) + "_" + str(x) + "_" + str(y) + ".png"
 		filename = name
-		to_store = Path.joinpath(self.images_folder_path, filename)
+		to_store = Path.joinpath(new_folder_path, filename)
 
 		with open(to_store, "wb") as output:
 			output.write(response.content)
@@ -51,7 +52,7 @@ class GoogleMapsProvider(TopDownProvider):
 		bottom = 1240
 
 		filename = name
-		to_store = Path.joinpath(self.images_folder_path, filename)
+		to_store = Path.joinpath(new_folder_path, filename)
 
 		im1 = get_image.crop(box=(left, top, right, bottom))
 		im1.save(fp=to_store)
