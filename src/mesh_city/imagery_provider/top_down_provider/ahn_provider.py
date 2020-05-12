@@ -53,6 +53,7 @@ class AhnProvider(TopDownProvider):
 	def __init__(self, user_info, quota_manager):
 		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
 		self.name = "ahn"
+		self.max_zoom = 20
 
 	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
 		"""

@@ -14,6 +14,7 @@ class GoogleMapsProvider(TopDownProvider):
 		self.client = googlemaps.Client(key=self.user_info.api_key)
 		self.padding = 40
 		self.name = "google_maps"
+		self.max_zoom = 20
 
 	def get_and_store_location(self, latitude, longitude, zoom, filename, new_folder_path):
 		latitude = str(latitude)
