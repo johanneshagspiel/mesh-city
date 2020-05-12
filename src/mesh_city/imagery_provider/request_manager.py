@@ -30,7 +30,7 @@ class RequestManager:
 	def __init__(self, user_info, quota_manager):
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
+		self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
 
 	def make_request(self, coordinates):
 		request_number = 1
