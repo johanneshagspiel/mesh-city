@@ -44,16 +44,17 @@ class GoogleMapsProvider(TopDownProvider):
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 
-		# get_image = Image.open(to_store)
-		# left = 40
-		# top = 40
-		# right = 1240
-		# bottom = 1240
-		#
-		# to_store = Path.joinpath(new_folder_path, filename)
-		#
-		# im1 = get_image.crop(box=(left, top, right, bottom))
-		# im1.save(fp=to_store)
+		#TODO put cutting code somewhere else
+		get_image = Image.open(to_store)
+		left = 40
+		top = 40
+		right = 1240
+		bottom = 1240
+
+		to_store = Path.joinpath(new_folder_path, filename)
+
+		im1 = get_image.crop(box=(left, top, right, bottom))
+		im1.save(fp=to_store)
 
 		self.quota_manager.increase_usage()
 
