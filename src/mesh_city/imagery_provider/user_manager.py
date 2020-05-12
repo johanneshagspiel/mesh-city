@@ -6,7 +6,7 @@ from pathlib import Path
 
 class UserManager:
 	temp_path = Path(__file__).parents[1]
-	api_file_path = Path.joinpath(temp_path, 'resources', 'api_key.json')
+	api_file_path = Path.joinpath(temp_path, "resources", "api_key.json")
 
 	def __init__(self):
 		# If it's the first time that the user is entering their key and quota
@@ -26,12 +26,12 @@ class UserManager:
 				self.usage = self.get_usage()
 				remaining = int(self.quota) - self.usage
 				print(
-					"Welcome " + self.name + " of your initial quota of " +
-					self.get_quota() + " , " + str(remaining) + " remains."
+					"Welcome " + self.name + " of your initial quota of " + self.get_quota() + " , " +
+					str(remaining) + " remains."
 				)
 
 	def store_user_info(self, api_key, init_quota, usage_so_far, chosen_name):
-		with open(self.api_file_path, 'w') as storage_json:
+		with open(self.api_file_path, "w") as storage_json:
 			user_info = {
 				"name": chosen_name,
 				"api_key": api_key,
@@ -47,14 +47,14 @@ class UserManager:
 			storage_json.write(json.dumps(user_info))
 
 	def get_user_info(self):
-		with open(self.api_file_path, 'r') as storage_json:
+		with open(self.api_file_path, "r") as storage_json:
 			return json.loads(storage_json.read())
 
 	def get_api_key(self):
 		if not (self.check_key_exist() and self.check_file_exist()):
 			print("There is no apy-key stored")
 			return -1
-		with open(self.api_file_path, 'r') as storage:
+		with open(self.api_file_path, "r") as storage:
 			self.increase_usage()  # Temporary place for increasing usage.
 			user_info = json.loads(storage.read())
 			return user_info["api_key"]
@@ -78,9 +78,7 @@ class UserManager:
 
 	def check_monthly_limit(self):
 		init_date = datetime(
-			self.get_user_info()["year"],
-			self.get_user_info()["month"],
-			self.get_user_info()["day"],
+			self.get_user_info()["year"], self.get_user_info()["month"], self.get_user_info()["day"],
 		)
 		diff_months = datetime.now().month - init_date.month
 		diff_days = datetime.now().day - init_date.day
@@ -96,25 +94,25 @@ class UserManager:
 	def increase_usage(self):
 		old_usage = self.get_usage()
 		new_usage = old_usage + 1
-		with open(self.api_file_path, 'r') as storage:
+		with open(self.api_file_path, "r") as storage:
 			user_info = json.loads(storage.read())
 			user_info["usage"] = new_usage  # An amount of increase (1 or more?)
 			storage.close()
-		with open(self.api_file_path, 'w') as storage:
+		with open(self.api_file_path, "w") as storage:
 			storage.write(json.dumps(user_info))
 			storage.close()
 
 	def get_quota(self):
-		with open(self.api_file_path, 'r') as storage:
+		with open(self.api_file_path, "r") as storage:
 			user_info = json.loads(storage.read())
 			return user_info["quota"]
 
 	def get_name(self):
-		with open(self.api_file_path, 'r') as storage:
+		with open(self.api_file_path, "r") as storage:
 			user_info = json.loads(storage.read())
 			return user_info["name"]
 
 	def get_usage(self):
-		with open(self.api_file_path, 'r') as storage:
+		with open(self.api_file_path, "r") as storage:
 			user_info = json.loads(storage.read())
 			return user_info["usage"]

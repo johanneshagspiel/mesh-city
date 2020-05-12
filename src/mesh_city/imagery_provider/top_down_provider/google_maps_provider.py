@@ -4,9 +4,7 @@ import googlemaps
 import requests
 from PIL import Image
 
-from mesh_city.imagery_provider.top_down_provider.top_down_provider import (
-	TopDownProvider,
-)
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
 
 class GoogleMapsProvider(TopDownProvider):
@@ -24,8 +22,9 @@ class GoogleMapsProvider(TopDownProvider):
 		width = str(640)
 		height = str(640)
 		scale = str(2)
-		format = "PNG"
-		maptype = "satellite"
+		file_format = "PNG"
+		map_type = "satellite"
+		api_key = self.user_entity.get_api_key()
 
 		language = None
 		region = None
@@ -35,18 +34,16 @@ class GoogleMapsProvider(TopDownProvider):
 		style = None
 
 		response = requests.get(
-			"https://maps.googleapis.com/maps/api/staticmap?" + "center=" + x + "," + y +
-			"&zoom=" + zoom + "&size=" + width + "x" + height + "&scale=" + scale +
-			"&format=" + format + "&maptype=" + maptype + "&key=" +
-			self.user_entity.get_api_key()
+			"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
+			% (x, y, zoom, width, height, scale, file_format, map_type, api_key)
 		)
 
 		# filename = str(self.request_number) + "_" + str(x) + "_" + str(y) + ".png"
 		filename = name
 		to_store = Path.joinpath(new_folder_path, filename)
 
-		with open(to_store, 'wb') as output:
-			_ = output.write(response.content)
+		with open(to_store, "wb") as output:
+			output.write(response.content)
 
 		get_image = Image.open(to_store)
 		left = 40
