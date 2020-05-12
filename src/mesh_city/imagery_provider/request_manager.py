@@ -2,12 +2,13 @@ import glob
 import math
 import os
 from pathlib import Path
-from PIL import Image
+
 import geopy
-import glob
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from PIL import Image
+
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 
 
 def calc_meters_per_px(latitude, zoom):
@@ -25,17 +26,16 @@ def calc_meters_per_px(latitude, zoom):
 
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
-	path_to_map_image = None
+	images_folder_path = Path.joinpath(temp_path, "resources", "images")
+	path_to_map_image = Path.joinpath(images_folder_path, "request_0", "tile_0")
 
-	def __init__(self, user_entity):
-		self.user_entity = user_entity
-		self.map_entity = GoogleMapsProvider(user_entity)
-		#self.map_entity = AhnEntity(user_entity)
-		#self.map_entity = MapboxEntity(user_entity)
+	def __init__(self, user_info,quota_manager):
+		self.user_info = user_info
+		self.quota_manager  =quota_manager
+		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
 
 	def make_request(self, coordinates):
-		request_number = 0
+		request_number = 1
 		request_number_string = str(request_number)
 
 		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
@@ -75,6 +75,7 @@ class RequestManager:
 				self.path_to_map_image = new_folder_path
 
 
+	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
 		"""
 		Method which calculates and retrieves the number of images that are necessary have a
@@ -107,8 +108,8 @@ class RequestManager:
 		# )
 
 		# TODO do we need a different calculation for vertical? Bottom latitude is biggest: safe call
-		total_horizontal_pixels = horizontal_width / calc_meters_per_px(top_lat, zoom)
-		total_vertical_pixels = vertical_length / calc_meters_per_px(top_lat, zoom)
+		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(top_lat, zoom)
+		total_vertical_pixels = vertical_length / self.calc_meters_per_px(top_lat, zoom)
 
 		# print(
 		# 	"total_horizontal_pixels = ",
@@ -130,9 +131,11 @@ class RequestManager:
 		latitude_first_image = self.calc_next_location_latitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
+		# bottom_latitude + ((top_latitude - bottom_latitude) / (num_of_images_vertical * 2))
 		longitude_first_image = self.calc_next_location_longitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
+		# left_longitude + ((left_longitude - right_longitude) / (num_of_images_horizontal * 2))
 
 		current_latitude = latitude_first_image
 		current_longitude = longitude_first_image
