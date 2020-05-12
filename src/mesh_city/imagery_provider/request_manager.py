@@ -107,8 +107,8 @@ class RequestManager:
 		# )
 
 		# TODO do we need a different calculation for vertical? Bottom latitude is biggest: safe call
-		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(top_lat, zoom)
-		total_vertical_pixels = vertical_length / self.calc_meters_per_px(top_lat, zoom)
+		total_horizontal_pixels = horizontal_width / calc_meters_per_px(top_lat, zoom)
+		total_vertical_pixels = vertical_length / calc_meters_per_px(top_lat, zoom)
 
 		# print(
 		# 	"total_horizontal_pixels = ",
