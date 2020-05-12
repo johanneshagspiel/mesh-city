@@ -9,11 +9,11 @@ from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDo
 
 class GoogleMapsProvider(TopDownProvider):
 
-	def __init__(self, user_manager):
-		TopDownProvider.__init__(self, user_manager=user_manager)
-		self.client = googlemaps.Client(key=self.user_manager.get_api_key())
+	def __init__(self, user_info, quota_manager):
+		self.client = googlemaps.Client(key=self.user_info.api_key)
 		self.padding = 40
 		self.name = "google_maps"
+		super().__init__(self, user_info=user_info, quota_manager=quota_manager)
 
 	def get_and_store_location(self, x, y, name, new_folder_path):
 		x = str(x)
@@ -24,7 +24,7 @@ class GoogleMapsProvider(TopDownProvider):
 		scale = str(2)
 		file_format = "PNG"
 		map_type = "satellite"
-		api_key = self.user_manager.get_api_key()
+		api_key = self.user_info.api_key
 
 		language = None
 		region = None
@@ -57,7 +57,7 @@ class GoogleMapsProvider(TopDownProvider):
 		im1 = get_image.crop(box=(left, top, right, bottom))
 		im1.save(fp=to_store)
 
-		self.user_manager.increase_usage()
+		self.quota_manager.increase_usage()
 
 	def get_location_from_name(self, name):
 		result = googlemaps.client.geocode(client=self.client, address=name)

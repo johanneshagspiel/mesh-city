@@ -4,8 +4,9 @@ class TopDownProvider(ABC):
 	temp_path = None
 	images_folder_path = None
 
-	def __init__(self, user_manager):
-		self.user_manager = user_manager
+	def __init__(self, user_info, quota_manager):
+		self.user_info = user_info
+		self.quota_manager = quota_manager
 		self.padding = 0
 		self.type = "top_down_provider"
 

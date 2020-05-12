@@ -31,19 +31,19 @@ class MapboxProvider(TopDownProvider):
 		response = requests.get(
 			"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
 			% (
-			username,
-			style_id,
-			lon,
-			lat,
-			zoom,
-			bearing,
-			pitch,
-			width,
-			height,
-			scale,
-			access_token,
-			attribution,
-			logo,
+				username,
+				style_id,
+				lon,
+				lat,
+				zoom,
+				bearing,
+				pitch,
+				width,
+				height,
+				scale,
+				access_token,
+				attribution,
+				logo,
 			)
 		)
 
@@ -56,8 +56,8 @@ class MapboxProvider(TopDownProvider):
 		self.user_manager.increase_usage()
 
 	def get_location_from_name(self, name):
-		#Format to use {house number} {street} {postcode} {city} {state}
-		#No semicolons, URL-encoded UTF-8 string, at most 20 words, at most 256 characters
+		# Format to use {house number} {street} {postcode} {city} {state}
+		# No semicolons, URL-encoded UTF-8 string, at most 20 words, at most 256 characters
 		response = self.geocoder.forward(name)
 
 		if response.status_code != 200:
@@ -66,7 +66,7 @@ class MapboxProvider(TopDownProvider):
 		collection = response.json()
 		most_relevant_response = collection["features"][0]
 		coordinates = most_relevant_response["center"]
-		#coordinates is a list with x and y in reverse order
+		# coordinates is a list with x and y in reverse order
 		return coordinates
 
 	def get_name_from_location(self, x, y):

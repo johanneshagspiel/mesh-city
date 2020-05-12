@@ -15,12 +15,10 @@ class RequestManager:
 	images_folder_path = Path.joinpath(temp_path, 'resources','images')
 	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
 
-	def __init__(self, user_entity):
-		self.user_entity = user_entity
-
-		#self.map_entity = GoogleMapsProvider(user_entity)
-		self.map_entity = AhnProvider(user_entity)
-		#self.map_entity = MapboxEntity(user_entity)
+	def __init__(self, user_info, quota_manager):
+		self.user_info = user_info
+		self.quota_manager = quota_manager
+		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
 
 		self.log_manager = LogManager()
 		self.request_number = self.log_manager.get_request_number()
@@ -181,10 +179,12 @@ class RequestManager:
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
 			new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
+			                                                                       math.pi) / math.cos(
+				latitude * math.pi / 180)
 		else:
 			new_longitude = longitude - (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
+			                                                                       math.pi) / math.cos(
+				latitude * math.pi / 180)
 		return new_longitude
 
 	def calculate_locations(self, coordinates):
@@ -251,7 +251,8 @@ class RequestManager:
 		tile_number_string = str(tile_number)
 		temp_name = "request_" + request_string + "_tile_" + tile_number_string
 		self.get_concat_vertically(self.get_concat_vertically(level_0, level_1),
-			level_2).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
+		                           level_2).save(
+			Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	def get_concat_horizontally(self, image_1, image_2):
 		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))

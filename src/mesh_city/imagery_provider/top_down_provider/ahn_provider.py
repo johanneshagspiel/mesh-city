@@ -50,13 +50,8 @@ class AhnProvider(TopDownProvider):
 		(196, 84, 60): 250,  # 200-250, 250-300
 	}  # yapf: disable
 
-	def __init__(self, user_manager):
-		"""
-		Setting up an ahn_provider which enables the user to get a height map from a specific location
-		and from that obtain the height at a pixel
-		:param user_manager: one instance of the user
-		"""
-		TopDownProvider.__init__(self, user_manager=user_manager)
+	def __init__(self, user_info, quota_manager):
+		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
 		self.name = "ahn"
 
 	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
@@ -123,8 +118,10 @@ class AhnProvider(TopDownProvider):
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
 			new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
+			                                                                       math.pi) / math.cos(
+				latitude * math.pi / 180)
 		else:
 			new_longitude = longitude - (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
+			                                                                       math.pi) / math.cos(
+				latitude * math.pi / 180)
 		return new_longitude
