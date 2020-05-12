@@ -48,6 +48,7 @@ class RequestManager:
 		tile_number += 1
 
 		coordinates = self.calculate_locations(centre_coordinates)
+		print(len(coordinates))
 		bounding_box = [coordinates[0], coordinates[-1]]
 		number_requests = len(coordinates)
 		number_requests_temp = number_requests
@@ -81,7 +82,7 @@ class RequestManager:
 			if counter == 10 and lastRound:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
-				self.log_manager.write_entry_log(request_number, self.user_entity, self.map_entity,
+				self.log_manager.write_entry_log(request_number, self.user_info, self.map_entity,
 				                                 number_requests, bounding_box, coordinates)
 				self.request_number = request_number + 1
 
@@ -200,11 +201,12 @@ class RequestManager:
 				(down, latitude),
 				(down, right),
 			]  # yapf: disable
+
 		if(len(coordinates) == 4):
-			min_longitude = coordinates[0]
-			min_latitude = coordinates[1]
-			max_longitude = coordinates[2]
-			max_latitude = coordinates[3]
+			max_longitude = coordinates[0]
+			max_latitude = coordinates[1]
+			min_longitude = coordinates[2]
+			min_latitude = coordinates[3]
 
 			result = []
 			min_longitude_start = min_longitude
