@@ -36,12 +36,12 @@ class RequestManager:
 		request_number = 1
 		request_number_string = str(request_number)
 
-		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
+		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
 		os.makedirs(new_folder_path)
 
 		tile_number = 0
 		temp_tile_number = str(tile_number)
-		new_folder_path = Path.joinpath(new_folder_path, 'tile_' + temp_tile_number)
+		new_folder_path = Path.joinpath(new_folder_path, "tile_" + temp_tile_number)
 		os.makedirs(new_folder_path)
 		tile_number += 1
 

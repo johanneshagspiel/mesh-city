@@ -19,7 +19,7 @@ class RegisterPopupWindow(object):
 		self.name_entry.grid(row=1, column=1)
 		self.key_entry.grid(row=2, column=1)
 		self.quotum_entry.grid(row=3, column=1)
-		self.b = Button(top, text='Ok', command=self.cleanup)
+		self.b = Button(top, text="OK", command=self.cleanup)
 		self.b.grid(row=4, columnspan=3)
 
 	def cleanup(self):

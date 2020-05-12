@@ -10,10 +10,10 @@ from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDo
 class GoogleMapsProvider(TopDownProvider):
 
 	def __init__(self, user_info, quota_manager):
-		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
 		self.client = googlemaps.Client(key=self.user_info.api_key)
 		self.padding = 40
 		self.name = "google_maps"
+		super().__init__(self, user_info=user_info, quota_manager=quota_manager)
 
 	def get_and_store_location(self, x, y, name, new_folder_path):
 		x = str(x)
