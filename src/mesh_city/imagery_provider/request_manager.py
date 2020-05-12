@@ -180,25 +180,46 @@ class RequestManager:
 		return new_longitude
 
 	def calculate_locations(self, coordinates):
-		longitude = coordinates[0]
-		latitude = coordinates[1]
-		image_size = 640 - self.map_entity.padding
-		down = self.calc_next_location_latitude(longitude, latitude, 20, image_size, False)
-		up = self.calc_next_location_latitude(longitude, latitude, 20, image_size, True)
-		right = self.calc_next_location_longitude(longitude, latitude, 20, image_size, True)
-		left = self.calc_next_location_longitude(longitude, latitude, 20, image_size, False)
+		if(len(coordinates) == 2):
+			longitude = coordinates[0]
+			latitude = coordinates[1]
+			image_size = 640 - self.map_entity.padding
+			down = self.calc_next_location_latitude(longitude, latitude, 20, image_size, False)
+			up = self.calc_next_location_latitude(longitude, latitude, 20, image_size, True)
+			right = self.calc_next_location_longitude(longitude, latitude, 20, image_size, True)
+			left = self.calc_next_location_longitude(longitude, latitude, 20, image_size, False)
 
-		return [
-			(up, left),
-			(up, latitude),
-			(up, right),
-			(longitude, left),
-			(longitude, latitude),
-			(longitude, right),
-			(down, left),
-			(down, latitude),
-			(down, right),
-		]  # yapf: disable
+			return [
+				(up, left),
+				(up, latitude),
+				(up, right),
+				(longitude, left),
+				(longitude, latitude),
+				(longitude, right),
+				(down, left),
+				(down, latitude),
+				(down, right),
+			]  # yapf: disable
+		if(len(coordinates) == 4):
+			min_longitude = coordinates[0]
+			min_latitude = coordinates[1]
+			max_longitude = coordinates[2]
+			max_latitude = coordinates[3]
+
+			result = []
+			min_longitude_start = min_longitude
+
+			while min_longitude < max_longitude:
+				while min_latitude < max_latitude:
+					result.append(self.calculate_locations((min_longitude, min_latitude)))
+					min_latitude = self.calc_next_location_latitude(min_latitude, min_longitude, 200, 640, True)
+
+					if(min_latitude > max_latitude):
+						min_latitude = min_longitude_start
+						min_longitude = self.calc_next_location_latitude(min_latitude, min_longitude, 200, 640, True)
+
+			return result
+
 
 	def concat_images(self, new_folder_path, request, tile_number):
 		up_left = Image.open(
