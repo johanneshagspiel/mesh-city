@@ -11,6 +11,5 @@ def main() -> None:
 	request_manager.make_request([51.998967, 4.373414])
 	Application(request_manager)
 
-
 if __name__ == '__main__':
 	main()

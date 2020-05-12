@@ -16,8 +16,8 @@ class RequestManager:
 
 	def __init__(self, user_entity):
 		self.user_entity = user_entity
-		self.map_entity = GoogleMapsProvider(user_entity)
-		#self.map_entity = AhnEntity(user_entity)
+		#self.map_entity = GoogleMapsProvider(user_entity)
+		self.map_entity = AhnProvider(user_entity)
 		#self.map_entity = MapboxEntity(user_entity)
 
 	def make_request(self, coordinates):
