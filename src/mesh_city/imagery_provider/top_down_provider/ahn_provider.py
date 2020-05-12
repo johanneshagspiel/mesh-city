@@ -53,8 +53,8 @@ class AhnProvider(TopDownProvider):
 		(196, 84, 60): 250,  # 200-250, 250-300
 	}  # yapf: disable
 
-	def __init__(self, user_entity):
-		TopDownProvider.__init__(self, user_entity=user_entity)
+	def __init__(self, user_info, quota_manager):
+		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
 
 	def get_and_store_location(self, x, y, name, new_folder_path):
 

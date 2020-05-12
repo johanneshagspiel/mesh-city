@@ -29,11 +29,10 @@ class RequestManager:
 	images_folder_path = Path.joinpath(temp_path, "resources", "images")
 	path_to_map_image = None
 
-	def __init__(self, user_entity):
-		self.user_entity = user_entity
-		self.map_entity = GoogleMapsProvider(user_entity)
-		#self.map_entity = AhnEntity(user_entity)
-		#self.map_entity = MapboxEntity(user_entity)
+	def __init__(self, user_info,quota_manager):
+		self.user_info = user_info
+		self.quota_manager  =quota_manager
+		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
 
 	def make_request(self, coordinates):
 		request_number = 0

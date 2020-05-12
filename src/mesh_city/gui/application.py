@@ -8,6 +8,7 @@ from PIL import Image, ImageTk
 
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
 from mesh_city.imagery_provider.quota_manager import QuotaManager
+from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.user_info import UserInfo
 from mesh_city.imagery_provider.user_info_handler import UserInfoHandler
@@ -20,13 +21,11 @@ def set_entry(entry, value):
 
 class Application:
 
-	def __init__(self, request_manager):
+	def __init__(self):
 		self.master = Tk()
 		self.temp_path = Path(__file__).parents[1]
 		self.image_path = Path.joinpath(self.temp_path, "resources", "images")
 		self.file = path.dirname(__file__)
-		self.request_manager = request_manager
-
 		self.master.title("Google maps extractor")
 		self.master.geometry("")
 
@@ -67,7 +66,8 @@ class Application:
 			self.register_user()
 
 		self.quota_manager = QuotaManager(self.user_info)
-		self.maps_entity = GoogleMapsProvider(self.user_info, self.quota_manager)
+		self.request_manager = RequestManager(user_info=self.user_info,quota_manager=self.quota_manager)
+
 		mainloop()
 
 	def select_dir(self):
@@ -105,7 +105,7 @@ class Application:
 
 	def request_data(self):
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
-		self.google_maps_entity.load_images_location(latitude, longitude)
+		self.request_manager.make_request((latitude, longitude))
 		# photo_list = self.load_images()
 		# self.load_images_on_map(self.canvas, photo_list)
 		self.clear_canvas()
@@ -164,39 +164,3 @@ class Application:
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo
-
-	def concat_images(self):
-		up_left = Image.open(Path.joinpath(self.image_path, "up_left.png"))
-		up_center = Image.open(Path.joinpath(self.image_path, "up_center.png"))
-		up_right = Image.open(Path.joinpath(self.image_path, "up_right.png"))
-		center_left = Image.open(Path.joinpath(self.image_path, "center_left.png"))
-		center_center = Image.open(Path.joinpath(self.image_path, "center_center.png"))
-		center_right = Image.open(Path.joinpath(self.image_path, "center_right.png"))
-		down_left = Image.open(Path.joinpath(self.image_path, "down_left.png"))
-		down_center = Image.open(Path.joinpath(self.image_path, "down_center.png"))
-		down_right = Image.open(Path.joinpath(self.image_path, "down_right.png"))
-
-		level_0 = self.get_concat_horizontally(
-			self.get_concat_horizontally(up_left, up_center), up_right
-		)
-		level_1 = self.get_concat_horizontally(
-			self.get_concat_horizontally(center_left, center_center), center_right
-		)
-		level_2 = self.get_concat_horizontally(
-			self.get_concat_horizontally(down_left, down_center), down_right
-		)
-
-		self.get_concat_vertically(self.get_concat_vertically(level_0, level_1),
-			level_2).save(Path.joinpath(self.image_path, "large_image.png"))
-
-	def get_concat_horizontally(self, image_1, image_2):
-		temp = Image.new('RGB', (image_1.width + image_2.width, image_1.height))
-		temp.paste(image_1, (0, 0))
-		temp.paste(image_2, (image_1.width, 0))
-		return temp
-
-	def get_concat_vertically(self, image_1, image_2):
-		temp = Image.new('RGB', (image_1.width, image_1.height + image_2.height))
-		temp.paste(image_1, (0, 0))
-		temp.paste(image_2, (0, image_1.height))
-		return temp
