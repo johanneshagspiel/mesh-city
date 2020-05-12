@@ -51,7 +51,7 @@ class RequestManager:
 
 		coordinates = self.calculate_locations(centre_coordinates)
 		bounding_box = [1, 2]
-		print(len(coordinates))
+		#print(len(coordinates))
 		if(len(centre_coordinates)== 4):
 			bounding_box = [coordinates[0][0], extract(coordinates)[-1]]
 		if(len(centre_coordinates)== 4):
@@ -67,34 +67,35 @@ class RequestManager:
 
 		if (len(centre_coordinates) == 4):
 			for location in coordinates:
-				number = str(counter)
-				x = str(location[counter-1][0])
-				y = str(location[counter-1][1])
-				temp_name = str(number + "_" + x + "_" + y + ".png")
-				print(str(location[counter-1][0]))
-				print(str(location[counter-1][1]))
-				self.map_entity.get_and_store_location(location[counter-1][0],
-				                                       location[counter-1][1], self.map_entity.max_zoom, temp_name,
-				                                       new_folder_path)
-				counter += 1
+				for element in location:
+					number = str(counter)
+					x = str(element[0])
+					y = str(element[1])
+					temp_name = str(number + "_" + x + "_" + y + ".png")
+					self.map_entity.get_and_store_location(element[0],
+					                                       element[1], self.map_entity.max_zoom, temp_name,
+					                                       new_folder_path)
+					counter += 1
 
-				if counter == 10 and not lastRound:
-					self.concat_images(new_folder_path, counter, tile_number)
-					temp_tile_number = str(tile_number)
-					new_folder_path = Path.joinpath(new_folder_path.parents[0], "tile_" + temp_tile_number)
-					os.makedirs(new_folder_path)
-					counter = 0
-					tile_number += 1
-					number_requests_temp = number_requests_temp - 9
-					if (number_requests_temp == 9):
-						lastRound = True
-				if counter == 10 and lastRound:
-					self.concat_images(new_folder_path, request_number, tile_number - 1)
-					self.path_to_map_image = new_folder_path
-					self.log_manager.write_entry_log(request_number, self.user_info,
-					                                 self.map_entity,
-					                                 number_requests * 9, bounding_box, coordinates)
-					self.request_number = request_number + 1
+					if counter == 10 and not lastRound:
+						self.concat_images(new_folder_path, counter, tile_number - 1)
+						temp_tile_number = str(tile_number)
+						new_folder_path = Path.joinpath(new_folder_path.parents[0], "tile_" + temp_tile_number)
+						os.makedirs(new_folder_path)
+						counter = 1
+						print(tile_number - 1)
+						tile_number += 1
+						number_requests_temp = number_requests_temp - 9
+						if (number_requests_temp == 9):
+							lastRound = True
+
+					if counter == 10 and lastRound:
+						self.concat_images(new_folder_path, request_number, tile_number - 1)
+						self.path_to_map_image = new_folder_path
+						self.log_manager.write_entry_log(request_number, self.user_info,
+						                                 self.map_entity,
+						                                 number_requests * 9, bounding_box, coordinates)
+						self.request_number = request_number + 1
 
 		if (len(centre_coordinates) == 2):
 			for location in coordinates:
@@ -111,7 +112,7 @@ class RequestManager:
 					temp_tile_number = str(tile_number)
 					new_folder_path = Path.joinpath(new_folder_path, "tile_" + temp_tile_number)
 					os.makedirs(new_folder_path)
-					counter = 0
+					counter = 1
 					tile_number += 1
 					number_requests_temp = number_requests_temp - 9
 					if (number_requests_temp == 9):
@@ -195,40 +196,51 @@ class RequestManager:
 		"""
 		return 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
 
-	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
+	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction, multiplier = 1):
 		meters_per_px = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = meters_per_px * image_size_x
 		if direction:
-			new_latitude = latitude + (next_center_distance_meters / 6378137) * (180 / math.pi)
+			new_latitude = latitude + ((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier
 		else:
-			new_latitude = latitude - (next_center_distance_meters / 6378137) * (180 / math.pi)
+			new_latitude = latitude - ((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier
 		return new_latitude
 
-	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
+	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction, multiplier = 1):
 		meters_per_px = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
-			new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
+			new_longitude = longitude + ((next_center_distance_meters / 6378137) * (180 /
 			                                                                       math.pi) / math.cos(
-				latitude * math.pi / 180)
+				latitude * math.pi / 180)) * multiplier
 		else:
-			new_longitude = longitude - (next_center_distance_meters / 6378137) * (180 /
+			new_longitude = longitude - ((next_center_distance_meters / 6378137) * (180 /
 			                                                                       math.pi) / math.cos(
-				latitude * math.pi / 180)
+				latitude * math.pi / 180)) * multiplier
 		return new_longitude
 
-	def calculate_locations(self, coordinates):
+	def calculate_locations(self, coordinates, multiplier = 1):
 		image_size = 640 - self.map_entity.padding
 
 		if(len(coordinates) == 2):
 			longitude = coordinates[0]
 			latitude = coordinates[1]
-			print("1 " + str(longitude))
-			print("2 " + str(latitude))
-			down = self.calc_next_location_latitude(longitude, latitude, self.map_entity.max_zoom, image_size, False)
-			up = self.calc_next_location_latitude(longitude, latitude, self.map_entity.max_zoom, image_size, True)
-			right = self.calc_next_location_longitude(longitude, latitude, self.map_entity.max_zoom, image_size, True)
-			left = self.calc_next_location_longitude(longitude, latitude, self.map_entity.max_zoom, image_size, False)
+			# print("1 " + str(longitude))
+			# print("2 " + str(latitude))
+			down = self.calc_next_location_latitude(longitude, latitude, self.map_entity.max_zoom,
+			                                        image_size, False, multiplier)
+			up = self.calc_next_location_latitude(longitude, latitude, self.map_entity.max_zoom,
+			                                      image_size, True, multiplier)
+			right = self.calc_next_location_longitude(longitude, latitude, self.map_entity.max_zoom,
+			                                          image_size, True, multiplier)
+			left = self.calc_next_location_longitude(longitude, latitude, self.map_entity.max_zoom,
+			                                         image_size, False, multiplier)
+			# print(up)
+			# print(left)
+			# print(latitude)
+			# print(longitude)
+			# print(down)
+			# print(right)
+			# print("  ")
 
 			return [
 				(up, left),
@@ -248,8 +260,6 @@ class RequestManager:
 			end_longitude = coordinates[2]
 			end_latitude = coordinates[3]
 
-
-
 			result = []
 			min_latitude_start = start_latitude
 
@@ -257,14 +267,17 @@ class RequestManager:
 				while start_latitude < end_latitude:
 					result.append(self.calculate_locations([start_longitude, start_latitude]))
 					start_latitude = self.calc_next_location_latitude(start_latitude, start_longitude,
-					                                                  self.map_entity.max_zoom, image_size, True)
+					                                                  self.map_entity.max_zoom,
+					                                                  image_size, True, 3.055)
 
 					if(start_latitude > end_latitude):
 						start_latitude = min_latitude_start
 						start_longitude = self.calc_next_location_longitude(start_latitude, start_longitude,
-						                                                    self.map_entity.max_zoom, image_size, False)
+						                                                    self.map_entity.max_zoom,
+						                                                    image_size, False, 3.055)
 						break
 
+			#print(result)
 			return result
 
 
