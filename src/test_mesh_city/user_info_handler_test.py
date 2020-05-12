@@ -1,6 +1,6 @@
 import unittest
 
-from mesh_city.util.google_maps.user_info_handler import UserInfoHandler
+from mesh_city.imagery_provider.user_info_handler import UserInfoHandler
 
 
 class MainTestCase(unittest.TestCase):

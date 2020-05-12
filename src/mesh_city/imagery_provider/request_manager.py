@@ -6,9 +6,7 @@ from pathlib import Path
 import geopy
 from PIL import Image
 
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 
 
 def calc_meters_per_px(latitude, zoom):
@@ -29,21 +27,21 @@ class RequestManager:
 	images_folder_path = Path.joinpath(temp_path, "resources", "images")
 	path_to_map_image = Path.joinpath(images_folder_path, "request_0", "tile_0")
 
-	def __init__(self, user_info,quota_manager):
+	def __init__(self, user_info, quota_manager):
 		self.user_info = user_info
-		self.quota_manager  =quota_manager
+		self.quota_manager = quota_manager
 		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
 
 	def make_request(self, coordinates):
 		request_number = 1
 		request_number_string = str(request_number)
 
-		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
+		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
 		os.makedirs(new_folder_path)
 
 		tile_number = 0
 		temp_tile_number = str(tile_number)
-		new_folder_path = Path.joinpath(new_folder_path, 'tile_' + temp_tile_number)
+		new_folder_path = Path.joinpath(new_folder_path, "tile_" + temp_tile_number)
 		os.makedirs(new_folder_path)
 		tile_number += 1
 
@@ -73,7 +71,6 @@ class RequestManager:
 			if counter == 10 and lastRound:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
-
 
 	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
