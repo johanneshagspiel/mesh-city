@@ -8,34 +8,29 @@ import glob
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
-
-
-def calc_meters_per_px(latitude, zoom):
-	"""
-	Method which calculates the number of meters one pixel at this specific latitude and zoom level
-	represents.
-	:param latitude: respective latitude.
-	:param zoom: respective zoom level, accepts a value between 1 and 21. Urban areas have higher
-	zoom levels, whilst Anartica has a zoom level of 16.
-	:return: the number of meters one pixel represents in an image.
-	"""
-	meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
-	return meters_per_px
-
+from mesh_city.imagery_provider.log_manager import LogManager
 
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources','images')
-	path_to_map_image = None
+	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
 
 	def __init__(self, user_entity):
 		self.user_entity = user_entity
-		self.map_entity = GoogleMapsProvider(user_entity)
-		#self.map_entity = AhnEntity(user_entity)
+
+		#self.map_entity = GoogleMapsProvider(user_entity)
+		self.map_entity = AhnProvider(user_entity)
 		#self.map_entity = MapboxEntity(user_entity)
 
+		self.log_manager = LogManager()
+		self.request_number = self.log_manager.get_request_number()
+
 	def make_request(self, coordinates):
-		request_number = 0
+		"""
+		:param coordinates:
+		:return:
+		"""
+		request_number = self.request_number
 		request_number_string = str(request_number)
 
 		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
@@ -47,13 +42,18 @@ class RequestManager:
 		os.makedirs(new_folder_path)
 		tile_number += 1
 
-		locations = self.calculate_locations(coordinates)
-		number_map_calls = len(locations)
+		coordinates = self.calculate_locations(coordinates)
+		bounding_box = [coordinates[0], coordinates[-1]]
+		number_requests = len(coordinates)
+		number_requests_temp = number_requests
+		lastRound = False
+
+		if(number_requests == 9):
+			lastRound = True
 
 		counter = 1
-		lastRound = True
 
-		for location in locations:
+		for location in coordinates:
 			number = str(counter)
 			x = str(location[0])
 			y = str(location[1])
@@ -70,9 +70,15 @@ class RequestManager:
 				os.makedirs(new_folder_path)
 				counter = 0
 				tile_number += 1
+				number_requests_temp = number_requests_temp - 9
+				if (number_requests_temp == 9):
+					lastRound = True
 			if counter == 10 and lastRound:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
+				self.log_manager.write_entry_log(request_number, self.user_entity, self.map_entity,
+				                                 number_requests, bounding_box, coordinates)
+				self.request_number = request_number + 1
 
 
 	# box defined by bottom left and top right coordinate
@@ -258,3 +264,15 @@ class RequestManager:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
+
+def calc_meters_per_px(latitude, zoom):
+	"""
+	Method which calculates the number of meters one pixel at this specific latitude and zoom level
+	represents.
+	:param latitude: respective latitude.
+	:param zoom: respective zoom level, accepts a value between 1 and 21. Urban areas have higher
+	zoom levels, whilst Anartica has a zoom level of 16.
+	:return: the number of meters one pixel represents in an image.
+	"""
+	meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
+	return meters_per_px
