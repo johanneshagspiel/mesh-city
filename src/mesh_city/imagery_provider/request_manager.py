@@ -2,22 +2,28 @@ import glob
 import math
 import os
 from pathlib import Path
-
-import geopy
 from PIL import Image
-
+import geopy
+import glob
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 
 
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.log_manager import LogManager
+
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, "resources", "images")
-	path_to_map_image = Path.joinpath(images_folder_path, "request_0", "tile_0")
+	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
 
 	def __init__(self, user_info, quota_manager):
 		self.user_info = user_info
 		self.quota_manager = quota_manager
 		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
+
+		self.log_manager = LogManager()
+		self.request_number = self.log_manager.get_request_number()
 
 	def make_single_request(self, centre_coordinates, zoom):
 		self.map_entity.get_and_store_location(
@@ -29,7 +35,7 @@ class RequestManager:
 		)
 
 	def make_request_for_block(self, centre_coordinates, zoom):
-		request_number = 0
+		request_number = self.request_number
 		request_number_string = str(request_number)
 
 		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
@@ -41,32 +47,44 @@ class RequestManager:
 		os.makedirs(new_folder_path)
 		tile_number += 1
 
-		locations = self.calculate_locations(centre_coordinates)
-		number_map_calls = len(locations)
+		coordinates = self.calculate_locations(coordinates)
+		bounding_box = [coordinates[0], coordinates[-1]]
+		number_requests = len(coordinates)
+		number_requests_temp = number_requests
+		lastRound = False
+
+		if(number_requests == 9):
+			lastRound = True
 
 		counter = 1
-		last_round = True
 
-		for location in locations:
+		for location in coordinates:
 			number = str(counter)
-			latitude = str(location[0])
-			longitude = str(location[1])
-			temp_name = str(number + "_" + latitude + "_" + longitude + ".png")
+			x = str(location[0])
+			y = str(location[1])
+			temp_name = str(number + "_" + x + "_" + y + ".png")
 			self.map_entity.get_and_store_location(
-				location[0], location[1], zoom, temp_name, new_folder_path
+				location[0], location[1], temp_name, new_folder_path
 			)
 			counter += 1
 
-			if counter == 10 and not last_round:
+			if counter == 10 and not lastRound:
 				self.concat_images(new_folder_path, counter, tile_number)
 				temp_tile_number = str(tile_number)
 				new_folder_path = Path.joinpath(new_folder_path, "tile_" + temp_tile_number)
 				os.makedirs(new_folder_path)
 				counter = 0
 				tile_number += 1
-			if counter == 10 and last_round:
+				number_requests_temp = number_requests_temp - 9
+				if (number_requests_temp == 9):
+					lastRound = True
+			if counter == 10 and lastRound:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
+				self.log_manager.write_entry_log(request_number, self.user_entity, self.map_entity,
+				                                 number_requests, bounding_box, coordinates)
+				self.request_number = request_number + 1
+
 
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
 		"""
