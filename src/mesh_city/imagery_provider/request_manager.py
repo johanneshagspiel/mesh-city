@@ -74,27 +74,6 @@ class RequestManager:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
 
-	def calculate_locations(self, coordinates):
-		if (len(coordinates) == 2):
-			longitude = coordinates[0]
-			latitude = coordinates[1]
-			image_size = 640 - self.map_entity.padding
-			down = self.calc_next_location_latitude(longitude, latitude, 20, image_size, False)
-			up = self.calc_next_location_latitude(longitude, latitude, 20, image_size, True)
-			right = self.calc_next_location_longitude(longitude, latitude, 20, image_size, True)
-			left = self.calc_next_location_longitude(longitude, latitude, 20, image_size, False)
-
-		return [
-			(up, left),
-			(up, latitude),
-			(up, right),
-			(longitude, left),
-			(longitude, latitude),
-			(longitude, right),
-			(down, left),
-			(down, latitude),
-			(down, right),
-		]  # yapf: disable
 
 	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
