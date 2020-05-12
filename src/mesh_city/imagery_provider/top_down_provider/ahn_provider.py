@@ -1,10 +1,7 @@
 import math
 from pathlib import Path
-
 import requests
-
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-
 
 class AhnProvider(TopDownProvider):
 	color_to_height = {
@@ -55,10 +52,20 @@ class AhnProvider(TopDownProvider):
 
 	def __init__(self, user_info, quota_manager):
 		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
+		self.name = "ahn"
+		self.max_zoom = 20
 
-	def get_and_store_location(self, x, y, name, new_folder_path):
+	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
+		"""
+		The standard method to get and store one image at a certain location with a certain name.
+		Ahn uses
+		:param longitude: the longitude of the location of interest in the EPSG:4326 coordinate system
+		:param latitude: the latitude of the location of interest in the EPSG:4326 coordinate system
+		:param name: the name to store the file under under
+		:param new_folder_path: the path where to store the file
+		"""
 
-		bounding_box_coordinates = self.calculate_bounding_box(x, y, 20, 640, 640)
+		bounding_box_coordinates = self.calculate_bounding_box(longitude, latitude, 20, 640, 640)
 
 		xmin = str(bounding_box_coordinates[0])
 		ymin = str(bounding_box_coordinates[1])

@@ -65,8 +65,8 @@ class Application:
 			user_info=self.user_info, quota_manager=self.quota_manager
 		)
 
-		large_photo = self.load_large_image()
-		self.load_large_image_on_map(self.canvas, large_photo)
+		# large_photo = self.load_large_image()
+		# self.load_large_image_on_map(self.canvas, large_photo)
 
 		mainloop()
 
