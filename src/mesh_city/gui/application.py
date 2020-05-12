@@ -54,10 +54,6 @@ class Application:
 			self.master, text="Extract imagery to output folder", command=self.request_data
 		)
 		btn2.grid(row=5, columnspan=3)
-		large_photo = self.load_large_image()
-		self.load_large_image_on_map(self.canvas, large_photo)
-
-		#####
 
 		self.user_info_handler = UserInfoHandler()
 		if self.user_info_handler.file_exists():
@@ -67,6 +63,12 @@ class Application:
 
 		self.quota_manager = QuotaManager(self.user_info)
 		self.request_manager = RequestManager(user_info=self.user_info,quota_manager=self.quota_manager)
+
+		large_photo = self.load_large_image()
+		self.load_large_image_on_map(self.canvas, large_photo)
+
+		#####
+
 
 		mainloop()
 
@@ -123,44 +125,6 @@ class Application:
 			"concat_image_*").absolute().as_posix()
 			).pop()
 		)
-		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
-		get_photo = ImageTk.PhotoImage(resize_image)
-		return get_photo
-
-	def load_images_on_map(self, canvas, photo_list):
-		x = 15
-		y = 0
-		for photo in photo_list:
-			canvas.create_image(x, y, anchor=NW, image=photo)
-			if x == 439:
-				x = 15
-				y = y + 212
-			else:
-				x = x + 212
-
-	def load_images(self):
-		path_list = [
-			Path.joinpath(self.image_path, "up_left.png"),
-			Path.joinpath(self.image_path, "up_center.png"),
-			Path.joinpath(self.image_path, "up_right.png"),
-			Path.joinpath(self.image_path, "center_left.png"),
-			Path.joinpath(self.image_path, "center_center.png"),
-			Path.joinpath(self.image_path, "center_right.png"),
-			Path.joinpath(self.image_path, "down_left.png"),
-			Path.joinpath(self.image_path, "down_center.png"),
-			Path.joinpath(self.image_path, "down_right.png"),
-		]
-
-		get_image = lambda x: Image.open(x)
-		image_list = list(map(get_image, path_list))
-		resize_image = lambda x: x.resize((212, 212), Image.ANTIALIAS)
-		resize_image_list = list(map(resize_image, image_list))
-		get_photo = lambda x: ImageTk.PhotoImage(x)
-		photo_list = list(map(get_photo, resize_image_list))
-		return photo_list
-
-	def load_large_image(self):
-		get_image = Image.open(Path.joinpath(self.image_path, "large_image.png"))
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo

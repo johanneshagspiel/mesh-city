@@ -27,7 +27,7 @@ def calc_meters_per_px(latitude, zoom):
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, "resources", "images")
-	path_to_map_image = None
+	path_to_map_image = Path.joinpath(images_folder_path, "request_0", "tile_0")
 
 	def __init__(self, user_info,quota_manager):
 		self.user_info = user_info
@@ -35,7 +35,7 @@ class RequestManager:
 		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
 
 	def make_request(self, coordinates):
-		request_number = 0
+		request_number = 1
 		request_number_string = str(request_number)
 
 		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
