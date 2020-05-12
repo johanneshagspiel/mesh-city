@@ -13,12 +13,12 @@ class MapboxProvider(TopDownProvider):
 		self.geocoder = Geocoder(access_token=user_entity.get_api_key())
 		self.name = "mapbox"
 
-	def get_and_store_location(self, x, y, name, new_folder_path):
+	def get_and_store_location(self, latitude, longitude, zoom, filename, new_folder_path):
 		username = "mapbox"
 		style_id = "satellite-v9"
-		lat = str(x)
-		lon = str(y)
-		zoom = str(19)
+		lat = str(latitude)
+		lon = str(longitude)
+		zoom = str(zoom)
 		bearing = str(0)
 		pitch = str(2)
 		width = str(640)
@@ -47,7 +47,6 @@ class MapboxProvider(TopDownProvider):
 			)
 		)
 
-		filename = name
 		to_store = Path.joinpath(new_folder_path, filename)
 
 		with open(to_store, "wb") as output:

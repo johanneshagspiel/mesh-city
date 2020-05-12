@@ -9,5 +9,5 @@ class TopDownProvider(ABC):
 		self.padding = 0
 
 		@abstractmethod
-		def get_and_store_location(self, x, y, name):
+		def get_and_store_location(self, latitude, longitude, zoom, name):
 			pass
