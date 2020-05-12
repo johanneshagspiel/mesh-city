@@ -8,7 +8,7 @@ def main() -> None:
 	user_manager = UserManager()
 	AhnProvider(user_manager)
 	request_manager = RequestManager(user_manager)
-	request_manager.make_request((51.998967, 4.373414))
+	#request_manager.make_request((51.923539, 4.492560))
 	Application(request_manager)
 
 if __name__ == '__main__':
