@@ -6,9 +6,7 @@ from pathlib import Path
 import geopy
 from PIL import Image
 
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 
 
 def calc_meters_per_px(latitude, zoom):
@@ -29,9 +27,9 @@ class RequestManager:
 	images_folder_path = Path.joinpath(temp_path, "resources", "images")
 	path_to_map_image = Path.joinpath(images_folder_path, "request_0", "tile_0")
 
-	def __init__(self, user_info,quota_manager):
+	def __init__(self, user_info, quota_manager):
 		self.user_info = user_info
-		self.quota_manager  =quota_manager
+		self.quota_manager = quota_manager
 		self.map_entity = GoogleMapsProvider(user_info, quota_manager)
 
 	def make_request(self, coordinates):
@@ -73,7 +71,6 @@ class RequestManager:
 			if counter == 10 and lastRound:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
-
 
 	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
@@ -175,10 +172,12 @@ class RequestManager:
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
 			new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
+			                                                                       math.pi) / math.cos(
+				latitude * math.pi / 180)
 		else:
 			new_longitude = longitude - (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
+			                                                                       math.pi) / math.cos(
+				latitude * math.pi / 180)
 		return new_longitude
 
 	def calculate_locations(self, coordinates):
@@ -245,7 +244,8 @@ class RequestManager:
 		tile_number_string = str(tile_number)
 		temp_name = "request_" + request_string + "_tile_" + tile_number_string
 		self.get_concat_vertically(self.get_concat_vertically(level_0, level_1),
-			level_2).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
+		                           level_2).save(
+			Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	def get_concat_horizontally(self, image_1, image_2):
 		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))

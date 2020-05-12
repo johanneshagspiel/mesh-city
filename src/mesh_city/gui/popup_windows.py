@@ -7,9 +7,9 @@ class RegisterPopupWindow(object):
 		self.value = ""
 		top = self.top = Toplevel(master)
 		Label(top,
-			text="Please enter the following information to start collecting maps data:").grid(
+		      text="Please enter the following information to start collecting maps data:").grid(
 			row=0, columnspan=3
-			)
+		)
 		Label(top, text="Name").grid(row=1)
 		Label(top, text="Google API key").grid(row=2)
 		Label(top, text="Monthly quota").grid(row=3)

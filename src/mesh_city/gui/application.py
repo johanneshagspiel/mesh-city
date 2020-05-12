@@ -9,7 +9,6 @@ from PIL import Image, ImageTk
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
 from mesh_city.imagery_provider.quota_manager import QuotaManager
 from mesh_city.imagery_provider.request_manager import RequestManager
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.user_info import UserInfo
 from mesh_city.imagery_provider.user_info_handler import UserInfoHandler
 
@@ -62,13 +61,13 @@ class Application:
 			self.register_user()
 
 		self.quota_manager = QuotaManager(self.user_info)
-		self.request_manager = RequestManager(user_info=self.user_info,quota_manager=self.quota_manager)
+		self.request_manager = RequestManager(user_info=self.user_info,
+		                                      quota_manager=self.quota_manager)
 
 		large_photo = self.load_large_image()
 		self.load_large_image_on_map(self.canvas, large_photo)
 
 		#####
-
 
 		mainloop()
 
@@ -121,8 +120,8 @@ class Application:
 	def load_large_image(self):
 		get_image = Image.open(
 			glob.glob(
-			Path.joinpath(self.request_manager.path_to_map_image,
-			"concat_image_*").absolute().as_posix()
+				Path.joinpath(self.request_manager.path_to_map_image,
+				              "concat_image_*").absolute().as_posix()
 			).pop()
 		)
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
