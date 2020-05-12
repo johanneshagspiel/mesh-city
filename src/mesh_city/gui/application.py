@@ -8,9 +8,9 @@ from PIL import Image, ImageTk
 
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
 from mesh_city.imagery_provider.quota_manager import QuotaManager
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.user_info import UserInfo
 from mesh_city.imagery_provider.user_info_handler import UserInfoHandler
-from mesh_city.util.google_maps.google_maps_entity import GoogleMapsEntity
 
 
 def set_entry(entry, value):
@@ -64,7 +64,7 @@ class Application:
 			self.register_user()
 
 		self.quota_manager = QuotaManager(self.user_info)
-		self.maps_entity = GoogleMapsEntity(self.user_info, self.quota_manager)
+		self.maps_entity = GoogleMapsProvider(self.user_info, self.quota_manager)
 		mainloop()
 
 	def select_dir(self):
