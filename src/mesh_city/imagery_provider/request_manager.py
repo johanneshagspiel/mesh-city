@@ -47,7 +47,7 @@ class RequestManager:
 		os.makedirs(new_folder_path)
 		tile_number += 1
 
-		coordinates = self.calculate_locations(coordinates)
+		coordinates = self.calculate_locations(centre_coordinates)
 		bounding_box = [coordinates[0], coordinates[-1]]
 		number_requests = len(coordinates)
 		number_requests_temp = number_requests
@@ -64,7 +64,7 @@ class RequestManager:
 			y = str(location[1])
 			temp_name = str(number + "_" + x + "_" + y + ".png")
 			self.map_entity.get_and_store_location(
-				location[0], location[1], temp_name, new_folder_path
+				location[0], location[1], zoom, temp_name, new_folder_path
 			)
 			counter += 1
 
