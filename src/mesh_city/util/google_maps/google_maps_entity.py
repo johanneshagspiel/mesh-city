@@ -1,4 +1,3 @@
-import googlemaps
 import math
 from pathlib import Path
 
@@ -10,7 +9,7 @@ class GoogleMapsEntity:
 	temp_path = Path(__file__).parents[2]
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 
-	def __init__(self, user_info,quota_manager):
+	def __init__(self, user_info, quota_manager):
 		# self.google_api_util = google_api_util
 		self.request_number = 0
 		self.client = googlemaps.Client(key=user_info.api_key)
@@ -29,8 +28,7 @@ class GoogleMapsEntity:
 		visible = None
 		style = None
 
-		filename = str(self.request_number
-		               ) + "_" + str(x_coord) + "_" + str(y_coord) + ".png"
+		filename = str(self.request_number) + "_" + str(x_coord) + "_" + str(y_coord) + ".png"
 		to_store = Path.joinpath(self.images_folder_path, filename)
 
 		with open(to_store, 'wb') as file:
@@ -58,16 +56,14 @@ class GoogleMapsEntity:
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x):
 		metersPerPx = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = metersPerPx * image_size_x
-		new_latitude = latitude + (next_center_distance_meters /
-		                           6378137) * (180 / math.pi)
+		new_latitude = latitude + (next_center_distance_meters / 6378137) * (180 / math.pi)
 		return new_latitude
 
 	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y):
 		metersPerPx = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = metersPerPx * image_size_y
-		new_longitude = longitude + (next_center_distance_meters /
-		                             6378137) * (180 / math.pi) / math.cos(
-			latitude * math.pi / 180)
+		new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
+			math.pi) / math.cos(latitude * math.pi / 180)
 		return new_longitude
 
 	def calc_meters_per_px(self, latitude, zoom):
@@ -79,13 +75,7 @@ class GoogleMapsEntity:
 
 	# box defined by bottom left and top right coordinate!!!
 	def get_area(
-		self,
-		bottom_latitude,
-		left_longitude,
-		top_latitude,
-		right_longitude,
-		zoom,
-		image_size
+		self, bottom_latitude, left_longitude, top_latitude, right_longitude, zoom, image_size
 	):
 
 		horizontal_width = geopy.distance.distance(
@@ -104,12 +94,8 @@ class GoogleMapsEntity:
 		print("meters per pixel = ", self.calc_meters_per_px(top_latitude, zoom))
 
 		# TODO do we need a different calculation for vertical? Bottom latitude is biggest: safe call
-		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(
-			top_latitude, zoom
-		)
-		total_vertical_pixels = vertical_length / self.calc_meters_per_px(
-			top_latitude, zoom
-		)
+		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(top_latitude, zoom)
+		total_vertical_pixels = vertical_length / self.calc_meters_per_px(top_latitude, zoom)
 
 		print(
 			"total_horizontal_pixels = ",

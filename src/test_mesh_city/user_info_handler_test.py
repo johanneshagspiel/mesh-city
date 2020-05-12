@@ -8,5 +8,5 @@ class MainTestCase(unittest.TestCase):
 
 	def test_main(self):
 		""" A (useless) example test for the splash message """
-		handler =  UserInfoHandler()
+		handler = UserInfoHandler()
 		print(handler.load_user_info().__dict__)

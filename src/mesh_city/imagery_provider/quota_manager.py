@@ -1,10 +1,9 @@
-import json
-import os
 from datetime import datetime
-from pathlib import Path
+
 
 class QuotaManager:
-	def __init__(self,user_info):
+
+	def __init__(self, user_info):
 		self.user_info = user_info
 
 	def increase_usage(self):
@@ -14,15 +13,11 @@ class QuotaManager:
 
 	def check_usage_against_quota(self):
 		quota = int(self.user_info.quota)
-		if(quota - self.user_info.usage) <= quota/10:
+		if (quota - self.user_info.usage) <= quota / 10:
 			print("Warning, you are getting close to your quota limit!")
 
 	def check_monthly_limit(self):
-		init_date = datetime(
-			self.user_info.year,
-			self.user_info.month,
-			self.user_info.day,
-		)
+		init_date = datetime(self.user_info.year, self.user_info.month, self.user_info.day, )
 		diff_months = datetime.now().month - init_date.month
 		diff_days = datetime.now().day - init_date.day
 

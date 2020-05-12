@@ -2,12 +2,13 @@ import glob
 import math
 import os
 from pathlib import Path
-from PIL import Image
+
 import geopy
-import glob
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from PIL import Image
+
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 
 
 def calc_meters_per_px(latitude, zoom):
@@ -25,7 +26,7 @@ def calc_meters_per_px(latitude, zoom):
 
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 	path_to_map_image = None
 
 	def __init__(self, user_entity):
@@ -74,7 +75,6 @@ class RequestManager:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
 
-
 	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
 		"""
@@ -90,6 +90,7 @@ class RequestManager:
 		:param image_size: the resolution of the images.
 		:return: false if the input is an illegal boundary box,
 		"""
+
 		if bottom_lat > top_lat or left_long > right_long:
 			return False
 
