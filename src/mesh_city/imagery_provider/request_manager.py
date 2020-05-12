@@ -2,9 +2,12 @@ import glob
 import math
 import os
 from pathlib import Path
-
-import geopy
 from PIL import Image
+import geopy
+import glob
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 
 
 def calc_meters_per_px(latitude, zoom):
@@ -22,22 +25,25 @@ def calc_meters_per_px(latitude, zoom):
 
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, "resources", "images")
+	images_folder_path = Path.joinpath(temp_path, 'resources','images')
 	path_to_map_image = None
 
 	def __init__(self, user_entity):
 		self.user_entity = user_entity
+		self.map_entity = GoogleMapsProvider(user_entity)
+		#self.map_entity = AhnEntity(user_entity)
+		#self.map_entity = MapboxEntity(user_entity)
 
 	def make_request(self, coordinates):
 		request_number = 0
 		request_number_string = str(request_number)
 
-		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
+		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
 		os.makedirs(new_folder_path)
 
 		tile_number = 0
 		temp_tile_number = str(tile_number)
-		new_folder_path = Path.joinpath(new_folder_path, "tile_" + temp_tile_number)
+		new_folder_path = Path.joinpath(new_folder_path, 'tile_' + temp_tile_number)
 		os.makedirs(new_folder_path)
 		tile_number += 1
 
@@ -68,6 +74,29 @@ class RequestManager:
 				self.concat_images(new_folder_path, request_number, tile_number - 1)
 				self.path_to_map_image = new_folder_path
 
+	def calculate_locations(self, coordinates):
+		if (len(coordinates) == 2):
+			longitude = coordinates[0]
+			latitude = coordinates[1]
+			image_size = 640 - self.map_entity.padding
+			down = self.calc_next_location_latitude(longitude, latitude, 20, image_size, False)
+			up = self.calc_next_location_latitude(longitude, latitude, 20, image_size, True)
+			right = self.calc_next_location_longitude(longitude, latitude, 20, image_size, True)
+			left = self.calc_next_location_longitude(longitude, latitude, 20, image_size, False)
+
+		return [
+			(up, left),
+			(up, latitude),
+			(up, right),
+			(longitude, left),
+			(longitude, latitude),
+			(longitude, right),
+			(down, left),
+			(down, latitude),
+			(down, right),
+		]  # yapf: disable
+
+	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
 		"""
 		Method which calculates and retrieves the number of images that are necessary have a
@@ -100,8 +129,8 @@ class RequestManager:
 		# )
 
 		# TODO do we need a different calculation for vertical? Bottom latitude is biggest: safe call
-		total_horizontal_pixels = horizontal_width / calc_meters_per_px(top_lat, zoom)
-		total_vertical_pixels = vertical_length / calc_meters_per_px(top_lat, zoom)
+		total_horizontal_pixels = horizontal_width / self.calc_meters_per_px(top_lat, zoom)
+		total_vertical_pixels = vertical_length / self.calc_meters_per_px(top_lat, zoom)
 
 		# print(
 		# 	"total_horizontal_pixels = ",
@@ -123,9 +152,11 @@ class RequestManager:
 		latitude_first_image = self.calc_next_location_latitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
+		# bottom_latitude + ((top_latitude - bottom_latitude) / (num_of_images_vertical * 2))
 		longitude_first_image = self.calc_next_location_longitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
+		# left_longitude + ((left_longitude - right_longitude) / (num_of_images_horizontal * 2))
 
 		current_latitude = latitude_first_image
 		current_longitude = longitude_first_image
@@ -135,6 +166,7 @@ class RequestManager:
 		for vertical in range(num_of_images_vertical):
 			for horizontal in range(num_of_images_horizontal):
 				self.map_entity.get_and_store_location(current_latitude, current_longitude, False)
+				print(current_latitude, ",", current_longitude)
 
 				# print(current_latitude, ",", current_longitude)
 				# number_of_calls += 1
