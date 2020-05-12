@@ -2,7 +2,7 @@ import glob
 from datetime import datetime
 from os import path
 from pathlib import Path
-from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW
+from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
 
 from PIL import Image, ImageTk
 
@@ -20,12 +20,15 @@ def set_entry(entry, value):
 
 class Application:
 
-	def __init__(self, master, request_manager):
-		self.master = master
+	def __init__(self, request_manager):
+		self.master = Tk()
 		self.temp_path = Path(__file__).parents[1]
 		self.image_path = Path.joinpath(self.temp_path, "resources", "images")
 		self.file = path.dirname(__file__)
 		self.request_manager = request_manager
+
+		self.master.title("Google maps extractor")
+		self.master.geometry("")
 
 		# Definition of UI of main window
 		self.canvas = Canvas(self.master, width=651, height=636)
@@ -96,7 +99,7 @@ class Application:
 			current_time.day,
 			current_time.hour,
 			current_time.minute,
-			current_time.second
+			current_time.second,
 		)
 		self.user_info_handler.store_user_info(self.user_info)
 
