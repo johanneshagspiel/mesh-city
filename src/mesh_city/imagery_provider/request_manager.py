@@ -16,7 +16,7 @@ def calc_meters_per_px(latitude, zoom):
 	represents.
 	:param latitude: respective latitude.
 	:param zoom: respective zoom level, accepts a value between 1 and 21. Urban areas have higher
-	zoom levels, whilst Anartica has a zoom level of 16.
+	zoom levels, whilst Antarctica has a zoom level of 16.
 	:return: the number of meters one pixel represents in an image.
 	"""
 	meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
@@ -75,7 +75,6 @@ class RequestManager:
 				self.path_to_map_image = new_folder_path
 
 
-	# box defined by bottom left and top right coordinate
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
 		"""
 		Method which calculates and retrieves the number of images that are necessary have a
@@ -131,11 +130,9 @@ class RequestManager:
 		latitude_first_image = self.calc_next_location_latitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
-		# bottom_latitude + ((top_latitude - bottom_latitude) / (num_of_images_vertical * 2))
 		longitude_first_image = self.calc_next_location_longitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
-		# left_longitude + ((left_longitude - right_longitude) / (num_of_images_horizontal * 2))
 
 		current_latitude = latitude_first_image
 		current_longitude = longitude_first_image
