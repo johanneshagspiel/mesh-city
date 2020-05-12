@@ -26,7 +26,7 @@ def calc_meters_per_px(latitude, zoom):
 
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
+	images_folder_path = Path.joinpath(temp_path, "resources", "images")
 	path_to_map_image = None
 
 	def __init__(self, user_entity):

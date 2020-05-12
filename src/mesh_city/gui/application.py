@@ -2,15 +2,15 @@ import glob
 from datetime import datetime
 from os import path
 from pathlib import Path
-from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW
+from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
 
 from PIL import Image, ImageTk
 
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
 from mesh_city.imagery_provider.quota_manager import QuotaManager
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.user_info import UserInfo
 from mesh_city.imagery_provider.user_info_handler import UserInfoHandler
-from mesh_city.util.google_maps.google_maps_entity import GoogleMapsEntity
 
 
 def set_entry(entry, value):
@@ -20,12 +20,15 @@ def set_entry(entry, value):
 
 class Application:
 
-	def __init__(self, master, request_manager):
-		self.master = master
+	def __init__(self, request_manager):
+		self.master = Tk()
 		self.temp_path = Path(__file__).parents[1]
 		self.image_path = Path.joinpath(self.temp_path, "resources", "images")
 		self.file = path.dirname(__file__)
 		self.request_manager = request_manager
+
+		self.master.title("Google maps extractor")
+		self.master.geometry("")
 
 		# Definition of UI of main window
 		self.canvas = Canvas(self.master, width=651, height=636)
@@ -64,7 +67,7 @@ class Application:
 			self.register_user()
 
 		self.quota_manager = QuotaManager(self.user_info)
-		self.maps_entity = GoogleMapsEntity(self.user_info, self.quota_manager)
+		self.maps_entity = GoogleMapsProvider(self.user_info, self.quota_manager)
 		mainloop()
 
 	def select_dir(self):
@@ -96,7 +99,7 @@ class Application:
 			current_time.day,
 			current_time.hour,
 			current_time.minute,
-			current_time.second
+			current_time.second,
 		)
 		self.user_info_handler.store_user_info(self.user_info)
 
