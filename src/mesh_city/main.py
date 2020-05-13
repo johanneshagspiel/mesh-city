@@ -1,9 +1,9 @@
 from mesh_city.application import Application
 from mesh_city.imagery_provider.request_manager import RequestManager
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info_handler import UserInfoHandler
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
-from mesh_city.application import Application
+
 
 def main() -> None:
 
@@ -12,8 +12,8 @@ def main() -> None:
 	quota_manager = QuotaManager(user_info)
 	request_manager = RequestManager(user_info=user_info, quota_manager=quota_manager)
 
-	test = AhnProvider(user_info,quota_manager)
-	test.get_height_from_pixel(1000,1000)
+	test = AhnProvider(user_info, quota_manager)
+	test.get_height_from_pixel(1000, 1000)
 	test.store_to_json()
 
 	#request_manager.make_request_for_block(centre_coordinates=[51.998921, 4.373500], zoom=request_manager.map_entity.max_zoom)
@@ -25,6 +25,7 @@ def main() -> None:
 	# request_manager.make_single_request((top, 4.492560), 15)
 
 	#Application()
+
 
 if __name__ == '__main__':
 	main()
