@@ -1,13 +1,8 @@
-import glob
-from os import path
-from pathlib import Path
-from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk, Toplevel
-from PIL import Image, ImageTk
-from mesh_city.user.quota_manager import QuotaManager
-from mesh_city.imagery_provider.request_manager import RequestManager
-from mesh_city.user.user_info import UserInfo
-from mesh_city.user.user_info_handler import UserInfoHandler
 from datetime import datetime
+from tkinter import Button, Entry, Label, Toplevel
+
+from mesh_city.user.user_info import UserInfo
+
 
 class StartScreen:
 
@@ -49,15 +44,16 @@ class StartScreen:
 			current_time.second,
 		)
 
+
 class RegisterPopupWindow(object):
 
 	def __init__(self, master):
 		self.value = ""
 		top = self.top = Toplevel(master)
 		Label(top,
-		      text="Please enter the following information to start collecting maps data:").grid(
+			text="Please enter the following information to start collecting maps data:").grid(
 			row=0, columnspan=3
-		)
+			)
 		Label(top, text="Name").grid(row=1)
 		Label(top, text="Google API key").grid(row=2)
 		Label(top, text="Monthly quota").grid(row=3)
@@ -74,6 +70,7 @@ class RegisterPopupWindow(object):
 		self.value = (self.name_entry.get(), self.key_entry.get(), self.quotum_entry.get())
 		self.top.destroy()
 
+
 class NamePopupWindow(object):
 
 	def __init__(self, master):
@@ -89,4 +86,3 @@ class NamePopupWindow(object):
 	def cleanup(self):
 		self.value = self.name_entry.get()
 		self.top.destroy()
-

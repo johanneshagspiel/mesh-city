@@ -1,4 +1,4 @@
-from tkinter import Entry, Button, Label, Toplevel, END
+from tkinter import Button, END, Entry, Label, Toplevel
 
 
 class PopUpWindow:
@@ -11,11 +11,12 @@ class PopUpWindow:
 		top = self.top = Toplevel(master)
 		top.withdraw()
 
-		if(type == "search_window"):
+		if type == "search_window":
 			#SearchWindow(self.master, self.application)
 			self.w = SearchWindow(self.master, self.application)
 			coordinates = self.w.value
 			#self.master.wait_window(self.w.top)
+
 
 class SearchWindow(object):
 
@@ -24,9 +25,9 @@ class SearchWindow(object):
 		self.value = ""
 		top = self.top = Toplevel(master)
 		Label(top,
-		      text="Please enter the following information to start collecting maps data:").grid(
+			text="Please enter the following information to start collecting maps data:").grid(
 			row=0, columnspan=3
-		)
+			)
 		Label(top, text="Latitude").grid(row=1)
 		Label(top, text="Longitude").grid(row=2)
 		self.lat_entry = Entry(self.master)

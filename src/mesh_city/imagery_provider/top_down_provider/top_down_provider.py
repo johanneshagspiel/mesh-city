@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
+
 class TopDownProvider(ABC):
-	temp_path = None
-	images_folder_path = None
 
 	def __init__(self, user_info, quota_manager):
 		self.user_info = user_info
