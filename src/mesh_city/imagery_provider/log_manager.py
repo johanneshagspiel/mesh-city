@@ -1,9 +1,8 @@
-from pathlib import Path
-from datetime import datetime as dt
 import json
 import os
 import re
-
+from datetime import datetime as dt
+from pathlib import Path
 
 
 class LogManager:
@@ -11,8 +10,8 @@ class LogManager:
 	A class that is reponsible for logging every request made. It can be
 	"""
 	temp_path = Path(__file__).parents[1]
-	image_path = Path.joinpath(temp_path, 'resources','images')
-	log_path = Path.joinpath(image_path,'log_request.json')
+	image_path = Path.joinpath(temp_path, 'resources', 'images')
+	log_path = Path.joinpath(image_path, 'log_request.json')
 
 	def __init__(self):
 		pass
@@ -41,14 +40,15 @@ class LogManager:
 		# 	temp_ending = re.findall("(request_",directory)
 		# 	if(len(temp_ending) > 0):
 		# 		print(temp_ending)
-				# temp_result = int(temp_ending[0])
-				# if(temp_result > max_directory):
-				# 	max_directory = temp_result
+		# temp_result = int(temp_ending[0])
+		# if(temp_result > max_directory):
+		# 	max_directory = temp_result
 
 		return max_log > max_directory if max_log + 1 else max_directory
 
-	def write_entry_log(self, request_number, user_info, map_entity, number_requests,
-	                    bounding_box, coordinates):
+	def write_entry_log(
+		self, request_number, user_info, map_entity, number_requests, bounding_box, coordinates
+	):
 		"""
 		This method writes one request to the log
 		:param request_number: the number of the request
@@ -59,10 +59,10 @@ class LogManager:
 		:param coordinates: the coordinates that were used to make each individual map call
 		:return:
 		"""
-		if(map_entity.type == "top_down_provider"):
-			temp = TopDownProviderLogEntry(request_number, user_info,
-			                                                      map_entity, number_requests,
-			                                                      bounding_box, coordinates)
+		if (map_entity.type == "top_down_provider"):
+			temp = TopDownProviderLogEntry(
+				request_number, user_info, map_entity, number_requests, bounding_box, coordinates
+			)
 			with open(self.log_path, 'r') as json_log:
 				data = json_log.read()
 			logs = json.loads(data)
@@ -72,25 +72,37 @@ class LogManager:
 			with open(self.log_path, 'w') as json_log:
 				json.dump(logs, fp=json_log)
 
+
 class TopDownProviderLogEntry:
 
-	def __init__(self, request_number, user_info, map_entity, number_requests, bounding_box, coordinates):
+	def __init__(
+		self, request_number, user_info, map_entity, number_requests, bounding_box, coordinates
+	):
 		self.request_number = str(request_number)
 		self.name_user = str(user_info.name)
 		self.map_provider = str(map_entity.name)
 		self.number_requests = str(number_requests)
-		self.date = str(dt.now().day) + "/" + str(dt.now().month) + "/" + str(dt.now().year) + ", " + str(dt.now().hour) + ":" + str(dt.now().minute)
+		self.date = str(dt.now().day) + "/" + str(dt.now().month) + "/" + str(
+			dt.now().year
+		) + ", " + str(dt.now().hour) + ":" + str(dt.now().minute)
 		self.bounding_box = str(bounding_box)
 		self.coordinates = str(coordinates)
 
 	def for_json(self):
 		return [
-		({"request_number" : self.request_number}),
-		({"name_user": self.name_user}),
-		({"map_provider" : self.map_provider}),
-		({"number_requests" : self.number_requests}),
-		({"date" : self.date}),
-		({"bounding_box" : self.bounding_box}),
-		({"coordinates" : self.coordinates})
+			({
+			"request_number": self.request_number
+			}), ({
+			"name_user": self.name_user
+			}), ({
+			"map_provider": self.map_provider
+			}), ({
+			"number_requests": self.number_requests
+			}), ({
+			"date": self.date
+			}), ({
+			"bounding_box": self.bounding_box
+			}), ({
+			"coordinates": self.coordinates
+			})
 		]
-

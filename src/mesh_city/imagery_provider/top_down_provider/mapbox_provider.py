@@ -32,19 +32,19 @@ class MapboxProvider(TopDownProvider):
 		response = requests.get(
 			"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
 			% (
-				username,
-				style_id,
-				lon,
-				lat,
-				zoom,
-				bearing,
-				pitch,
-				width,
-				height,
-				scale,
-				access_token,
-				attribution,
-				logo,
+			username,
+			style_id,
+			lon,
+			lat,
+			zoom,
+			bearing,
+			pitch,
+			width,
+			height,
+			scale,
+			access_token,
+			attribution,
+			logo,
 			)
 		)
 

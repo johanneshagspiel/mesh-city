@@ -1,10 +1,10 @@
+import math
 from pathlib import Path
 
+import geopy
 import googlemaps
 import requests
 from PIL import Image
-import geopy
-import math
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
@@ -19,8 +19,9 @@ class GoogleMapsProvider(TopDownProvider):
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
 
-	def get_and_store_location(self, latitude, longitude, zoom, filename, new_folder_path,
-	                           width=None, height=None):
+	def get_and_store_location(
+		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
+	):
 		if height is None:
 			height = 640
 		if width is None:

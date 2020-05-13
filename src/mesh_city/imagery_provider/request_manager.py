@@ -1,13 +1,15 @@
 import math
 import os
 from pathlib import Path
+
 from geopy import distance
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.geo_location_util import GeoLocationUtil
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+
 from mesh_city.imagery_provider.log_manager import LogManager
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
+from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.image_util import ImageUtil
 
 
 class RequestManager:
@@ -74,10 +76,17 @@ class RequestManager:
 				x = str(location[0])
 				y = str(location[1])
 				temp_name = str(x + "_" + y + ".png")
-				self.map_entity.get_and_store_location(location[0], location[1], zoom, temp_name,
-				                                       new_folder_path)
-			self.log_manager.write_entry_log(request_number, self.user_info, self.map_entity,
-			                                 number_requests, bounding_box, coordinates)
+				self.map_entity.get_and_store_location(
+					location[0], location[1], zoom, temp_name, new_folder_path
+				)
+			self.log_manager.write_entry_log(
+				request_number,
+				self.user_info,
+				self.map_entity,
+				number_requests,
+				bounding_box,
+				coordinates
+			)
 
 		if (len(centre_coordinates) == 2):
 			for location in coordinates:
@@ -85,17 +94,24 @@ class RequestManager:
 				x = str(location[0])
 				y = str(location[1])
 				temp_name = str(number + "_" + x + "_" + y + ".png")
-				self.map_entity.get_and_store_location(location[0], location[1], zoom, temp_name,
-				                                       new_folder_path)
+				self.map_entity.get_and_store_location(
+					location[0], location[1], zoom, temp_name, new_folder_path
+				)
 				counter += 1
 
 				if counter == 10 and lastRound:
-					self.image_util.concat_images(new_folder_path, counter, tile_number - 1,
-					                              "normal")
+					self.image_util.concat_images(
+						new_folder_path, counter, tile_number - 1, "normal"
+					)
 					self.path_to_map_image = new_folder_path
-					self.log_manager.write_entry_log(request_number, self.user_info,
-					                                 self.map_entity,
-					                                 number_requests, bounding_box, coordinates)
+					self.log_manager.write_entry_log(
+						request_number,
+						self.user_info,
+						self.map_entity,
+						number_requests,
+						bounding_box,
+						coordinates
+					)
 
 	# if (len(centre_coordinates) == 4):
 	# 	for location in coordinates:
@@ -153,7 +169,8 @@ class RequestManager:
 
 		if bottom_lat > top_lat or left_long > right_long:
 			raise Exception(
-				'The first coordinate should be beneath and left of the second coordinate')
+				'The first coordinate should be beneath and left of the second coordinate'
+			)
 
 		side_resolution_image = self.map_entity.max_side_resolution_image
 
@@ -162,15 +179,15 @@ class RequestManager:
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
 
-		horizontal_width = distance.distance(
-			(bottom_lat, left_long), (bottom_lat, right_long)
-		).m
+		horizontal_width = distance.distance((bottom_lat, left_long), (bottom_lat, right_long)).m
 		vertical_length = distance.distance((bottom_lat, left_long), (top_lat, left_long)).m
 
 		total_horizontal_pixels = horizontal_width / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom)
-		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(top_lat,
-		                                                                                    zoom)
+			top_lat, zoom
+		)
+		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(
+			top_lat, zoom
+		)
 
 		num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / side_resolution_image))
 		num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
@@ -192,7 +209,8 @@ class RequestManager:
 		for vertical in range(num_of_images_vertical):
 			for horizontal in range(num_of_images_horizontal):
 				coordinates_list.append(
-					((current_latitude, current_longitude), (horizontal, vertical)))
+					((current_latitude, current_longitude), (horizontal, vertical))
+				)
 
 				# self.map_entity.get_and_store_location(current_latitude, current_longitude, zoom, str(current_latitude) + ", " + str(current_longitude) + ".png", self.images_folder_path)
 				# print(current_latitude, ",", current_longitude)
@@ -206,7 +224,7 @@ class RequestManager:
 				current_latitude, current_longitude, zoom, side_resolution_image, True
 			)
 		return (num_of_images_total, num_of_images_horizontal,
-		        num_of_images_vertical), coordinates_list
+			num_of_images_vertical), coordinates_list
 
 	def calculate_locations(self, coordinates, multiplier=1):
 		image_size = 640 - self.map_entity.padding
@@ -215,20 +233,18 @@ class RequestManager:
 			longitude = coordinates[0]
 			latitude = coordinates[1]
 
-			down = self.geo_location_util.calc_next_location_latitude(longitude, latitude,
-			                                                          self.map_entity.max_zoom,
-			                                                          image_size, False, multiplier)
-			up = self.geo_location_util.calc_next_location_latitude(longitude, latitude,
-			                                                        self.map_entity.max_zoom,
-			                                                        image_size, True, multiplier)
-			right = self.geo_location_util.calc_next_location_longitude(longitude, latitude,
-			                                                            self.map_entity.max_zoom,
-			                                                            image_size, True,
-			                                                            multiplier)
-			left = self.geo_location_util.calc_next_location_longitude(longitude, latitude,
-			                                                           self.map_entity.max_zoom,
-			                                                           image_size, False,
-			                                                           multiplier)
+			down = self.geo_location_util.calc_next_location_latitude(
+				longitude, latitude, self.map_entity.max_zoom, image_size, False, multiplier
+			)
+			up = self.geo_location_util.calc_next_location_latitude(
+				longitude, latitude, self.map_entity.max_zoom, image_size, True, multiplier
+			)
+			right = self.geo_location_util.calc_next_location_longitude(
+				longitude, latitude, self.map_entity.max_zoom, image_size, True, multiplier
+			)
+			left = self.geo_location_util.calc_next_location_longitude(
+				longitude, latitude, self.map_entity.max_zoom, image_size, False, multiplier
+			)
 
 			return [
 				(up, left),

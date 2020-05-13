@@ -13,6 +13,7 @@ class TopDownProvider(ABC):
 		self.max_side_resolution_image = 0
 
 		@abstractmethod
-		def get_and_store_location(latitude, longitude, zoom, filename, new_folder_path,
-	                           width=None, height=None):
+		def get_and_store_location(
+			latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
+		):
 			pass

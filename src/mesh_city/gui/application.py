@@ -3,10 +3,12 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
+
 from PIL import Image, ImageTk
+
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
-from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.imagery_provider.request_manager import RequestManager
+from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info import UserInfo
 from mesh_city.user.user_info_handler import UserInfoHandler
 
@@ -33,48 +35,41 @@ class Application:
 		side_bar = Label(self.canvas, width=15, height=645, text="")
 		canvas_side_bar = self.canvas.create_window(0, 0, window=side_bar)
 
-		search_button = Button(self.canvas, text="Search", width=6, height=3,
-		                 command=None, bg="grey")
+		search_button = Button(
+			self.canvas, text="Search", width=6, height=3, command=None, bg="grey"
+		)
 		canvas_search_button = self.canvas.create_window(28, 31, window=search_button)
 
-		test1_button = Button(self.canvas, text="Test1", width=6, height=3,
-		                 command=None, bg="grey")
+		test1_button = Button(self.canvas, text="Test1", width=6, height=3, command=None, bg="grey")
 		canvas_test1_button = self.canvas.create_window(28, 90, window=test1_button)
 
-		test2_button = Button(self.canvas, text="Test2", width=6, height=3,
-		                 command=None, bg="grey")
+		test2_button = Button(self.canvas, text="Test2", width=6, height=3, command=None, bg="grey")
 		canvas_test2_button = self.canvas.create_window(28, 149, window=test2_button)
 
-		test3_button = Button(self.canvas, text="Test3", width=6, height=3,
-		                 command=None, bg="grey")
+		test3_button = Button(self.canvas, text="Test3", width=6, height=3, command=None, bg="grey")
 		canvas_test3_button = self.canvas.create_window(28, 208, window=test3_button)
 
-		test4_button = Button(self.canvas, text="Test4", width=6, height=3,
-		                 command=None, bg="grey")
+		test4_button = Button(self.canvas, text="Test4", width=6, height=3, command=None, bg="grey")
 		canvas_test4_button = self.canvas.create_window(28, 267, window=test4_button)
 
-		test5_button = Button(self.canvas, text="Test5", width=6, height=3,
-		                 command=None, bg="grey")
+		test5_button = Button(self.canvas, text="Test5", width=6, height=3, command=None, bg="grey")
 		canvas_test5_button = self.canvas.create_window(28, 326, window=test5_button)
 
-		test6_button = Button(self.canvas, text="Test6", width=6, height=3,
-		                 command=None, bg="grey")
+		test6_button = Button(self.canvas, text="Test6", width=6, height=3, command=None, bg="grey")
 		canvas_test6_button = self.canvas.create_window(28, 385, window=test6_button)
 
-		test7_button = Button(self.canvas, text="Test7", width=6, height=3,
-		                 command=None, bg="grey")
+		test7_button = Button(self.canvas, text="Test7", width=6, height=3, command=None, bg="grey")
 		canvas_test7_button = self.canvas.create_window(28, 444, window=test7_button)
 
-		test8_button = Button(self.canvas, text="Test8", width=6, height=3,
-		                 command=None, bg="grey")
+		test8_button = Button(self.canvas, text="Test8", width=6, height=3, command=None, bg="grey")
 		canvas_test8_button = self.canvas.create_window(28, 503, window=test8_button)
 
-		test9_button = Button(self.canvas, text="Test9", width=6, height=3,
-		                 command=None, bg="grey")
+		test9_button = Button(self.canvas, text="Test9", width=6, height=3, command=None, bg="grey")
 		canvas_test9_button = self.canvas.create_window(28, 562, window=test9_button)
 
-		test10_button = Button(self.canvas, text="Test10", width=6, height=3,
-		                 command=None, bg="grey")
+		test10_button = Button(
+			self.canvas, text="Test10", width=6, height=3, command=None, bg="grey"
+		)
 		canvas_test10_button = self.canvas.create_window(28, 621, window=test10_button)
 
 		# self.file_entry = Entry(self.master)

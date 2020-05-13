@@ -1,13 +1,13 @@
+from pathlib import Path
+
+from PIL import Image
+
 from mesh_city.gui.application import Application
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info_handler import UserInfoHandler
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from PIL import Image
-from pathlib import Path
-
-
 
 
 def main() -> None:
@@ -28,9 +28,14 @@ def main() -> None:
 	# rio bottom:   -22.824637, -43.242729
 	# rio top: -22.821384, -43.238813
 
-	print(request_manager.calculate_centre_coordinates_two_coordinate_input((-22.824637, -43.242729), (-22.821384, -43.238813), 20))
+	print(
+		request_manager.calculate_centre_coordinates_two_coordinate_input(
+		(-22.824637, -43.242729), (-22.821384, -43.238813), 20
+		)
+	)
 
 	# Application()
+
 
 if __name__ == '__main__':
 	main()
