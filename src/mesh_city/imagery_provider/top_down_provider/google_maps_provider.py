@@ -1,5 +1,7 @@
+import math
 from pathlib import Path
 
+import geopy
 import googlemaps
 import requests
 from PIL import Image
@@ -15,13 +17,20 @@ class GoogleMapsProvider(TopDownProvider):
 		self.padding = 40
 		self.name = "google_maps"
 		self.max_zoom = 20
+		self.max_side_resolution_image = 640
 
-	def get_and_store_location(self, latitude, longitude, zoom, filename, new_folder_path):
+	def get_and_store_location(
+		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
+	):
+		if height is None:
+			height = 640
+		if width is None:
+			width = 640
 		latitude = str(latitude)
 		longitude = str(longitude)
 		zoom = str(zoom)
-		width = str(640)
-		height = str(640)
+		width = str(width)
+		height = str(height)
 		scale = str(2)
 		file_format = "PNG"
 		map_type = "satellite"
@@ -45,16 +54,17 @@ class GoogleMapsProvider(TopDownProvider):
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 
-		#TODO put cutting code somewhere else
 		get_image = Image.open(to_store)
 		left = 40
-		top = 40
+		upper = 40
 		right = 1240
-		bottom = 1240
+		lower = 1240
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
-		im1 = get_image.crop(box=(left, top, right, bottom))
+		# crop 40 pixels from the bottom or 40
+		im1 = get_image.crop(box=(left, upper, right, lower))
+
 		im1.save(fp=to_store)
 
 		self.quota_manager.increase_usage()
