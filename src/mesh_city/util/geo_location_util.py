@@ -24,12 +24,12 @@ class GeoLocationUtil:
 		next_center_distance_meters = meters_per_px * image_size_x
 		if direction:
 			new_latitude = latitude + (
-				((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier
-			)
+				(next_center_distance_meters / 6378137) * (180 / math.pi)
+			) * multiplier
 		else:
 			new_latitude = latitude - (
-				((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier
-			)
+				(next_center_distance_meters / 6378137) * (180 / math.pi)
+			) * multiplier
 		return new_latitude
 
 	def calc_next_location_longitude(
@@ -39,16 +39,12 @@ class GeoLocationUtil:
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
 			new_longitude = longitude + (
-				(
 				(next_center_distance_meters / 6378137) *
 				(180 / math.pi) / math.cos(latitude * math.pi / 180)
-				) * multiplier
-			)
+			) * multiplier
 		else:
 			new_longitude = longitude - (
-				(
 				(next_center_distance_meters / 6378137) *
 				(180 / math.pi) / math.cos(latitude * math.pi / 180)
-				) * multiplier
-			)
+			) * multiplier
 		return new_longitude

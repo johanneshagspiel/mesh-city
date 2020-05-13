@@ -4,10 +4,13 @@ import operator
 from pathlib import Path
 
 import requests
-from PIL import Image
-from scipy import spatial
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
+from PIL import Image
+
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
+from scipy import spatial
+import operator
 
 
 class AhnProvider(TopDownProvider):
@@ -119,7 +122,7 @@ class AhnProvider(TopDownProvider):
 		):  # yapf: disable
 			print("Height information is only available in the Netherlands - Sorry!")
 
-	def get_height_from_pixel(self, x, y, path=None):
+	def get_height_from_pixel(self, x, y, path = None):
 
 		temp_path = Path(__file__).parents[2]
 		images_folder_path = Path.joinpath(
@@ -154,7 +157,6 @@ class AhnProvider(TopDownProvider):
 				counter += 1
 
 			self.color_to_height[pixels] = temp_new_value
-			print(temp_new_value)
 			return temp_new_value
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
