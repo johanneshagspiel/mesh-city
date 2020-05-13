@@ -34,7 +34,9 @@ class RequestManager:
 			self.images_folder_path
 		)
 
-	def make_request_for_block(self, centre_coordinates, zoom):
+	def make_request_for_block(self, centre_coordinates, zoom = None):
+		if(zoom == None):
+			zoom = self.map_entity.max_zoom
 		request_number = self.request_number
 		request_number_string = str(request_number)
 

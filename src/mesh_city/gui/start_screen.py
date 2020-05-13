@@ -12,7 +12,7 @@ from datetime import datetime
 class StartScreen:
 
 	def __init__(self, master, application):
-		self.value = "Test1"
+		self.value = ""
 		self.master = master
 
 		top = self.top = Toplevel(master)
@@ -23,13 +23,13 @@ class StartScreen:
 		else:
 			self.register_user(application)
 
-		application.update()
+		application.update_after_start()
 
 	def ask_for_name(self, application):
 		application.user_info = application.user_info_handler.load_user_info()
 		self.w = NamePopupWindow(self.master)
 		self.master.wait_window(self.w.top)
-		name = self.w.value
+		self.value = self.w.value
 
 	def register_user(self, application):
 		self.w = RegisterPopupWindow(self.master)

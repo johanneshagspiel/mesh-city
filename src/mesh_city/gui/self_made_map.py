@@ -3,6 +3,7 @@ from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
 from PIL import Image, ImageTk
+from mesh_city.gui.pop_up_windows import PopUpWindow
 from mesh_city.gui.start_screen import NamePopupWindow, RegisterPopupWindow, StartScreen
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.imagery_provider.request_manager import RequestManager
@@ -36,7 +37,7 @@ class SelfMadeMap:
 		canvas_side_bar = self.canvas.create_window(0, 0, window=side_bar)
 
 		search_button = Button(self.canvas, text="Search", width=6, height=3,
-		                 command=self.search_pop, bg="grey")
+		                 command=None, bg="grey")
 		canvas_search_button = self.canvas.create_window(28, 31, window=search_button)
 
 		test1_button = Button(self.canvas, text="Info", width=6, height=3,
@@ -79,15 +80,30 @@ class SelfMadeMap:
 		                 command=None, bg="grey")
 		canvas_test10_button = self.canvas.create_window(28, 621, window=test10_button)
 
-		large_photo = self.load_large_image(self.application)
-		self.load_large_image_on_map(self.canvas, large_photo)
+		large_photo = self.load_large_image()
+		self.load_large_image_on_map(large_photo)
 
 		mainloop()
 
-	def search_pop(self):
-		self.master.withdraw()
-		StartScreen(self.master, self.application)
-		self.master.deiconify()
+	# def search_pop(self):
+	# 	self.master.withdraw()
+	# 	to_search = PopUpWindow(self.master, self.application, "search_window").value
+	# 	self.master.deiconify()
+	# 	self.application.request_manager.make_request_for_block(to_search)
+
+	def load_large_image_on_map(self, large_image):
+		self.canvas.create_image(15, 0, anchor=NW, image=large_image)
+
+	def load_large_image(self):
+		get_image = Image.open(
+			glob.glob(
+			Path.joinpath(self.application.request_manager.path_to_map_image,
+			"concat_image_*").absolute().as_posix()
+			).pop()
+		)
+		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
+		get_photo = ImageTk.PhotoImage(resize_image)
+		return get_photo
 
 	def clear_canvas(self):
 		self.canvas.delete("all")
@@ -101,17 +117,3 @@ class SelfMadeMap:
 		self.concat_images()
 		large_photo = self.load_large_image()
 		self.load_large_image_on_map(self.canvas, large_photo)
-
-	def load_large_image_on_map(self, canvas, large_image):
-		canvas.create_image(15, 0, anchor=NW, image=large_image)
-
-	def load_large_image(self, application):
-		get_image = Image.open(
-			glob.glob(
-			Path.joinpath(application.request_manager.path_to_map_image,
-			"concat_image_*").absolute().as_posix()
-			).pop()
-		)
-		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
-		get_photo = ImageTk.PhotoImage(resize_image)
-		return get_photo
