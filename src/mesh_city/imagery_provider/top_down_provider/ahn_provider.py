@@ -55,7 +55,7 @@ class AhnProvider(TopDownProvider):
 		self.name = "ahn"
 		self.max_zoom = 20
 
-	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
+	def get_and_store_location(self, longitude, latitude, zoom, name, new_folder_path):
 		"""
 		The standard method to get and store one image at a certain location with a certain name.
 		Ahn uses

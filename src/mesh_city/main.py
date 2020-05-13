@@ -11,7 +11,7 @@ def main() -> None:
 	request_manager = RequestManager(user_info=user_info, quota_manager=quota_manager)
 
 	# #
-	#request_manager.make_request_for_block(centre_coordinates=[47.503353, 9.725559, 47.4, 9.73], zoom=request_manager.map_entity.max_zoom)
+	request_manager.make_request_for_block(centre_coordinates=[51.998921, 4.373500], zoom=request_manager.map_entity.max_zoom)
 	#
 	# right = request_manager.calc_next_location_longitude(51.923539, 4.492560, 15, 640, True)
 	# top = request_manager.calc_next_location_latitude(51.923539, 4.492560, 15, 640, True)
@@ -20,7 +20,7 @@ def main() -> None:
 	# request_manager.make_single_request((51.923539, right), 15)
 	# request_manager.make_single_request((top, 4.492560), 15)
 
-	Application()
+	#Application()
 
 if __name__ == '__main__':
 	main()

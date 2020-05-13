@@ -12,8 +12,9 @@ class LogManager:
 	A class that is reponsible for logging every request made. It can be
 	"""
 	temp_path = Path(__file__).parents[1]
-	image_path = Path.joinpath(temp_path, 'resources','images')
-	log_path = Path.joinpath(image_path,'log_request.json')
+	resource_path = Path.joinpath(temp_path, 'resources')
+	image_path = Path.joinpath(resource_path, 'images')
+	log_path = Path.joinpath(resource_path, 'logs', 'log_request_.json')
 
 	def __init__(self):
 		pass
@@ -30,23 +31,19 @@ class LogManager:
 		logs = json.loads(data)
 		max_log = 0
 
-		# for item in logs.values():
-		# 	for element in item:
-		# 		if (int(element[0]["request_number"]) > max_log):
-		# 		    max_log = int(element[0]["request_number"])
+		for item in logs.values():
+			for element in item:
+				if (int(element[0]["request_number"]) > max_log):
+				    max_log = int(element[0]["request_number"])
 
 		max_directory = 0
 
-		# for directory in os.listdir(self.image_path):
-		# 	#temp_ending = directory.path.dirname(directory)
-		# 	temp_ending = re.findall("(request_",directory)
-		# 	if(len(temp_ending) > 0):
-		# 		print(temp_ending)
-				# temp_result = int(temp_ending[0])
-				# if(temp_result > max_directory):
-				# 	max_directory = temp_result
+		for directory in os.listdir(self.image_path):
+			temp_result = int(directory.split("_")[1])
+			if(temp_result > max_directory):
+				max_directory = temp_result
 
-		return max_log > max_directory if max_log + 1 else max_directory
+		return max_log + 1 if max_log > max_directory else max_directory + 1
 
 	def write_entry_log(self, request_number, user_info, map_entity, number_requests,
 	                    bounding_box, coordinates):

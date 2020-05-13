@@ -17,7 +17,8 @@ class RequestManager:
 	def __init__(self, user_info, quota_manager):
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
+		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
+		self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 
 		self.log_manager = LogManager()
 		self.image_util = ImageUtil()
@@ -51,7 +52,7 @@ class RequestManager:
 		tile_number += 1
 
 		coordinates = self.calculate_locations(centre_coordinates)
-		print(len(coordinates))
+		#print(len(coordinates))
 		#bounding_box = [coordinates[0], coordinates[-1]]
 
 		if(len(centre_coordinates)== 4):
