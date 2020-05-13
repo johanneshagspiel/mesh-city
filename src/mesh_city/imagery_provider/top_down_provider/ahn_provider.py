@@ -1,19 +1,19 @@
 import json
 import math
+import operator
 from pathlib import Path
 
 import requests
-
-from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from PIL import Image
 from scipy import spatial
-import operator
+
+from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
 
 class AhnProvider(TopDownProvider):
 	color_to_height = None # yapf: disable
 	temp_path = Path(__file__).parents[2]
-	json_folder_path = Path.joinpath(temp_path, 'resources','ahn', 'height_to_color.json')
+	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
 	def __init__(self, user_info, quota_manager):
 		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
@@ -43,7 +43,7 @@ class AhnProvider(TopDownProvider):
 					counter += 1
 					pass
 				else:
-					if(element == ","):
+					if (element == ","):
 						counter += 1
 						pass
 					else:
@@ -119,21 +119,29 @@ class AhnProvider(TopDownProvider):
 		):  # yapf: disable
 			print("Height information is only available in the Netherlands - Sorry!")
 
-	def get_height_from_pixel(self, x, y, path = None):
+	def get_height_from_pixel(self, x, y, path=None):
 
 		temp_path = Path(__file__).parents[2]
-		images_folder_path = Path.joinpath(temp_path, 'resources', 'images', 'request_5','tile_0','concat_image_request_10_tile_0.png')
+		images_folder_path = Path.joinpath(
+			temp_path,
+			'resources',
+			'images',
+			'request_5',
+			'tile_0',
+			'concat_image_request_10_tile_0.png'
+		)
 
 		image_temp = Image.open(images_folder_path)
 		image = image_temp.load()
 		pixels = image[x, y]
 
 		if pixels in self.color_to_height:
+			print(self.color_to_height[pixels])
 			return self.color_to_height[pixels]
 
 		else:
 			temp_keys = self.color_to_height.keys()
-			get_cosine_cimilarity = lambda x,y : 1 - spatial.distance.cosine(x,y)
+			get_cosine_cimilarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
 			temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
 
 			index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
@@ -146,6 +154,7 @@ class AhnProvider(TopDownProvider):
 				counter += 1
 
 			self.color_to_height[pixels] = temp_new_value
+			print(temp_new_value)
 			return temp_new_value
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
