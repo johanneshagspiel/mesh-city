@@ -153,11 +153,9 @@ class RequestManager:
 		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
-		# bottom_latitude + ((top_latitude - bottom_latitude) / (num_of_images_vertical * 2))
-		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
+		longitude_first_image = self.calc_next_location_longitude(
 			bottom_lat, left_long, zoom, image_size / 2, False
 		)
-		# left_longitude + ((left_longitude - right_longitude) / (num_of_images_horizontal * 2))
 
 		current_latitude = latitude_first_image
 		current_longitude = longitude_first_image
