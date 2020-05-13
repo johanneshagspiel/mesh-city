@@ -20,20 +20,20 @@ class GeoLocationUtil:
 		meters_per_px = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = meters_per_px * image_size_x
 		if direction:
-			new_latitude = latitude + ((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier
+			new_latitude = latitude + (((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier)
 		else:
-			new_latitude = latitude - ((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier
+			new_latitude = latitude - (((next_center_distance_meters / 6378137) * (180 / math.pi)) * multiplier)
 		return new_latitude
 
 	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction, multiplier = 1):
 		meters_per_px = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
-			new_longitude = longitude + ((next_center_distance_meters / 6378137) * (180 /
+			new_longitude = longitude + (((next_center_distance_meters / 6378137) * (180 /
 			                                                                       math.pi) / math.cos(
-				latitude * math.pi / 180)) * multiplier
+				latitude * math.pi / 180)) * multiplier)
 		else:
-			new_longitude = longitude - ((next_center_distance_meters / 6378137) * (180 /
+			new_longitude = longitude - (((next_center_distance_meters / 6378137) * (180 /
 			                                                                       math.pi) / math.cos(
-				latitude * math.pi / 180)) * multiplier
+				latitude * math.pi / 180)) * multiplier)
 		return new_longitude

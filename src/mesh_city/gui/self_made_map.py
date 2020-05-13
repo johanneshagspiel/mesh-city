@@ -1,30 +1,32 @@
 import glob
-from datetime import datetime
 from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
 from PIL import Image, ImageTk
-from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
+from mesh_city.gui.start_screen import NamePopupWindow, RegisterPopupWindow, StartScreen
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.user.user_info import UserInfo
 from mesh_city.user.user_info_handler import UserInfoHandler
+from datetime import datetime
 
+class SelfMadeMap:
 
-def set_entry(entry, value):
-	entry.delete(0, END)
-	entry.insert(0, value)
+	def __init__(self, application):
 
-
-class Application:
-
-	def __init__(self):
+		self.application = application
 		self.master = Tk()
+		self.master.title("Google maps extractor")
+		self.master.geometry("")
+
+		self.master.withdraw()
+		StartScreen(self.master, application)
+		self.master.deiconify()
+
 		self.temp_path = Path(__file__).parents[1]
 		self.image_path = Path.joinpath(self.temp_path, "resources", "images")
 		self.file = path.dirname(__file__)
-		self.master.title("Google maps extractor")
-		self.master.geometry("")
+
 
 		# Definition of UI of main window
 		self.canvas = Canvas(self.master, width=651, height=650)
@@ -34,10 +36,10 @@ class Application:
 		canvas_side_bar = self.canvas.create_window(0, 0, window=side_bar)
 
 		search_button = Button(self.canvas, text="Search", width=6, height=3,
-		                 command=None, bg="grey")
+		                 command=self.search_pop, bg="grey")
 		canvas_search_button = self.canvas.create_window(28, 31, window=search_button)
 
-		test1_button = Button(self.canvas, text="Test1", width=6, height=3,
+		test1_button = Button(self.canvas, text="Info", width=6, height=3,
 		                 command=None, bg="grey")
 		canvas_test1_button = self.canvas.create_window(28, 90, window=test1_button)
 
@@ -77,76 +79,18 @@ class Application:
 		                 command=None, bg="grey")
 		canvas_test10_button = self.canvas.create_window(28, 621, window=test10_button)
 
-		# self.file_entry = Entry(self.master)
-		# self.file_entry.grid(row=0, columnspan=3)
-		# set_entry(self.file_entry, self.file)
-		# btn1 = Button(self.master, text="Change output folder", command=self.select_dir)
-		# btn1.grid(row=1, columnspan=3)
-		#
-		# Label(self.master, text="Quota").grid(row=2)
-		# Label(self.master, text="Latitude").grid(row=3)
-		# Label(self.master, text="Longitude").grid(row=4)
-		#
-		# self.lat_entry = Entry(self.master)
-		# self.long_entry = Entry(self.master)
-		# self.quota_entry = Entry(self.master)
-		# self.quota_entry.grid(row=2, column=1)
-		# self.lat_entry.grid(row=3, column=1)
-		# self.long_entry.grid(row=4, column=1)
-		#
-		# btn2 = Button(
-		# 	self.master, text="Extract imagery to output folder", command=self.request_data
-		# )
-		# btn2.grid(row=5, columnspan=3)
-
-		self.user_info_handler = UserInfoHandler()
-		if self.user_info_handler.file_exists():
-			self.ask_for_name()
-		else:
-			self.register_user()
-
-		self.quota_manager = QuotaManager(self.user_info)
-		self.request_manager = RequestManager(
-			user_info=self.user_info, quota_manager=self.quota_manager
-		)
-
-		large_photo = self.load_large_image()
+		large_photo = self.load_large_image(self.application)
 		self.load_large_image_on_map(self.canvas, large_photo)
 
 		mainloop()
 
-	def select_dir(self):
-		self.file = filedialog.askdirectory(initialdir=path.dirname(__file__))
-		set_entry(self.file_entry, self.file)
-		print("Selected: %s" % self.file)
+	def search_pop(self):
+		self.master.withdraw()
+		StartScreen(self.master, self.application)
+		self.master.deiconify()
 
 	def clear_canvas(self):
 		self.canvas.delete("all")
-
-	def ask_for_name(self):
-		self.user_info = self.user_info_handler.load_user_info()
-		self.w = NamePopupWindow(self.master)
-		self.master.wait_window(self.w.top)
-		name = self.w.value
-
-	def register_user(self):
-		self.w = RegisterPopupWindow(self.master)
-		self.master.wait_window(self.w.top)
-		current_time = datetime.now()
-		name, key, quota = self.w.value
-		self.user_info = UserInfo(
-			name,
-			key,
-			quota,
-			0,
-			current_time.year,
-			current_time.month,
-			current_time.day,
-			current_time.hour,
-			current_time.minute,
-			current_time.second,
-		)
-		self.user_info_handler.store_user_info(self.user_info)
 
 	def request_data(self):
 		latitude, longitude = float(self.lat_entry.get()), float(self.long_entry.get())
@@ -161,10 +105,10 @@ class Application:
 	def load_large_image_on_map(self, canvas, large_image):
 		canvas.create_image(15, 0, anchor=NW, image=large_image)
 
-	def load_large_image(self):
+	def load_large_image(self, application):
 		get_image = Image.open(
 			glob.glob(
-			Path.joinpath(self.request_manager.path_to_map_image,
+			Path.joinpath(application.request_manager.path_to_map_image,
 			"concat_image_*").absolute().as_posix()
 			).pop()
 		)
