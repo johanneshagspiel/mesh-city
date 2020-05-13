@@ -1,59 +1,70 @@
+import json
 import math
 from pathlib import Path
 import requests
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
+from PIL import Image
+from scipy import spatial
+import operator
 
 class AhnProvider(TopDownProvider):
-	color_to_height = {
-		(12, 52, 124): -7.5,
-		(12, 68, 132): -6.5,
-		(12, 84, 132): -5.5,
-		(12, 92, 132): -4.5,
-		(20, 108, 140): -3.5,
-		(28, 116, 140): -2.75,
-		(20, 132, 140): -2.25,
-		(28, 148, 148): -1.75,
-		(36, 148, 148): -1.25,
-		(36, 156, 140): -0.75,
-		(20, 164, 132): -0.25,
-		(28, 172, 124): 0.25,
-		(28, 180, 108): 0.75,
-		(20, 188, 100): 1.25,
-		(20, 188, 84): 1.75,
-		(12, 196, 68): 2.25,
-		(4, 204, 52): 3,  # 2.5-3, 3-3.5
-		(4, 220, 4): 4,  # 3.5-4, 4-4.5
-		(44, 228, 4): 4.75,
-		(68, 228, 4): 5.5,
-		(100, 236, 4): 6.5,
-		(124, 236, 4): 7.5,
-		(148, 244, 4): 8.5,
-		(180, 244, 4): 9.5,
-		(204, 244, 4): 11,
-		(236, 252, 4): 13,
-		(252, 252, 4): 15,
-		(252, 244, 4): 17,
-		(252, 228, 4): 19,
-		(244, 212, 4): 25,  # 20-25, 25-30
-		(252, 196, 12): 32.5,
-		(244, 188, 4): 37.5,
-		(244, 180, 20): 42.5,
-		(244, 164, 20): 47.5,
-		(236, 164, 20): 55,
-		(244, 156, 20): 65,
-		(228, 140, 28): 75,
-		(228, 132, 36): 85,
-		(220, 124, 36): 95,
-		(212, 108, 44): 125,  # 100-125, 125-150
-		(204, 100, 52): 162.5,
-		(204, 92, 52): 187.5,
-		(196, 84, 60): 250,  # 200-250, 250-300
-	}  # yapf: disable
+	color_to_height = None # yapf: disable
+	temp_path = Path(__file__).parents[2]
+	json_folder_path = Path.joinpath(temp_path, 'resources','ahn', 'height_to_color.json')
 
 	def __init__(self, user_info, quota_manager):
 		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
 		self.name = "ahn"
 		self.max_zoom = 20
+		self.color_to_height = self.load_from_json()
+
+	def load_from_json(self):
+		with open(self.json_folder_path, 'r') as json_log:
+			data = json_log.read()
+		info = json.loads(data)
+
+		new_dictionary = {}
+
+		for key, value in info.items():
+			temp_string = ""
+			result = []
+			end = len(key)
+			counter = 0
+
+			for element in key:
+				if (element == ","):
+					result.append(int(temp_string))
+					temp_string = ""
+					counter += 1
+				if (element == " " or element == "(" or element == ")"):
+					counter += 1
+					pass
+				else:
+					if(element == ","):
+						counter += 1
+						pass
+					else:
+						temp_string += element
+						counter += 1
+
+						if (counter == end + 1):
+							result.append(int(temp_string))
+
+			temp_tuple = (result[0], result[1], result[2])
+			new_key = tuple(temp_tuple)
+			new_dictionary[new_key] = value
+
+		return new_dictionary
+
+	def store_to_json(self):
+		temp = self.color_to_height
+
+		to_store = {}
+		for key, value in temp.items():
+			to_store[str(key)] = value
+
+		with open(self.json_folder_path, 'w') as json_log:
+			json.dump(to_store, fp=json_log)
 
 	def get_and_store_location(self, longitude, latitude, zoom, name, new_folder_path):
 		"""
@@ -104,6 +115,35 @@ class AhnProvider(TopDownProvider):
 			y > 7.275203841667622
 		):  # yapf: disable
 			print("Height information is only available in the Netherlands - Sorry!")
+
+	def get_height_from_pixel(self, x, y, path = None):
+
+		temp_path = Path(__file__).parents[2]
+		images_folder_path = Path.joinpath(temp_path, 'resources', 'images', 'request_5','tile_0','concat_image_request_10_tile_0.png')
+
+		image_temp = Image.open(images_folder_path)
+		image = image_temp.load()
+		pixels = image[x, y]
+
+		if pixels in self.color_to_height:
+			return self.color_to_height[pixels]
+
+		else:
+			temp_keys = self.color_to_height.keys()
+			get_cosine_cimilarity = lambda x,y : 1 - spatial.distance.cosine(x,y)
+			temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
+
+			index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
+
+			counter = 0
+			for value in self.color_to_height.values():
+				if (counter == index):
+					temp_new_value = value
+					break
+				counter += 1
+
+			self.color_to_height[pixels] = temp_new_value
+			return temp_new_value
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
 		meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
