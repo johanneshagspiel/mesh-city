@@ -28,7 +28,7 @@ def main() -> None:
 	# rio bottom:   -22.824637, -43.242729
 	# rio top: -22.821384, -43.238813
 
-	request_manager.get_area_coordinates(-22.824637, -43.242729, -22.821384, -43.238813, 20)
+	print(request_manager.calculate_centre_coordinates_two_coordinate_input((-22.824637, -43.242729), (-22.821384, -43.238813), 20))
 
 	# Application()
 
