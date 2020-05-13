@@ -7,10 +7,10 @@ from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW,
 from PIL import Image, ImageTk
 
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
-from mesh_city.imagery_provider.quota_manager import QuotaManager
+from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.imagery_provider.request_manager import RequestManager
-from mesh_city.imagery_provider.user_info import UserInfo
-from mesh_city.imagery_provider.user_info_handler import UserInfoHandler
+from mesh_city.user.user_info import UserInfo
+from mesh_city.user.user_info_handler import UserInfoHandler
 
 
 def set_entry(entry, value):
