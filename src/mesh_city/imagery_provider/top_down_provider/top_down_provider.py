@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class TopDownProvider(ABC):
 	temp_path = None
 	images_folder_path = None
@@ -9,7 +10,9 @@ class TopDownProvider(ABC):
 		self.quota_manager = quota_manager
 		self.padding = 0
 		self.type = "top_down_provider"
+		self.max_side_resolution_image = 0
 
 		@abstractmethod
-		def get_and_store_location(self, latitude, longitude, zoom, name):
+		def get_and_store_location(latitude, longitude, zoom, filename, new_folder_path,
+	                           width=None, height=None):
 			pass

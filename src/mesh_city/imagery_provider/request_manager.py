@@ -11,7 +11,7 @@ from mesh_city.imagery_provider.log_manager import LogManager
 
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, 'resources','images')
+	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
 
 	def __init__(self, user_info, quota_manager):
@@ -25,11 +25,13 @@ class RequestManager:
 
 		self.request_number = self.log_manager.get_request_number()
 
-	def make_single_request(self, centre_coordinates, zoom):
+	def make_single_request(self, centre_coordinates, zoom, height, width):
 		self.map_entity.get_and_store_location(
 			centre_coordinates[0],
 			centre_coordinates[1],
 			zoom,
+			height,
+			width,
 			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
 			self.images_folder_path
 		)
@@ -124,7 +126,7 @@ class RequestManager:
 		# 				                                 number_requests * 9, bounding_box, coordinates)
 
 
-	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
+	def get_area_coordinates(self, bottom_lat, left_long, top_lat, right_long, zoom):
 		"""
 		Method which calculates and retrieves the number of images that are necessary have a
 		complete imagery set of a certain geographical area. This area is defined by a bounding box.
@@ -135,11 +137,18 @@ class RequestManager:
 		:param top_lat: the top latitude / top right coordinate of the bounding box.
 		:param right_long: the right longitude / top right coordinate of the bounding box.
 		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:param image_size: the resolution of the images.
+		:param image_side_length: the resolution of the images.
 		:return: false if the input is an illegal boundary box,
 		"""
 		if bottom_lat > top_lat or left_long > right_long:
-			return False
+			raise Exception('The first coordinate should be beneath and left of the second coordinate')
+
+		side_resolution_image = self.map_entity.max_side_resolution_image
+
+		if self.map_entity == GoogleMapsProvider:
+			# Removes 40 pixels from the sides as that will be necessary to remove the watermarks
+			# specific for google images
+			side_resolution_image = side_resolution_image - 40
 
 		horizontal_width = geopy.distance.distance(
 			(bottom_lat, left_long), (bottom_lat, right_long)
@@ -149,14 +158,14 @@ class RequestManager:
 		total_horizontal_pixels = horizontal_width / self.geo_location_util.calc_meters_per_px(top_lat, zoom)
 		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(top_lat, zoom)
 
-		num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / image_size))
-		num_of_images_vertical = int(math.ceil(total_vertical_pixels / image_size))
+		num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / side_resolution_image))
+		num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
 
 		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
-			bottom_lat, left_long, zoom, image_size / 2, False
+			bottom_lat, left_long, zoom, side_resolution_image / 2, False
 		)
-		longitude_first_image = self.calc_next_location_longitude(
-			bottom_lat, left_long, zoom, image_size / 2, False
+		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
+			bottom_lat, left_long, zoom, side_resolution_image / 2, False
 		)
 
 		current_latitude = latitude_first_image
@@ -167,20 +176,19 @@ class RequestManager:
 		for vertical in range(num_of_images_vertical):
 			for horizontal in range(num_of_images_horizontal):
 				self.map_entity.get_and_store_location(current_latitude, current_longitude, False)
-
+				# TODO save the coordinates write seperate method for retrieval
 				# print(current_latitude, ",", current_longitude)
 				# number_of_calls += 1
 				# print(number_of_calls)
 
 				current_longitude = self.geo_location_util.calc_next_location_longitude(
-					current_latitude, current_longitude, zoom, image_size, True
+					current_latitude, current_longitude, zoom, side_resolution_image, False
 				)
 
 			current_longitude = longitude_first_image
 			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, current_longitude, zoom, image_size, True
+				current_latitude, current_longitude, zoom, side_resolution_image, False
 			)
-		return True
 
 	def calculate_locations(self, coordinates, multiplier = 1):
 		image_size = 640 - self.map_entity.padding

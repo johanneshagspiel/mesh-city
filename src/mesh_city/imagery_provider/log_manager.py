@@ -4,7 +4,6 @@ import json
 import os
 import re
 
-from virtualenv.config.convert import NoneType
 
 
 class LogManager:
