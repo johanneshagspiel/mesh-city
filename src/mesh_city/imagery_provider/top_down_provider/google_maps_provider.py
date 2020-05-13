@@ -54,10 +54,10 @@ class GoogleMapsProvider(TopDownProvider):
 			output.write(response.content)
 
 		get_image = Image.open(to_store)
-		left = 0
+		left = 40
 		upper = 40
 		right = 1240
-		lower = 1280
+		lower = 1240
 
 		to_store = Path.joinpath(new_folder_path, filename)
 

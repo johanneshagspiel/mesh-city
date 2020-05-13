@@ -23,21 +23,12 @@ def main() -> None:
 
 	right = geo_location_util.calc_next_location_longitude(51.923539, 4.492560, 15, 640, True)
 	top = geo_location_util.calc_next_location_latitude(51.923539, 4.492560, 15, 640, True)
-	request_manager.make_single_request((51.923539, 4.492560), 15, 652, 628)
+	# request_manager.make_single_request((51.923539, 4.492560), 15, 652, 628)
 
-	# get_image = Image.open("mesh_city\resources\images\51.940477515372166, 4.49256.png")
-	# left = 0
-	# upper = 40
-	# right = 1280
-	# lower = 1240
-	#
-	# to_store = Path.joinpath(new_folder_path, filename)
-	#
-	# # crop 44 pixels from the bottom or 40
-	# im1 = get_image.crop(box=(left, upper, right, lower))
-	#
-	# im1.save(fp=to_store)
+	# rio bottom:   -22.824637, -43.242729
+	# rio top: -22.821384, -43.238813
 
+	request_manager.get_area_coordinates(-22.824637, -43.242729, -22.821384, -43.238813, 20)
 
 	# Application()
 
