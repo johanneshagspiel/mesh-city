@@ -1,10 +1,7 @@
-from pathlib import Path
-from datetime import datetime as dt
 import json
 import os
-import re
-
-from virtualenv.config.convert import NoneType
+from datetime import datetime as dt
+from pathlib import Path
 
 
 class LogManager:
@@ -91,4 +88,3 @@ class TopDownProviderLogEntry:
 		({"bounding_box" : self.bounding_box}),
 		({"coordinates" : self.coordinates})
 		]
-
