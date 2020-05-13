@@ -11,3 +11,18 @@ class UserInfo:
 		self.hour = hour
 		self.minute = minute
 		self.second = second
+
+		def get_usage(map_provider, action):
+			return 0
+
+class Usage:
+
+	def __init__(self):
+		self.usage = self.start()
+
+	def start(self):
+		return {
+			"google_maps" : {"static map" : 0, "geo_coding" : 0},
+			"mapbox" : {"static map" : 0, "geo_coding" : 0},
+			"ahn" : {"static map" : 0, "geo_coding" : 0}
+		}

@@ -1,14 +1,19 @@
 from pathlib import Path
-import os
 from datetime import datetime as dt
 import json
+import os
+import re
+
+from virtualenv.config.convert import NoneType
+
 
 class LogManager:
 	"""
 	A class that is reponsible for logging every request made. It can be
 	"""
 	temp_path = Path(__file__).parents[1]
-	log_path = Path.joinpath(temp_path, 'resources','images', 'request_log.json')
+	image_path = Path.joinpath(temp_path, 'resources','images')
+	log_path = Path.joinpath(image_path,'log_request.json')
 
 	def __init__(self):
 		pass
@@ -23,13 +28,25 @@ class LogManager:
 			data = json_log.read()
 			json_log.close()
 		logs = json.loads(data)
-		max = 0
+		max_log = 0
 
-		for item in logs.values():
-			for element in item:
-				if (int(element[0]["request_number"]) > max):
-				    max = int(element[0]["request_number"])
-		return max + 1
+		# for item in logs.values():
+		# 	for element in item:
+		# 		if (int(element[0]["request_number"]) > max_log):
+		# 		    max_log = int(element[0]["request_number"])
+
+		max_directory = 0
+
+		# for directory in os.listdir(self.image_path):
+		# 	#temp_ending = directory.path.dirname(directory)
+		# 	temp_ending = re.findall("(request_",directory)
+		# 	if(len(temp_ending) > 0):
+		# 		print(temp_ending)
+				# temp_result = int(temp_ending[0])
+				# if(temp_result > max_directory):
+				# 	max_directory = temp_result
+
+		return max_log > max_directory if max_log + 1 else max_directory
 
 	def write_entry_log(self, request_number, user_info, map_entity, number_requests,
 	                    bounding_box, coordinates):

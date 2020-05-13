@@ -40,6 +40,7 @@ class RequestManager:
 
 		new_folder_path = Path.joinpath(self.images_folder_path, 'request_' + request_number_string)
 		os.makedirs(new_folder_path)
+		self.request_number = 1
 
 		tile_number = 0
 		temp_tile_number = str(tile_number)
@@ -48,11 +49,14 @@ class RequestManager:
 		tile_number += 1
 
 		coordinates = self.calculate_locations(centre_coordinates)
-		bounding_box = [1, 2]
-		if(len(centre_coordinates)== 4):
-			bounding_box = [coordinates[0][0], coordinates[-1][-1]]
-		if(len(centre_coordinates)== 2):
-			bounding_box = [coordinates[0], coordinates[-1]]
+		print(len(coordinates))
+		bounding_box = [coordinates[0], coordinates[-1]]
+
+		#if(len(centre_coordinates)== 4):
+			#bounding_box = [coordinates[0][0], coordinates[-1][-1]
+		# if(len(centre_coordinates)== 2):
+		# 	bounding_box = [coordinates[0], coordinates[-1]]
+
 		number_requests = len(coordinates)
 		number_requests_temp = number_requests
 		lastRound = False
@@ -62,37 +66,15 @@ class RequestManager:
 
 		counter = 1
 
-		if (len(centre_coordinates) == 4):
+		if(len(centre_coordinates) == 4):
 			for location in coordinates:
-				for element in location:
-					number = str(counter)
-					x = str(element[0])
-					y = str(element[1])
-					temp_name = str(number + "_" + x + "_" + y + ".png")
-					self.map_entity.get_and_store_location(element[0],
-					                                       element[1], self.map_entity.max_zoom, temp_name,
-					                                       new_folder_path)
-					counter += 1
-
-					if counter == 10 and not lastRound:
-						self.image_util.concat_images(new_folder_path, counter, tile_number - 1, "normal")
-						temp_tile_number = str(tile_number)
-						new_folder_path = Path.joinpath(new_folder_path.parents[0], "tile_" + temp_tile_number)
-						os.makedirs(new_folder_path)
-						counter = 1
-						print(tile_number - 1)
-						tile_number += 1
-						number_requests_temp = number_requests_temp - 9
-						if (number_requests_temp == 9):
-							lastRound = True
-
-					if counter == 10 and lastRound:
-						self.image_util.concat_images(new_folder_path, counter, tile_number - 1, "normal")
-						self.path_to_map_image = new_folder_path
-						self.log_manager.write_entry_log(request_number, self.user_info,
-						                                 self.map_entity,
-						                                 number_requests * 9, bounding_box, coordinates)
-						self.request_number = request_number + 1
+				x = str(location[0])
+				y = str(location[1])
+				temp_name = str(x + "_" + y + ".png")
+				self.map_entity.get_and_store_location(location[0], location[1], zoom, temp_name,
+				                                       new_folder_path)
+			self.log_manager.write_entry_log(request_number, self.user_info, self.map_entity,
+			                                 number_requests, bounding_box, coordinates)
 
 		if (len(centre_coordinates) == 2):
 			for location in coordinates:
@@ -104,22 +86,42 @@ class RequestManager:
 				                                       new_folder_path)
 				counter += 1
 
-				if counter == 10 and not lastRound:
-					self.image_util.concat_images(new_folder_path, counter, tile_number - 1, "normal")
-					temp_tile_number = str(tile_number)
-					new_folder_path = Path.joinpath(new_folder_path, "tile_" + temp_tile_number)
-					os.makedirs(new_folder_path)
-					counter = 1
-					tile_number += 1
-					number_requests_temp = number_requests_temp - 9
-					if (number_requests_temp == 9):
-						lastRound = True
 				if counter == 10 and lastRound:
 					self.image_util.concat_images(new_folder_path, counter, tile_number - 1, "normal")
 					self.path_to_map_image = new_folder_path
 					self.log_manager.write_entry_log(request_number, self.user_info, self.map_entity,
 					                                 number_requests, bounding_box, coordinates)
-					self.request_number = request_number + 1
+
+		# if (len(centre_coordinates) == 4):
+		# 	for location in coordinates:
+		# 		for element in location:
+		# 			number = str(counter)
+		# 			x = str(element[0])
+		# 			y = str(element[1])
+		# 			temp_name = str(number + "_" + x + "_" + y + ".png")
+		# 			self.map_entity.get_and_store_location(element[0],
+		# 			                                       element[1], self.map_entity.max_zoom, temp_name,
+		# 			                                       new_folder_path)
+		# 			counter += 1
+		#
+		# 			if counter == 10 and not lastRound:
+		# 				self.image_util.concat_images(new_folder_path, counter, tile_number - 1, "normal")
+		# 				temp_tile_number = str(tile_number)
+		# 				new_folder_path = Path.joinpath(new_folder_path.parents[0], "tile_" + temp_tile_number)
+		# 				os.makedirs(new_folder_path)
+		# 				counter = 1
+		# 				print(tile_number - 1)
+		# 				tile_number += 1
+		# 				number_requests_temp = number_requests_temp - 9
+		# 				if (number_requests_temp == 9):
+		# 					lastRound = True
+		#
+		# 			if counter == 10 and lastRound:
+		# 				self.image_util.concat_images(new_folder_path, counter, tile_number - 1, "normal")
+		# 				self.path_to_map_image = new_folder_path
+		# 				self.log_manager.write_entry_log(request_number, self.user_info,
+		# 				                                 self.map_entity,
+		# 				                                 number_requests * 9, bounding_box, coordinates)
 
 
 	def get_area(self, bottom_lat, left_long, top_lat, right_long, zoom, image_size):
@@ -211,29 +213,39 @@ class RequestManager:
 			]  # yapf: disable
 
 		if(len(coordinates) == 4):
-			start_longitude = coordinates[0]
-			start_latitude = coordinates[1]
-			end_longitude = coordinates[2]
-			end_latitude = coordinates[3]
-
-			result = []
-			min_latitude_start = start_latitude
-
-			while start_longitude > end_longitude:
-				while start_latitude < end_latitude:
-					result.append(self.calculate_locations([start_longitude, start_latitude]))
-					start_latitude = self.geo_location_util.calc_next_location_latitude(start_latitude, start_longitude,
-					                                                  self.map_entity.max_zoom,
-					                                                  image_size, True, 3.055)
-
-					if(start_latitude > end_latitude):
-						start_latitude = min_latitude_start
-						start_longitude = self.geo_location_util.calc_next_location_longitude(start_latitude, start_longitude,
-						                                                    self.map_entity.max_zoom,
-						                                                    image_size, False, 3.055)
-						break
-
-			return result
-
-def extract(lst):
-	return [item[-1] for item in lst]
+			return self.get_area(coordinates[2], coordinates[1], coordinates[0], coordinates[3])
+			# start_longitude = coordinates[0]
+			# start_latitude = coordinates[1]
+			# end_longitude = coordinates[2]
+			# end_latitude = coordinates[3]
+			#
+			# result = []
+			# min_latitude_start = start_latitude
+			#
+			# while start_longitude > end_longitude:
+			# 	while start_latitude < end_latitude:
+			# 		result.append(self.calculate_locations([start_longitude, start_latitude]))
+			# 		start_latitude = self.geo_location_util.calc_next_location_latitude(start_latitude, start_longitude,
+			# 		                                                  self.map_entity.max_zoom,
+			# 		                                                  image_size, True)
+			# 		start_latitude = self.geo_location_util.calc_next_location_latitude(start_latitude, start_longitude,
+			# 		                                                  self.map_entity.max_zoom,
+			# 		                                                  image_size, True)
+			# 		start_latitude = self.geo_location_util.calc_next_location_latitude(start_latitude, start_longitude,
+			# 		                                                  self.map_entity.max_zoom,
+			# 		                                                  image_size, True)
+			#
+			# 		if(start_latitude > end_latitude):
+			# 			start_latitude = min_latitude_start
+			# 			start_longitude = self.geo_location_util.calc_next_location_longitude(start_latitude, start_longitude,
+			# 			                                                    self.map_entity.max_zoom,
+			# 			                                                    image_size, False)
+			# 			start_longitude = self.geo_location_util.calc_next_location_longitude(start_latitude, start_longitude,
+			# 			                                                    self.map_entity.max_zoom,
+			# 			                                                    image_size, False)
+			# 			start_longitude = self.geo_location_util.calc_next_location_longitude(start_latitude, start_longitude,
+			# 			                                                    self.map_entity.max_zoom,
+			# 			                                                    image_size, False)
+			# 			break
+			#
+			# return result

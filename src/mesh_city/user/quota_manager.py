@@ -1,10 +1,12 @@
 from datetime import datetime
+from mesh_city.user.price_table import PriceTable
 
 
 class QuotaManager:
 
 	def __init__(self, user_info):
 		self.user_info = user_info
+		self.price_table = PriceTable()
 
 	def increase_usage(self):
 		old_usage = self.user_info.usage

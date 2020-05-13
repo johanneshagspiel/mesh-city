@@ -3,9 +3,7 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, END, Entry, filedialog, Label, mainloop, NW, Tk
-
 from PIL import Image, ImageTk
-
 from mesh_city.gui.popup_windows import NamePopupWindow, RegisterPopupWindow
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.imagery_provider.request_manager import RequestManager
