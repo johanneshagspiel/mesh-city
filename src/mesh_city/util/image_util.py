@@ -1,6 +1,8 @@
-from PIL import Image
 import glob
 from pathlib import Path
+
+from PIL import Image
+
 
 class ImageUtil:
 
@@ -51,8 +53,7 @@ class ImageUtil:
 		tile_number_string = str(tile_number)
 		temp_name = "request_" + request_string + "_tile_" + tile_number_string
 		self.get_concat_vertically(self.get_concat_vertically(level_0, level_1),
-		                           level_2).save(
-			Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
+			level_2).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	def get_concat_horizontally(self, image_1, image_2):
 		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
@@ -66,11 +67,12 @@ class ImageUtil:
 		temp.paste(image_2, (0, image_1.height))
 		return temp
 
+
 class NameType:
 
 	def __init__(self, type):
 		self.names = self.start(type)
 
 	def start(self, type):
-		if(type == "normal"):
+		if type == "normal":
 			return ["1_*", "2_*", "3_*", "4_*", "5_*", "6_*", "7_*", "8_*", "9_*"]

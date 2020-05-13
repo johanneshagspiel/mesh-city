@@ -5,6 +5,7 @@ from mesh_city.user.user_info import UserInfo
 
 
 class TestQuotaManager(unittest.TestCase):
+
 	def setUp(self):
 		self.user_info_init = UserInfo("Blue", "a12ec", 500, 25, 1452, 8, 15, 10, 55, 42)
 		self.quota_manager_init = QuotaManager(self.user_info_init)
@@ -42,6 +43,7 @@ class TestQuotaManager(unittest.TestCase):
 		monthly_is_far = UserInfo("Blue", "a12ec", 500, 4, 2020, 5, 15, 10, 55, 42)
 		q = QuotaManager(monthly_is_far)
 		q.check_monthly_limit()
+
 
 if __name__ == '__main__':
 	unittest.main()

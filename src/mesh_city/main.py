@@ -1,5 +1,6 @@
-from mesh_city.user.quota_manager import QuotaManager
+from mesh_city.application import Application
 from mesh_city.imagery_provider.request_manager import RequestManager
+from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info_handler import UserInfoHandler
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.application import Application

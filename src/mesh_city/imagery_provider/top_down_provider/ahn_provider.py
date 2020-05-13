@@ -1,11 +1,14 @@
 import json
 import math
 from pathlib import Path
+
 import requests
+
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from PIL import Image
 from scipy import spatial
 import operator
+
 
 class AhnProvider(TopDownProvider):
 	color_to_height = None # yapf: disable
@@ -159,10 +162,8 @@ class AhnProvider(TopDownProvider):
 		next_center_distance_meters = meters_per_px * image_size_y
 		if direction:
 			new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
-			                                                                       math.pi) / math.cos(
-				latitude * math.pi / 180)
+				math.pi) / math.cos(latitude * math.pi / 180)
 		else:
 			new_longitude = longitude - (next_center_distance_meters / 6378137) * (180 /
-			                                                                       math.pi) / math.cos(
-				latitude * math.pi / 180)
+				math.pi) / math.cos(latitude * math.pi / 180)
 		return new_longitude
