@@ -28,8 +28,8 @@ class RequestManager:
 		"""
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
-		self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
+		self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
+		#self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		#self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
 		self.log_manager = LogManager()
@@ -70,7 +70,7 @@ class RequestManager:
 		if zoom is None:
 			zoom = self.map_entity.max_zoom
 
-		request_number = self.request_number
+		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
 		#calcualtes the locations first
