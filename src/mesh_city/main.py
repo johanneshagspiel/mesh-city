@@ -12,11 +12,13 @@ def main() -> None:
 	quota_manager = QuotaManager(user_info)
 	request_manager = RequestManager(user_info=user_info, quota_manager=quota_manager)
 
-	test = AhnProvider(user_info, quota_manager)
-	test.get_height_from_pixel(950, 960)
-	test.store_to_json()
+	#test = AhnProvider(user_info, quota_manager)
+	#test.get_height_from_pixel(950, 960)
+	#test.store_to_json()
 
-	#request_manager.make_request_for_block(centre_coordinates=[51.998921, 4.373500], zoom=request_manager.map_entity.max_zoom)
+	#print(request_manager.calculate_centre_coordinates_two_coordinate_input([51, 4.2], [51.1, 4.3], 20)[0])
+
+	request_manager.make_request_for_block(centre_coordinates=[51, 4.2, 51.1, 4.3], zoom=request_manager.map_entity.max_zoom)
 	# right = request_manager.calc_next_location_longitude(51.923539, 4.492560, 15, 640, True)
 	# top = request_manager.calc_next_location_latitude(51.923539, 4.492560, 15, 640, True)
 
