@@ -2,11 +2,9 @@ import json
 import math
 import operator
 from pathlib import Path
-
 import requests
 from PIL import Image
 from scipy import spatial
-
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
 
@@ -20,7 +18,7 @@ class AhnProvider(TopDownProvider):
 		self.name = "ahn"
 		self.max_zoom = 20
 		self.color_to_height = self.load_from_json()
-		#self.max_side_resolution_image = 640
+		self.max_side_resolution_image = 640
 
 	def load_from_json(self):
 		with open(self.json_folder_path, 'r') as json_log:

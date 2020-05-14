@@ -22,23 +22,31 @@ class LogManager:
 		to name the folder appropriately
 		:return: the number of the next request
 		"""
-		with open(self.log_path, 'r') as json_log:
-			data = json_log.read()
-			json_log.close()
-		logs = json.loads(data)
 		max_log = 0
 
-		for item in logs.values():
-			for element in item:
-				if (int(element[0]["request_number"]) > max_log):
-					max_log = int(element[0]["request_number"])
+		if (self.log_path.is_file()):
+			with open(self.log_path, 'r') as json_log:
+				data = json_log.read()
+				json_log.close()
+			logs = json.loads(data)
+
+			for item in logs.values():
+				for element in item:
+					if (int(element[0]["request_number"]) > max_log):
+						max_log = int(element[0]["request_number"])
+
+		else:
+			max_log = 0
 
 		max_directory = 0
 
-		for directory in os.listdir(self.image_path):
-			temp_result = int(directory.split("_")[1])
-			if (temp_result > max_directory):
-				max_directory = temp_result
+		if (len(os.listdir(self.image_path)) == 0):
+			max_directory = 0
+		else:
+			for directory in os.listdir(self.image_path):
+				temp_result = int(directory.split("_")[1])
+				if (temp_result > max_directory):
+					max_directory = temp_result
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
