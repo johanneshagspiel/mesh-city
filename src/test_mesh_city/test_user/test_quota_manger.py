@@ -10,9 +10,6 @@ class TestQuotaManager(unittest.TestCase):
 		self.user_info_init = UserInfo("Blue", "a12ec", 500, 25, 1452, 8, 15, 10, 55, 42)
 		self.quota_manager_init = QuotaManager(self.user_info_init)
 
-	def test_something(self):
-		self.assertEqual(True, True)
-
 	def test_increase_usage(self):
 		old_usage = self.user_info_init.usage
 		q = self.quota_manager_init
@@ -24,7 +21,7 @@ class TestQuotaManager(unittest.TestCase):
 		user_info_qouta_warning = UserInfo("Blue", "a12ec", 500, 455, 1452, 8, 15, 10, 55, 42)
 		q = QuotaManager(user_info_qouta_warning)
 		q.check_usage_against_quota()
-		#nothing to assert
+		#nothing to assert , should change the method to return a string GUI can also use.
 
 	def test_check_usage_against_quota_no_warning(self):
 		user_info_qouta_no_warning = UserInfo("Blue", "a12ec", 500, 4, 1452, 8, 15, 10, 55, 42)
