@@ -49,6 +49,7 @@ class RegisterPopupWindow(object):
 
 	def __init__(self, master):
 		self.value = ""
+		self.geometry = ("200x200")
 		top = self.top = Toplevel(master)
 		Label(top,
 			text="Please enter the following information to start collecting maps data:").grid(
