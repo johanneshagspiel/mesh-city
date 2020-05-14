@@ -13,6 +13,7 @@ class MapboxProvider(TopDownProvider):
 		self.geocoder = Geocoder(access_token=user_info.api_key)
 		self.name = "mapbox"
 		self.max_zoom = 18
+		self.max_side_resolution_image = 640
 
 	def get_and_store_location(self, latitude, longitude, zoom, filename, new_folder_path):
 		username = "mapbox"

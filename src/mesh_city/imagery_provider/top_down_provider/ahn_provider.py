@@ -4,13 +4,10 @@ import operator
 from pathlib import Path
 
 import requests
-
-from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from PIL import Image
+from scipy import spatial
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-from scipy import spatial
-import operator
 
 
 class AhnProvider(TopDownProvider):
@@ -23,6 +20,7 @@ class AhnProvider(TopDownProvider):
 		self.name = "ahn"
 		self.max_zoom = 20
 		self.color_to_height = self.load_from_json()
+		#self.max_side_resolution_image = 640
 
 	def load_from_json(self):
 		with open(self.json_folder_path, 'r') as json_log:
@@ -122,7 +120,7 @@ class AhnProvider(TopDownProvider):
 		):  # yapf: disable
 			print("Height information is only available in the Netherlands - Sorry!")
 
-	def get_height_from_pixel(self, x, y, path = None):
+	def get_height_from_pixel(self, x, y, path=None):
 
 		temp_path = Path(__file__).parents[2]
 		images_folder_path = Path.joinpath(

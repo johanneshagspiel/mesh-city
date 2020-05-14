@@ -50,10 +50,9 @@ class ImageUtil:
 		)
 
 		request_string = str(request)
-		tile_number_string = str(tile_number)
-		temp_name = "request_" + request_string + "_tile_" + tile_number_string
-		self.get_concat_vertically(self.get_concat_vertically(level_0, level_1),
-			level_2).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
+		temp_name = "request_" + request_string + "_tile_" + tile_number
+		self.get_concat_vertically(self.get_concat_vertically(level_2, level_1),
+			level_0).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	def get_concat_horizontally(self, image_1, image_2):
 		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
