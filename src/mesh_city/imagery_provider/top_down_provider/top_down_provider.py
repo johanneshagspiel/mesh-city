@@ -9,6 +9,7 @@ class TopDownProvider(ABC):
 		self.padding = 0
 		self.type = "top_down_provider"
 		self.max_side_resolution_image = 0
+		self.max_zoom = 16
 
 		@abstractmethod
 		def get_and_store_location(

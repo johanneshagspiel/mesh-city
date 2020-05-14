@@ -22,9 +22,20 @@ class GoogleMapsProvider(TopDownProvider):
 	def get_and_store_location(
 		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
 	):
-		if height is None:
+		"""
+		Method which makes an API call, and saves it in right format. Also removes the Google logo.
+		:param latitude:
+		:param longitude:
+		:param zoom:
+		:param filename: 
+		:param new_folder_path: directory for where the file should be saved.
+		:param width: the width dimension of the image
+		:param height: the height dimension of the image
+		:return:
+		"""
+		if height is None or height > 640:
 			height = 640
-		if width is None:
+		if width is None or width > 640:
 			width = 640
 		latitude = str(latitude)
 		longitude = str(longitude)

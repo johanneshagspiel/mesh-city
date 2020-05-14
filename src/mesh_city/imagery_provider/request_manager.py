@@ -17,10 +17,11 @@ class RequestManager:
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
 
-	def __init__(self, user_info, quota_manager):
+	def __init__(self, user_info, quota_manager, map_entity=None):
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
+		if map_entity is None:
+			self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
 		#self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		#self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
@@ -28,9 +29,18 @@ class RequestManager:
 		self.image_util = ImageUtil()
 		self.geo_location_util = GeoLocationUtil()
 
-		self.request_number = self.log_manager.get_request_number()
+		self.request_number = 1
 
 	def make_single_request(self, centre_coordinates, zoom, height, width):
+		"""
+		Test method to make and store one image. Does not support the tile system and the image can
+		not be displayed on the map.
+		:param centre_coordinates: the location where the satellite image should be downloaded
+		:param zoom: the zoom level at which the image should be downloaded
+		:param height: height of the resulting image
+		:param width: width of the resulting image
+		:return:
+		"""
 		self.map_entity.get_and_store_location(
 			centre_coordinates[0],
 			centre_coordinates[1],
@@ -40,6 +50,51 @@ class RequestManager:
 			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
 			self.images_folder_path
 		)
+
+	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom):
+		"""
+		Takes as input two coordinates for a bounding box, a zoom level to specify how zoomed in the
+		the images need to be and saves them in a structured way on disk.
+		:param first_coordinate:
+		:param second_coordinate:
+		:param zoom:
+		:return:
+		"""
+		if zoom < 1:
+			raise Exception("Zoom level  cannot be lower than 1")
+		if zoom > self.map_entity.max_zoom:
+			zoom = self.map_entity.max_zoom
+
+		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
+			first_coordinate, second_coordinate, zoom
+		)
+		num_of_images_total = coordinates_info[0][0]
+		num_of_images_horizontal = coordinates_info[0][1]
+		num_of_images_vertical = coordinates_info[0][2]
+
+		coordinates_list = coordinates_info[1]
+
+		for info in coordinates_list:
+			horizontal_position = info[1][0]
+			vertical_position = info[1][1]
+			coordinate = info[0]
+
+			# self.map_entity.get_and_store_location(coordinate[0], coordinate[1])
+			# TODO add proper store method
+
+	def make_request_list_of_coordinates(self, coordinates_list):
+		"""
+		(latitude, longitude), (horizontal, vertical)
+		:param coordinates_list:
+		:return:
+		"""
+		for info in coordinates_list:
+			horizontal_position = info[1][0]
+			vertical_position = info[1][1]
+			coordinate = info[0]
+
+			# self.map_entity.get_and_store_location(coordinate[0], coordinate[1])
+			# TODO add proper store method
 
 	def make_request_for_block(self, centre_coordinates, zoom=None):
 
@@ -156,14 +211,29 @@ class RequestManager:
 						coordinates,
 					)
 
-	def calculate_centre_coordinates_two_coordinate_input(self, bottom_left, top_right, zoom):
+	def calculate_number_of_requested_images_two_coordinate_input(
+		self, first_coordinate, second_coordinate, zoom
+	):
 		"""
-		Method which calculates and retrieves the number of images that are necessary have a
+		Calculates the number of images that will be requested through the API when requesting a
+		bounding box with these two coordinates
+		:param first_coordinate: of the bounding box.
+		:param second_coordinate: of the bounding box.
+		:param zoom: the level of zoom (meters per pixel) the returned images will be.
+		:return: number of images that will be requested
+		"""
+		return self.calculate_centre_coordinates_two_coordinate_input(
+			first_coordinate, second_coordinate, zoom
+		)[0][0]
+
+	def calculate_centre_coordinates_two_coordinate_input(
+		self, first_coordinate, second_coordinate, zoom
+	):
+		"""
+		Method which calculates and retrieves the number of images that are necessary to have a
 		complete imagery set of a certain geographical area. This area is defined by a bounding box.
-		The function checks whether the first coordinate inputted is "smaller" than the second
-		inputted coordinate.
-		:param bottom_left: the bottom left coordinate of the bounding box.
-		:param top_right: the bottom left coordinate of the bounding box.
+		:param first_coordinate: of the bounding box.
+		:param second_coordinate:  of the bounding box.
 		:param zoom: the level of zoom (meters per pixel) the returned images will be.
 		:return: a pair which contains as its first value a tuple with the total number of images,
 		and the number of images along the axis, and as second value a list of the centre
@@ -174,10 +244,19 @@ class RequestManager:
 		((num_of_images_total, num_of_images_horizontal, num_of_images_vertical), coordinates_list)
 		"""
 
-		bottom_lat = bottom_left[0]
-		left_long = bottom_left[1]
-		top_lat = top_right[0]
-		right_long = top_right[1]
+		if first_coordinate[0] < second_coordinate[0]:
+			bottom_lat = first_coordinate[0]
+			top_lat = second_coordinate[0]
+		else:
+			bottom_lat = second_coordinate[0]
+			top_lat = first_coordinate[0]
+
+		if first_coordinate[1] < second_coordinate[1]:
+			left_long = first_coordinate[1]
+			right_long = second_coordinate[1]
+		else:
+			left_long = second_coordinate[1]
+			right_long = first_coordinate[1]
 
 		if bottom_lat > top_lat or left_long > right_long:
 			raise Exception(
@@ -200,12 +279,12 @@ class RequestManager:
 		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(
 			top_lat, zoom
 		)
-		num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / side_resolution_image))
-		if ((num_of_images_horizontal % 9) != 0):
-			num_of_images_horizontal += 9 - (num_of_images_horizontal % 9)
-		num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
-		if ((num_of_images_vertical % 9) != 0):
-			num_of_images_vertical += 9 - (num_of_images_vertical % 9)
+
+		num_of_images_horizontal = int(
+			math.floor(1 + total_horizontal_pixels / side_resolution_image)
+		)
+		num_of_images_vertical = int(math.floor(1 + total_vertical_pixels / side_resolution_image))
+
 		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
 
 		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
@@ -218,6 +297,7 @@ class RequestManager:
 		current_latitude = latitude_first_image
 		current_longitude = longitude_first_image
 
+		# number_of_calls = 0
 		coordinates_list = list()
 
 		for vertical in range(num_of_images_vertical):
@@ -225,7 +305,9 @@ class RequestManager:
 				coordinates_list.append(
 					((current_latitude, current_longitude), (horizontal, vertical))
 				)
-
+				# print(current_latitude, ",", current_longitude)
+				# number_of_calls += 1
+				# print(number_of_calls)
 				current_longitude = self.geo_location_util.calc_next_location_longitude(
 					current_latitude, current_longitude, zoom, side_resolution_image, True
 				)
@@ -233,43 +315,143 @@ class RequestManager:
 			current_latitude = self.geo_location_util.calc_next_location_latitude(
 				current_latitude, current_longitude, zoom, side_resolution_image, True
 			)
-
-		temp_result = (num_of_images_total, num_of_images_horizontal,
+		return (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
 
-		result = temp_result[1]
-		max_entry = temp_result[0][0]
-		max_latitude = temp_result[0][1]
-		max_longitude = temp_result[0][1]
-
-		counter = 0
-		pointer = 0
-		level = 0
-		ordered_result = [(max_latitude / 3, max_longitude / 3)]
-		run = True
-
-		while (run == True):
-			ordered_result.append(result[pointer][0])
-			pointer += 1
-
-			if ((pointer % 3) == 0):
-				if (level == 2):
-					if ((pointer % max_latitude) == 0):
-						level = 0
-					else:
-						pointer -= (2 * max_latitude)
-						level -= 2
-				else:
-					pointer = pointer - 3 + max_latitude
-					level += 1
-
-			counter += 1
-			if (counter == max_entry):
-				run = False
-
-		return ordered_result
+	# def calculate_centre_coordinates_two_coordinate_input(self, bottom_left, top_right, zoom):
+	# 	"""
+	# 	Method which calculates and retrieves the number of images that are necessary have a
+	# 	complete imagery set of a certain geographical area. This area is defined by a bounding box.
+	# 	The function checks whether the first coordinate inputted is "smaller" than the second
+	# 	inputted coordinate.
+	# 	:param bottom_left: the bottom left coordinate of the bounding box.
+	# 	:param top_right: the bottom left coordinate of the bounding box.
+	# 	:param zoom: the level of zoom (meters per pixel) the returned images will be.
+	# 	:return: a pair which contains as its first value a tuple with the total number of images,
+	# 	and the number of images along the axis, and as second value a list of the centre
+	# 	coordinates of each image, and its horizontal and vertical position in the grid of images.
+	# 	The coordinate list has the following format:
+	# 	((current_latitude, current_longitude), (horizontal, vertical))
+	# 	The overall returned format is:
+	# 	((num_of_images_total, num_of_images_horizontal, num_of_images_vertical), coordinates_list)
+	# 	"""
+	#
+	# 	bottom_lat = bottom_left[0]
+	# 	left_long = bottom_left[1]
+	# 	top_lat = top_right[0]
+	# 	right_long = top_right[1]
+	#
+	# 	if bottom_lat > top_lat or left_long > right_long:
+	# 		raise Exception(
+	# 			'The first coordinate should be beneath and left of the second coordinate'
+	# 		)
+	#
+	# 	side_resolution_image = self.map_entity.max_side_resolution_image
+	#
+	# 	if isinstance(self.map_entity, GoogleMapsProvider):
+	# 		# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
+	# 		# specific for google maps API
+	# 		side_resolution_image = side_resolution_image - 40
+	#
+	# 	horizontal_width = distance.distance((bottom_lat, left_long), (bottom_lat, right_long)).m
+	# 	vertical_length = distance.distance((bottom_lat, left_long), (top_lat, left_long)).m
+	#
+	# 	total_horizontal_pixels = horizontal_width / self.geo_location_util.calc_meters_per_px(
+	# 		top_lat, zoom
+	# 	)
+	# 	total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(
+	# 		top_lat, zoom
+	# 	)
+	# 	num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / side_resolution_image))
+	#
+	# 	#to support the tile system, the total number of images to download needs to be divisible by
+	# 	#9 as one tile is 9 images
+	# 	if ((num_of_images_horizontal % 9) != 0):
+	# 		num_of_images_horizontal += 9 - (num_of_images_horizontal % 9)
+	# 	num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
+	# 	if ((num_of_images_vertical % 9) != 0):
+	# 		num_of_images_vertical += 9 - (num_of_images_vertical % 9)
+	#
+	# 	num_of_images_total = num_of_images_horizontal * num_of_images_vertical
+	#
+	# 	latitude_first_image = self.geo_location_util.calc_next_location_latitude(
+	# 		bottom_lat, left_long, zoom, side_resolution_image / 2, True
+	# 	)
+	# 	longitude_first_image = self.geo_location_util.calc_next_location_longitude(
+	# 		bottom_lat, left_long, zoom, side_resolution_image / 2, True
+	# 	)
+	#
+	# 	current_latitude = latitude_first_image
+	# 	current_longitude = longitude_first_image
+	#
+	# 	coordinates_list = list()
+	#
+	# 	for vertical in range(num_of_images_vertical):
+	# 		for horizontal in range(num_of_images_horizontal):
+	# 			coordinates_list.append(
+	# 				((current_latitude, current_longitude), (horizontal, vertical))
+	# 			)
+	#
+	# 			current_longitude = self.geo_location_util.calc_next_location_longitude(
+	# 				current_latitude, current_longitude, zoom, side_resolution_image, True
+	# 			)
+	# 		current_longitude = longitude_first_image
+	# 		current_latitude = self.geo_location_util.calc_next_location_latitude(
+	# 			current_latitude, current_longitude, zoom, side_resolution_image, True
+	# 		)
+	#
+	# 	temp_result = (num_of_images_total, num_of_images_horizontal,
+	# 		num_of_images_vertical), coordinates_list
+	#
+	# 	#here, the results need to be rearranged so that the order of coordiantes returned corresponds
+	# 	#to one tile after the other. Currently the output is : 0,0 - 1,0 - 2,0 - 3,0 -4,0
+	# 	#for the tile system, the output needs to be : 0,0 - 1,0 - 2,0 - 0,1 -1,1 - 1,2 etc.
+	# 	result = temp_result[1]
+	# 	max_entry = temp_result[0][0]
+	# 	max_latitude = temp_result[0][1]
+	# 	max_longitude = temp_result[0][1]
+	#
+	# 	counter = 0
+	# 	pointer = 0
+	# 	level = 0
+	# 	ordered_result = [(max_latitude / 3, max_longitude / 3)]
+	# 	run = True
+	#
+	# 	while (run == True):
+	# 		ordered_result.append(result[pointer][0])
+	# 		pointer += 1
+	#
+	# 		#if we moved 3 points to the right, we are at the end of one tile
+	# 		if ((pointer % 3) == 0):
+	# 			#if we are two levels up, we are at the top right end of a tile
+	# 			if (level == 2):
+	# 				#in case this is also at the right hand end of the area we are interested in,
+	# 				#so now we want to go further up
+	# 				if ((pointer % max_latitude) == 0):
+	# 					level = 0
+	# 				#here we are not at the very right hand of the area we are interested in, so we
+	# 				#again have to move down and then to the right
+	# 				else:
+	# 					pointer -= (2 * max_latitude)
+	# 					level -= 2
+	# 			#else this means we are on either level zero or one and thus we can go up one more level
+	# 			else:
+	# 				pointer = pointer - 3 + max_latitude
+	# 				level += 1
+	#
+	# 		counter += 1
+	# 		if (counter == max_entry):
+	# 			run = False
+	#
+	# 	return ordered_result
 
 	def calculate_locations(self, coordinates, zoom):
+		"""
+		This method calculates all the locations to be downloaded for one request
+		:param coordinates: the central coordinates around which the other image
+		:param zoom:
+		:return:
+		"""
 		image_size = 640 - self.map_entity.padding
 
 		if (len(coordinates) == 2):
