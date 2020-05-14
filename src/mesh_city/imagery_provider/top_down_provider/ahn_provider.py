@@ -2,10 +2,12 @@ import json
 import math
 import operator
 from pathlib import Path
+
 import requests
 from PIL import Image
-from scipy import spatial
+
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
+from scipy import spatial
 
 
 class AhnProvider(TopDownProvider):
