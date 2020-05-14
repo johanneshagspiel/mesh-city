@@ -8,7 +8,6 @@ class Application:
 
 	def __init__(self):
 		self.user_info_handler = UserInfoHandler()
-		#self.self_made_map
 		self.quota_manager = None
 		self.request_manager = None
 		self.user_info = None

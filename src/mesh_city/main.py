@@ -6,10 +6,10 @@ from mesh_city.user.user_info_handler import UserInfoHandler
 
 def main() -> None:
 
-	user_info_handler = UserInfoHandler()
-	user_info = user_info_handler.load_user_info()
-	quota_manager = QuotaManager(user_info)
-	request_manager = RequestManager(user_info=user_info, quota_manager=quota_manager)
+	# user_info_handler = UserInfoHandler()
+	# user_info = user_info_handler.load_user_info()
+	# quota_manager = QuotaManager(user_info)
+	# request_manager = RequestManager(user_info=user_info, quota_manager=quota_manager)
 
 	#test = AhnProvider(user_info, quota_manager)
 	#test.get_height_from_pixel(950, 960)

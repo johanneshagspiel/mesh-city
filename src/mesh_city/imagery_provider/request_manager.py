@@ -15,7 +15,7 @@ from mesh_city.util.image_util import ImageUtil
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
-	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
+	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', '0_tile_0_0')
 
 	def __init__(self, user_info, quota_manager):
 		"""
@@ -28,8 +28,8 @@ class RequestManager:
 		"""
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
-		#self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
+		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
+		self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		#self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
 		self.log_manager = LogManager()
