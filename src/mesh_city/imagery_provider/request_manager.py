@@ -15,7 +15,7 @@ from mesh_city.util.image_util import ImageUtil
 class RequestManager:
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
-	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', '0_tile_0_0')
+	active_tile_path = Path.joinpath(images_folder_path, 'request_0', '0_tile_0_0')
 
 	def __init__(self, user_info, quota_manager):
 		"""
@@ -30,6 +30,7 @@ class RequestManager:
 		self.quota_manager = quota_manager
 		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
 		self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
+		self.ahn = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		#self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
 		self.log_manager = LogManager()
@@ -136,7 +137,7 @@ class RequestManager:
 				if counter == 10 and lastRound:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
-					self.path_to_map_image = new_folder_path
+					self.active_tile_path = new_folder_path
 					self.log_manager.write_entry_log(
 						request_number,
 						self.user_info,
@@ -186,7 +187,7 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					self.path_to_map_image = new_folder_path
+					self.active_tile_path = new_folder_path
 					self.log_manager.write_entry_log(
 						request_number,
 						self.user_info,

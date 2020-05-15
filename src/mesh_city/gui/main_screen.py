@@ -2,13 +2,12 @@ import glob
 from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
-
 from PIL import Image, ImageTk
-
 from mesh_city.gui.search_window import SearchWindowStart
 from mesh_city.gui.start_screen import StartScreen
 from mesh_city.gui.load_window import LoadWindow
-
+from mesh_city.gui.layers_window import LayersWindow
+from mesh_city.util.image_util import ImageUtil
 
 class MainScreen:
 
@@ -17,21 +16,26 @@ class MainScreen:
 
 		self.master = Tk()
 		self.master.title("Mesh City")
-		self.master.geometry("653x754")
+		self.master.geometry("706x754")
 
 		self.master.withdraw()
 		StartScreen(self.master, application)
 		self.master.deiconify()
 
-		self.currently_active_image = self.application.request_manager.path_to_map_image
-		self.currently_active_request = Path(self.currently_active_image).parents[0]
-		print(self.currently_active_request)
-		self.file = path.dirname(__file__)
+		self.temp_path = Path(__file__).parents[1]
+		self.path_to_temp = Path.joinpath(self.temp_path, "resources", "temp")
+		self.currently_active_tile = self.application.request_manager.active_tile_path
+		self.currently_active_request = Path(self.currently_active_tile).parents[0]
+
+
+		self.layer_active = False
+		self.padding_x = 60
+		self.padding_y = 5
 
 		self.image = self.load_large_image()
 
 		# Definition of UI of main window
-		self.canvas = Canvas(self.master, width=650, height=753)
+		self.canvas = Canvas(self.master, width=706, height=753)
 		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
 
 		side_bar = Label(self.canvas, width=15, height=645, text="")
@@ -47,11 +51,11 @@ class MainScreen:
 		)
 		canvas_load_button = self.canvas.create_window(28, 90, window=load_button)
 
-		height_button = Button(self.canvas, text="Height", width=6, height=3, command=None, bg="grey")
-		canvas_height_button = self.canvas.create_window(28, 149, window=height_button)
+		layers_button = Button(self.canvas, text="Layers", width=6, height=3, command=self.layers_window, bg="grey")
+		canvas_layers_button = self.canvas.create_window(28, 149, window=layers_button)
 
-		layers_button = Button(self.canvas, text="Layers", width=6, height=3, command=None, bg="grey")
-		canvas_layers_button = self.canvas.create_window(28, 208, window=layers_button)
+		height_button = Button(self.canvas, text="Height", width=6, height=3, command=self.get_height, bg="grey")
+		canvas_height_button = self.canvas.create_window(28, 208, window=height_button)
 		#
 		# test4_button = Button(self.canvas, text="Test4", width=6, height=3, command=None, bg="grey")
 		# canvas_test4_button = self.canvas.create_window(28, 267, window=test4_button)
@@ -71,32 +75,64 @@ class MainScreen:
 		# test9_button = Button(self.canvas, text="Test9", width=6, height=3, command=None, bg="grey")
 		# canvas_test9_button = self.canvas.create_window(28, 562, window=test9_button)
 
-		up_arrow = Button(
-			self.canvas, text="Up", width=6, height=3, command=lambda : self.arrow("up"), bg="grey"
-		)
-		canvas_up_arrow = self.canvas.create_window(560, 665, window=up_arrow)
+		# up_arrow = Button(
+		# 	self.canvas, text="Up", width=6, height=3, command=lambda : self.arrow("up"), bg="grey"
+		# )
+		# canvas_up_arrow = self.canvas.create_window(560, 665, window=up_arrow)
+		#
+		# right_arrow = Button(
+		# 	self.canvas, text="Right", width=6, height=3, command=lambda : self.arrow("right"), bg="grey"
+		# )
+		# canvas_right_arrow = self.canvas.create_window(613, 694.5, window=right_arrow)
+		#
+		# down_arrow = Button(
+		# 	self.canvas, text="Down", width=6, height=3, command=lambda : self.arrow("down"), bg="grey"
+		# )
+		# canvas_down_arrow = self.canvas.create_window(560, 724, window=down_arrow)
+		#
+		# left_arrow = Button(
+		# 	self.canvas, text="Left", width=6, height=3, command=lambda : self.arrow("left"), bg="grey"
+		# )
+		# canvas_left_arrow = self.canvas.create_window(507, 694.5, window=left_arrow)
+		#
+		# zoom_in_button = Button(
+		# 	self.canvas, text="In", width=6, height=3, command=None, bg="grey"
+		# )
+		# canvas_zoom_in_button = self.canvas.create_window(430, 665, window=zoom_in_button)
+		#
+		# zoom_out_button = Button(
+		# 	self.canvas, text="Out", width=6, height=3, command=None, bg="grey"
+		# )
+		# canvas_zoom_out_button = self.canvas.create_window(430, 724, window=zoom_out_button)
 
-		right_arrow = Button(
-			self.canvas, text="Right", width=6, height=3, command=lambda : self.arrow("right"), bg="grey"
-		)
-		canvas_right_arrow = self.canvas.create_window(613, 694.5, window=right_arrow)
-
-		down_arrow = Button(
-			self.canvas, text="Down", width=6, height=3, command=lambda : self.arrow("down"), bg="grey"
-		)
-		canvas_down_arrow = self.canvas.create_window(560, 724, window=down_arrow)
-
-		left_arrow = Button(
-			self.canvas, text="Left", width=6, height=3, command=lambda : self.arrow("left"), bg="grey"
-		)
-		canvas_left_arrow = self.canvas.create_window(507, 694.5, window=left_arrow)
+		#self.information_bar = Label(self.canvas, width=5, height=1, text="Height:")
+		self.canvas_information_bar = self.canvas.create_text(95, 665, text="")
 
 		self.load_large_image_on_map(self.image)
 
 		mainloop()
 
+	def get_height(self):
+		concat_temp_path = Path.joinpath(self.currently_active_tile, "layers", "ahn_height",
+		              "concat_image_request_10_tile_0_0.png",)
+		ImageUtil.resize_image(self, width=636, height=636, path=concat_temp_path, name="test1")
+		self.canvas.tag_bind(self.tkinter_image, "<Button-1>", self.get_coordinates)
+
+	def get_coordinates(self, event):
+		xpos = event.x - self.padding_x
+		ypos = event.y - self.padding_y
+		height = self.application.request_manager.ahn.get_height_from_pixel(xpos, ypos,
+		                                                                    Path.joinpath(
+			                                                                    self.path_to_temp,
+			                                                                    "test1"))
+		text = "Height: " + str(height)
+		self.canvas.itemconfig(self.canvas_information_bar, text=text)
+
 	def arrow(self, type):
 		return None
+
+	def layers_window(self):
+		LayersWindow(self.master, self.application, self)
 
 	def load_window(self):
 		LoadWindow(self.master, self.application, self)
@@ -109,19 +145,15 @@ class MainScreen:
 		self.load_large_image_on_map(self.image)
 
 	def load_large_image_on_map(self, large_image):
-		self.canvas.create_image(15, 0, anchor=NW, image=large_image)
+		self.tkinter_image = self.canvas.create_image(self.padding_x, self.padding_y, anchor=NW, image=large_image)
 
 	def load_large_image(self):
 		get_image = Image.open(
 			glob.glob(
-			Path.joinpath(self.currently_active_image,
+			Path.joinpath(self.currently_active_tile,
 			"concat_image_*").absolute().as_posix()
 			).pop()
 		)
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo
-
-	def get_coordinates(event):
-		xpos = event.x
-		ypos = event.y

@@ -77,8 +77,8 @@ class SearchWindowLocation(object):
 	def cleanup(self):
 		self.value = [float(self.lat_entry.get()), float(self.long_entry.get())]
 		self.application.request_manager.make_request_for_block(self.value)
-		self.mainscreen.currently_active_image = self.application.request_manager.path_to_map_image
-		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_image).parents[0]
+		self.mainscreen.currently_active_tile = self.application.request_manager.active_tile_path
+		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile).parents[0]
 		self.mainscreen.update_Image()
 		self.top.destroy()
 
@@ -152,7 +152,7 @@ class SearchWindowLocationArea(object):
 
 			if((self.max_lat['text'] == "Address:") & (firstTime == True)):
 				self.max_lat['text'] = "Max Latitude:"
-				self.max_long_entry.grid(row=2, column=3)
+				self.max_long_entry.grid(row=4, column=3)
 				self.type_button_max.configure(text="Address")
 				self.max_log['text'] = "Max Longitude:"
 
@@ -160,7 +160,7 @@ class SearchWindowLocationArea(object):
 		self.value = [float(self.min_lat_entry.get()), float(self.min_long_entry.get()),
 		              float(self.max_lat_entry.get()), float(self.max_long_entry.get())]
 		self.application.request_manager.make_request_for_block(self.value)
-		self.mainscreen.currently_active_image = self.application.request_manager.path_to_map_image
-		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_image).parents[0]
+		self.mainscreen.currently_active_tile = self.application.request_manager.active_tile_path
+		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile).parents[0]
 		self.mainscreen.update_Image()
 		self.top.destroy()

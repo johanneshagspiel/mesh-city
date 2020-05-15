@@ -25,7 +25,8 @@ class LoadWindow(object):
 				counter += 1
 
 	def load_request(self, name_directory):
-		self.mainscreen.currently_active_image = Path.joinpath(self.image_path, name_directory, "0_tile_0_0")
-		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_image).parents[0]
+		self.mainscreen.currently_active_tile = Path.joinpath(self.image_path, name_directory, "0_tile_0_0")
+		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile).parents[0]
 		self.mainscreen.update_Image()
+		self.mainscreen.layer_active = False
 		self.top.destroy()
