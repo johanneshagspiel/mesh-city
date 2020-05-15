@@ -5,7 +5,7 @@ from mesh_city.user.user_info import UserInfo
 from mesh_city.user.user_info_handler import UserInfoHandler
 
 
-class TestQuotaManager(unittest.TestCase):
+class TestUserInfoHandler(unittest.TestCase):
 	def setUp(self):
 		self.api_file_path = Path.joinpath(Path(__file__).parents[1],
 		                                   "test_resources", "test_api_key.json")
@@ -13,7 +13,7 @@ class TestQuotaManager(unittest.TestCase):
 		self.user_handler = UserInfoHandler(self.api_file_path)
 		self.user_handler.store_user_info(self.user_info_init) # Needed for changing the file back.
 
-	def tearDown(self):
+	def altSetUp(self):
 		self.api_file_path = "/nowhereland/here"
 		self.user_handler = UserInfoHandler(self.api_file_path)
 
@@ -34,7 +34,7 @@ class TestQuotaManager(unittest.TestCase):
 		self.assertTrue(flag)
 
 	def test_file_exists_not(self):
-		self.tearDown()
+		self.altSetUp()
 		flag = self.user_handler.file_exists()
 		self.assertFalse(flag)
 
