@@ -45,12 +45,12 @@ class CoverageTestCommand(CommandAdapter):
 	def run(self) -> None:
 		check_call(
 			args=
-		    "coverage run "
-		    "--branch "
+			"coverage run "
+			"--branch "
 			"--source=src/mesh_city "
-		    "--omit=src/mesh_city/gui/* "
-		    "--module unittest "
-		    "discover src ",
+			"--omit=src/mesh_city/gui/* "
+			"--module unittest "
+			"discover src ",
 			shell=True,
 			stderr=stdout,
 		)
