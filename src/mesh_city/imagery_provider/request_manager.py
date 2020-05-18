@@ -66,7 +66,7 @@ class RequestManager:
 	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
 		"""
 		Takes as input two coordinates for a bounding box, a zoom level to specify how zoomed in the
-		the images need to be and saves them in a structured way on disk.
+		the images need to be and saves the retrieved images in a semi-structured way on disk.
 		:param first_coordinate:
 		:param second_coordinate:
 		:param zoom:
@@ -155,7 +155,7 @@ class RequestManager:
 			first_coordinate, second_coordinate, zoom
 		)[0][0]
 
-	def calculate_coordinates_two_coordinate_input(self, first_coordinate, second_coordinate, zoom):
+	def calculate_centre_coordinates_two_coordinate_input(self, first_coordinate, second_coordinate, zoom):
 		"""
 		Method which calculates and retrieves the number of images that are necessary to have a
 		complete imagery set of a certain geographical area. This area is defined by a bounding box.
@@ -367,7 +367,7 @@ class RequestManager:
 						coordinates,
 					)
 
-	def calculate_centre_coordinates_two_coordinate_input(self, bottom_left, top_right, zoom):
+	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
 		CREATES BLOCKS
 
@@ -530,7 +530,7 @@ class RequestManager:
 			]  # pylint: disable=invalid-name
 
 		if len(coordinates) == 4:
-			return self.calculate_centre_coordinates_two_coordinate_input(
+			return self.calculate_centre_coordinates_two_coordinate_input_block(
 				(coordinates[0], coordinates[1]), (coordinates[2], coordinates[3]), zoom
 			)
 
