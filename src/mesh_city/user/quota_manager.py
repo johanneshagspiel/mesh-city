@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from mesh_city.user.price_table import PriceTable
 
 

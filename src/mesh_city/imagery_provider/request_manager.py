@@ -1,13 +1,11 @@
 import math
 import os
 from pathlib import Path
-
 from geopy import distance
-
-from mesh_city.imagery_provider.log_manager import LogManager
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.util.logs.log_manager import LogManager
+from mesh_city.util.logs.log_entry import TopDownProviderLogEntry
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
@@ -30,7 +28,7 @@ class RequestManager:
 		self.quota_manager = quota_manager
 		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
 		self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
-		self.ahn = AhnProvider(user_info=user_info, quota_manager=quota_manager)
+		#self.ahn = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		#self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
 		self.log_manager = LogManager()
@@ -138,14 +136,10 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					self.active_tile_path = new_folder_path
-					self.log_manager.write_entry_log(
-						request_number,
-						self.user_info,
-						self.map_entity,
-						number_requests,
-						bounding_box,
-						coordinates,
-					)
+					log_entry = TopDownProviderLogEntry(request_number, zoom,
+					                                    self.user_info, self.map_entity,
+					                                    number_requests, bounding_box, coordinates)
+					self.log_manager.write_entry_log(log_entry)
 
 		#download and store the information in case a whole area was asked for
 		if len(centre_coordinates) == 4:
@@ -187,15 +181,10 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					self.active_tile_path = new_folder_path
-					self.log_manager.write_entry_log(
-						request_number,
-						self.user_info,
-						self.map_entity,
-						number_requests * 9,
-						bounding_box,
-						coordinates,
-					)
+					log_entry = TopDownProviderLogEntry(request_number, zoom,
+					                                    self.user_info, self.map_entity,
+					                                    number_requests, bounding_box, coordinates)
+					self.log_manager.write_entry_log(self, log_entry)
 
 	def calculate_centre_coordinates_two_coordinate_input(self, bottom_left, top_right, zoom):
 		"""
