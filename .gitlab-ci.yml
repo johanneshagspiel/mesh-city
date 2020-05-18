@@ -26,6 +26,10 @@ build:
 
 check:
     stage: check
+    artifacts:
+        expose_as: Linter report
+        paths:
+            - build/pylint/report.html
     script: $BUILD_TOOL check_code
 
 test:
