@@ -1,8 +1,8 @@
 from abc import ABC
 from distutils.cmd import Command
 from os import environ, getcwd, path, pathsep
-
-from subprocess import CalledProcessError, check_call
+from pathlib import Path
+from subprocess import call, CalledProcessError, check_call
 from sys import stdout
 from typing import List
 
@@ -35,10 +35,30 @@ class CommandAdapter(Command, ABC):
 		pass
 
 
-class PylintCommand(CommandAdapter):
+class PylintCheckCommand(CommandAdapter):
 	def run(self) -> None:
 		check_call(args="pylint -j 0 mesh_city", env=subprocess_env, shell=True)
 		check_call(args="pylint -j 0 test_mesh_city", env=subprocess_env, shell=True)
+
+
+class PylintReportCommand(CommandAdapter):
+	def run(self) -> None:
+		pylint_dir = Path("build", "pylint")
+		pylint_dir.mkdir(parents=True, exist_ok=True)
+		with pylint_dir.joinpath("report.json").open("w") as json_report:
+			call(
+				args="pylint --output-format=json -j 0 mesh_city",
+				stdout=json_report,
+				env=subprocess_env,
+				shell=True,
+			)
+		check_call(
+			args=
+			"pylint-json2html "
+			"--output build/pylint/report.html "
+			"build/pylint/report.json",
+			shell=True,
+		)
 
 
 class CoverageTestCommand(CommandAdapter):
@@ -95,7 +115,8 @@ class CheckCommand(CommandAdapter):
 	def run(self) -> None:
 		self.run_command("imports_check")
 		self.run_command("format_check")
-		self.run_command("lint")
+		self.run_command("lint_report")
+		self.run_command("lint_check")
 
 
 class FixCommand(CommandAdapter):
@@ -130,7 +151,8 @@ try:
 			"format_fix": YapfFixCommand,
 			"imports_check": IsortCheckCommand,
 			"imports_fix": IsortFixCommand,
-			"lint": PylintCommand,
+			"lint_check": PylintCheckCommand,
+			"lint_report": PylintReportCommand,
 			"run": RunCommand,
 			"test": TestCommand,
 			"test_run": CoverageTestCommand,
