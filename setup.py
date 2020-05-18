@@ -43,7 +43,17 @@ class PylintCommand(CommandAdapter):
 
 class CoverageTestCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="coverage run --branch --source=src/mesh_city --module unittest discover src", shell=True, stderr=stdout)
+		check_call(
+			args=
+			"coverage run "
+			"--branch "
+			"--source=src/mesh_city "
+			"--omit=src/mesh_city/gui/* "
+			"--module unittest "
+			"discover src ",
+			shell=True,
+			stderr=stdout,
+		)
 
 
 class CoverageCheckCommand(CommandAdapter):
