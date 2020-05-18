@@ -9,6 +9,7 @@ class SearchWindowStart:
 	This class is a GUI element that provides the user with the type of pop-up they need to make the
 	request they want to make after the request type is selected.
 	"""
+
 	def __init__(self, master, application, main_screen):
 		"""
 		Initializes the GUI elements for a window and prompts the user to enter what type of search
@@ -22,9 +23,9 @@ class SearchWindowStart:
 		self.value = ""
 		self.application = application
 		self.top = Toplevel(master)
-		Label(self.top, text="What kind of search are you interested in ?").grid(row=0, columnspan=3)
-		Button(self.top, text="Area",
-			command=self.button_area_callback).grid(row=1, columnspan=1)
+		Label(self.top,
+			text="What kind of search are you interested in ?").grid(row=0, columnspan=3)
+		Button(self.top, text="Area", command=self.button_area_callback).grid(row=1, columnspan=1)
 		Button(self.top, text="Location",
 			command=self.button_location_callback).grid(row=1, columnspan=3)
 
@@ -50,6 +51,7 @@ class SearchWindowLocation:
 	A pop-up type GUI element that the user can fill in to make a location-type request.
 	.. todo:: Make a pop-up class that this inherits from.
 	"""
+
 	def __init__(self, master, application, main_screen):
 		"""
 		Initializes the GUI elements of the pop-up and sets up callbacks
@@ -128,6 +130,7 @@ class SearchWindowLocationArea:
 	A pop-up type GUI element that the user can fill in to make an area-type request.
 	.. todo:: Make a pop-up class that this inherits from.
 	"""
+
 	def __init__(self, master, application, main_screen):
 		"""
 		Initializes the GUI elements of the pop-up and sets up callbacks

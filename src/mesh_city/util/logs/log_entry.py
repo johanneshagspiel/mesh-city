@@ -1,8 +1,9 @@
 """
 A module that contains all the different kinds of log entries used in this project
 """
-from datetime import datetime as dt
 from abc import ABC, abstractmethod
+from datetime import datetime as dt
+
 
 class LogEntry(ABC):
 	"""
@@ -33,14 +34,24 @@ class LogEntry(ABC):
 			:return: nothing
 			"""
 
+
 class TopDownProviderLogEntry(LogEntry):
 	"""
 	Log entries created for one request by a TopDownImageryProvider and stored in the overeall request log
 	"""
 
 	def __init__(
-		self, path_to_store, request_number, zoom_level, user_info, map_entity, number_requests,
-		bounding_box, coordinates, nickname = None):
+		self,
+		path_to_store,
+		request_number,
+		zoom_level,
+		user_info,
+		map_entity,
+		number_requests,
+		bounding_box,
+		coordinates,
+		nickname=None,
+	):
 		"""
 		Initializes fields of a TopDownProviderLogEntry
 		:param path_to_store: where to store the log
@@ -57,7 +68,7 @@ class TopDownProviderLogEntry(LogEntry):
 
 		self.request_number = str(request_number)
 		self.name_user = str(user_info.name)
-		if(nickname == None):
+		if nickname is None:
 			self.nickname = ""
 		else:
 			self.nickname = str(nickname)
@@ -77,14 +88,14 @@ class TopDownProviderLogEntry(LogEntry):
 		"""
 		return {
 			self.request_number : {
-				"nickname" : self.nickname,
-				"name_user": self.name_user,
-				"zoom_level" : self.zoom_level,
-				"map_provider": self.map_provider,
-				"number_requests": self.number_requests,
-				"date": self.date,
-				"bounding_box": self.bounding_box,
-				"coordinates": self.coordinates,
+			"nickname" : self.nickname,
+			"name_user": self.name_user,
+			"zoom_level" : self.zoom_level,
+			"map_provider": self.map_provider,
+			"number_requests": self.number_requests,
+			"date": self.date,
+			"bounding_box": self.bounding_box,
+			"coordinates": self.coordinates,
 			}
 		}  # yapf: disable
 
@@ -103,8 +114,9 @@ class TopDownProviderRequestLog(LogEntry):
 	Meta information for one request
 	"""
 
-	def __init__(self, path_to_store, starting_location, max_latitude,
-	             max_longitude, max_zoom, layers):
+	def __init__(
+		self, path_to_store, starting_location, max_latitude, max_longitude, max_zoom, layers
+	):
 		"""
 		Initializes a log entry to store meta information about a request
 		:param path_to_store: where to store the log

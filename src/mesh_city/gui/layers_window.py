@@ -9,6 +9,7 @@ class LayersWindow:
 	"""
 	A GUI class with a layer selection interface.
 	"""
+
 	def __init__(self, master, main_screen):
 		"""
 		Constructs the basic GUI elements and prompts the user to select a layer.
