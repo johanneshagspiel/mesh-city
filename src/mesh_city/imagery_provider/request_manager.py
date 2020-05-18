@@ -11,17 +11,19 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.log_manager import LogManager
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
 
 class RequestManager:
 	"""
-	An object which contains the necessary user_info object, logging object and other helping
-	objects to make and store the results of requests to a top_down provider's API.
+	A class that is responsible for handling requests to different map providers. Based on
+	coordinates of the user it calculates all the locations that need to be downloaded, downloads them
+	stores them in tile system: 9 images together make up one tile. These 9 images are, after being downloaded,
+	combined into one large image that is displayed on the map.
+	:param user_info: information about the user
+	:param quota_manager: quota manager associated with the user
 	"""
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
@@ -244,6 +246,13 @@ class RequestManager:
 			num_of_images_vertical), coordinates_list
 
 	def make_request_for_block(self, centre_coordinates, zoom=None):
+		"""
+		Make a request in such a way, that the images are stored in the tile system, are logged in
+		the log manager and they can be displayed on the map
+		:param centre_coordinates: the location where the image should be downloaded
+		:param zoom: the zoom level at which the image should be downloaded
+		:return: nothing
+		"""
 
 		if zoom is None:
 			zoom = self.map_entity.max_zoom
@@ -271,32 +280,32 @@ class RequestManager:
 
 		temp = coordinates.pop(0)
 		max_latitude = temp[0]
-		max_longitude = temp[1]
+		# max_longitude = temp[1]
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 		number_requests_temp = number_requests
 		total_tile_numbers = number_requests / 9
-		lastRound = False
+		last_round = False
 
 		if number_requests == 9:
-			lastRound = True
+			last_round = True
 
 		counter = 1
 
 		if len(centre_coordinates) == 2:
 			for location in coordinates:
 				number = str(counter)
-				x = str(location[0])
-				y = str(location[1])
-				temp_name = str(number + "_" + x + "_" + y + ".png")
+				x_position = str(location[0])
+				y_position = str(location[1])
+				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
 				self.map_entity.get_and_store_location(
 					location[0], location[1], zoom, temp_name, new_folder_path
 				)
 				counter += 1
 
-				if counter == 10 and lastRound:
+				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					self.path_to_map_image = new_folder_path
@@ -313,15 +322,15 @@ class RequestManager:
 
 			for location in coordinates:
 				number = str(counter)
-				x = str(location[0])
-				y = str(location[1])
-				temp_name = str(number + "_" + x + "_" + y + ".png")
+				x_position = str(location[0])
+				y_position = str(location[1])
+				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
 				self.map_entity.get_and_store_location(
 					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
 				)
 				counter += 1
 
-				if counter == 10 and not lastRound:
+				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
 					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(
@@ -341,9 +350,9 @@ class RequestManager:
 					counter = 1
 					number_requests_temp = number_requests_temp - 9
 					if (number_requests_temp == 9):
-						lastRound = True
+						last_round = True
 
-				if counter == 10 and lastRound:
+				if counter == 10 and last_round:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
@@ -459,7 +468,7 @@ class RequestManager:
 		ordered_result = [(max_latitude / 3, max_longitude / 3)]
 		run = True
 
-		while (run == True):
+		while run:
 			ordered_result.append(result[pointer][0])
 			pointer += 1
 
@@ -503,7 +512,9 @@ class RequestManager:
 			down = self.geo_location_util.calc_next_location_latitude(
 				longitude, latitude, zoom, image_size, False
 			)
-			up = self.geo_location_util.calc_next_location_latitude(
+			# 'up' is officially not snake_case naming but does provide the highest readability
+			# in this particular case
+			up = self.geo_location_util.calc_next_location_latitude( # pylint: disable=invalid-name
 				longitude, latitude, zoom, image_size, True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
@@ -514,18 +525,16 @@ class RequestManager:
 			)
 
 			return [
-				(down, left),
-				(down, latitude),
-				(down, right),
-				(longitude, left),
-				(longitude, latitude),
-				(longitude, right),
-				(up, left),
-				(up, latitude),
-				(up, right),
-			]  # yapf: disable
+				(down, left), (down, latitude), (down, right), (longitude, left),
+				(longitude, latitude), (longitude, right), (up, left), (up, latitude), (up, right),
+			]  # pylint: disable=invalid-name
 
 		if len(coordinates) == 4:
 			return self.calculate_centre_coordinates_two_coordinate_input(
 				(coordinates[0], coordinates[1]), (coordinates[2], coordinates[3]), zoom
 			)
+
+		raise Exception(
+			"Something went wrong with the input, as it doesn't return something "
+			"when it should have "
+		)

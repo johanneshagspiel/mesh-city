@@ -51,6 +51,8 @@ class GoogleMapsProvider(TopDownProvider):
 		map_type = "satellite"
 		api_key = self.user_info.api_key
 
+		# possible other variables that can be used to do API requests, good to keep around for
+		# future reference
 		language = None  # pylint: disable=unused-variable
 		region = None  # pylint: disable=unused-variable
 		markers = None  # pylint: disable=unused-variable

@@ -53,11 +53,9 @@ class AhnProvider(TopDownProvider):
 					counter += 1
 				if (element == " " or element == "(" or element == ")"):
 					counter += 1
-					pass
 				else:
 					if (element == ","):
 						counter += 1
-						pass
 					else:
 						temp_string += element
 						counter += 1
@@ -81,7 +79,7 @@ class AhnProvider(TopDownProvider):
 		with open(self.json_folder_path, 'w') as json_log:
 			json.dump(to_store, fp=json_log)
 
-	def get_and_store_location(self, longitude, latitude, zoom, name, new_folder_path):
+	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
 		"""
 		The standard method to get and store one image at a certain location with a certain name.
 		Ahn uses
@@ -111,27 +109,29 @@ class AhnProvider(TopDownProvider):
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 
-	def calculate_bounding_box(self, x, y, zoom, image_size_x, image_size_y):
-		right = self.calc_next_location_latitude(x, y, zoom, image_size_x / 2, True)
-		left = self.calc_next_location_latitude(x, y, zoom, image_size_x / 2, False)
-		up = self.calc_next_location_longitude(x, y, zoom, image_size_y / 2, True)
-		down = self.calc_next_location_longitude(x, y, zoom, image_size_y / 2, False)
+	def calculate_bounding_box(self, latitude, longitude, zoom, image_size_x, image_size_y):
+		right = self.calc_next_location_latitude(latitude, zoom, image_size_x / 2, True)
+		left = self.calc_next_location_latitude(latitude, zoom, image_size_x / 2, False)
+		# 'up' is officially not snake_case naming but does provide the highest readability
+		# in this particular case
+		up = self.calc_next_location_longitude(latitude, longitude, zoom, image_size_y / 2, True)  # pylint: disable=invalid-name
+		down = self.calc_next_location_longitude(latitude, longitude, zoom, image_size_y / 2, False)
 
 		self.check_in_netherlands(left, down)
 		self.check_in_netherlands(right, up)
 
 		return [left, down, right, up]
 
-	def check_in_netherlands(self, x, y):
+	def check_in_netherlands(self, latitude, longitude):
 		if (
-			x < 50.671799068129744 or
-			x > 53.61086457823865 or
-			y < 3.197334098049271 or
-			y > 7.275203841667622
+			latitude < 50.671799068129744 or
+			latitude > 53.61086457823865 or
+			longitude < 3.197334098049271 or
+			longitude > 7.275203841667622
 		):  # yapf: disable
 			print("Height information is only available in the Netherlands - Sorry!")
 
-	def get_height_from_pixel(self, x, y, path=None):
+	def get_height_from_pixel(self, x_location, y_location):
 
 		temp_path = Path(__file__).parents[2]
 		images_folder_path = Path.joinpath(
@@ -145,7 +145,7 @@ class AhnProvider(TopDownProvider):
 
 		image_temp = Image.open(images_folder_path)
 		image = image_temp.load()
-		pixels = image[x, y]
+		pixels = image[x_location, y_location]
 
 		if pixels in self.color_to_height:
 			print(self.color_to_height[pixels])
@@ -168,7 +168,7 @@ class AhnProvider(TopDownProvider):
 			self.color_to_height[pixels] = temp_new_value
 			return temp_new_value
 
-	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
+	def calc_next_location_latitude(self, latitude, zoom, image_size_x, direction):
 		meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
 		next_center_distance_meters = meters_per_px * image_size_x
 		if direction:

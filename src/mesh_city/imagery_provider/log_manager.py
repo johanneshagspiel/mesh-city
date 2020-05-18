@@ -1,3 +1,8 @@
+"""
+A module containing teh LogManager object, used for maintaining metadata of the requests of
+request_manager. And the TopDownProviderLogEntry object used to hold all this information in object
+form.
+"""
 import json
 import os
 from datetime import datetime as dt
@@ -6,7 +11,7 @@ from pathlib import Path
 
 class LogManager:
 	"""
-	A class that is reponsible for logging every request made. It can be
+	A class that is responsible for logging metadata of requests made my the request manager.
 	"""
 	temp_path = Path(__file__).parents[1]
 	resource_path = Path.joinpath(temp_path, 'resources')
@@ -24,6 +29,7 @@ class LogManager:
 		"""
 		max_log = 0
 
+		# TODO fix E1101: Instance of 'PurePath' has no 'is_file' member (no-member)
 		if (self.log_path.is_file()):
 			with open(self.log_path, 'r') as json_log:
 				data = json_log.read()
@@ -78,6 +84,9 @@ class LogManager:
 
 
 class TopDownProviderLogEntry:
+	"""
+	An object that stores the metadata of requests and which can format to json format
+	"""
 
 	def __init__(
 		self, request_number, user_info, map_entity, number_requests, bounding_box, coordinates
@@ -93,6 +102,10 @@ class TopDownProviderLogEntry:
 		self.coordinates = str(coordinates)
 
 	def for_json(self):
+		"""
+		Method for returning the metadata in json format.
+		:return: an array with the metadata ready to use for the json format
+		"""
 		return [
 			({"request_number": self.request_number}),
 			({"name_user": self.name_user}),
