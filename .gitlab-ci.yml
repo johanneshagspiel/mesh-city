@@ -6,11 +6,11 @@ variables:
     XDG_DATA_HOME: "$CI_PROJECT_DIR/cache/.local/share/"
     BUILD_TOOL: "pipenv run python setup.py"
 
-#cache:
-#    # Cache per branch
-#    key: ${CI_COMMIT_REF_SLUG}
-#    paths:
-#        - cache/
+cache:
+    # Cache per branch
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+        - cache/
 
 stages:
     - build
