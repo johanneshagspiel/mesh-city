@@ -7,7 +7,6 @@ from mesh_city.user.user_info import UserInfo
 class UserInfoHandler:
 
 	def __init__(self, file_path):
-		#self.api_file_path = file_path
 		self.api_file_path = file_path
 
 	def store_user_info(self, user_info):
