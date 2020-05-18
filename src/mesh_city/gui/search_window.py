@@ -82,7 +82,7 @@ class SearchWindowLocation(object):
 		self.mainscreen.currently_active_tile = self.application.request_manager.active_tile_path
 		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile
 														).parents[0]
-		self.mainscreen.update_Image()
+		self.mainscreen.update_image()
 		self.top.destroy()
 
 
@@ -172,5 +172,5 @@ class SearchWindowLocationArea(object):
 		self.mainscreen.currently_active_tile = self.application.request_manager.active_tile_path
 		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile
 														).parents[0]
-		self.mainscreen.update_Image()
+		self.mainscreen.update_image()
 		self.top.destroy()

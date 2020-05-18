@@ -1,6 +1,8 @@
+"""
+A module that contains the log manager who is responsible for performing all the actions associated with logs
+"""
 import json
 import os
-from datetime import datetime as dt
 from pathlib import Path
 
 
@@ -14,6 +16,9 @@ class LogManager:
 	log_path = Path.joinpath(resource_path, 'logs', 'log_request_.json')
 
 	def __init__(self):
+		"""
+		Initializes a log_manager method
+		"""
 		pass
 
 	def get_request_number(self):
@@ -52,6 +57,11 @@ class LogManager:
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
 	def write_entry_log(self, logEntry):
+		"""
+		A method to write one log entry entity to the associated correct location
+		:param logEntry: the log entry with its appropriate location to store it to
+		:return: nothing
+		"""
 
 		with open(logEntry.path_to_store, "r") as json_log:
 			data = json_log.read()

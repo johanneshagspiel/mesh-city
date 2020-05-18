@@ -46,12 +46,12 @@ class LayersWindow(object):
 
 	def load_layer(self, name_directory):
 		self.mainscreen.currently_active_tile = Path.joinpath(self.layers_folder, name_directory)
-		self.mainscreen.update_Image()
+		self.mainscreen.update_image()
 		self.mainscreen.layer_active = True
 		self.top.destroy()
 
 	def load_standard(self):
 		self.mainscreen.currently_active_tile = self.mainscreen.currently_active_tile.parents[1]
-		self.mainscreen.update_Image()
+		self.mainscreen.update_image()
 		self.mainscreen.layer_active = False
 		self.top.destroy()
