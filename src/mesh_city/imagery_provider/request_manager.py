@@ -232,7 +232,7 @@ class RequestManager:
 				current_latitude, current_longitude, zoom, side_resolution_image, True
 			)
 		return (num_of_images_total, num_of_images_horizontal,
-				num_of_images_vertical), coordinates_list
+			num_of_images_vertical), coordinates_list
 
 	def make_request_for_block(self, centre_coordinates, zoom=None):
 
@@ -434,7 +434,7 @@ class RequestManager:
 			)
 
 		temp_result = (num_of_images_total, num_of_images_horizontal,
-						num_of_images_vertical), coordinates_list
+			num_of_images_vertical), coordinates_list
 
 		# here, the results need to be rearranged so that the order of coordiantes returned corresponds
 		# to one tile after the other. Currently the output is : 0,0 - 1,0 - 2,0 - 3,0 -4,0

@@ -1,3 +1,6 @@
+"""
+A top-down provider which can gather information regarding the heights of objects in the Netherlands
+"""
 import json
 import math
 import operator
@@ -11,6 +14,9 @@ from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDo
 
 
 class AhnProvider(TopDownProvider):
+	"""
+	A class which implements the TopDownProvider abstract class. 
+	"""
 	color_to_height = None # yapf: disable
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
