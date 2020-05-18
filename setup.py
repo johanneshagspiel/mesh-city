@@ -68,8 +68,9 @@ class CoverageTestCommand(CommandAdapter):
 			"coverage run "
 			"--branch "
 			"--source=src/mesh_city "
+			"--omit=src/mesh_city/gui/* "
 			"--module unittest "
-			"discover src",
+			"discover src ",
 			shell=True,
 			stderr=stdout,
 		)
