@@ -1,5 +1,6 @@
-from datetime import datetime as dt
 from abc import ABC, abstractmethod
+from datetime import datetime as dt
+
 
 class LogEntry(ABC):
 
@@ -15,16 +16,26 @@ class LogEntry(ABC):
 		def action(self, logs):
 			pass
 
+
 class TopDownProviderLogEntry(LogEntry):
 
 	def __init__(
-		self, path_to_store, request_number, zoom_level, user_info, map_entity, number_requests,
-		bounding_box, coordinates, nickname = None):
+		self,
+		path_to_store,
+		request_number,
+		zoom_level,
+		user_info,
+		map_entity,
+		number_requests,
+		bounding_box,
+		coordinates,
+		nickname=None
+	):
 		super().__init__(path_to_store)
 
 		self.request_number = str(request_number)
 		self.name_user = str(user_info.name)
-		if(nickname == None):
+		if (nickname == None):
 			self.nickname = ""
 		else:
 			self.nickname = str(nickname)
@@ -40,14 +51,14 @@ class TopDownProviderLogEntry(LogEntry):
 	def for_json(self):
 		return {
 			self.request_number : {
-				"nickname" : self.nickname,
-				"name_user": self.name_user,
-				"zoom_level" : self.zoom_level,
-				"map_provider": self.map_provider,
-				"number_requests": self.number_requests,
-				"date": self.date,
-				"bounding_box": self.bounding_box,
-				"coordinates": self.coordinates,
+			"nickname" : self.nickname,
+			"name_user": self.name_user,
+			"zoom_level" : self.zoom_level,
+			"map_provider": self.map_provider,
+			"number_requests": self.number_requests,
+			"date": self.date,
+			"bounding_box": self.bounding_box,
+			"coordinates": self.coordinates,
 			}
 		}  # yapf: disable
 
@@ -58,8 +69,9 @@ class TopDownProviderLogEntry(LogEntry):
 
 class TopDownProviderRequestLog(LogEntry):
 
-	def __init__(self, path_to_store, starting_location, max_latitude,
-	             max_longitude, max_zoom, layers):
+	def __init__(
+		self, path_to_store, starting_location, max_latitude, max_longitude, max_zoom, layers
+	):
 		super().__init__(path_to_store)
 		self.starting_location = str(starting_location)
 		self.max_latitude = str(max_latitude)

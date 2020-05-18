@@ -5,8 +5,17 @@ from mesh_city.user.user_info import UserInfo
 
 
 class StartScreen:
+	""""
+    A start screen GUI element that opens one of two popups and passes the entered information to the
+    application object.
+    """
 
 	def __init__(self, master, application):
+		"""
+        Initializes
+        :param master: The Tkinter root
+        :param application: The application object that should be invoked after the user has filled in their data.
+        """
 		self.value = ""
 		self.master = master
 
@@ -21,12 +30,23 @@ class StartScreen:
 		application.update_after_start()
 
 	def ask_for_name(self, application):
+		"""
+		Asks for the username and via a popup and loads this into the application.
+		:param application: The application the username is loaded into.
+		:return: None
+		..todo:: Use the returned username and check it against persisted user info.
+		"""
 		application.user_info = application.user_info_handler.load_user_info()
 		self.w = NamePopupWindow(self.master)
 		self.master.wait_window(self.w.top)
 		self.value = self.w.value
 
 	def register_user(self, application):
+		"""
+        Asks the user for the relevant information to register a user account and loads this into
+        the application object.
+        :param application: The application object the registered user data is loaded into.
+        """
 		self.w = RegisterPopupWindow(self.master)
 		self.master.wait_window(self.w.top)
 		current_time = datetime.now()
@@ -46,15 +66,23 @@ class StartScreen:
 
 
 class RegisterPopupWindow(object):
+	"""
+    A popup window class with fields for entering a name, api key and monthly quota and stores this
+    data as its value.
+    """
 
 	def __init__(self, master):
+		"""
+		Sets up the interface of the popup.
+        :param master: The TK root
+        """
 		self.value = ""
 		self.geometry = ("200x200")
 		top = self.top = Toplevel(master)
 		Label(top,
-			text="Please enter the following information to start collecting maps data:").grid(
+		      text="Please enter the following information to start collecting maps data:").grid(
 			row=0, columnspan=3
-			)
+		)
 		Label(top, text="Name").grid(row=1)
 		Label(top, text="Google API key").grid(row=2)
 		Label(top, text="Monthly quota").grid(row=3)
@@ -73,8 +101,15 @@ class RegisterPopupWindow(object):
 
 
 class NamePopupWindow(object):
+	"""
+    A popup window class with fields for entering a name that is stored as its value.
+    """
 
 	def __init__(self, master):
+		"""
+		Sets up the interface of the popup.
+		:param master: The TK root
+		"""
 		self.value = ""
 		top = self.top = Toplevel(master)
 		Label(top, text="Please enter your name:").grid(row=0, columnspan=3)
