@@ -44,7 +44,7 @@ class LogManager:
 			max_directory = 0
 		else:
 			for directory in os.listdir(self.image_path):
-				if(directory.split("_")[1] != ''):
+				if (directory.split("_")[1] != ''):
 					temp_result = int(directory.split("_")[1])
 					if (temp_result > max_directory):
 						max_directory = temp_result
