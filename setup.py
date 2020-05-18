@@ -37,7 +37,7 @@ class CommandAdapter(Command, ABC):
 
 class PylintCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="pylint --output-format=json -j 0 mesh_city | pylint-json2html -o pylint.html", env=subprocess_env, shell=True)
+		check_call(args="pylint -j 0 mesh_city", env=subprocess_env, shell=True)
 		check_call(args="pylint -j 0 test_mesh_city", env=subprocess_env, shell=True)
 
 

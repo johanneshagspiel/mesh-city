@@ -160,7 +160,7 @@ class MainScreen:
 		Creates a layers window object
 		:return: Nothing
 		"""
-		LayersWindow(self.master, self.application, self)
+		LayersWindow(self.master, self)
 
 	def load_window(self):
 		"""

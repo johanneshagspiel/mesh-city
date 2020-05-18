@@ -95,14 +95,14 @@ class SearchWindowLocation:
 		:param first_time: A flag indicating whether this is the first time the type button is pressed
 		:return: None
 		"""
-		if (self.latitude['text'] == "Latitude:"):
+		if self.latitude['text'] == "Latitude:":
 			self.latitude['text'] = "Address:"
 			self.long_entry.grid_forget()
 			self.type_button.configure(text="Coordinates")
 			self.longitude['text'] = ""
 			first_time = False
 
-		if ((self.latitude['text'] == "Address:") & first_time):
+		if (self.latitude['text'] == "Address:") & first_time:
 			self.latitude.config(text="Latitude:")
 			self.long_entry.grid(row=2, column=3)
 			self.type_button.configure(text="Address")
@@ -186,29 +186,29 @@ class SearchWindowLocationArea:
 		have a different type.
 		:return:
 		"""
-		if (name == "min"):
-			if (self.min_lat['text'] == "Min Latitude:"):
+		if name == "min":
+			if self.min_lat['text'] == "Min Latitude:":
 				self.min_lat['text'] = "Address:"
 				self.min_long_entry.grid_forget()
 				self.type_button_min.configure(text="Coordinates")
 				self.min_log['text'] = ""
 				first_time = False
 
-			if ((self.min_lat['text'] == "Address:") & first_time):
+			if (self.min_lat['text'] == "Address:") & first_time:
 				self.min_lat['text'] = "Min Latitude:"
 				self.min_long_entry.grid(row=2, column=3)
 				self.type_button_min.configure(text="Address")
 				self.min_log['text'] = "Min Longitude:"
 
-		if (name == "max"):
-			if (self.max_lat['text'] == "Max Latitude:"):
+		if name == "max":
+			if self.max_lat['text'] == "Max Latitude:":
 				self.max_lat['text'] = "Address:"
 				self.max_long_entry.grid_forget()
 				self.type_button_max.configure(text="Coordinates")
 				self.max_log['text'] = ""
 				first_time = False
 
-			if ((self.max_lat['text'] == "Address:") & first_time):
+			if (self.max_lat['text'] == "Address:") & first_time:
 				self.max_lat['text'] = "Max Latitude:"
 				self.max_long_entry.grid(row=4, column=3)
 				self.type_button_max.configure(text="Address")

@@ -1,16 +1,24 @@
+"""This module provides a GUI interface that can be used to select different layers such as
+the satellite layer or heightmap layer"""
 import os
 from pathlib import Path
-from tkinter import Button, Entry, Label, Toplevel
+from tkinter import Button, Label, Toplevel
 
 
-class LayersWindow(object):
-
-	def __init__(self, master, application, mainscreen):
-		self.mainscreen = mainscreen
+class LayersWindow:
+	"""
+	A GUI class with a layer selection interface.
+	"""
+	def __init__(self, master, main_screen):
+		"""
+		Constructs the basic GUI elements and prompts the user to select a layer.
+		:param master: The Tk root of the GUI.
+		:param main_screen:
+		"""
+		self.main_screen = main_screen
 		self.master = master
 		self.value = ""
-		self.application = application
-		self.currently_active_tile = self.mainscreen.currently_active_tile
+		self.currently_active_tile = self.main_screen.currently_active_tile
 		top = self.top = Toplevel(master)
 
 		self.top_label = Label(top, text="Which layer do you want to load?")
@@ -20,14 +28,13 @@ class LayersWindow(object):
 
 		directory_list = os.listdir(self.currently_active_tile)
 
-		if (False == ("layers" in directory_list) and (False == self.mainscreen.layer_active)):
+		if not "layers" in directory_list and not self.main_screen.layer_active:
 			self.top_label["text"] = "There are no layers to load"
-		if ("layers" in directory_list):
+		if "layers" in directory_list:
 			self.layers_folder = Path.joinpath(self.currently_active_tile, "layers")
 			for directory in os.listdir(self.layers_folder):
-				if (directory != ""):
+				if directory != "":
 					name_directory = str(directory)
-					temp_name = name_directory + "_" + str(counter) + "_button"
 					self.temp_name = Button(
 						self.top,
 						text=name_directory,
@@ -38,20 +45,27 @@ class LayersWindow(object):
 					)
 					self.temp_name.grid(row=counter, column=1)
 					counter += 1
-		if (self.mainscreen.layer_active == True):
+		if self.main_screen.layer_active:
 			self.temp_name = Button(
 				self.top, text="Normal", width=20, height=3, command=self.load_standard, bg="grey"
 			)
 			self.temp_name.grid(row=counter, column=1)
 
 	def load_layer(self, name_directory):
-		self.mainscreen.currently_active_tile = Path.joinpath(self.layers_folder, name_directory)
-		self.mainscreen.update_image()
-		self.mainscreen.layer_active = True
+		"""
+		Loads the layer from the provided layer directory and updates the image on the main_screen.
+		:param name_directory: The layer's directory.
+		"""
+		self.main_screen.currently_active_tile = Path.joinpath(self.layers_folder, name_directory)
+		self.main_screen.update_image()
+		self.main_screen.layer_active = True
 		self.top.destroy()
 
 	def load_standard(self):
-		self.mainscreen.currently_active_tile = self.mainscreen.currently_active_tile.parents[1]
-		self.mainscreen.update_image()
-		self.mainscreen.layer_active = False
+		"""
+		Loads the standard layer and updates the image on the main_screen.
+		"""
+		self.main_screen.currently_active_tile = self.main_screen.currently_active_tile.parents[1]
+		self.main_screen.update_image()
+		self.main_screen.layer_active = False
 		self.top.destroy()
