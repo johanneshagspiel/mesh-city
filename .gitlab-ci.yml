@@ -20,6 +20,10 @@ stages:
 
 build:
     stage: build
+    artifacts:
+        expire_in: 1 hour
+        paths:
+            - cache/
     script:
         - pipenv clean
         - pipenv sync --dev
