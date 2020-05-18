@@ -63,7 +63,6 @@ class GoogleMapsProvider(TopDownProvider):
 			% (latitude, longitude, zoom, width, height, scale, file_format, map_type, api_key)
 		)
 
-		# filename = str(self.request_number) + "_" + str(x) + "_" + str(y) + ".png"
 		to_store = Path.joinpath(new_folder_path, filename)
 
 		with open(to_store, "wb") as output:
@@ -77,7 +76,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
-		# crop 40 pixels from the bottom or 40
+		# crop 40 pixels from all sides to remove the watermark
 		im1 = get_image.crop(box=(left, upper, right, lower))
 
 		im1.save(fp=to_store)

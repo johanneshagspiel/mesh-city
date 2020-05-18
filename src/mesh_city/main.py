@@ -16,10 +16,10 @@ def main() -> None:
 
 	#print(request_manager.calculate_centre_coordinates_two_coordinate_input([51, 4.2], [51.1, 4.3], 20)[0])
 
-	request_manager.make_request_for_block(
-		centre_coordinates=[51.997004, 4.370530, 52.001486, 4.376918],
-		zoom=request_manager.map_entity.max_zoom
+	request_manager.make_request_two_coordinates(
+		(29.536593, 106.546182), (29.537723, 106.547544), 20
 	)
+
 	# right = request_manager.calc_next_location_longitude(51.923539, 4.492560, 15, 640, True)
 	# top = request_manager.calc_next_location_latitude(51.923539, 4.492560, 15, 640, True)
 
