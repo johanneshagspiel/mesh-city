@@ -2,9 +2,14 @@
 module = mainscreen
 """
 import glob
+from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
+
 from PIL import Image, ImageTk
+
+from mesh_city.gui.layers_window import LayersWindow
+from mesh_city.gui.load_window import LoadWindow
 from mesh_city.gui.search_window import SearchWindowStart
 from mesh_city.gui.start_screen import StartScreen
 from mesh_city.gui.layers_window import LayersWindow
@@ -47,6 +52,7 @@ class MainScreen:
 
 		self.image = self.load_large_image()
 
+		# Definition of UI of main window
 		self.canvas = Canvas(self.master, width=710, height=777)
 		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
 

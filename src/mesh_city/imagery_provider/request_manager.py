@@ -1,13 +1,15 @@
 import math
 import os
 from pathlib import Path
+
 from geopy import distance
-from mesh_city.util.logs.log_manager import LogManager
-from mesh_city.util.logs.log_entry import TopDownProviderLogEntry
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
+from mesh_city.util.logs.log_entry import TopDownProviderLogEntry
+from mesh_city.util.logs.log_manager import LogManager
 
 
 class RequestManager:
@@ -136,9 +138,15 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					self.active_tile_path = new_folder_path
-					log_entry = TopDownProviderLogEntry(request_number, zoom,
-					                                    self.user_info, self.map_entity,
-					                                    number_requests, bounding_box, coordinates)
+					log_entry = TopDownProviderLogEntry(
+						request_number,
+						zoom,
+						self.user_info,
+						self.map_entity,
+						number_requests,
+						bounding_box,
+						coordinates
+					)
 					self.log_manager.write_entry_log(log_entry)
 
 		#download and store the information in case a whole area was asked for
@@ -181,9 +189,15 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					log_entry = TopDownProviderLogEntry(request_number, zoom,
-					                                    self.user_info, self.map_entity,
-					                                    number_requests, bounding_box, coordinates)
+					log_entry = TopDownProviderLogEntry(
+						request_number,
+						zoom,
+						self.user_info,
+						self.map_entity,
+						number_requests,
+						bounding_box,
+						coordinates
+					)
 					self.log_manager.write_entry_log(self, log_entry)
 
 	def calculate_centre_coordinates_two_coordinate_input(self, bottom_left, top_right, zoom):
