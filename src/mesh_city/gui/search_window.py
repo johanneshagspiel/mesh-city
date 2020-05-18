@@ -1,6 +1,7 @@
 from pathlib import Path
 from tkinter import Button, Entry, Label, Toplevel
 
+
 class SearchWindowStart(object):
 
 	def __init__(self, master, application, mainscreen):
@@ -10,13 +11,12 @@ class SearchWindowStart(object):
 		self.application = application
 		top = self.top = Toplevel(master)
 
-		Label(top,
-		      text="What kind of search are you interested in ?").grid(
-			row=0, columnspan=3
-		)
+		Label(top, text="What kind of search are you interested in ?").grid(row=0, columnspan=3)
 
-		self.button_area = Button(top, text="Area", command=self.button_area).grid(row=1, columnspan=1)
-		self.button_location = Button(top, text="Location", command=self.button_location).grid(row=1, columnspan=3)
+		self.button_area = Button(top, text="Area",
+			command=self.button_area).grid(row=1, columnspan=1)
+		self.button_location = Button(top, text="Location",
+			command=self.button_location).grid(row=1, columnspan=3)
 
 	def button_area(self):
 		SearchWindowLocationArea(self.master, self.application, self.mainscreen)
@@ -25,6 +25,7 @@ class SearchWindowStart(object):
 	def button_location(self):
 		SearchWindowLocation(self.master, self.application, self.mainscreen)
 		self.top.destroy()
+
 
 class SearchWindowLocation(object):
 
@@ -35,10 +36,7 @@ class SearchWindowLocation(object):
 		self.application = application
 		top = self.top = Toplevel(master)
 
-		Label(top,
-			text="Which location are you interested in downloading ?").grid(
-			row=0, column=3
-			)
+		Label(top, text="Which location are you interested in downloading ?").grid(row=0, column=3)
 
 		self.latitude = Label(top, text="Latitude:")
 		self.latitude.grid(row=1, column=1)
@@ -52,23 +50,27 @@ class SearchWindowLocation(object):
 
 		self.address_info_1 = Label(self.top, text="Please enter the address in this form:")
 		self.address_info_1.grid(row=3, column=4)
-		self.address_info_2 = Label(self.top, text="{house number} {street} {postcode} {city} {country}")
+		self.address_info_2 = Label(
+			self.top, text="{house number} {street} {postcode} {city} {country}"
+		)
 		self.address_info_2.grid(row=4, column=4)
 
 		self.search_button = Button(top, text="Search", command=self.cleanup)
 		self.search_button.grid(row=3, column=3)
-		self.type_button = Button(top, text="Address", command=lambda : self.change_search_type(True))
+		self.type_button = Button(
+			top, text="Address", command=lambda: self.change_search_type(True)
+		)
 		self.type_button.grid(row=1, column=4)
 
 	def change_search_type(self, firstTime):
-		if(self.latitude['text'] == "Latitude:"):
-			self.latitude['text'] ="Address:"
+		if (self.latitude['text'] == "Latitude:"):
+			self.latitude['text'] = "Address:"
 			self.long_entry.grid_forget()
 			self.type_button.configure(text="Coordinates")
 			self.longitude['text'] = ""
 			firstTime = False
 
-		if((self.latitude['text'] == "Address:") & (firstTime == True)):
+		if ((self.latitude['text'] == "Address:") & (firstTime == True)):
 			self.latitude.config(text="Latitude:")
 			self.long_entry.grid(row=2, column=3)
 			self.type_button.configure(text="Address")
@@ -78,9 +80,11 @@ class SearchWindowLocation(object):
 		self.value = [float(self.lat_entry.get()), float(self.long_entry.get())]
 		self.application.request_manager.make_request_for_block(self.value)
 		self.mainscreen.currently_active_tile = self.application.request_manager.active_tile_path
-		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile).parents[0]
+		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile
+														).parents[0]
 		self.mainscreen.update_Image()
 		self.top.destroy()
+
 
 class SearchWindowLocationArea(object):
 
@@ -91,10 +95,7 @@ class SearchWindowLocationArea(object):
 		self.application = application
 		top = self.top = Toplevel(master)
 
-		Label(top,
-			text="Which area are you interested in downloading ?").grid(
-			row=0, column=3
-			)
+		Label(top, text="Which area are you interested in downloading ?").grid(row=0, column=3)
 
 		self.min_lat = Label(top, text="Min Latitude:")
 		self.min_lat.grid(row=1, column=1)
@@ -121,46 +122,55 @@ class SearchWindowLocationArea(object):
 
 		Button(top, text="Search", command=self.cleanup).grid(row=5, column=3)
 
-		self.type_button_min = Button(top, text="Address", command=lambda : self.change_search_type(True, "min"))
+		self.type_button_min = Button(
+			top, text="Address", command=lambda: self.change_search_type(True, "min")
+		)
 		self.type_button_min.grid(row=1, column=4)
 
-		self.type_button_max = Button(top, text="Address", command=lambda : self.change_search_type(True, "max"))
+		self.type_button_max = Button(
+			top, text="Address", command=lambda: self.change_search_type(True, "max")
+		)
 		self.type_button_max.grid(row=3, column=4)
 
 	def change_search_type(self, firstTime, name):
-		if(name == "min"):
-			if(self.min_lat['text'] == "Min Latitude:"):
-				self.min_lat['text'] ="Address:"
+		if (name == "min"):
+			if (self.min_lat['text'] == "Min Latitude:"):
+				self.min_lat['text'] = "Address:"
 				self.min_long_entry.grid_forget()
 				self.type_button_min.configure(text="Coordinates")
 				self.min_log['text'] = ""
 				firstTime = False
 
-			if((self.min_lat['text'] == "Address:") & (firstTime == True)):
+			if ((self.min_lat['text'] == "Address:") & (firstTime == True)):
 				self.min_lat['text'] = "Min Latitude:"
 				self.min_long_entry.grid(row=2, column=3)
 				self.type_button_min.configure(text="Address")
 				self.min_log['text'] = "Min Longitude:"
 
-		if(name == "max"):
-			if(self.max_lat['text'] == "Max Latitude:"):
-				self.max_lat['text'] ="Address:"
+		if (name == "max"):
+			if (self.max_lat['text'] == "Max Latitude:"):
+				self.max_lat['text'] = "Address:"
 				self.max_long_entry.grid_forget()
 				self.type_button_max.configure(text="Coordinates")
 				self.max_log['text'] = ""
 				firstTime = False
 
-			if((self.max_lat['text'] == "Address:") & (firstTime == True)):
+			if ((self.max_lat['text'] == "Address:") & (firstTime == True)):
 				self.max_lat['text'] = "Max Latitude:"
 				self.max_long_entry.grid(row=4, column=3)
 				self.type_button_max.configure(text="Address")
 				self.max_log['text'] = "Max Longitude:"
 
 	def cleanup(self):
-		self.value = [float(self.min_lat_entry.get()), float(self.min_long_entry.get()),
-		              float(self.max_lat_entry.get()), float(self.max_long_entry.get())]
+		self.value = [
+			float(self.min_lat_entry.get()),
+			float(self.min_long_entry.get()),
+			float(self.max_lat_entry.get()),
+			float(self.max_long_entry.get())
+		]
 		self.application.request_manager.make_request_for_block(self.value)
 		self.mainscreen.currently_active_tile = self.application.request_manager.active_tile_path
-		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile).parents[0]
+		self.mainscreen.currently_active_request = Path(self.mainscreen.currently_active_tile
+														).parents[0]
 		self.mainscreen.update_Image()
 		self.top.destroy()

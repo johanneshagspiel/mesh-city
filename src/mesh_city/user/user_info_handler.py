@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
+
 from mesh_city.user.user_info import UserInfo
+
 
 class UserInfoHandler:
 

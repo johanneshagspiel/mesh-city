@@ -2,12 +2,17 @@ import glob
 from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
+
 from PIL import Image, ImageTk
+
+from mesh_city.gui.layers_window import LayersWindow
+from mesh_city.gui.load_window import LoadWindow
 from mesh_city.gui.search_window import SearchWindowStart
 from mesh_city.gui.start_screen import StartScreen
 from mesh_city.gui.load_window import LoadWindow
 from mesh_city.gui.layers_window import LayersWindow
 from mesh_city.util.image_util import ImageUtil
+
 
 class MainScreen:
 
@@ -16,7 +21,7 @@ class MainScreen:
 
 		self.master = Tk()
 		self.master.title("Mesh City")
-		self.master.geometry("710x777")
+		self.master.geometry("706x754")
 
 		self.master.withdraw()
 		StartScreen(self.master, application)
@@ -26,6 +31,7 @@ class MainScreen:
 		self.path_to_temp = Path.joinpath(self.temp_path, "resources", "temp")
 		self.currently_active_tile = self.application.request_manager.active_tile_path
 		self.currently_active_request = Path(self.currently_active_tile).parents[0]
+
 
 		self.layer_active = False
 		self.padding_x = 60
@@ -38,6 +44,9 @@ class MainScreen:
 		# Definition of UI of main window
 		self.canvas = Canvas(self.master, width=710, height=777)
 		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
+
+		side_bar = Label(self.canvas, width=15, height=645, text="")
+		canvas_side_bar = self.canvas.create_window(0, 0, window=side_bar)
 
 		search_button = Button(
 			self.canvas, text="Search", width=6, height=3, command=self.search_window, bg="grey"
@@ -128,10 +137,9 @@ class MainScreen:
 	def get_coordinates(self, event):
 		xpos = event.x - self.padding_x
 		ypos = event.y - self.padding_y
-		height = self.application.request_manager.ahn.get_height_from_pixel(xpos, ypos,
-		                                                                    Path.joinpath(
-			                                                                    self.path_to_temp,
-			                                                                    "test1"))
+		height = self.application.request_manager.ahn.get_height_from_pixel(
+			xpos, ypos, Path.joinpath(self.path_to_temp, "test1")
+		)
 		text = "Height: " + str(height)
 		self.canvas.itemconfig(self.canvas_information_bar, text=text)
 
@@ -152,13 +160,14 @@ class MainScreen:
 		self.load_large_image_on_map(self.image)
 
 	def load_large_image_on_map(self, large_image):
-		self.tkinter_image = self.canvas.create_image(self.padding_x, self.padding_y, anchor=NW, image=large_image)
+		self.tkinter_image = self.canvas.create_image(
+			self.padding_x, self.padding_y, anchor=NW, image=large_image
+		)
 
 	def load_large_image(self):
 		get_image = Image.open(
 			glob.glob(
-			Path.joinpath(self.currently_active_tile,
-			"concat_image_*").absolute().as_posix()
+			Path.joinpath(self.currently_active_tile, "concat_image_*").absolute().as_posix()
 			).pop()
 		)
 		resize_image = get_image.resize((self.image_width, self.image_height), Image.ANTIALIAS)
