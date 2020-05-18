@@ -3,8 +3,10 @@ from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info_handler import UserInfoHandler
 
-
 class Application:
+	"""
+	For the application to work, you will need to have resources/images/request_0/0_tile_0_0/concat_image_request_10_tile_0_0.png
+	"""
 
 	def __init__(self):
 		self.user_info_handler = UserInfoHandler()

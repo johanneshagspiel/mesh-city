@@ -15,7 +15,6 @@ class LogEntry(ABC):
 		:param path_to_store: where to store the log
 		"""
 		self.path_to_store = path_to_store
-		pass
 
 		@abstractmethod
 		def for_json(self):
@@ -24,7 +23,6 @@ class LogEntry(ABC):
 			:param self: the object to be stored as a json
 			:return: a json compliant string
 			"""
-			pass
 
 		@abstractmethod
 		def action(self, logs):
@@ -34,7 +32,6 @@ class LogEntry(ABC):
 			:param logs: the larger log entry to be added to
 			:return: nothing
 			"""
-			pass
 
 class TopDownProviderLogEntry(LogEntry):
 	"""
