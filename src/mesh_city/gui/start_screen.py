@@ -1,3 +1,5 @@
+"""This module handles the greeting of the user with a popup and providing the application with the
+relevant user information to make api calls etc."""
 from datetime import datetime
 from tkinter import Button, Entry, Label, Toplevel
 
@@ -6,7 +8,7 @@ from mesh_city.user.user_info import UserInfo
 
 class StartScreen:
 	""""
-    A start screen GUI element that opens one of two popups and passes the entered information to the
+    This class is a start screen GUI element that opens one of two popups and passes the entered information to the
     application object.
     """
 
@@ -37,9 +39,9 @@ class StartScreen:
 		..todo:: Use the returned username and check it against persisted user info.
 		"""
 		application.user_info = application.user_info_handler.load_user_info()
-		self.w = NamePopupWindow(self.master)
-		self.master.wait_window(self.w.top)
-		self.value = self.w.value
+		self.window = NamePopupWindow(self.master)
+		self.master.wait_window(self.window.top)
+		self.value = self.window.value
 
 	def register_user(self, application):
 		"""
@@ -47,10 +49,10 @@ class StartScreen:
         the application object.
         :param application: The application object the registered user data is loaded into.
         """
-		self.w = RegisterPopupWindow(self.master)
-		self.master.wait_window(self.w.top)
+		self.window = RegisterPopupWindow(self.master)
+		self.master.wait_window(self.window.top)
 		current_time = datetime.now()
-		name, key, quota = self.w.value
+		name, key, quota = self.window.value
 		application.user_info = UserInfo(
 			name,
 			key,
@@ -65,7 +67,7 @@ class StartScreen:
 		)
 
 
-class RegisterPopupWindow(object):
+class RegisterPopupWindow:
 	"""
     A popup window class with fields for entering a name, api key and monthly quota and stores this
     data as its value.
@@ -92,15 +94,18 @@ class RegisterPopupWindow(object):
 		self.name_entry.grid(row=1, column=1)
 		self.key_entry.grid(row=2, column=1)
 		self.quotum_entry.grid(row=3, column=1)
-		self.b = Button(top, text="OK", command=self.cleanup)
-		self.b.grid(row=4, columnspan=3)
+		self.button = Button(top, text="OK", command=self.cleanup)
+		self.button.grid(row=4, columnspan=3)
 
 	def cleanup(self):
+		""""
+		Destroys the onscreen GUI element and stores the entered values.
+		"""
 		self.value = (self.name_entry.get(), self.key_entry.get(), self.quotum_entry.get())
 		self.top.destroy()
 
 
-class NamePopupWindow(object):
+class NamePopupWindow:
 	"""
     A popup window class with fields for entering a name that is stored as its value.
     """
@@ -116,9 +121,12 @@ class NamePopupWindow(object):
 		Label(top, text="Name").grid(row=1)
 		self.name_entry = Entry(top)
 		self.name_entry.grid(row=1, column=1)
-		self.b = Button(top, text='Ok', command=self.cleanup)
-		self.b.grid(row=4, columnspan=3)
+		self.button = Button(top, text='Ok', command=self.cleanup)
+		self.button.grid(row=4, columnspan=3)
 
 	def cleanup(self):
+		""""
+		Destroys the onscreen GUI element and stores the entered value.
+		"""
 		self.value = self.name_entry.get()
 		self.top.destroy()
