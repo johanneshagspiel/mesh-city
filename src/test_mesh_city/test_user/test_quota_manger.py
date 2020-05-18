@@ -1,10 +1,11 @@
 import unittest
+from datetime import datetime
 
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info import UserInfo
 
 
-class TestQuotaManager(unittest.TestCase):
+class QuotaManagerTest(unittest.TestCase):
 
 	def setUp(self):
 		self.user_info_init = UserInfo("Blue", "a12ec", 500, 25, 1452, 8, 15, 10, 55, 42)
@@ -33,13 +34,13 @@ class TestQuotaManager(unittest.TestCase):
 		# This method checks the usage against the current time, how to test?
 		monthly_is_close = UserInfo("Blue", "a12ec", 500, 4, 2020, 6, 15, 10, 55, 42)
 		q = QuotaManager(monthly_is_close)
-		q.check_monthly_limit()
+		q.check_monthly_limit(14,7)
 
 	def test_monthly_limit_far(self):
 		# This method checks the usage against the current time, how to test?
 		monthly_is_far = UserInfo("Blue", "a12ec", 500, 4, 2020, 5, 15, 10, 55, 42)
 		q = QuotaManager(monthly_is_far)
-		q.check_monthly_limit()
+		q.check_monthly_limit(18,5)
 
 
 if __name__ == '__main__':

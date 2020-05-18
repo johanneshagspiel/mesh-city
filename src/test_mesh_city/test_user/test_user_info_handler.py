@@ -5,15 +5,17 @@ from mesh_city.user.user_info import UserInfo
 from mesh_city.user.user_info_handler import UserInfoHandler
 
 
-class TestUserInfoHandler(unittest.TestCase):
+class UserInfoHandlerTest(unittest.TestCase):
+
 	def setUp(self):
-		self.api_file_path = Path.joinpath(Path(__file__).parents[1],
-		                                   "test_resources", "test_api_key.json")
+		self.api_file_path = Path.joinpath(
+			Path(__file__).parents[1], "test_resources", "test_api_key.json"
+		)
 		self.user_info_init = UserInfo("Blue", "a12ec", 500, 25, 1452, 8, 15, 10, 55, 42)
 		self.user_handler = UserInfoHandler(self.api_file_path)
-		self.user_handler.store_user_info(self.user_info_init) # Needed for changing the file back.
+		self.user_handler.store_user_info(self.user_info_init)  # Needed for changing the file back.
 
-	def altSetUp(self):
+	def alt_set_up(self):
 		self.api_file_path = "/nowhereland/here"
 		self.user_handler = UserInfoHandler(self.api_file_path)
 
@@ -34,10 +36,9 @@ class TestUserInfoHandler(unittest.TestCase):
 		self.assertTrue(flag)
 
 	def test_file_exists_not(self):
-		self.altSetUp()
+		self.alt_set_up()
 		flag = self.user_handler.file_exists()
 		self.assertFalse(flag)
-
 
 if __name__ == '__main__':
 	unittest.main()
