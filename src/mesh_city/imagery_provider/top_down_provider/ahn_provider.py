@@ -15,7 +15,8 @@ from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDo
 
 class AhnProvider(TopDownProvider):
 	"""
-	A class which implements the TopDownProvider abstract class. 
+	A class which implements the TopDownProvider abstract class. Provides functionality with regards
+	to requests about height information of objects in the Netherlands.
 	"""
 	color_to_height = None # yapf: disable
 	temp_path = Path(__file__).parents[2]
@@ -29,6 +30,10 @@ class AhnProvider(TopDownProvider):
 		self.max_side_resolution_image = 640
 
 	def load_from_json(self):
+		"""
+
+		:return:
+		"""
 		with open(self.json_folder_path, 'r') as json_log:
 			data = json_log.read()
 		info = json.loads(data)

@@ -1,3 +1,8 @@
+"""
+Module which contains code to interact with the top_down providers, organising the requests to
+their API's such that data for larger geographical areas can be made and the results of these
+requests are stored on disk.
+"""
 import csv
 import math
 import os
@@ -14,6 +19,10 @@ from mesh_city.util.image_util import ImageUtil
 
 
 class RequestManager:
+	"""
+	An object which contains the necessary user_info object, logging object and other helping
+	objects to make and store the results of requests to a top_down provider's API.
+	"""
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
 	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
