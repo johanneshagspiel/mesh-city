@@ -2,14 +2,9 @@
 module = mainscreen
 """
 import glob
-from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
-
 from PIL import Image, ImageTk
-
-from mesh_city.gui.layers_window import LayersWindow
-from mesh_city.gui.load_window import LoadWindow
 from mesh_city.gui.search_window import SearchWindowStart
 from mesh_city.gui.start_screen import StartScreen
 from mesh_city.gui.layers_window import LayersWindow
