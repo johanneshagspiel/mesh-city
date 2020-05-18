@@ -79,7 +79,7 @@ class RequestManager:
 		if zoom > self.map_entity.max_zoom:
 			zoom = self.map_entity.max_zoom
 
-		coordinates_info = self.calculate_coordinates_two_coordinate_input(
+		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
 			first_coordinate, second_coordinate, zoom
 		)
 		coordinates_list = coordinates_info[1]
@@ -155,7 +155,9 @@ class RequestManager:
 			first_coordinate, second_coordinate, zoom
 		)[0][0]
 
-	def calculate_centre_coordinates_two_coordinate_input(self, first_coordinate, second_coordinate, zoom):
+	def calculate_centre_coordinates_two_coordinate_input(
+		self, first_coordinate, second_coordinate, zoom
+	):
 		"""
 		Method which calculates and retrieves the number of images that are necessary to have a
 		complete imagery set of a certain geographical area. This area is defined by a bounding box.
