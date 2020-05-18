@@ -5,13 +5,13 @@ from pathlib import Path
 
 import requests
 from PIL import Image
+from scipy import spatial
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-from scipy import spatial
 
 
 class AhnProvider(TopDownProvider):
-	color_to_height = None # yapf: disable
+	color_to_height = None  # yapf: disable
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
