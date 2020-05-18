@@ -77,6 +77,7 @@ class ImageUtil:
 		# file.write(resize_image)
 		# file.close()
 
+
 class NameType:
 
 	def __init__(self, type):

@@ -2,12 +2,15 @@ import glob
 from os import path
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
+
 from PIL import Image, ImageTk
+
+from mesh_city.gui.layers_window import LayersWindow
+from mesh_city.gui.load_window import LoadWindow
 from mesh_city.gui.search_window import SearchWindowStart
 from mesh_city.gui.start_screen import StartScreen
-from mesh_city.gui.load_window import LoadWindow
-from mesh_city.gui.layers_window import LayersWindow
 from mesh_city.util.image_util import ImageUtil
+
 
 class MainScreen:
 
@@ -26,7 +29,6 @@ class MainScreen:
 		self.path_to_temp = Path.joinpath(self.temp_path, "resources", "temp")
 		self.currently_active_tile = self.application.request_manager.active_tile_path
 		self.currently_active_request = Path(self.currently_active_tile).parents[0]
-
 
 		self.layer_active = False
 		self.padding_x = 60
@@ -51,10 +53,14 @@ class MainScreen:
 		)
 		canvas_load_button = self.canvas.create_window(28, 90, window=load_button)
 
-		layers_button = Button(self.canvas, text="Layers", width=6, height=3, command=self.layers_window, bg="grey")
+		layers_button = Button(
+			self.canvas, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		)
 		canvas_layers_button = self.canvas.create_window(28, 149, window=layers_button)
 
-		height_button = Button(self.canvas, text="Height", width=6, height=3, command=self.get_height, bg="grey")
+		height_button = Button(
+			self.canvas, text="Height", width=6, height=3, command=self.get_height, bg="grey"
+		)
 		canvas_height_button = self.canvas.create_window(28, 208, window=height_button)
 		#
 		# test4_button = Button(self.canvas, text="Test4", width=6, height=3, command=None, bg="grey")
@@ -113,18 +119,21 @@ class MainScreen:
 		mainloop()
 
 	def get_height(self):
-		concat_temp_path = Path.joinpath(self.currently_active_tile, "layers", "ahn_height",
-		              "concat_image_request_10_tile_0_0.png",)
+		concat_temp_path = Path.joinpath(
+			self.currently_active_tile,
+			"layers",
+			"ahn_height",
+			"concat_image_request_10_tile_0_0.png",
+		)
 		ImageUtil.resize_image(self, width=636, height=636, path=concat_temp_path, name="test1")
 		self.canvas.tag_bind(self.tkinter_image, "<Button-1>", self.get_coordinates)
 
 	def get_coordinates(self, event):
 		xpos = event.x - self.padding_x
 		ypos = event.y - self.padding_y
-		height = self.application.request_manager.ahn.get_height_from_pixel(xpos, ypos,
-		                                                                    Path.joinpath(
-			                                                                    self.path_to_temp,
-			                                                                    "test1"))
+		height = self.application.request_manager.ahn.get_height_from_pixel(
+			xpos, ypos, Path.joinpath(self.path_to_temp, "test1")
+		)
 		text = "Height: " + str(height)
 		self.canvas.itemconfig(self.canvas_information_bar, text=text)
 
@@ -145,13 +154,14 @@ class MainScreen:
 		self.load_large_image_on_map(self.image)
 
 	def load_large_image_on_map(self, large_image):
-		self.tkinter_image = self.canvas.create_image(self.padding_x, self.padding_y, anchor=NW, image=large_image)
+		self.tkinter_image = self.canvas.create_image(
+			self.padding_x, self.padding_y, anchor=NW, image=large_image
+		)
 
 	def load_large_image(self):
 		get_image = Image.open(
 			glob.glob(
-			Path.joinpath(self.currently_active_tile,
-			"concat_image_*").absolute().as_posix()
+			Path.joinpath(self.currently_active_tile, "concat_image_*").absolute().as_posix()
 			).pop()
 		)
 		resize_image = get_image.resize((636, 636), Image.ANTIALIAS)

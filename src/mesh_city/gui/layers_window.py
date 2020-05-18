@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from tkinter import Button, Entry, Label, Toplevel
 
+
 class LayersWindow(object):
 
 	def __init__(self, master, application, mainscreen):
@@ -19,23 +20,28 @@ class LayersWindow(object):
 
 		directory_list = os.listdir(self.currently_active_tile)
 
-		if(False == ("layers" in directory_list) and (False == self.mainscreen.layer_active)):
+		if (False == ("layers" in directory_list) and (False == self.mainscreen.layer_active)):
 			self.top_label["text"] = "There are no layers to load"
-		if("layers" in directory_list):
+		if ("layers" in directory_list):
 			self.layers_folder = Path.joinpath(self.currently_active_tile, "layers")
 			for directory in os.listdir(self.layers_folder):
 				if (directory != ""):
 					name_directory = str(directory)
 					temp_name = name_directory + "_" + str(counter) + "_button"
-					self.temp_name = Button(self.top, text=name_directory, width=20, height=3,
-					                        command=lambda
-						                        name_directory=name_directory: self.load_layer(
-						                        name_directory), bg="grey")
+					self.temp_name = Button(
+						self.top,
+						text=name_directory,
+						width=20,
+						height=3,
+						command=lambda name_directory=name_directory: self.load_layer(name_directory),
+						bg="grey"
+					)
 					self.temp_name.grid(row=counter, column=1)
 					counter += 1
-		if(self.mainscreen.layer_active == True):
-			self.temp_name = Button(self.top, text="Normal", width=20, height=3,
-			                        command=self.load_standard, bg="grey")
+		if (self.mainscreen.layer_active == True):
+			self.temp_name = Button(
+				self.top, text="Normal", width=20, height=3, command=self.load_standard, bg="grey"
+			)
 			self.temp_name.grid(row=counter, column=1)
 
 	def load_layer(self, name_directory):
