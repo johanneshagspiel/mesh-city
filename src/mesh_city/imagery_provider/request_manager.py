@@ -8,7 +8,7 @@ from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvide
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.logs.log_entry import TopDownProviderLogEntry
+from mesh_city.util.logs.log_entry.top_down_provider_log_entry import TopDownProviderLogEntry
 from mesh_city.util.logs.log_manager import LogManager
 
 
