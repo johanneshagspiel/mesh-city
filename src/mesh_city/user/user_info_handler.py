@@ -8,9 +8,11 @@ class UserInfoHandler:
 	"""
 	A class that can store and load user information.
 	"""
+	temp_path = Path(__file__).parents[1]
+	api_file_path =Path.joinpath(temp_path, "resources", "user", "api_key.json")
 
-	def __init__(self, file_path):
-		self.api_file_path = file_path
+	def __init__(self):
+		pass
 
 	def store_user_info(self, user_info):
 		"""
