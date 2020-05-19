@@ -40,6 +40,10 @@ and this to run all the tests with coverage:
 ```
 (mesh-city) $ python setup.py test
 ```
+To generate a linting report, run:
+```
+(mesh-city) $ python setup.py lint_report
+```
 The coverage report can then be found in `build/coverage` in HTML format. For more tasks
 see the `cmdclass` section in `setup.py`.
 
@@ -47,3 +51,5 @@ Finally, to start the application run:
 ```
 (mesh-city) $ python setup.py run
 ```
+
+
