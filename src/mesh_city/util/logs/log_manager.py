@@ -8,7 +8,7 @@ from pathlib import Path
 
 class LogManager:
 	"""
-	A class that is reponsible for logging every request made. It can be
+	A class that is responsible for logging every request made.
 	"""
 	temp_path = Path(__file__).parents[2]
 	resource_path = Path.joinpath(temp_path, 'resources')

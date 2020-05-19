@@ -2,7 +2,6 @@ from mesh_city.application import Application
 
 
 def main() -> None:
-
 	Application()
 
 
