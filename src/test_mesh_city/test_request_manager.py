@@ -3,7 +3,6 @@ import unittest
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info import UserInfo
-from mesh_city.user.user_info_handler import UserInfoHandler
 
 
 class TestRequestManager(unittest.TestCase):
