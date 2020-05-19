@@ -183,7 +183,6 @@ class AhnProvider(TopDownProvider):
 		pixels = image[x_location, y_location]
 
 		if pixels in self.color_to_height:
-			print(self.color_to_height[pixels])
 			return self.color_to_height[pixels]
 
 		else:

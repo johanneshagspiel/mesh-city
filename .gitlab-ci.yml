@@ -20,12 +20,20 @@ stages:
 
 build:
     stage: build
+    artifacts:
+        expire_in: 1 hour
+        paths:
+            - cache/
     script:
         - pipenv clean
         - pipenv sync --dev
 
 check:
     stage: check
+    artifacts:
+        expose_as: Linter report
+        paths:
+            - build/pylint/report.html
     script: $BUILD_TOOL check_code
 
 test:

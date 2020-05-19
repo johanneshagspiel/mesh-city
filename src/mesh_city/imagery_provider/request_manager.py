@@ -15,6 +15,8 @@ from mesh_city.imagery_provider.log_manager import LogManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
+from mesh_city.util.logs.log_entry import TopDownProviderLogEntry
+from mesh_city.util.logs.log_manager import LogManager
 
 
 class RequestManager:
@@ -28,7 +30,7 @@ class RequestManager:
 	"""
 	temp_path = Path(__file__).parents[1]
 	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
-	path_to_map_image = Path.joinpath(images_folder_path, 'request_0', 'tile_0')
+	active_tile_path = Path.joinpath(images_folder_path, 'request_0', '0_tile_0_0')
 
 	def __init__(self, user_info, quota_manager, map_entity=None):
 		self.user_info = user_info
@@ -255,16 +257,34 @@ class RequestManager:
 
 		if zoom is None:
 			zoom = self.map_entity.max_zoom
-		request_number = self.request_number
+
+		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
+		#calcualtes the locations first
+		coordinates = self.calculate_locations(centre_coordinates, zoom)
+		bounding_box = [coordinates[0], coordinates[-1]]
+
+		max_latitude = 0
+		max_longitude = 0
+
+		#in the case an area should be downloaded, the first thing returned will be the max longitude
+		#and latitude
+		if (len(centre_coordinates) == 4):
+			temp = coordinates.pop(0)
+			max_latitude = temp[0]
+			max_longitude = temp[1]
+
+		#a new folder is created for the request if it goes ahead
 		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
 		os.makedirs(new_folder_path)
 
+		#then a folder for the first tile is created
+		#the tiles are named in such a way that their name form a coordinate system that can be used
+		#in the gui to load adjecent tiles
 		number_tile_downloaded = 0
 		tile_number_latitude = 0
 		tile_number_longitude = 0
-
 		temp_tile_number_latitude = str(tile_number_latitude)
 		temp_tile_number_longitude = str(tile_number_longitude)
 		new_folder_path = Path.joinpath(
@@ -283,15 +303,17 @@ class RequestManager:
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
+
 		number_requests_temp = number_requests
 		total_tile_numbers = number_requests / 9
+		# stores the information whether or not this is the last tile of the request
+		# if yes, information should be logged and no new folder should be created
 		last_round = False
-
 		if number_requests == 9:
 			last_round = True
 
 		counter = 1
-
+		#download and store the information in the case of only one pair of coordinates
 		if len(centre_coordinates) == 2:
 			for location in coordinates:
 				number = str(counter)
@@ -306,16 +328,19 @@ class RequestManager:
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
-					self.path_to_map_image = new_folder_path
-					self.log_manager.write_entry_log(
+					self.active_tile_path = new_folder_path
+					log_entry = TopDownProviderLogEntry(
 						request_number,
+						zoom,
 						self.user_info,
 						self.map_entity,
 						number_requests,
 						bounding_box,
-						coordinates,
+						coordinates
 					)
+					self.log_manager.write_entry_log(log_entry)
 
+		#download and store the information in case a whole area was asked for
 		if len(centre_coordinates) == 4:
 
 			for location in coordinates:
@@ -355,15 +380,16 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					self.path_to_map_image = new_folder_path
-					self.log_manager.write_entry_log(
+					log_entry = TopDownProviderLogEntry(
 						request_number,
+						zoom,
 						self.user_info,
 						self.map_entity,
-						number_requests * 9,
+						number_requests,
 						bounding_box,
-						coordinates,
+						coordinates
 					)
+					self.log_manager.write_entry_log(self, log_entry)
 
 	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
