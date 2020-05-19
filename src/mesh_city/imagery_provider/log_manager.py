@@ -1,5 +1,5 @@
 """
-A module containing teh LogManager object, used for maintaining metadata of the requests of
+A module containing the LogManager object, used for maintaining metadata of the requests of
 request_manager. And the TopDownProviderLogEntry object used to hold all this information in object
 form.
 """
