@@ -1,3 +1,7 @@
+"""
+See :class:`.UserInfoHandler`
+"""
+
 import json
 from pathlib import Path
 
@@ -40,7 +44,7 @@ class UserInfoHandler:
 		"""
 		try:
 			self.load_user_info()
-		except:
+		except (OSError, ValueError, TypeError):
 			return False
 		else:
 			return True

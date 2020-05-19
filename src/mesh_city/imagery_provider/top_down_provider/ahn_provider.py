@@ -1,8 +1,8 @@
 """
 A top-down provider which can gather information regarding the heights of objects in the Netherlands
 """
+
 import json
-import math
 import operator
 from pathlib import Path
 
@@ -19,9 +19,8 @@ class AhnProvider(TopDownProvider):
 	A class which implements the TopDownProvider abstract class. Provides functionality with regards
 	to requests about height information of objects in the Netherlands.
 	"""
-	color_to_height = None # yapf: disable
 	temp_path = Path(__file__).parents[2]
-	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
+	json_folder_path = Path.joinpath(temp_path, "resources", "ahn", "height_to_color.json")
 
 	def __init__(self, user_info, quota_manager):
 		"""
@@ -29,7 +28,8 @@ class AhnProvider(TopDownProvider):
 		:param user_info: the user_info class associated with this image provider
 		:param quota_manager: the quota manager associated with this image provider
 		"""
-		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
+		super().__init__(user_info=user_info, quota_manager=quota_manager)
+		self.geo_util = GeoLocationUtil()
 		self.name = "ahn"
 		self.max_zoom = 20
 		self.color_to_height = self.load_from_json()
@@ -40,7 +40,8 @@ class AhnProvider(TopDownProvider):
 		Loads the height associated to a color from a json file.
 		:return: a dictionary of the type color : height
 		"""
-		with open(self.json_folder_path, 'r') as json_log:
+
+		with open(self.json_folder_path, "r") as json_log:
 			data = json_log.read()
 		info = json.loads(data)
 
@@ -53,20 +54,20 @@ class AhnProvider(TopDownProvider):
 			counter = 0
 
 			for element in key:
-				if (element == ","):
+				if element == ",":
 					result.append(int(temp_string))
 					temp_string = ""
 					counter += 1
-				if (element == " " or element == "(" or element == ")"):
+				if element in [" ", "(", ")"]:
 					counter += 1
 				else:
-					if (element == ","):
+					if element == ",":
 						counter += 1
 					else:
 						temp_string += element
 						counter += 1
 
-						if (counter == end + 1):
+						if counter == end + 1:
 							result.append(int(temp_string))
 
 			temp_tuple = (result[0], result[1], result[2])
@@ -86,7 +87,7 @@ class AhnProvider(TopDownProvider):
 		for key, value in temp.items():
 			to_store[str(key)] = value
 
-		with open(self.json_folder_path, 'w') as json_log:
+		with open(self.json_folder_path, "w") as json_log:
 			json.dump(to_store, fp=json_log)
 
 	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
@@ -130,20 +131,23 @@ class AhnProvider(TopDownProvider):
 		:param image_size_y: the length of the y axis of the image
 		:return: a list of the coordinates of the bounding box encompassing the area
 		"""
-		right = GeoLocationUtil.calc_next_location_latitude(latitude, zoom, image_size_x / 2, True)
-		left = GeoLocationUtil.calc_next_location_latitude(latitude, zoom, image_size_x / 2, False)
-		# 'up' is officially not snake_case naming but does provide the highest readability
-		# in this particular case
-		up = GeoLocationUtil.calc_next_location_longitude(
-			latitude, longitude, zoom, image_size_y / 2, True
-		)  # pylint: disable=invalid-name
-		down = GeoLocationUtil.calc_next_location_longitude(
-			latitude, longitude, zoom, image_size_y / 2, False
+
+		right = self.geo_util.calc_next_location_latitude(
+			latitude, zoom, image_size_x=image_size_x / 2, direction=True
+		)
+		left = self.geo_util.calc_next_location_latitude(
+			latitude, zoom, image_size_x=image_size_x / 2, direction=False
+		)
+		top = self.geo_util.calc_next_location_longitude(
+			latitude, longitude, zoom, image_size_y=image_size_y / 2, direction=True,
+		)
+		bottom = self.geo_util.calc_next_location_longitude(
+			latitude, longitude, zoom, image_size_y=image_size_y / 2, direction=False
 		)
 
-		self.check_in_netherlands([(left, down), (right, up)])
+		self.check_in_netherlands([(left, bottom), (right, top)])
 
-		return [left, down, right, up]
+		return [left, bottom, right, top]
 
 	def check_in_netherlands(self, coordinates):
 		"""
@@ -168,14 +172,15 @@ class AhnProvider(TopDownProvider):
 		:param y_location: the y location of the pixel
 		:return: the height associated with this pixel
 		"""
+
 		temp_path = Path(__file__).parents[2]
 		images_folder_path = Path.joinpath(
 			temp_path,
-			'resources',
-			'images',
-			'request_5',
-			'tile_0',
-			'concat_image_request_10_tile_0.png'
+			"resources",
+			"images",
+			"request_5",
+			"tile_0",
+			"concat_image_request_10_tile_0.png",
 		)
 
 		image_temp = Image.open(images_folder_path)
@@ -185,19 +190,18 @@ class AhnProvider(TopDownProvider):
 		if pixels in self.color_to_height:
 			return self.color_to_height[pixels]
 
-		else:
-			temp_keys = self.color_to_height.keys()
-			get_cosine_cimilarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
-			temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
+		temp_keys = self.color_to_height.keys()
+		get_cosine_cimilarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
+		temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
 
-			index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
+		index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
 
-			counter = 0
-			for value in self.color_to_height.values():
-				if (counter == index):
-					temp_new_value = value
-					break
-				counter += 1
+		counter = 0
+		for value in self.color_to_height.values():
+			if counter == index:
+				temp_new_value = value
+				break
+			counter += 1
 
-			self.color_to_height[pixels] = temp_new_value
-			return temp_new_value
+		self.color_to_height[pixels] = temp_new_value
+		return temp_new_value

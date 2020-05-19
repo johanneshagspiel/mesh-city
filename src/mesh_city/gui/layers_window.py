@@ -1,5 +1,8 @@
-"""This module provides a GUI interface that can be used to select different layers such as
-the satellite layer or heightmap layer"""
+"""
+This module provides a GUI interface that can be used to select different layers such as
+the satellite layer or heightmap layer
+"""
+
 import os
 from pathlib import Path
 from tkinter import Button, Label, Toplevel
@@ -16,6 +19,7 @@ class LayersWindow:
 		:param master: The Tk root of the GUI.
 		:param main_screen:
 		"""
+
 		self.main_screen = main_screen
 		self.master = master
 		self.value = ""

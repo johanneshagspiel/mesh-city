@@ -1,4 +1,7 @@
-""" Module which specifies the behaviour for interacting with the mapbox API"""
+"""
+Module which specifies the behaviour for interacting with the mapbox API
+"""
+
 from pathlib import Path
 
 import requests
@@ -14,7 +17,7 @@ class MapboxProvider(TopDownProvider):
 	"""
 
 	def __init__(self, user_info, quota_manager):
-		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
+		super().__init__(user_info=user_info, quota_manager=quota_manager)
 		self.geocoder = Geocoder(access_token=user_info.api_key)
 		self.name = "mapbox"
 		self.max_zoom = 18

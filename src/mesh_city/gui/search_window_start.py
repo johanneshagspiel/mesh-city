@@ -1,5 +1,5 @@
 """
-See :class:`~SearchWindowStart`
+See :class:`.SearchWindowStart`
 """
 
 from tkinter import Button, Label, Toplevel

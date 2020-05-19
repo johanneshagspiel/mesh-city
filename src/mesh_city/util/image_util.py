@@ -1,45 +1,38 @@
-import glob
+"""
+See :class:`.ImageUtil`
+"""
+
 from pathlib import Path
 
 from PIL import Image
 
 
 class ImageUtil:
+	"""
+	Collection of functions related to assembling map tile images.
+	"""
+
 	temp_path = Path(__file__).parents[1]
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
-	def __init__(self):
-		pass
+	def concat_images(self, new_folder_path, request, tile_number):
+		"""
+		Combines nine tile images into one.
+		:param new_folder_path: The directory containing the tile images
+		:param request: The number of the request
+		:param tile_number: The lat/long identification of this tile
+		:return: Nothing
+		"""
 
-	def concat_images(self, new_folder_path, request, tile_number, type):
-		name_type = NameType(type)
-		up_left = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[0]).absolute().as_posix()).pop()
-		)
-		up_center = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[1]).absolute().as_posix()).pop()
-		)
-		up_right = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[2]).absolute().as_posix()).pop()
-		)
-		center_left = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[3]).absolute().as_posix()).pop()
-		)
-		center_center = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[4]).absolute().as_posix()).pop()
-		)
-		center_right = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[5]).absolute().as_posix()).pop()
-		)
-		down_left = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[6]).absolute().as_posix()).pop()
-		)
-		down_center = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[7]).absolute().as_posix()).pop()
-		)
-		down_right = Image.open(
-			glob.glob(Path.joinpath(new_folder_path, name_type.names[8]).absolute().as_posix()).pop()
-		)
+		up_left = Image.open(next(new_folder_path.glob("1_*")))
+		up_center = Image.open(next(new_folder_path.glob("2_*")))
+		up_right = Image.open(next(new_folder_path.glob("3_*")))
+		center_left = Image.open(next(new_folder_path.glob("4_*")))
+		center_center = Image.open(next(new_folder_path.glob("5_*")))
+		center_right = Image.open(next(new_folder_path.glob("6_*")))
+		down_left = Image.open(next(new_folder_path.glob("7_*")))
+		down_center = Image.open(next(new_folder_path.glob("8_*")))
+		down_right = Image.open(next(new_folder_path.glob("9_*")))
 
 		level_0 = self.get_concat_horizontally(
 			self.get_concat_horizontally(up_left, up_center), up_right
@@ -57,28 +50,39 @@ class ImageUtil:
 			level_0).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	def get_concat_horizontally(self, image_1, image_2):
+		"""
+		Combines two tile images horizontally.
+		:param image_1: The left image.
+		:param image_2: The right image.
+		:return: The combined image.
+		"""
 		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
 
 	def get_concat_vertically(self, image_1, image_2):
+		"""
+		Combines two tile images vertically.
+		:param image_1: The top image.
+		:param image_2: The bottom image.
+		:return: Nothing.
+		"""
 		temp = Image.new("RGB", (image_1.width, image_1.height + image_2.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
 
-	def resize_image(self, width, height, path, name):
+	def resize_image(self, path_to_temp, width, height, path, name):
+		"""
+		Resizes a tile image to given dimensions.
+		:param path_to_temp: Path for temporary files.
+		:param width: The desired width in pixels.
+		:param height: The desired height in pixels.
+		:param path: The path of the original image.
+		:param name: The filename of the new image.
+		:return: Nothing.
+		"""
 		get_image = Image.open(path)
 		resize_image = get_image.resize((width, height), Image.ANTIALIAS)
-		resize_image.save(fp=Path.joinpath(self.path_to_temp, name), format="png")
-
-
-class NameType:
-
-	def __init__(self, type):
-		self.names = self.start(type)
-
-	def start(self, type):
-		if type == "normal":
-			return ["1_*", "2_*", "3_*", "4_*", "5_*", "6_*", "7_*", "8_*", "9_*"]
+		resize_image.save(fp=Path.joinpath(path_to_temp, name), format="png")

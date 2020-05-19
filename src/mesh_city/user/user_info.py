@@ -1,3 +1,8 @@
+"""
+See :class:`.UserInfo`
+"""
+
+
 class UserInfo:
 	"""
 	This class is used to define user information,
@@ -5,6 +10,7 @@ class UserInfo:
 	"""
 
 	def __init__(self, name, api_key, quota, usage, year, month, day, hour, minute, second):
+		# TODO: Replace separate time args with one timestamp object
 		self.name = name
 		self.api_key = api_key
 		self.quota = quota
@@ -16,18 +22,11 @@ class UserInfo:
 		self.minute = minute
 		self.second = second
 
-		def get_usage(map_provider, action):
-			return 0
-
-
-class Usage:
-
-	def __init__(self):
-		self.usage = self.start()
-
-	def start(self):
-		return {
-			"google_maps": {"static map": 0, "geo_coding": 0},
-			"mapbox": {"static map": 0, "geo_coding": 0},
-			"ahn": {"static map": 0, "geo_coding": 0},
-		}  # yapf: disable
+	def get_usage(self, map_provider, action):
+		"""
+		Returns the usage quota of a certain map provider and request action for the current user.
+		:param map_provider: The map provider.
+		:param action: The request action.
+		:return: The number of used requests.
+		"""
+		raise NotImplementedError()
