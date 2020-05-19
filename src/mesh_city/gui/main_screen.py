@@ -29,7 +29,7 @@ class MainScreen:
 
 		self.master = Tk()
 		self.master.title("Mesh City")
-		self.master.geometry("706x754")
+		self.master.geometry("710x780")
 
 		self.master.withdraw()
 		StartScreen(self.master, application)

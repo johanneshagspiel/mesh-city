@@ -9,7 +9,7 @@ class UserInfoHandler:
 	A class that can store and load user information.
 	"""
 	temp_path = Path(__file__).parents[1]
-	api_file_path =Path.joinpath(temp_path, "resources", "user", "api_key.json")
+	api_file_path =Path.joinpath(temp_path, "resources", "user", "users.json")
 
 	def __init__(self):
 		pass
