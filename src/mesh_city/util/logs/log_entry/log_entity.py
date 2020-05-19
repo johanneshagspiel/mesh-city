@@ -3,7 +3,7 @@ A module that contains all the different kinds of log entries used in this proje
 """
 from abc import ABC, abstractmethod
 
-class LogEntry(ABC):
+class LogEntity(ABC):
 	"""
 	An abstract logentry class that every instance of a log entry needs to correspond to
 	"""

@@ -1,1 +1,1 @@
-{"name": "Red", "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4", "quota": "500", "usage": 477, "year": 2020, "month": 5, "day": 8, "hour": 9, "minute": 46, "second": 29}
+{"red": {"google_maps": {"type": "google_maps", "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4", "usage": {"static_map": 0, "geocoding": 0, "total": 0}, "quota": 200, "date_reset": "2020-05-31"}}}

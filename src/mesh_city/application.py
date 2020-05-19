@@ -1,7 +1,7 @@
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.user.quota_manager import QuotaManager
-from mesh_city.user.user_info_handler import UserInfoHandler
+from mesh_city.util.file_handler import FileHandler
 
 
 class Application:
@@ -10,7 +10,7 @@ class Application:
 	"""
 
 	def __init__(self):
-		self.user_info_handler = UserInfoHandler()
+		self.file_handler = FileHandler()
 		self.quota_manager = None
 		self.request_manager = None
 		self.user_info = None

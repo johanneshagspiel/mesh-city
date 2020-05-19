@@ -9,14 +9,13 @@ from scipy import spatial
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
-
 class AhnProvider(TopDownProvider):
 	color_to_height = None  # yapf: disable
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
-	def __init__(self, user_info, quota_manager):
-		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
+	def __init__(self, image_provider_entity):
+		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)
 		self.name = "ahn"
 		self.max_zoom = 20
 		self.color_to_height = self.load_from_json()

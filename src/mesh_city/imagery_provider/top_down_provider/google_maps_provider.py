@@ -8,12 +8,11 @@ from PIL import Image
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
-
 class GoogleMapsProvider(TopDownProvider):
 
-	def __init__(self, user_info, quota_manager):
-		super().__init__(user_info=user_info, quota_manager=quota_manager)
-		self.client = googlemaps.Client(key=self.user_info.api_key)
+	def __init__(self, image_provider_entity):
+		super().__init__(image_provider_entity=image_provider_entity)
+		self.client = googlemaps.Client(key=self.image_provider_entity.api_key)
 		self.padding = 40
 		self.name = "google_maps"
 		self.max_zoom = 20
@@ -34,7 +33,7 @@ class GoogleMapsProvider(TopDownProvider):
 		scale = str(2)
 		file_format = "PNG"
 		map_type = "satellite"
-		api_key = self.user_info.api_key
+		api_key = self.image_provider_entity.api_key
 
 		language = None
 		region = None

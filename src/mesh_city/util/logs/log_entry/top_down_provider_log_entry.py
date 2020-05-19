@@ -1,6 +1,6 @@
-from mesh_city.util.logs.log_entry.log_entry import LogEntry
+from mesh_city.util.logs.log_entry.log_entity import LogEntity
 
-class TopDownProviderLogEntry(LogEntry):
+class TopDownProviderLogEntity(LogEntity):
 	"""
 	Log entries created for one request by a TopDownImageryProvider and stored in the overeall request log
 	"""

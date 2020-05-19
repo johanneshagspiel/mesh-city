@@ -8,7 +8,7 @@ from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvide
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.logs.log_entry.top_down_provider_log_entry import TopDownProviderLogEntry
+from mesh_city.util.logs.log_entry.top_down_provider_log_entry import TopDownProviderLogEntity
 from mesh_city.util.logs.log_manager import LogManager
 
 
@@ -138,7 +138,7 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					self.active_tile_path = new_folder_path
-					log_entry = TopDownProviderLogEntry(
+					log_entry = TopDownProviderLogEntity(
 						request_number,
 						zoom,
 						self.user_info,
@@ -147,7 +147,7 @@ class RequestManager:
 						bounding_box,
 						coordinates
 					)
-					self.log_manager.write_entry_log(log_entry)
+					self.log_manager.write_log(log_entry)
 
 		#download and store the information in case a whole area was asked for
 		if len(centre_coordinates) == 4:
@@ -189,7 +189,7 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					log_entry = TopDownProviderLogEntry(
+					log_entry = TopDownProviderLogEntity(
 						request_number,
 						zoom,
 						self.user_info,
@@ -198,7 +198,7 @@ class RequestManager:
 						bounding_box,
 						coordinates
 					)
-					self.log_manager.write_entry_log(self, log_entry)
+					self.log_manager.write_log(self, log_entry)
 
 	def calculate_centre_coordinates_two_coordinate_input(self, bottom_left, top_right, zoom):
 		"""

@@ -8,9 +8,9 @@ from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDo
 
 class MapboxProvider(TopDownProvider):
 
-	def __init__(self, user_info, quota_manager):
-		TopDownProvider.__init__(self, user_info=user_info, quota_manager=quota_manager)
-		self.geocoder = Geocoder(access_token=user_info.api_key)
+	def __init__(self, image_provider_entity):
+		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)
+		self.geocoder = Geocoder(access_token=image_provider_entity.api_key)
 		self.name = "mapbox"
 		self.max_zoom = 18
 		self.max_side_resolution_image = 640
@@ -28,7 +28,7 @@ class MapboxProvider(TopDownProvider):
 		scale = "2x"
 		attribution = "attribution=false"
 		logo = "logo=false"
-		access_token = self.user_info.api_key
+		access_token = self.image_provider_entity.api_key
 
 		response = requests.get(
 			"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"

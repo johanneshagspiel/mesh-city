@@ -3,7 +3,7 @@ relevant user information to make api calls etc."""
 from datetime import datetime
 from tkinter import Button, Entry, Label, Toplevel
 
-from mesh_city.user.user_info import UserInfo
+from mesh_city.user.entities.user_entity import UserEntity
 
 
 class StartScreen:
@@ -53,7 +53,7 @@ class StartScreen:
 		self.master.wait_window(self.window.top)
 		current_time = datetime.now()
 		name, key, quota = self.window.value
-		application.user_info = UserInfo(
+		application.user_info = UserEntity(
 			name,
 			key,
 			quota,

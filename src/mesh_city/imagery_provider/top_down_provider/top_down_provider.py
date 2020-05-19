@@ -3,9 +3,8 @@ from abc import ABC, abstractmethod
 
 class TopDownProvider(ABC):
 
-	def __init__(self, user_info, quota_manager):
-		self.user_info = user_info
-		self.quota_manager = quota_manager
+	def __init__(self, image_provider_entity):
+		self.image_provider_entity = image_provider_entity
 		self.padding = 0
 		self.type = "top_down_provider"
 		self.max_side_resolution_image = 0
