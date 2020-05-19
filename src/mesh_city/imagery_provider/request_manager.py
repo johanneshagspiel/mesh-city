@@ -3,6 +3,7 @@ Module which contains code to interact with the top_down providers, organising t
 their API's such that data for larger geographical areas can be made and the results of these
 requests are stored on disk.
 """
+
 import csv
 import math
 import os
@@ -60,7 +61,7 @@ class RequestManager:
 			height,
 			width,
 			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
-			self.images_folder_path
+			self.images_folder_path,
 		)
 
 	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
@@ -226,17 +227,13 @@ class RequestManager:
 		current_latitude = latitude_first_image
 		current_longitude = longitude_first_image
 
-		# number_of_calls = 0
-		coordinates_list = list()
+		coordinates_list = []
 
 		for vertical in range(num_of_images_vertical):
 			for horizontal in range(num_of_images_horizontal):
 				coordinates_list.append(
 					((current_latitude, current_longitude), (horizontal, vertical))
 				)
-				# print(current_latitude, ",", current_longitude)
-				# number_of_calls += 1
-				# print(number_of_calls)
 				current_longitude = self.geo_location_util.calc_next_location_longitude(
 					current_latitude, current_longitude, zoom, side_resolution_image, True
 				)
@@ -282,7 +279,6 @@ class RequestManager:
 
 		temp = coordinates.pop(0)
 		max_latitude = temp[0]
-		# max_longitude = temp[1]
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))

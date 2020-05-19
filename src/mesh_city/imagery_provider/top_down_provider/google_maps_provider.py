@@ -1,5 +1,7 @@
-""" Module which specifies the behaviour for interacting with the static google
-	maps API"""
+"""
+Module which specifies the behaviour for interacting with the static google maps API
+"""
+
 from pathlib import Path
 
 import googlemaps
@@ -50,15 +52,6 @@ class GoogleMapsProvider(TopDownProvider):
 		file_format = "PNG"
 		map_type = "satellite"
 		api_key = self.user_info.api_key
-
-		# possible other variables that can be used to do API requests, good to keep around for
-		# future reference
-		language = None  # pylint: disable=unused-variable
-		region = None  # pylint: disable=unused-variable
-		markers = None  # pylint: disable=unused-variable
-		path = None  # pylint: disable=unused-variable
-		visible = None  # pylint: disable=unused-variable
-		style = None  # pylint: disable=unused-variable
 
 		response = requests.get(
 			"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"

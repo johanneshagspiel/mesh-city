@@ -134,8 +134,12 @@ class AhnProvider(TopDownProvider):
 		left = GeoLocationUtil.calc_next_location_latitude(latitude, zoom, image_size_x / 2, False)
 		# 'up' is officially not snake_case naming but does provide the highest readability
 		# in this particular case
-		up = GeoLocationUtil.calc_next_location_longitude(latitude, longitude, zoom, image_size_y / 2, True)  # pylint: disable=invalid-name
-		down = GeoLocationUtil.calc_next_location_longitude(latitude, longitude, zoom, image_size_y / 2, False)
+		up = GeoLocationUtil.calc_next_location_longitude(
+			latitude, longitude, zoom, image_size_y / 2, True
+		)  # pylint: disable=invalid-name
+		down = GeoLocationUtil.calc_next_location_longitude(
+			latitude, longitude, zoom, image_size_y / 2, False
+		)
 
 		self.check_in_netherlands([(left, down), (right, up)])
 
