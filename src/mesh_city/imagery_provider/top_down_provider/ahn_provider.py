@@ -121,17 +121,6 @@ class AhnProvider(TopDownProvider):
 			print("Height information is only available in the Netherlands - Sorry!")
 
 	def get_height_from_pixel(self, x, y, path):
-
-		# temp_path = Path(__file__).parents[2]
-		# images_folder_path = Path.joinpath(
-		# 	temp_path,
-		# 	'resources',
-		# 	'images',
-		# 	'request_5',
-		# 	'tile_0',
-		# 	'concat_image_request_10_tile_0.png'
-		# )
-
 		image_temp = Image.open(path)
 		image = image_temp.load()
 		pixels = image[x, y]
