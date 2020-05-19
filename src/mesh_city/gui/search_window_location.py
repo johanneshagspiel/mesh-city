@@ -1,5 +1,5 @@
 """
-See :class:`~SearchWindowLocation`
+See :class:`.SearchWindowLocation`
 """
 
 from pathlib import Path
@@ -57,18 +57,19 @@ class SearchWindowLocation:
 		:param first_time: A flag indicating whether this is the first time the type button is pressed
 		:return: None
 		"""
-		if self.latitude['text'] == "Latitude:":
-			self.latitude['text'] = "Address:"
+
+		if self.latitude["text"] == "Latitude:":
+			self.latitude["text"] = "Address:"
 			self.long_entry.grid_forget()
 			self.type_button.configure(text="Coordinates")
-			self.longitude['text'] = ""
+			self.longitude["text"] = ""
 			first_time = False
 
-		if (self.latitude['text'] == "Address:") & first_time:
+		if self.latitude["text"] == "Address:" and first_time:
 			self.latitude.config(text="Latitude:")
 			self.long_entry.grid(row=2, column=3)
 			self.type_button.configure(text="Address")
-			self.longitude['text'] = "Longitude:"
+			self.longitude["text"] = "Longitude:"
 
 	def cleanup(self):
 		"""

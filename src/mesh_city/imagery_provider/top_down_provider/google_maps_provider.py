@@ -39,6 +39,7 @@ class GoogleMapsProvider(TopDownProvider):
 		:param height: the height dimension of the image
 		:return:
 		"""
+
 		if height is None or height > 640:
 			height = 640
 		if width is None or width > 640:

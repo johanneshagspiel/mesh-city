@@ -1,6 +1,7 @@
 """
 Module which takes care of the core functionality regarding importing top down imagery from different API providers.
 """
+
 from abc import ABC, abstractmethod
 
 

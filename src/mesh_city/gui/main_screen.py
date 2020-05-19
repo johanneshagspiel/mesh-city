@@ -1,8 +1,7 @@
 """
-See :class:`~MainScreen`
+See :class:`.MainScreen`
 """
 
-import glob
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
 
@@ -26,7 +25,9 @@ class MainScreen:
 		Setting up the main screen
 		:param application: the global application context
 		"""
+
 		self.application = application
+		self.image_util = ImageUtil()
 
 		self.master = Tk()
 		self.master.title("Mesh City")
@@ -142,7 +143,6 @@ class MainScreen:
 	def get_height(self):
 		"""
 		The function called when pressing on the height button to get the height from pixel.
-		:return:
 		"""
 		concat_temp_path = Path.joinpath(
 			self.currently_active_tile,
@@ -150,8 +150,8 @@ class MainScreen:
 			"ahn_height",
 			"concat_image_request_10_tile_0_0.png",
 		)
-		ImageUtil.resize_image(
-			self,
+		self.image_util.resize_image(
+			path_to_temp=self.path_to_temp,
 			width=self.image_width,
 			height=self.image_height,
 			path=concat_temp_path,
@@ -217,11 +217,7 @@ class MainScreen:
 		Stores and resizes the image to be loaded onto the map
 		:return: nothing
 		"""
-		get_image = Image.open(
-			glob.glob(
-			Path.joinpath(self.currently_active_tile, "concat_image_*").absolute().as_posix()
-			).pop()
-		)
+		get_image = Image.open(next(self.currently_active_tile.glob("concat_image_*")))
 		resize_image = get_image.resize((self.image_width, self.image_height), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)
 		return get_photo

@@ -1,6 +1,6 @@
 """
 Module which contains code to interact with the top_down providers, organising the requests to
-their API's such that data for larger geographical areas can be made and the results of these
+their APIs such that data for larger geographical areas can be made and the results of these
 requests are stored on disk.
 """
 
@@ -12,10 +12,10 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.logs.log_manager import LogManager
+from mesh_city.logs.top_down_provider_log_entry import TopDownProviderLogEntry
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.logs.log_entry import TopDownProviderLogEntry
-from mesh_city.util.logs.log_manager import LogManager
 
 
 class RequestManager:
@@ -27,9 +27,10 @@ class RequestManager:
 	:param user_info: information about the user
 	:param quota_manager: quota manager associated with the user
 	"""
+
 	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, 'resources', 'images')
-	active_tile_path = Path.joinpath(images_folder_path, 'request_0', '0_tile_0_0')
+	images_folder_path = Path.joinpath(temp_path, "resources", "images")
+	active_tile_path = Path.joinpath(images_folder_path, "request_0", "0_tile_0_0")
 
 	def __init__(self, user_info, quota_manager, map_entity=None):
 		self.user_info = user_info
@@ -109,10 +110,10 @@ class RequestManager:
 		os.makedirs(new_folder_path)
 
 		# saves metadata to an CSV file
-		csv_filename = Path.joinpath(new_folder_path, 'imagery_metadata.csv')
-		with open(csv_filename, 'w') as csvfile:
+		csv_filename = Path.joinpath(new_folder_path, "imagery_metadata.csv")
+		with open(csv_filename, "w") as csvfile:
 			fieldnames = [
-				'image_number', 'horizontal_position', 'vertical_position', 'latitude', 'longitude'
+				"image_number", "horizontal_position", "vertical_position", "latitude", "longitude"
 			]
 			csv_writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 			csv_writer.writeheader()
@@ -134,11 +135,11 @@ class RequestManager:
 				)
 				csv_writer.writerow(
 					{
-					'image_number': str(image_number),
-					'horizontal_position': str(horizontal_position),
-					'vertical_position': str(vertical_position),
-					'latitude': str(latitude),
-					'longitude': str(longitude)
+					"image_number": str(image_number),
+					"horizontal_position": str(horizontal_position),
+					"vertical_position": str(vertical_position),
+					"latitude": str(latitude),
+					"longitude": str(longitude),
 					}
 				)
 
@@ -191,7 +192,7 @@ class RequestManager:
 
 		if bottom_lat > top_lat or left_long > right_long:
 			raise Exception(
-				'The first coordinate should be beneath and left of the second coordinate'
+				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
 		side_resolution_image = self.map_entity.max_side_resolution_image
@@ -219,7 +220,7 @@ class RequestManager:
 		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
 
 		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
-			bottom_lat, left_long, zoom, side_resolution_image / 2, True
+			bottom_lat, zoom, side_resolution_image / 2, True,
 		)
 		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
 			bottom_lat, left_long, zoom, side_resolution_image / 2, True
@@ -240,7 +241,7 @@ class RequestManager:
 				)
 			current_longitude = longitude_first_image
 			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, current_longitude, zoom, side_resolution_image, True
+				current_latitude, zoom, side_resolution_image, True
 			)
 		return (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
@@ -260,27 +261,21 @@ class RequestManager:
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
-		#calcualtes the locations first
+		# calcualtes the locations first
 		coordinates = self.calculate_locations(centre_coordinates, zoom)
-		bounding_box = [coordinates[0], coordinates[-1]]
 
-		max_latitude = 0
-		max_longitude = 0
-
-		#in the case an area should be downloaded, the first thing returned will be the max longitude
-		#and latitude
-		if (len(centre_coordinates) == 4):
+		# in the case an area should be downloaded, the first thing returned will be the max longitude
+		# and latitude
+		if len(centre_coordinates) == 4:
 			temp = coordinates.pop(0)
-			max_latitude = temp[0]
-			max_longitude = temp[1]
 
-		#a new folder is created for the request if it goes ahead
+		# a new folder is created for the request if it goes ahead
 		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
 		os.makedirs(new_folder_path)
 
-		#then a folder for the first tile is created
-		#the tiles are named in such a way that their name form a coordinate system that can be used
-		#in the gui to load adjecent tiles
+		# then a folder for the first tile is created
+		# the tiles are named in such a way that their name form a coordinate system that can be used
+		# in the gui to load adjecent tiles
 		number_tile_downloaded = 0
 		tile_number_latitude = 0
 		tile_number_longitude = 0
@@ -312,7 +307,7 @@ class RequestManager:
 			last_round = True
 
 		counter = 1
-		#download and store the information in the case of only one pair of coordinates
+		# download and store the information in the case of only one pair of coordinates
 		if len(centre_coordinates) == 2:
 			for location in coordinates:
 				number = str(counter)
@@ -326,20 +321,21 @@ class RequestManager:
 
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
+					self.image_util.concat_images(new_folder_path, counter, tile_number)
 					self.active_tile_path = new_folder_path
 					log_entry = TopDownProviderLogEntry(
+						None,
 						request_number,
 						zoom,
 						self.user_info,
 						self.map_entity,
 						number_requests,
 						bounding_box,
-						coordinates
+						coordinates,
 					)
 					self.log_manager.write_entry_log(log_entry)
 
-		#download and store the information in case a whole area was asked for
+		# download and store the information in case a whole area was asked for
 		if len(centre_coordinates) == 4:
 
 			for location in coordinates:
@@ -355,11 +351,9 @@ class RequestManager:
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
 					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(
-						new_folder_path, counter, tile_number_old, "normal"
-					)
+					self.image_util.concat_images(new_folder_path, counter, tile_number_old)
 					tile_number_latitude += 1
-					if (tile_number_latitude == max_latitude):
+					if tile_number_latitude == max_latitude:
 						tile_number_latitude = 0
 						tile_number_longitude += 1
 					tile_number_new = str(tile_number_latitude) + "_" + str(tile_number_longitude)
@@ -371,24 +365,25 @@ class RequestManager:
 					os.makedirs(new_folder_path)
 					counter = 1
 					number_requests_temp = number_requests_temp - 9
-					if (number_requests_temp == 9):
+					if number_requests_temp == 9:
 						last_round = True
 
 				if counter == 10 and last_round:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number, "normal")
+					self.image_util.concat_images(new_folder_path, counter, tile_number)
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 					log_entry = TopDownProviderLogEntry(
+						None,
 						request_number,
 						zoom,
 						self.user_info,
 						self.map_entity,
 						number_requests,
 						bounding_box,
-						coordinates
+						coordinates,
 					)
-					self.log_manager.write_entry_log(self, log_entry)
+					self.log_manager.write_entry_log(log_entry)
 
 	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
@@ -417,7 +412,7 @@ class RequestManager:
 
 		if bottom_lat > top_lat or left_long > right_long:
 			raise Exception(
-				'The first coordinate should be beneath and left of the second coordinate'
+				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
 		side_resolution_image = self.map_entity.max_side_resolution_image
@@ -440,16 +435,16 @@ class RequestManager:
 
 		# to support the tile system, the total number of images to download needs to be divisible by
 		# 9 as one tile is 9 images
-		if ((num_of_images_horizontal % 9) != 0):
+		if (num_of_images_horizontal % 9) != 0:
 			num_of_images_horizontal += 9 - (num_of_images_horizontal % 9)
 		num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
-		if ((num_of_images_vertical % 9) != 0):
+		if (num_of_images_vertical % 9) != 0:
 			num_of_images_vertical += 9 - (num_of_images_vertical % 9)
 
 		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
 
 		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
-			bottom_lat, left_long, zoom, side_resolution_image / 2, True
+			bottom_lat, zoom, side_resolution_image / 2, True
 		)
 		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
 			bottom_lat, left_long, zoom, side_resolution_image / 2, True
@@ -471,7 +466,7 @@ class RequestManager:
 				)
 			current_longitude = longitude_first_image
 			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, current_longitude, zoom, side_resolution_image, True
+				current_latitude, zoom, side_resolution_image, True
 			)
 
 		temp_result = (num_of_images_total, num_of_images_horizontal,
@@ -496,12 +491,12 @@ class RequestManager:
 			pointer += 1
 
 			# if we moved 3 points to the right, we are at the end of one tile
-			if ((pointer % 3) == 0):
+			if (pointer % 3) == 0:
 				# if we are two levels up, we are at the top right end of a tile
-				if (level == 2):
+				if level == 2:
 					# in case this is also at the right hand end of the area we are interested in,
 					# so now we want to go further up
-					if ((pointer % max_latitude) == 0):
+					if (pointer % max_latitude) == 0:
 						level = 0
 					# here we are not at the very right hand of the area we are interested in, so we
 					# again have to move down and then to the right
@@ -514,7 +509,7 @@ class RequestManager:
 					level += 1
 
 			counter += 1
-			if (counter == max_entry):
+			if counter == max_entry:
 				run = False
 
 		return ordered_result
@@ -528,17 +523,15 @@ class RequestManager:
 		"""
 		image_size = 640 - self.map_entity.padding
 
-		if (len(coordinates) == 2):
+		if len(coordinates) == 2:
 			longitude = coordinates[0]
 			latitude = coordinates[1]
 
-			down = self.geo_location_util.calc_next_location_latitude(
-				longitude, latitude, zoom, image_size, False
+			bottom = self.geo_location_util.calc_next_location_latitude(
+				latitude, zoom, image_size, False
 			)
-			# 'up' is officially not snake_case naming but does provide the highest readability
-			# in this particular case
-			up = self.geo_location_util.calc_next_location_latitude( # pylint: disable=invalid-name
-				longitude, latitude, zoom, image_size, True
+			top = self.geo_location_util.calc_next_location_latitude(
+				latitude, zoom, image_size, True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
 				longitude, latitude, zoom, image_size, True
@@ -548,8 +541,8 @@ class RequestManager:
 			)
 
 			return [
-				(down, left), (down, latitude), (down, right), (longitude, left),
-				(longitude, latitude), (longitude, right), (up, left), (up, latitude), (up, right),
+				(bottom, left), (bottom, latitude), (bottom, right), (longitude, left),
+				(longitude, latitude), (longitude, right), (top, left), (top, latitude), (top, right),
 			]  # pylint: disable=invalid-name
 
 		if len(coordinates) == 4:

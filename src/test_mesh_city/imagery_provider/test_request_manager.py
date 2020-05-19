@@ -1,3 +1,5 @@
+# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+
 import unittest
 
 from mesh_city.imagery_provider.request_manager import RequestManager

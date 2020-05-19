@@ -1,6 +1,7 @@
 """
 A module that contains the loading old request window
 """
+
 import os
 from pathlib import Path
 from tkinter import Button, Label, Toplevel
@@ -18,6 +19,7 @@ class LoadWindow:
 		:param application: the global application context
 		:param mainscreen: the screen from which loadwindow is called
 		"""
+
 		self.mainscreen = mainscreen
 		self.master = master
 		self.value = ""
@@ -30,7 +32,7 @@ class LoadWindow:
 
 		counter = 1
 		for directory in os.listdir(self.image_path):
-			if (directory != ""):
+			if directory != "":
 				name_directory = str(directory)
 				self.temp_name = Button(
 					self.top,
@@ -49,6 +51,7 @@ class LoadWindow:
 		:param name_directory: the directory where the request to be loaded is stored
 		:return: nothing
 		"""
+
 		self.mainscreen.currently_active_tile = Path.joinpath(
 			self.image_path, name_directory, "0_tile_0_0"
 		)
