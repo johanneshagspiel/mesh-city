@@ -4,7 +4,7 @@ See :class:`.TopDownProviderLogEntry`
 
 from datetime import datetime
 
-from mesh_city.util.logs.log_entry import LogEntry
+from mesh_city.logs.log_entry import LogEntry
 
 
 class TopDownProviderLogEntry(LogEntry):
