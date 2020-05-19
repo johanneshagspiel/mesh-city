@@ -11,7 +11,7 @@ from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDo
 
 
 class AhnProvider(TopDownProvider):
-	color_to_height = None # yapf: disable
+	color_to_height = None  # yapf: disable
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
