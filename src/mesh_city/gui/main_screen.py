@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 
 from mesh_city.gui.layers_window import LayersWindow
 from mesh_city.gui.load_window import LoadWindow
-from mesh_city.gui.search_window import SearchWindowStart
+from mesh_city.gui.search_window_start import SearchWindowStart
 from mesh_city.gui.start_screen import StartScreen
 from mesh_city.util.image_util import ImageUtil
 
