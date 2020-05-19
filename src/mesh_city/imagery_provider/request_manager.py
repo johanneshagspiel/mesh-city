@@ -1,6 +1,6 @@
 """
 Module which contains code to interact with the top_down providers, organising the requests to
-their API"s such that data for larger geographical areas can be made and the results of these
+their APIs such that data for larger geographical areas can be made and the results of these
 requests are stored on disk.
 """
 
