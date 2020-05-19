@@ -5,6 +5,8 @@ from PIL import Image
 
 
 class ImageUtil:
+	temp_path = Path(__file__).parents[1]
+	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
 	def __init__(self):
 		pass
@@ -65,6 +67,11 @@ class ImageUtil:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
+
+	def resize_image(self, width, height, path, name):
+		get_image = Image.open(path)
+		resize_image = get_image.resize((width, height), Image.ANTIALIAS)
+		resize_image.save(fp=Path.joinpath(self.path_to_temp, name), format="png")
 
 
 class NameType:

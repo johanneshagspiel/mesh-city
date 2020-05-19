@@ -40,5 +40,6 @@ class UserInfoHandlerTest(unittest.TestCase):
 		flag = self.user_handler.file_exists()
 		self.assertFalse(flag)
 
+
 if __name__ == '__main__':
 	unittest.main()

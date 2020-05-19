@@ -5,10 +5,12 @@ from mesh_city.user.user_info_handler import UserInfoHandler
 
 
 class Application:
+	"""
+	For the application to work, you will need to have resources/images/request_0/0_tile_0_0/concat_image_request_10_tile_0_0.png
+	"""
 
 	def __init__(self):
 		self.user_info_handler = UserInfoHandler()
-		#self.self_made_map
 		self.quota_manager = None
 		self.request_manager = None
 		self.user_info = None
