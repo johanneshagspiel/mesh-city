@@ -24,7 +24,6 @@ build:
         paths:
             - cache/
     script:
-        - rm -rf cache/.cache
         - pipenv clean
         - pipenv sync --dev
 
