@@ -73,10 +73,6 @@ class ImageUtil:
 		resize_image = get_image.resize((width, height), Image.ANTIALIAS)
 		resize_image.save(fp=Path.joinpath(self.path_to_temp, name), format="png")
 
-		# file = open(Path.joinpath(self.path_to_temp, name), "w")
-		# file.write(resize_image)
-		# file.close()
-
 
 class NameType:
 
