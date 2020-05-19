@@ -1,6 +1,7 @@
 """
-module = mainscreen
+See :class:`~MainScreen`
 """
+
 import glob
 from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
