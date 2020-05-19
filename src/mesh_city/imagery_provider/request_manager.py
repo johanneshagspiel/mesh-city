@@ -11,7 +11,6 @@ from pathlib import Path
 
 from geopy import distance
 
-from mesh_city.imagery_provider.log_manager import LogManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
