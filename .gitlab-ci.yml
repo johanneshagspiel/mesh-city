@@ -2,7 +2,6 @@ image: kennethreitz/pipenv
 
 variables:
     PYTHONPATH: "$CI_PROJECT_DIR/src:$PYTHONPATH"
-    XDG_CACHE_HOME: "$CI_PROJECT_DIR/cache/.cache/"
     XDG_DATA_HOME: "$CI_PROJECT_DIR/cache/.local/share/"
     BUILD_TOOL: "pipenv run python setup.py"
 
