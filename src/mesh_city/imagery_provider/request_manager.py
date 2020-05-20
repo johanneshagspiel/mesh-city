@@ -12,10 +12,7 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.logs.log_manager import LogManager
 from mesh_city.logs.top_down_provider_log_entry import TopDownProviderLogEntry
-from mesh_city.util.geo_location_util import GeoLocationUtil
-from mesh_city.util.image_util import ImageUtil
 
 
 class RequestManager:
@@ -28,22 +25,24 @@ class RequestManager:
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	temp_path = Path(__file__).parents[1]
-	images_folder_path = Path.joinpath(temp_path, "resources", "images")
-	active_tile_path = Path.joinpath(images_folder_path, "request_0", "0_tile_0_0")
-
-	def __init__(self, user_info, quota_manager, map_entity=None):
+	def __init__(
+		self,
+		user_info,
+		quota_manager,
+		map_entity,
+		log_manager,
+		image_util,
+		geo_location_util,
+		resource_path=Path(__file__).parents[1].joinpath("resources"),
+	):
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		if map_entity is None:
-			self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
-
-		self.log_manager = LogManager()
-		self.image_util = ImageUtil()
-		self.geo_location_util = GeoLocationUtil()
-
+		self.map_entity = map_entity
+		self.log_manager = log_manager
+		self.image_util = image_util
+		self.geo_location_util = geo_location_util
+		self.images_folder_path = resource_path.joinpath("images")
+		self.active_tile_path = self.images_folder_path.joinpath("request_0", "0_tile_0_0")
 		self.request_number = 1
 
 	def make_single_request(self, centre_coordinates, zoom, height, width):
@@ -57,13 +56,13 @@ class RequestManager:
 		:return:
 		"""
 		self.map_entity.get_and_store_location(
-			centre_coordinates[0],
-			centre_coordinates[1],
-			zoom,
-			height,
-			width,
-			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
-			self.images_folder_path,
+			latitude=centre_coordinates[0],
+			longitude=centre_coordinates[1],
+			zoom=zoom,
+			height=height,
+			width=width,
+			filename=str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
+			new_folder_path=self.images_folder_path,
 		)
 
 	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
@@ -78,7 +77,7 @@ class RequestManager:
 		if zoom is None:
 			zoom = self.map_entity.max_zoom
 		if zoom < 1:
-			raise Exception("Zoom level  cannot be lower than 1")
+			raise Exception("Zoom level cannot be lower than 1")
 		if zoom > self.map_entity.max_zoom:
 			zoom = self.map_entity.max_zoom
 
@@ -89,7 +88,7 @@ class RequestManager:
 
 		self.make_request_list_of_coordinates(coordinates_list, zoom)
 
-	def make_request_list_of_coordinates(self, coordinates_list, zoom, num_of_images_total=None, ):
+	def make_request_list_of_coordinates(self, coordinates_list, zoom, num_of_images_total=None):
 		"""
 		Makes a number of API requests based on the input of a coordinate list.
 		:param coordinates_list: list of coordinates, and image positions in the global grid.

@@ -1,10 +1,17 @@
 # pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
 
 import unittest
+from pathlib import Path
+from pprint import pprint
+from shutil import rmtree
 
 from mesh_city.imagery_provider.request_manager import RequestManager
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.logs.log_manager import LogManager
 from mesh_city.user.quota_manager import QuotaManager
 from mesh_city.user.user_info import UserInfo
+from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.image_util import ImageUtil
 
 
 class TestRequestManager(unittest.TestCase):
@@ -15,7 +22,12 @@ class TestRequestManager(unittest.TestCase):
 		)
 		self.quota_manager = QuotaManager(self.user_info)
 		self.request_manager = RequestManager(
-			user_info=self.user_info, quota_manager=self.quota_manager
+			user_info=self.user_info,
+			quota_manager=self.quota_manager,
+			map_entity=GoogleMapsProvider(user_info=self.user_info, quota_manager=self.quota_manager),
+			log_manager=LogManager(),
+			image_util=ImageUtil(),
+			geo_location_util=GeoLocationUtil(),
 		)
 		self.two_coordinate_input = (-22.824637, -43.242729), (-22.821384, -43.238813), 20
 		self.correct_answer = (
