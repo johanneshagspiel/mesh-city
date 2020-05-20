@@ -23,13 +23,12 @@ class AhnProvider(TopDownProvider):
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
-	def __init__(self, user_info, quota_manager):
+	def __init__(self, image_provider_entity):
 		"""
 		The initialization method
-		:param user_info: the user_info class associated with this image provider
-		:param quota_manager: the quota manager associated with this image provider
+		:param image_provider_entity: the user_info class associated with this image provider
 		"""
-		super().__init__(user_info=user_info, quota_manager=quota_manager)
+		super().__init__(image_provider_entity=image_provider_entity)
 		self.geo_util = GeoLocationUtil()
 	def __init__(self, image_provider_entity):
 		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)

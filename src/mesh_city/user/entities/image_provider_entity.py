@@ -19,7 +19,7 @@ class ImageProviderEntity(LogEntity):
 			self.type = type
 			self.api_key = api_key
 			self.usage = {"static_map" : 0, "geocoding" : 0, "total": 0}
-			self.quota = quota
+			self.quota = int(quota)
 			self.date_reset = self.calculate_end_this_month()
 			self.map_entity = self.load_map_entity()
 		else:
@@ -36,7 +36,7 @@ class ImageProviderEntity(LogEntity):
 		self.type = json["type"]
 		self.api_key = json["api_key"]
 		self.usage = json["usage"]
-		self.quota = json["quota"]
+		self.quota = int(json["quota"])
 		self.date_reset = json["date_reset"]
 		self.check_date_reset()
 
@@ -68,11 +68,11 @@ class ImageProviderEntity(LogEntity):
 
 	def load_map_entity(self):
 		if(self.type == "google_maps"):
-			self.map_entity = GoogleMapsProvider(image_provider_entity=self)
+			return GoogleMapsProvider(image_provider_entity=self)
 		if (self.type == "mapbox"):
-			self.map_entity = MapboxProvider(image_provider_entity=self)
+			return MapboxProvider(image_provider_entity=self)
 		if (self.type == "ahn"):
-			self.map_entity = AhnProvider(image_provider_entity=self)
+			return AhnProvider(image_provider_entity=self)
 
 	def calculate_end_this_month(self):
 		temp_today =  datetime.today()

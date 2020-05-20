@@ -76,8 +76,6 @@ class GoogleMapsProvider(TopDownProvider):
 
 		im1.save(fp=to_store)
 
-		self.quota_manager.increase_usage()
-
 	def get_location_from_name(self, name):
 		"""
 		Returns a geographical location based on an address name.

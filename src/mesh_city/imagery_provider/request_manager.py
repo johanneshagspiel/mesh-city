@@ -29,9 +29,9 @@ class RequestManager:
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	def __init__(self, user_entity, application):
+	def __init__(self, user_entity, application, map_entity=None):
 		self.user_entity = user_entity
-		self.image_providers = user_entity.image_providers
+		self.map_entity = map_entity
 
 		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
 		# self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
@@ -245,7 +245,7 @@ class RequestManager:
 		return (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
 
-	def make_request_for_block(self, centre_coordinates, map_entity, zoom=None):
+	def make_request_for_block(self, coordinates, zoom=None):
 		"""
 		Make a request in such a way, that the images are stored in the tile system, are logged in
 		the log manager and they can be displayed on the map
@@ -255,21 +255,13 @@ class RequestManager:
 		"""
 
 		if zoom is None:
-			zoom = map_entity.max_zoom
+			zoom = self.map_entity.max_zoom
 
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
-		# calculates the locations first
-		coordinates = self.calculate_locations(centre_coordinates, zoom)
-
-		# in the case an area should be downloaded, the first thing returned will be the max longitude
-		# and latitude
-		if len(centre_coordinates) == 4:
-			temp = coordinates.pop(0)
-
 		# a new folder is created for the request if it goes ahead
-		new_folder_path = Path.joinpath(self.file_handler.folder_overview["image_path"], "request_" + request_number_string)
+		new_folder_path = Path.joinpath(self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string)
 		os.makedirs(new_folder_path)
 
 		# then a folder for the first tile is created
@@ -287,11 +279,14 @@ class RequestManager:
 		)
 		os.makedirs(new_folder_path)
 
-		coordinates = self.calculate_locations(centre_coordinates, zoom)
-		bounding_box = [coordinates[0], coordinates[-1]]
 
-		temp = coordinates.pop(0)
-		max_latitude = temp[0]
+		# in the case an area should be downloaded, the first thing returned will be the max longitude
+		# and latitude
+		if len(coordinates) > 9:
+			temp = coordinates.pop(0)
+			max_latitude = temp[0]
+
+		bounding_box = [coordinates[0], coordinates[-1]]
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
@@ -307,13 +302,13 @@ class RequestManager:
 
 		counter = 1
 		# download and store the information in the case of only one pair of coordinates
-		if len(centre_coordinates) == 2:
+		if len(coordinates) == 9:
 			for location in coordinates:
 				number = str(counter)
 				x_position = str(location[0])
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				map_entity.get_and_store_location(
+				self.map_entity.get_and_store_location(
 					location[0], location[1], zoom, temp_name, new_folder_path
 				)
 				counter += 1
@@ -321,28 +316,33 @@ class RequestManager:
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
+
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
-					log_entry = TopDownProviderLogEntity(
-						request_number,
-						zoom,
-						self.user_info,
-						map_entity,
-						number_requests,
-						bounding_box,
-						coordinates,
-					)
-					self.log_manager.write_log(log_entry)
+					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"][0] = \
+						new_folder_path.parents[0]
+
+					# log_entry = TopDownProviderLogEntity(
+					# 	request_number,
+					# 	zoom,
+					# 	self.user_entity,
+					# 	self.map_entity,
+					# 	number_requests,
+					# 	bounding_box,
+					# 	coordinates,
+					# )
+					# self.log_manager.write_log(log_entry)
 
 		# download and store the information in case a whole area was asked for
-		if len(centre_coordinates) == 4:
+		if len(coordinates) > 9:
 
 			for location in coordinates:
 				number = str(counter)
 				x_position = str(location[0])
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				map_entity.get_and_store_location(
-					location[0], location[1], map_entity.max_zoom, temp_name, new_folder_path
+				self.map_entity.get_and_store_location(
+					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
 				)
 				counter += 1
 
@@ -370,18 +370,24 @@ class RequestManager:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
+
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"][0] = \
+					new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					log_entry = TopDownProviderLogEntity(
-						request_number,
-						zoom,
-						self.user_info,
-						map_entity,
-						number_requests,
-						bounding_box,
-						coordinates,
-					)
-					self.log_manager.write_log(self, log_entry)
+					# log_entry = TopDownProviderLogEntity(
+					# 	request_number,
+					# 	zoom,
+					# 	self.user_entity,
+					# 	self.map_entity,
+					# 	number_requests,
+					# 	bounding_box,
+					# 	coordinates,
+					# )
+					# self.log_manager.write_log(self, log_entry)
+
+		return new_folder_path
 
 	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
@@ -512,13 +518,16 @@ class RequestManager:
 
 		return ordered_result
 
-	def calculate_locations(self, coordinates, zoom):
+	def calculate_locations(self, coordinates, zoom=None):
 		"""
 		This method calculates all the locations to be downloaded for one request
 		:param coordinates: the central coordinates around which the other image
 		:param zoom:
 		:return:
 		"""
+		if zoom == None:
+			zoom = self.map_entity.max_zoom
+
 		image_size = 640 - self.map_entity.padding
 
 		if len(coordinates) == 2:
