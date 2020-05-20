@@ -1,8 +1,8 @@
 """
-See :class:`~SearchWindowLocation`
+See :class:`.SearchWindowLocation`
 """
 
-from pathlib import Path
+from mesh_city.gui.search_window.preview_window import PreviewWindow
 from tkinter import Button, Entry, Label, Toplevel
 
 
@@ -57,18 +57,19 @@ class SearchWindowLocation:
 		:param first_time: A flag indicating whether this is the first time the type button is pressed
 		:return: None
 		"""
-		if self.latitude['text'] == "Latitude:":
-			self.latitude['text'] = "Address:"
+
+		if self.latitude["text"] == "Latitude:":
+			self.latitude["text"] = "Address:"
 			self.long_entry.grid_forget()
 			self.type_button.configure(text="Coordinates")
-			self.longitude['text'] = ""
+			self.longitude["text"] = ""
 			first_time = False
 
-		if (self.latitude['text'] == "Address:") & first_time:
+		if self.latitude["text"] == "Address:" and first_time:
 			self.latitude.config(text="Latitude:")
 			self.long_entry.grid(row=2, column=3)
 			self.type_button.configure(text="Address")
-			self.longitude['text'] = "Longitude:"
+			self.longitude["text"] = "Longitude:"
 
 	def cleanup(self):
 		"""
@@ -77,9 +78,6 @@ class SearchWindowLocation:
 		:return: None
 		"""
 		self.value = [float(self.lat_entry.get()), float(self.long_entry.get())]
-		self.application.request_manager.make_request_for_block(self.value)
-		self.main_screen.currently_active_tile = self.application.request_manager.active_tile_path
-		self.main_screen.currently_active_request = Path(self.main_screen.currently_active_tile
-														).parents[0]
-		self.main_screen.update_image()
+
+		PreviewWindow(main_screen=self.main_screen, master=self.master, application=self.application, coordinates=self.value)
 		self.top.destroy()

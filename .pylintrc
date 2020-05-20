@@ -4,4 +4,5 @@ disable =
 	elif,
 	fixme,
 	format,
+	no-self-use,
 	spelling,

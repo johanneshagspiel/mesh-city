@@ -1,9 +1,9 @@
 """
-See :class:`~SearchWindowLocationArea`
+See :class:`.SearchWindowLocationArea`
 """
 
-from pathlib import Path
 from tkinter import Button, Entry, Label, Toplevel
+from mesh_city.gui.search_window.preview_window import PreviewWindow
 
 
 class SearchWindowLocationArea:
@@ -70,33 +70,34 @@ class SearchWindowLocationArea:
 		have a different type.
 		:return:
 		"""
+
 		if name == "min":
-			if self.min_lat['text'] == "Min Latitude:":
-				self.min_lat['text'] = "Address:"
+			if self.min_lat["text"] == "Min Latitude:":
+				self.min_lat["text"] = "Address:"
 				self.min_long_entry.grid_forget()
 				self.type_button_min.configure(text="Coordinates")
-				self.min_log['text'] = ""
+				self.min_log["text"] = ""
 				first_time = False
 
-			if (self.min_lat['text'] == "Address:") & first_time:
-				self.min_lat['text'] = "Min Latitude:"
+			if (self.min_lat["text"] == "Address:") & first_time:
+				self.min_lat["text"] = "Min Latitude:"
 				self.min_long_entry.grid(row=2, column=3)
 				self.type_button_min.configure(text="Address")
-				self.min_log['text'] = "Min Longitude:"
+				self.min_log["text"] = "Min Longitude:"
 
 		if name == "max":
-			if self.max_lat['text'] == "Max Latitude:":
-				self.max_lat['text'] = "Address:"
+			if self.max_lat["text"] == "Max Latitude:":
+				self.max_lat["text"] = "Address:"
 				self.max_long_entry.grid_forget()
 				self.type_button_max.configure(text="Coordinates")
-				self.max_log['text'] = ""
+				self.max_log["text"] = ""
 				first_time = False
 
-			if (self.max_lat['text'] == "Address:") & first_time:
-				self.max_lat['text'] = "Max Latitude:"
+			if (self.max_lat["text"] == "Address:") & first_time:
+				self.max_lat["text"] = "Max Latitude:"
 				self.max_long_entry.grid(row=4, column=3)
 				self.type_button_max.configure(text="Address")
-				self.max_log['text'] = "Max Longitude:"
+				self.max_log["text"] = "Max Longitude:"
 
 	def cleanup(self):
 		"""
@@ -107,11 +108,8 @@ class SearchWindowLocationArea:
 			float(self.min_lat_entry.get()),
 			float(self.min_long_entry.get()),
 			float(self.max_lat_entry.get()),
-			float(self.max_long_entry.get())
+			float(self.max_long_entry.get()),
 		]
-		self.application.request_manager.make_request_for_block(self.value)
-		self.main_screen.currently_active_tile = self.application.request_manager.active_tile_path
-		self.main_screen.currently_active_request = Path(self.main_screen.currently_active_tile
-														).parents[0]
-		self.main_screen.update_image()
+
+		PreviewWindow(main_screen=self.main_screen, master=self.master, application=self.application, coordinates=self.value)
 		self.top.destroy()

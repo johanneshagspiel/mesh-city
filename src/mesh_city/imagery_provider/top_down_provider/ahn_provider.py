@@ -1,3 +1,7 @@
+"""
+A top-down provider which can gather information regarding the heights of objects in the Netherlands
+"""
+
 import json
 import math
 import operator
@@ -8,12 +12,25 @@ from PIL import Image
 from scipy import spatial
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
+from mesh_city.util.geo_location_util import GeoLocationUtil
+
 
 class AhnProvider(TopDownProvider):
-	color_to_height = None  # yapf: disable
+	"""
+	A class which implements the TopDownProvider abstract class. Provides functionality with regards
+	to requests about height information of objects in the Netherlands.
+	"""
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
+	def __init__(self, user_info, quota_manager):
+		"""
+		The initialization method
+		:param user_info: the user_info class associated with this image provider
+		:param quota_manager: the quota manager associated with this image provider
+		"""
+		super().__init__(user_info=user_info, quota_manager=quota_manager)
+		self.geo_util = GeoLocationUtil()
 	def __init__(self, image_provider_entity):
 		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)
 		self.name = "ahn"
@@ -22,7 +39,12 @@ class AhnProvider(TopDownProvider):
 		self.max_side_resolution_image = 640
 
 	def load_from_json(self):
-		with open(self.json_folder_path, 'r') as json_log:
+		"""
+		Loads the height associated to a color from a json file.
+		:return: a dictionary of the type color : height
+		"""
+
+		with open(self.json_folder_path, "r") as json_log:
 			data = json_log.read()
 		info = json.loads(data)
 
@@ -35,22 +57,22 @@ class AhnProvider(TopDownProvider):
 			counter = 0
 
 			for element in key:
-				if (element == ","):
+				if element == ",":
 					result.append(int(temp_string))
 					temp_string = ""
 					counter += 1
-				if (element == " " or element == "(" or element == ")"):
+				if element in [" ", "(", ")"]:
 					counter += 1
 					pass
 				else:
-					if (element == ","):
+					if element == ",":
 						counter += 1
 						pass
 					else:
 						temp_string += element
 						counter += 1
 
-						if (counter == end + 1):
+						if counter == end + 1:
 							result.append(int(temp_string))
 
 			temp_tuple = (result[0], result[1], result[2])
@@ -60,16 +82,20 @@ class AhnProvider(TopDownProvider):
 		return new_dictionary
 
 	def store_to_json(self):
+		"""
+		Stores a new color : height entry in the dictionary and saves that as a json file
+		:return: nothing
+		"""
 		temp = self.color_to_height
 
 		to_store = {}
 		for key, value in temp.items():
 			to_store[str(key)] = value
 
-		with open(self.json_folder_path, 'w') as json_log:
+		with open(self.json_folder_path, "w") as json_log:
 			json.dump(to_store, fp=json_log)
 
-	def get_and_store_location(self, longitude, latitude, zoom, name, new_folder_path):
+	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
 		"""
 		The standard method to get and store one image at a certain location with a certain name.
 		Ahn uses
@@ -99,67 +125,88 @@ class AhnProvider(TopDownProvider):
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 
-	def calculate_bounding_box(self, x, y, zoom, image_size_x, image_size_y):
-		right = self.calc_next_location_latitude(x, y, zoom, image_size_x / 2, True)
-		left = self.calc_next_location_latitude(x, y, zoom, image_size_x / 2, False)
-		up = self.calc_next_location_longitude(x, y, zoom, image_size_y / 2, True)
-		down = self.calc_next_location_longitude(x, y, zoom, image_size_y / 2, False)
+	def calculate_bounding_box(self, latitude, longitude, zoom, image_size_x, image_size_y):
+		"""
+		Ahn provider does not ask for the central coordinates to get an image but for the bounding
+		box encompassing the area
+		:param latitude: latitude of the central location one is interested in getting the image from
+		:param longitude: longitude of the central location one is interested in getting the image from
+		:param zoom: the zoom level of the image one is interested in
+		:param image_size_x: the length of the x axis of the image
+		:param image_size_y: the length of the y axis of the image
+		:return: a list of the coordinates of the bounding box encompassing the area
+		"""
 
-		self.check_in_netherlands(left, down)
-		self.check_in_netherlands(right, up)
+		right = self.geo_util.calc_next_location_latitude(
+			latitude, zoom, image_size_x=image_size_x / 2, direction=True
+		)
+		left = self.geo_util.calc_next_location_latitude(
+			latitude, zoom, image_size_x=image_size_x / 2, direction=False
+		)
+		top = self.geo_util.calc_next_location_longitude(
+			latitude, longitude, zoom, image_size_y=image_size_y / 2, direction=True,
+		)
+		bottom = self.geo_util.calc_next_location_longitude(
+			latitude, longitude, zoom, image_size_y=image_size_y / 2, direction=False
+		)
 
-		return [left, down, right, up]
+		self.check_in_netherlands([(left, bottom), (right, top)])
 
-	def check_in_netherlands(self, x, y):
-		if (
-			x < 50.671799068129744 or
-			x > 53.61086457823865 or
-			y < 3.197334098049271 or
-			y > 7.275203841667622
-		):  # yapf: disable
-			print("Height information is only available in the Netherlands - Sorry!")
+		return [left, bottom, right, top]
 
-	def get_height_from_pixel(self, x, y, path):
-		image_temp = Image.open(path)
+	def check_in_netherlands(self, coordinates):
+		"""
+		Checks for a list of tuples of coordinates whether or not these location fall within the netherlands
+		:param coordinates: a list of tuples of coordinates of the from [(latitude_0,longitude_0),..]
+		:return:
+		"""
+		for entry in coordinates:
+			if (
+				entry[0] < 50.671799068129744 or
+				entry[0] > 53.61086457823865 or
+				entry[1] < 3.197334098049271 or
+				entry[1] > 7.275203841667622
+			):  # yapf: disable
+				return False
+		return True
+
+	def get_height_from_pixel(self, x_location, y_location):
+		"""
+		Gets the height from an image at the x and y location of the mouse click
+		:param x_location: the x location of the pixel
+		:param y_location: the y location of the pixel
+		:return: the height associated with this pixel
+		"""
+
+		temp_path = Path(__file__).parents[2]
+		images_folder_path = Path.joinpath(
+			temp_path,
+			"resources",
+			"images",
+			"request_5",
+			"tile_0",
+			"concat_image_request_10_tile_0.png",
+		)
+
+		image_temp = Image.open(images_folder_path)
 		image = image_temp.load()
-		pixels = image[x, y]
+		pixels = image[x_location, y_location]
 
 		if pixels in self.color_to_height:
 			return self.color_to_height[pixels]
 
-		else:
-			temp_keys = self.color_to_height.keys()
-			get_cosine_cimilarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
-			temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
+		temp_keys = self.color_to_height.keys()
+		get_cosine_cimilarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
+		temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
 
-			index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
+		index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
 
-			counter = 0
-			for value in self.color_to_height.values():
-				if (counter == index):
-					temp_new_value = value
-					break
-				counter += 1
+		counter = 0
+		for value in self.color_to_height.values():
+			if counter == index:
+				temp_new_value = value
+				break
+			counter += 1
 
-			self.color_to_height[pixels] = temp_new_value
-			return temp_new_value
-
-	def calc_next_location_latitude(self, latitude, longitude, zoom, image_size_x, direction):
-		meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
-		next_center_distance_meters = meters_per_px * image_size_x
-		if direction:
-			new_latitude = latitude + (next_center_distance_meters / 6378137) * (180 / math.pi)
-		else:
-			new_latitude = latitude - (next_center_distance_meters / 6378137) * (180 / math.pi)
-		return new_latitude
-
-	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
-		meters_per_px = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom)
-		next_center_distance_meters = meters_per_px * image_size_y
-		if direction:
-			new_longitude = longitude + (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
-		else:
-			new_longitude = longitude - (next_center_distance_meters / 6378137) * (180 /
-				math.pi) / math.cos(latitude * math.pi / 180)
-		return new_longitude
+		self.color_to_height[pixels] = temp_new_value
+		return temp_new_value

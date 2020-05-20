@@ -1,6 +1,8 @@
-from datetime import datetime
+"""
+See :class:`.QuotaManager`
+"""
 
-from mesh_city.user.price_table import PriceTable
+from datetime import datetime
 
 
 class QuotaManager:
@@ -11,7 +13,6 @@ class QuotaManager:
 
 	def __init__(self, user_info):
 		self.user_info = user_info
-		self.price_table = PriceTable()
 
 	def increase_usage(self):
 		"""
@@ -30,8 +31,7 @@ class QuotaManager:
 		quota = int(self.user_info.quota)
 		if (quota - self.user_info.usage) <= quota / 10:
 			return "Warning, you are getting close to your quota limit!"
-		else:
-			return "Within the quota"
+		return "Within the quota"
 
 	def check_monthly_limit(self, current_day, current_month):
 		"""
@@ -46,8 +46,7 @@ class QuotaManager:
 
 		if diff_months == 1 & diff_days >= -3:
 			return "You are getting close to the end of the month on your quota."
-		else:
-			return "Within the monthly limit"
+		return "Within the monthly limit"
 
 	def get_current_day(self):
 		"""

@@ -5,7 +5,7 @@ class UserEntity(LogEntity):
 
 	def __init__(self, file_handler, json = None, name = None, image_providers = None):
 		self.file_handler = file_handler
-		self.path_to_store = file_handler.folder_overview["users.json"]
+		self.path_to_store = file_handler.folder_overview["users.json"][0]
 		if (name and image_providers != None):
 			self.name = name
 			self.image_providers = image_providers
@@ -31,12 +31,12 @@ class UserEntity(LogEntity):
 		for key, value in self.image_providers.items():
 			temp_image_providers[key] = value.for_json()
 
-		return {
-			self.name : temp_image_providers
-		}
+		return temp_image_providers
 
 	def action(self, logs):
-			return self.for_json()
+		to_store = self.for_json()
+		logs[self.name] = to_store
+		return logs
 
 	def check_name(self):
 		names = {}
@@ -45,8 +45,15 @@ class UserEntity(LogEntity):
 				old_name = key
 				new_value = names[old_name] + 1
 				new_name = str(old_name) + "_" + str(new_value)
-				new_key = new_name
-				self.image_providers[new_key] = self.image_providers.pop(old_name)
+
+				names[new_name] = 0
 				names[old_name] = new_value
+
+				# new_key = new_name
+				# self.image_providers[new_key] = self.image_providers.pop(old_name)
+				# names[old_name] = new_value
 			else:
 				names[key] = 0
+
+			for key, value in names.items():
+				print(key)

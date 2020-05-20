@@ -1,9 +1,11 @@
 """
 A module that contains the log manager who is responsible for performing all the actions associated with logs
 """
+
 import json
 import os
-from pathlib import Path
+from mesh_city.user.entities.user_entity import UserEntity
+
 
 class LogManager:
 	"""
@@ -15,6 +17,7 @@ class LogManager:
 		Initializes a log_manager method
 		"""
 		self.paths = file_handler.folder_overview
+		self.file_handler = file_handler
 
 	def get_request_number(self):
 		"""
@@ -22,10 +25,11 @@ class LogManager:
 		to name the folder appropriately
 		:return: the number of the next request
 		"""
+
 		max_log = 0
 
-		if (self.paths["log_request_.json"].is_file()):
-			with open(self.paths["log_request_.json"], 'r') as json_log:
+		if (self.paths["log_request_.json"][0].is_file()):
+			with open(self.paths["log_request_.json"][0], 'r') as json_log:
 				data = json_log.read()
 				json_log.close()
 			logs = json.loads(data)
@@ -33,7 +37,7 @@ class LogManager:
 			for item in logs.values():
 				for element in item:
 					element = [int(k) for k, v in element.items()][0]
-					if (element > max_log):
+					if element > max_log:
 						max_log = element
 
 		else:
@@ -41,13 +45,13 @@ class LogManager:
 
 		max_directory = 0
 
-		if (len(os.listdir(self.paths["image_path"])) == 0):
+		if (len(os.listdir(self.paths["image_path"][0])) == 0):
 			max_directory = 0
 		else:
-			for directory in os.listdir(self.paths["image_path"]):
+			for directory in os.listdir(self.paths["image_path"][0]):
 				if (directory.split("_")[1] != ''):
 					temp_result = int(directory.split("_")[1])
-					if (temp_result > max_directory):
+					if temp_result > max_directory:
 						max_directory = temp_result
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
@@ -55,7 +59,7 @@ class LogManager:
 	def write_log(self, logEntry):
 		"""
 		A method to write one log entry entity to the associated correct location
-		:param logEntry: the log entry with its appropriate location to store it to
+		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
 
@@ -68,7 +72,17 @@ class LogManager:
 			json.dump(result, fp=json_log)
 			json_log.close()
 
-	def read_log(path):
-		with open(path, "r") as json_log:
+	def read_log(self, path):
+		with open(path[0], "r") as json_log:
 			data = json_log.read()
-		return json.loads(data)
+		logs = json.loads(data)
+
+		temp_dic = {}
+
+		if path[1] == "users.json":
+			for key,value in logs.items():
+				temp_dic_entry = {key : value}
+				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
+			return temp_dic
+
+		return logs

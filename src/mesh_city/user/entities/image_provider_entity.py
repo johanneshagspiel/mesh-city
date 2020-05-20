@@ -75,8 +75,8 @@ class ImageProviderEntity(LogEntity):
 			self.map_entity = AhnProvider(image_provider_entity=self)
 
 	def calculate_end_this_month(self):
-		today = datetime.date.today()
-		month = today.month
-		year = today.year
-		temp_end = monthrange(year, month)
-		return str(year) + "-" + str(month) + "-" + str(temp_end[1])
+		temp_today =  datetime.today()
+		temp_month = temp_today.month
+		temp_year = temp_today.year
+		temp_end = monthrange(temp_year, temp_month)
+		return str(temp_year) + "-" + str(temp_month) + "-" + str(temp_end[1])
