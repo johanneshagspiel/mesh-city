@@ -25,4 +25,5 @@ class DetectionScreen:
 		if self.tree_button_variable.get() == 1:
 			Pipeline(application=self.application,type="trees", main_screen=self.main_screen)
 
+		self.main_screen.update_image()
 		self.top.destroy()
