@@ -3,7 +3,7 @@ This module provides a GUI interface that can be used to select different layers
 main_screen image such as an indication where all the trees are
 """
 
-from tkinter import Button, Label, Toplevel, IntVar, Checkbutton
+from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
 
 class LayersWindow:
@@ -42,7 +42,9 @@ class LayersWindow:
 					self.temp_int_var_list.append(IntVar(value=1))
 				else:
 					self.temp_int_var_list.append(IntVar())
-				self.check_box_list.append(Checkbutton(self.top, text=key, variable=self.temp_int_var_list[counter - 1]))
+				self.check_box_list.append(
+					Checkbutton(self.top, text=key, variable=self.temp_int_var_list[counter - 1])
+				)
 				self.check_box_list[counter - 1].grid(row=counter)
 				counter += 1
 
@@ -68,7 +70,10 @@ class LayersWindow:
 
 		if temp_sum == 0:
 			self.main_screen.active_layers = []
-			self.application.file_handler.change("active_image_path", self.application.file_handler.folder_overview["active_tile_path"][0])
+			self.application.file_handler.change(
+				"active_image_path",
+				self.application.file_handler.folder_overview["active_tile_path"][0]
+			)
 			self.main_screen.update_image()
 			self.top.destroy()
 		else:

@@ -22,7 +22,6 @@ class AhnProvider(TopDownProvider):
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
-
 	def __init__(self, image_provider_entity):
 		"""
 		The initialization method

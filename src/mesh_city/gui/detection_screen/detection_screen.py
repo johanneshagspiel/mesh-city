@@ -1,8 +1,10 @@
 """
 A module containing the detection screen
 """
-from tkinter import Button, Label, Toplevel, Checkbutton, IntVar
+from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
+
 from mesh_city.detection.pipeline import Pipeline
+
 
 class DetectionScreen:
 	"""
@@ -23,14 +25,14 @@ class DetectionScreen:
 		self.application = application
 		self.top = Toplevel(master)
 
-		self.top_label = Label(self.top,text="What do you want to detect?")
+		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)
 
 		self.tree_button_variable = IntVar()
-		self.tree_button = Checkbutton(self.top, text="trees", variable= self.tree_button_variable)
+		self.tree_button = Checkbutton(self.top, text="trees", variable=self.tree_button_variable)
 		self.tree_button.grid(row=1)
 
-		self.confirm_button = Button(self.top, text="Confirm", command = self.cleanup)
+		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
 		self.confirm_button.grid(row=2)
 
 	def cleanup(self):
@@ -41,7 +43,9 @@ class DetectionScreen:
 		"""
 
 		if self.tree_button_variable.get() == 1:
-			Pipeline(application=self.application, type_of_detection="trees", main_screen=self.main_screen)
+			Pipeline(
+				application=self.application, type_of_detection="trees", main_screen=self.main_screen
+			)
 
 		self.main_screen.update_image()
 		self.top.destroy()

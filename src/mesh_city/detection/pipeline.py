@@ -5,6 +5,7 @@ appropriate classes to create useful information in the form of overlays.
 """
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
 
+
 class Pipeline:
 	"""
 	A class responsible for moving data to the detection algorithm in a way they like and then
@@ -38,5 +39,7 @@ class Pipeline:
 		:param image_size: the image size used by the detection algorithm
 		:return: nothing (but it updates the image on the main_screen with a composite overlay image)
 		"""
-		self.main_screen.overlay_creator.create_overlay(detection_algorithm=self.type, image_size=(image_size[0], image_size[1]))
+		self.main_screen.overlay_creator.create_overlay(
+			detection_algorithm=self.type, image_size=(image_size[0], image_size[1])
+		)
 		self.main_screen.overlay_creator.create_composite_image(["trees"])

@@ -1,8 +1,9 @@
 """
 Module containing the user_entity class
 """
-from mesh_city.util.logs.log_entry.log_entity import LogEntity
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.util.logs.log_entry.log_entity import LogEntity
+
 
 class UserEntity(LogEntity):
 	"""
@@ -10,7 +11,7 @@ class UserEntity(LogEntity):
 	name and map providers associated with the user
 	"""
 
-	def __init__(self, file_handler, json = None, name = None, image_providers = None):
+	def __init__(self, file_handler, json=None, name=None, image_providers=None):
 		"""
 		Sets up a user, either from json or when created for the first time
 		:param file_handler: the file handler needed to store the user

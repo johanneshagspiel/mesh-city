@@ -1,9 +1,11 @@
 """
 A module containing the create new user window
 """
-from tkinter import Toplevel, Label, Button, Entry
-from mesh_city.user.entities.user_entity import UserEntity
+from tkinter import Button, Entry, Label, Toplevel
+
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.entities.user_entity import UserEntity
+
 
 # TODO check user input (check that google maps api key is an google maps api key)
 class CreateNewUserWindow:
@@ -11,6 +13,7 @@ class CreateNewUserWindow:
 	The create new user window class is where a new user can enter their information to make a new
 	account which is stored in a json file
 	"""
+
 	def __init__(self, master, application):
 		"""
 		First the user is asked for their name, then they can add as many google maps api accounts
@@ -27,7 +30,7 @@ class CreateNewUserWindow:
 		self.top_label = Label(top, text="Please insert your information")
 		self.top_label.grid(row=0, columnspan=3)
 		self.name_label = Label(top, text="Name")
-		self.name_label.grid(row=1, column = 0)
+		self.name_label.grid(row=1, column=0)
 		self.name_entry = Entry(top)
 		self.name_entry.grid(row=1, column=1, columnspan=2)
 
@@ -95,15 +98,20 @@ class CreateNewUserWindow:
 			temp_quota = self.map_providers[number].get()
 			number += 1
 			temp_name = "Google Maps " + str(temp_counter)
-			image_provider_entity_dic[temp_name] = ImageProviderEntity(file_handler=self.application.file_handler,
-			                                                           type_map_provider="google_maps",
-			                                                           api_key=temp_api_key,
-			                                                           quota=temp_quota)
+			image_provider_entity_dic[temp_name] = ImageProviderEntity(
+				file_handler=self.application.file_handler,
+				type_map_provider="google_maps",
+				api_key=temp_api_key,
+				quota=temp_quota
+			)
 			temp_counter += 1
 
 		name = self.name_entry.get()
-		new_user = UserEntity(file_handler=self.application.file_handler,
-		                      name=name, image_providers=image_provider_entity_dic)
+		new_user = UserEntity(
+			file_handler=self.application.file_handler,
+			name=name,
+			image_providers=image_provider_entity_dic
+		)
 		self.application.log_manager.write_log(new_user)
 
 		self.application.late_init(new_user)

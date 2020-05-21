@@ -4,8 +4,8 @@ See :class:`.SearchWindowStart`
 
 from tkinter import Button, Label, Toplevel
 
-from mesh_city.gui.search_window.search_window_location import SearchWindowLocation
 from mesh_city.gui.search_window.search_window_area import SearchWindowLocationArea
+from mesh_city.gui.search_window.search_window_location import SearchWindowLocation
 
 
 class SearchWindowStart:
