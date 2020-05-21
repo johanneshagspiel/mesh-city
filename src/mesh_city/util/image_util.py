@@ -12,8 +12,9 @@ class ImageUtil:
 	Collection of functions related to assembling map tile images.
 	"""
 
-	temp_path = Path(__file__).parents[1]
-	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
+	def __init__(self, resource_path=Path(__file__).parents[1].joinpath("resources")):
+		self.resource_path = resource_path
+		self.path_to_temp = resource_path.joinpath("temp")
 
 	def concat_images(self, new_folder_path, request, tile_number):
 		"""

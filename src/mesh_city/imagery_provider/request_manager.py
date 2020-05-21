@@ -41,6 +41,7 @@ class RequestManager:
 		self.log_manager = log_manager
 		self.image_util = image_util
 		self.geo_location_util = geo_location_util
+		self.resource_path = resource_path
 		self.images_folder_path = resource_path.joinpath("images")
 		self.active_tile_path = self.images_folder_path.joinpath("request_0", "0_tile_0_0")
 		self.request_number = 1
@@ -260,21 +261,13 @@ class RequestManager:
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
-		# calcualtes the locations first
-		coordinates = self.calculate_locations(centre_coordinates, zoom)
-
-		# in the case an area should be downloaded, the first thing returned will be the max longitude
-		# and latitude
-		if len(centre_coordinates) == 4:
-			temp = coordinates.pop(0)
-
 		# a new folder is created for the request if it goes ahead
 		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
 		os.makedirs(new_folder_path)
 
 		# then a folder for the first tile is created
 		# the tiles are named in such a way that their name form a coordinate system that can be used
-		# in the gui to load adjecent tiles
+		# in the gui to load adjacent tiles
 		number_tile_downloaded = 0
 		tile_number_latitude = 0
 		tile_number_longitude = 0
@@ -290,11 +283,11 @@ class RequestManager:
 		coordinates = self.calculate_locations(centre_coordinates, zoom)
 		bounding_box = [coordinates[0], coordinates[-1]]
 
-		temp = coordinates.pop(0)
-		max_latitude = temp[0]
+		if len(centre_coordinates) == 4:
+			max_latitude = coordinates.pop(0)[0]
 
 		number_requests = len(coordinates)
-		print("Requestnumber: " + str(self.request_number))
+		print("Request number: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
 		number_requests_temp = number_requests
@@ -323,14 +316,14 @@ class RequestManager:
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
 					self.active_tile_path = new_folder_path
 					log_entry = TopDownProviderLogEntry(
-						None,
-						request_number,
-						zoom,
-						self.user_info,
-						self.map_entity,
-						number_requests,
-						bounding_box,
-						coordinates,
+						path_to_store=self.resource_path.joinpath("logs", "log_request_.json"),
+						request_number=request_number,
+						zoom_level=zoom,
+						user_info=self.user_info,
+						map_entity=self.map_entity,
+						number_requests=number_requests,
+						bounding_box=bounding_box,
+						coordinates=coordinates,
 					)
 					self.log_manager.write_entry_log(log_entry)
 
@@ -523,26 +516,34 @@ class RequestManager:
 		image_size = 640 - self.map_entity.padding
 
 		if len(coordinates) == 2:
-			longitude = coordinates[0]
-			latitude = coordinates[1]
+			latitude = coordinates[0]
+			longitude = coordinates[1]
 
 			bottom = self.geo_location_util.calc_next_location_latitude(
-				latitude, zoom, image_size, False
+				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=False
 			)
 			top = self.geo_location_util.calc_next_location_latitude(
-				latitude, zoom, image_size, True
+				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
-				longitude, latitude, zoom, image_size, True
+				longitude=longitude,
+				latitude=latitude,
+				zoom=zoom,
+				image_size_y=image_size,
+				direction=True
 			)
 			left = self.geo_location_util.calc_next_location_longitude(
-				longitude, latitude, zoom, image_size, False
+				longitude=longitude,
+				latitude=latitude,
+				zoom=zoom,
+				image_size_y=image_size,
+				direction=False
 			)
 
 			return [
-				(bottom, left), (bottom, latitude), (bottom, right), (longitude, left),
-				(longitude, latitude), (longitude, right), (top, left), (top, latitude), (top, right),
-			]  # pylint: disable=invalid-name
+				(bottom, left), (bottom, longitude), (bottom, right), (latitude, left),
+				(latitude, longitude), (latitude, right), (top, left), (top, longitude), (top, right),
+			]
 
 		if len(coordinates) == 4:
 			return self.calculate_centre_coordinates_two_coordinate_input_block(
