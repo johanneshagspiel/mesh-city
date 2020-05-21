@@ -14,7 +14,7 @@ class DetectionScreen:
 		self.top_label.grid(row=0)
 
 		self.tree_button_variable = IntVar()
-		self.tree_button = Checkbutton(self.top, text="Trees", variable= self.tree_button_variable)
+		self.tree_button = Checkbutton(self.top, text="trees", variable= self.tree_button_variable)
 		self.tree_button.grid(row=1)
 
 		self.confirm_button = Button(self.top, text="Confirm", command = self.cleanup)

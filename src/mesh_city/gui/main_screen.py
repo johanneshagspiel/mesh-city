@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.util.overlay_creator import OverlayCreator
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_screen.start_screen import StartScreen
 from mesh_city.util.image_util import ImageUtil
@@ -29,6 +30,7 @@ class MainScreen:
 
 		self.application = application
 		self.image_util = ImageUtil()
+		self.overlay_creator = OverlayCreator(self.application, self)
 
 		self.master = Tk()
 		self.master.title("Mesh City")
@@ -39,7 +41,7 @@ class MainScreen:
 		self.master.wait_window(self.window.top)
 		self.master.deiconify()
 
-		self.layer_active = "normal"
+		self.active_layers = []
 
 		self.padding_x = 60
 		self.padding_y = 5

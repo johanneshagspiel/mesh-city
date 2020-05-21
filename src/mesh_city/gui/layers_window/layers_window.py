@@ -5,7 +5,7 @@ the satellite layer or heightmap layer
 
 import os
 from pathlib import Path
-from tkinter import Button, Label, Toplevel
+from tkinter import Button, Label, Toplevel, IntVar, Checkbutton
 
 
 class LayersWindow:
@@ -27,57 +27,50 @@ class LayersWindow:
 
 		top = self.top = Toplevel(master)
 
-		self.top_label = Label(top, text="Which layer do you want to load?")
-		self.top_label.grid(row=0, column=1)
+		self.top_label = Label(top, text="Tick the layers you want to see")
+		self.top_label.grid(row=0)
 
 		counter = 1
+		self.check_box_list = []
+		self.temp_int_var_list = []
 
-		directory_list = os.listdir(self.application.file_handler.folder_overview["active_tile_path"][0])
+		if len(self.main_screen.overlay_creator.overlay_overview.items()) == 0:
+			self.top_label.configure(text="There are no layers to load. Detect something first.")
 
-		if not "layers" in directory_list:
-			self.top_label["text"] = "There are no layers to load"
-		if "layers" in directory_list:
-			for directory in os.listdir(self.application.file_handler.folder_overview["active_layer_path"][0]):
-				if directory != "":
-					name_directory = str(directory)
-					if name_directory != self.main_screen.layer_active:
-						self.temp_name = Button(
-							self.top,
-							text=name_directory,
-							width=20,
-							height=3,
-							command=lambda name_directory=name_directory: self.load_layer(name_directory),
-							bg="grey"
-						)
-						self.temp_name.grid(row=counter, column=1)
-						counter += 1
-					if self.main_screen.layer_active != "normal":
-						self.temp_name = Button(
-							self.top, text="normal", width=20, height=3, command=self.load_standard, bg="grey"
-						)
-						self.temp_name.grid(row=counter, column=1)
+		else:
+			for key, value in self.main_screen.overlay_creator.overlay_overview.items():
+				print(self.main_screen.active_layers)
+				print(key)
+				if key in self.main_screen.active_layers:
+					print("hi")
+					self.temp_int_var_list.append(IntVar(value=1))
+				else:
+					self.temp_int_var_list.append(IntVar())
+				self.check_box_list.append(Checkbutton(self.top, text=key, variable=self.temp_int_var_list[counter - 1]))
+				self.check_box_list[counter - 1].grid(row=counter)
+				counter += 1
 
-	def load_layer(self, name_directory):
-		"""
-		Loads the layer from the provided layer directory and updates the image on the main_screen.
-		:param name_directory: The layer's directory.
-		"""
-		###TODO: what if layers on top of each other
-		self.application.file_handler.change("active_image_path",
-		                                     Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"][0],
-		                                                   name_directory))
+			self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
+			self.confirm_button.grid(row=counter)
 
-		self.main_screen.update_image()
-		self.main_screen.layer_active = str(name_directory)
-		self.top.destroy()
+	def cleanup(self):
 
-	def load_standard(self):
-		"""
-		Loads the standard layer and updates the image on the main_screen.
-		"""
-		self.application.file_handler.folder_overview["active_image_path"][0] = \
-			self.application.file_handler.folder_overview["active_layer_path"][0].parents[0]
+		temp_counter = 0
+		overlays = []
+		sum = 0
 
-		self.main_screen.update_image()
-		self.main_screen.layer_active = "normal"
-		self.top.destroy()
+		for element in self.temp_int_var_list:
+			if element.get() == 1:
+				overlays.append(self.check_box_list[temp_counter].cget("text"))
+				sum += 1
+			temp_counter += 1
+
+		if sum == 0:
+			self.main_screen.active_layers = []
+			self.application.file_handler.change("active_image_path", self.application.file_handler.folder_overview["active_tile_path"][0])
+			self.main_screen.update_image()
+			self.top.destroy()
+		else:
+			self.main_screen.overlay_creator.create_composite_image(overlays)
+			self.main_screen.update_image()
+			self.top.destroy()
