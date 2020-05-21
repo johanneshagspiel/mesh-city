@@ -2,9 +2,9 @@
 See :class:`.StartScreen`
 """
 
-from tkinter import Toplevel, Label, Button
-from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
+from tkinter import Button, Label, Toplevel
 
+from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
 
 
 class StartScreen:
@@ -21,7 +21,8 @@ class StartScreen:
 		self.top_label.grid(row=0, column=1)
 
 		self.dic_users = self.application.log_manager.read_log(
-			path=self.application.file_handler.folder_overview["users.json"])
+			path=self.application.file_handler.folder_overview["users.json"]
+		)
 
 		counter = 1
 		for key, value in self.dic_users.items():

@@ -4,6 +4,7 @@ A module that contains the log manager who is responsible for performing all the
 
 import json
 import os
+
 from mesh_city.user.entities.user_entity import UserEntity
 
 
@@ -80,8 +81,8 @@ class LogManager:
 		temp_dic = {}
 
 		if path[1] == "users.json":
-			for key,value in logs.items():
-				temp_dic_entry = {key : value}
+			for key, value in logs.items():
+				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
 

@@ -3,6 +3,7 @@ A module that contains all the different kinds of log entries used in this proje
 """
 from abc import ABC, abstractmethod
 
+
 class LogEntity(ABC):
 	"""
 	An abstract logentry class that every instance of a log entry needs to correspond to
@@ -24,7 +25,7 @@ class LogEntity(ABC):
 			"""
 
 		@abstractmethod
-		def action(self, logs, type_action = None):
+		def action(self, logs, type_action=None):
 			"""
 			Performs an action associated with this log i.e. adding a new entry to a log
 			:param self: the log entry to be added to some larger log

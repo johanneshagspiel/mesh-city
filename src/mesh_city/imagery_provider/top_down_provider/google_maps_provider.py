@@ -10,6 +10,7 @@ from PIL import Image
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 
+
 class GoogleMapsProvider(TopDownProvider):
 	"""
 	GoogleMapsProvider class, an object which contains method to interact with the static google

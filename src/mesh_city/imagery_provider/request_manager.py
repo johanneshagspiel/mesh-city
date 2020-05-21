@@ -16,7 +16,6 @@ from mesh_city.logs.log_manager import LogManager
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 from mesh_city.util.logs.log_entry.top_down_provider_log_entry import TopDownProviderLogEntity
-from mesh_city.logs.log_manager import LogManager
 
 
 class RequestManager:
@@ -261,7 +260,9 @@ class RequestManager:
 		request_number_string = str(request_number)
 
 		# a new folder is created for the request if it goes ahead
-		new_folder_path = Path.joinpath(self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string)
+		new_folder_path = Path.joinpath(
+			self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string
+		)
 		os.makedirs(new_folder_path)
 
 		# then a folder for the first tile is created
@@ -278,7 +279,6 @@ class RequestManager:
 			temp_tile_number_longitude
 		)
 		os.makedirs(new_folder_path)
-
 
 		# in the case an area should be downloaded, the first thing returned will be the max longitude
 		# and latitude
@@ -320,7 +320,7 @@ class RequestManager:
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_request_path"][0] = \
-						new_folder_path.parents[0]
+                     new_folder_path.parents[0]
 
 					# log_entry = TopDownProviderLogEntity(
 					# 	request_number,
@@ -374,7 +374,7 @@ class RequestManager:
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_request_path"][0] = \
-					new_folder_path.parents[0]
+                    new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 					# log_entry = TopDownProviderLogEntity(
 					# 	request_number,

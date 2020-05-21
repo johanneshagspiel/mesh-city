@@ -30,6 +30,7 @@ class AhnProvider(TopDownProvider):
 		"""
 		super().__init__(image_provider_entity=image_provider_entity)
 		self.geo_util = GeoLocationUtil()
+
 	def __init__(self, image_provider_entity):
 		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)
 		self.name = "ahn"

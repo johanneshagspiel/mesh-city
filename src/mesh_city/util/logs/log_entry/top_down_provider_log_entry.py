@@ -1,5 +1,6 @@
 from mesh_city.util.logs.log_entry.log_entity import LogEntity
 
+
 class TopDownProviderLogEntity(LogEntity):
 	"""
 	Log entries created for one request by a TopDownImageryProvider and stored in the overeall request log
@@ -72,5 +73,3 @@ class TopDownProviderLogEntity(LogEntity):
 		"""
 		temp_result = logs["top_down_provider"].append(self.for_json())
 		return temp_result
-
-

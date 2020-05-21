@@ -1,5 +1,7 @@
 from tkinter import Button, Label, Toplevel
+
 from mesh_city.util.price_table_util import PriceTableUtil
+
 
 class PreviewWindow:
 
@@ -17,8 +19,10 @@ class PreviewWindow:
 		self.temp_list = []
 		self.temp_list_size = -1
 
-		for key,value in self.application.user_entity.image_providers.items():
-			self.temp_list.append(Button(self.top, text=key, command=lambda value=value: self.check_usage(value)))
+		for key, value in self.application.user_entity.image_providers.items():
+			self.temp_list.append(
+				Button(self.top, text=key, command=lambda value=value: self.check_usage(value))
+			)
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)
 
@@ -30,7 +34,9 @@ class PreviewWindow:
 
 	def check_usage(self, value):
 		self.application.request_manager.map_entity = value.map_entity
-		self.locations = self.application.request_manager.calculate_locations(coordinates=self.coordinates)
+		self.locations = self.application.request_manager.calculate_locations(
+			coordinates=self.coordinates
+		)
 		number_requests = len(self.locations)
 
 		for widget in self.temp_list:
@@ -43,7 +49,8 @@ class PreviewWindow:
 		self.number_requests_label.grid(row=1, column=0)
 
 		action = [("static_map", number_requests)]
-		temp_cost = PriceTableUtil(image_provider_entity=value, action=action).calculate_action_price()
+		temp_cost = PriceTableUtil(image_provider_entity=value,
+			action=action).calculate_action_price()
 
 		if temp_cost[0] == "NAN":
 			print("NAN")
@@ -65,7 +72,9 @@ class PreviewWindow:
 		self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
 		self.usage_left_label.grid(row=3, column=0)
 
-		self.confirm_button = Button(self.top, text="Confirm", command=lambda : self.cleanup(self.locations))
+		self.confirm_button = Button(
+			self.top, text="Confirm", command=lambda: self.cleanup(self.locations)
+		)
 		self.confirm_button.grid(row=4)
 
 	def cleanup(self, locations):

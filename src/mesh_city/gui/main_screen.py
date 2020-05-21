@@ -10,10 +10,10 @@ from PIL import Image, ImageTk
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
-from mesh_city.util.overlay_creator import OverlayCreator
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_screen.start_screen import StartScreen
 from mesh_city.util.image_util import ImageUtil
+from mesh_city.util.overlay_creator import OverlayCreator
 
 
 class MainScreen:
@@ -82,7 +82,6 @@ class MainScreen:
 
 		user_button = Button(self.canvas, text="User", width=6, height=3, command=None, bg="grey")
 		self.canvas.create_window(30, 328, window=user_button)
-
 
 		self.load_large_image_on_map(self.image)
 
@@ -168,7 +167,10 @@ class MainScreen:
 		Stores and resizes the image to be loaded onto the map
 		:return: nothing
 		"""
-		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"][0].glob("concat_image_*"))
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"]
+			[0].glob("concat_image_*")
+		)
 		get_image = Image.open(temp_image_path)
 		resize_image = get_image.resize((self.image_width, self.image_height), Image.ANTIALIAS)
 		get_photo = ImageTk.PhotoImage(resize_image)

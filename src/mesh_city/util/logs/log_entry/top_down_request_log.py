@@ -44,4 +44,3 @@ class TopDownProviderRequestLog(LogEntry):
 			:return: object to be stored in a json file
 			"""
 			return self.for_json()
-

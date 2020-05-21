@@ -3,6 +3,7 @@ See :class:`.SearchWindowLocationArea`
 """
 
 from tkinter import Button, Entry, Label, Toplevel
+
 from mesh_city.gui.search_window.preview_window import PreviewWindow
 
 
@@ -111,5 +112,10 @@ class SearchWindowLocationArea:
 			float(self.max_long_entry.get()),
 		]
 
-		PreviewWindow(main_screen=self.main_screen, master=self.master, application=self.application, coordinates=self.value)
+		PreviewWindow(
+			main_screen=self.main_screen,
+			master=self.master,
+			application=self.application,
+			coordinates=self.value
+		)
 		self.top.destroy()

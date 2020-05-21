@@ -1,9 +1,10 @@
-from mesh_city.util.logs.log_entry.log_entity import LogEntity
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.util.logs.log_entry.log_entity import LogEntity
+
 
 class UserEntity(LogEntity):
 
-	def __init__(self, file_handler, json = None, name = None, image_providers = None):
+	def __init__(self, file_handler, json=None, name=None, image_providers=None):
 		self.file_handler = file_handler
 		self.path_to_store = file_handler.folder_overview["users.json"][0]
 		if (name and image_providers != None):
