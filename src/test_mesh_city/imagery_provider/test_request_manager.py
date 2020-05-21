@@ -3,6 +3,7 @@
 import unittest
 from pathlib import Path
 from shutil import rmtree
+from unittest.mock import ANY, call, Mock
 
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
@@ -110,7 +111,10 @@ class TestRequestManager(unittest.TestCase):
 
 	def tearDown(self):
 		for item in Path(__file__).parents[1].joinpath("resources").glob("*"):
-			rmtree(item) if item.is_dir() else item.unlink()
+			if item.is_dir():
+				rmtree(item)
+			else:
+				item.unlink()
 
 	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):
 		list_of_coordinates = self.request_manager.calculate_centre_coordinates_two_coordinate_input(
@@ -153,116 +157,143 @@ class TestRequestManager(unittest.TestCase):
 		self.assertEqual(5, number_of_images)
 
 	def test_single_request(self):
-		top_down_provider = TestRequestManager.MockTopDownProvider()
+		top_down_provider = Mock()
 		request_manager = RequestManager(
-			user_info=self.user_info,
-			quota_manager=self.quota_manager,
+			user_info=Mock(),
+			quota_manager=Mock(),
 			map_entity=top_down_provider,
-			log_manager=LogManager(resource_path=self.resource_path),
-			image_util=ImageUtil(resource_path=self.resource_path),
-			geo_location_util=GeoLocationUtil(),
+			log_manager=Mock(),
+			image_util=Mock(),
+			geo_location_util=Mock(),
 			resource_path=self.resource_path,
 		)
 
 		request_manager.make_single_request((52.010442, 4.357480), 1.0, 400, 600)
 
-		given_arguments = top_down_provider.given_arguments["get_and_store_location"][0]
-		self.assertEqual(given_arguments["latitude"], 52.010442)
-		self.assertEqual(given_arguments["longitude"], 4.357480)
-		self.assertEqual(given_arguments["zoom"], 1.0)
-		self.assertEqual(given_arguments["filename"], "52.010442, 4.35748.png")
-		self.assertEqual(given_arguments["height"], 400)
-		self.assertEqual(given_arguments["width"], 600)
+		top_down_provider.get_and_store_location.assert_called_once_with(
+			latitude=52.010442,
+			longitude=4.357480,
+			zoom=1.0,
+			filename="52.010442, 4.35748.png",
+			height=400,
+			width=600,
+			new_folder_path=ANY,
+		)
 
 	def test_bounding_box_request_bottom_left_top_right(self):
-		top_down_provider = TestRequestManager.MockTopDownProvider()
+		top_down_provider = Mock()
 		top_down_provider.max_zoom = 14.0
 		top_down_provider.max_side_resolution_image = 500
 		request_manager = RequestManager(
-			user_info=self.user_info,
-			quota_manager=self.quota_manager,
+			user_info=Mock(),
+			quota_manager=Mock(),
 			map_entity=top_down_provider,
-			log_manager=LogManager(resource_path=self.resource_path),
-			image_util=ImageUtil(resource_path=self.resource_path),
+			log_manager=Mock(),
+			image_util=Mock(),
 			geo_location_util=GeoLocationUtil(),
 			resource_path=self.resource_path,
 		)
 
 		request_manager.make_request_two_coordinates((51.989954, 4.330746), (52.021186, 4.374115))
 
-		given_arguments = top_down_provider.given_arguments["get_and_store_location"]
-		self.assertEqual(given_arguments[0]["latitude"], 52.00316762660327)
-		self.assertEqual(given_arguments[0]["longitude"], 4.352203672121509)
-		self.assertEqual(given_arguments[0]["zoom"], 14.0)
-		self.assertEqual(
-			given_arguments[0]["filename"], "1_0,0_52.00316762660327,4.352203672121509.png"
-		)
-		self.assertEqual(given_arguments[1]["latitude"], 52.00316762660327)
-		self.assertEqual(given_arguments[1]["longitude"], 4.395119016364525)
-		self.assertEqual(given_arguments[1]["zoom"], 14.0)
-		self.assertEqual(
-			given_arguments[1]["filename"], "2_1,0_52.00316762660327,4.395119016364525.png"
-		)
-		self.assertEqual(given_arguments[2]["latitude"], 52.02958708108182)
-		self.assertEqual(given_arguments[2]["longitude"], 4.352203672121509)
-		self.assertEqual(given_arguments[2]["zoom"], 14.0)
-		self.assertEqual(
-			given_arguments[2]["filename"], "3_0,1_52.02958708108182,4.352203672121509.png"
-		)
-		self.assertEqual(given_arguments[3]["latitude"], 52.02958708108182)
-		self.assertEqual(given_arguments[3]["longitude"], 4.395119016364525)
-		self.assertEqual(given_arguments[3]["zoom"], 14.0)
-		self.assertEqual(
-			given_arguments[3]["filename"], "4_1,1_52.02958708108182,4.395119016364525.png"
+		top_down_provider.get_and_store_location.assert_has_calls(
+			calls=[
+			call(
+			latitude=52.00316762660327,
+			longitude=4.352203672121509,
+			zoom=14.0,
+			filename="1_0,0_52.00316762660327,4.352203672121509.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.00316762660327,
+			longitude=4.395119016364525,
+			zoom=14.0,
+			filename="2_1,0_52.00316762660327,4.395119016364525.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.02958708108182,
+			longitude=4.352203672121509,
+			zoom=14.0,
+			filename="3_0,1_52.02958708108182,4.352203672121509.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.02958708108182,
+			longitude=4.395119016364525,
+			zoom=14.0,
+			filename="4_1,1_52.02958708108182,4.395119016364525.png",
+			new_folder_path=ANY,
+			),
+			],
+			any_order=True
 		)
 
 	def test_request_block_centre_coordinates(self):
-		top_down_provider = TestRequestManager.MockTopDownProvider()
+		top_down_provider = Mock()
 		top_down_provider.padding = 0
 		top_down_provider.name = "mock"
 		request_manager = RequestManager(
-			user_info=self.user_info,
-			quota_manager=self.quota_manager,
+			user_info=Mock(),
+			quota_manager=Mock(),
 			map_entity=top_down_provider,
-			log_manager=TestRequestManager.MockLogManager(),
-			image_util=TestRequestManager.MockImageUtil(),
+			log_manager=Mock(),
+			image_util=Mock(),
 			geo_location_util=GeoLocationUtil(),
 			resource_path=self.resource_path,
 		)
 
 		request_manager.make_request_for_block(centre_coordinates=(51.989954, 4.330746), zoom=20.0)
 
-		given_arguments = top_down_provider.given_arguments["get_and_store_location"]
-		self.assertEqual(given_arguments[0]["latitude"], 51.98942545493587)
-		self.assertEqual(given_arguments[0]["longitude"], 4.32988769311514)
-		self.assertEqual(given_arguments[1]["latitude"], 51.98942545493587)
-		self.assertEqual(given_arguments[1]["longitude"], 4.330746)
-		self.assertEqual(given_arguments[2]["latitude"], 51.98942545493587)
-		self.assertEqual(given_arguments[2]["longitude"], 4.331604306884861)
-		self.assertEqual(given_arguments[3]["latitude"], 51.989954)
-		self.assertEqual(given_arguments[3]["longitude"], 4.32988769311514)
-		self.assertEqual(given_arguments[4]["latitude"], 51.989954)
-		self.assertEqual(given_arguments[4]["longitude"], 4.330746)
-		self.assertEqual(given_arguments[5]["latitude"], 51.989954)
-		self.assertEqual(given_arguments[5]["longitude"], 4.331604306884861)
-		self.assertEqual(given_arguments[6]["latitude"], 51.990482545064125)
-		self.assertEqual(given_arguments[6]["longitude"], 4.32988769311514)
-		self.assertEqual(given_arguments[7]["latitude"], 51.990482545064125)
-		self.assertEqual(given_arguments[7]["longitude"], 4.330746)
-		self.assertEqual(given_arguments[8]["latitude"], 51.990482545064125)
-		self.assertEqual(given_arguments[8]["longitude"], 4.331604306884861)
+		top_down_provider.get_and_store_location.assert_has_calls(
+			calls=[
+			call(
+			latitude=51.98942545493587,
+			longitude=4.32988769311514,
+			zoom=20.0,
+			filename='1_51.98942545493587_4.32988769311514.png',
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=51.98942545493587,
+			longitude=4.331604306884861,
+			zoom=20.0,
+			filename='3_51.98942545493587_4.331604306884861.png',
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=51.990482545064125,
+			longitude=4.32988769311514,
+			zoom=20.0,
+			filename='7_51.990482545064125_4.32988769311514.png',
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=51.990482545064125,
+			longitude=4.331604306884861,
+			zoom=20.0,
+			filename='9_51.990482545064125_4.331604306884861.png',
+			new_folder_path=ANY,
+			)
+			],
+			any_order=True,
+		)
 
 	def test_request_block_bounding_box(self):
-		top_down_provider = TestRequestManager.MockTopDownProvider()
+		top_down_provider = Mock()
 		top_down_provider.padding = 0
 		top_down_provider.name = "mock"
 		top_down_provider.max_side_resolution_image = 640
+		top_down_provider.max_zoom = 14.0
+		log_manager = Mock()
+		log_manager.get_request_number.return_value = 1
 		request_manager = RequestManager(
-			user_info=self.user_info,
-			quota_manager=self.quota_manager,
+			user_info=Mock(),
+			quota_manager=Mock(),
 			map_entity=top_down_provider,
-			log_manager=TestRequestManager.MockLogManager(),
-			image_util=TestRequestManager.MockImageUtil(),
+			log_manager=log_manager,
+			image_util=Mock(),
 			geo_location_util=GeoLocationUtil(),
 			resource_path=self.resource_path,
 		)
@@ -271,12 +302,36 @@ class TestRequestManager(unittest.TestCase):
 			centre_coordinates=(51.989954, 4.330746, 52.021186, 4.374115), zoom=14.0
 		)
 
-		given_arguments = top_down_provider.given_arguments["get_and_store_location"]
-		self.assertEqual(given_arguments[0]["latitude"], 52.00686744205219)
-		self.assertEqual(given_arguments[0]["longitude"], 4.358211820315531)
-		self.assertEqual(given_arguments[8]["latitude"], 52.07447010004815)
-		self.assertEqual(given_arguments[8]["longitude"], 4.468075101577653)
-		self.assertEqual(given_arguments[72]["latitude"], 52.20936891128352)
-		self.assertEqual(given_arguments[72]["longitude"], 4.6878016641018965)
-		self.assertEqual(given_arguments[80]["latitude"], 52.27666518663308)
-		self.assertEqual(given_arguments[80]["longitude"], 4.797664945364018)
+		top_down_provider.get_and_store_location.assert_has_calls(
+			calls=[
+			call(
+			latitude=52.00686744205219,
+			longitude=4.358211820315531,
+			zoom=14.0,
+			filename="1_52.00686744205219_4.358211820315531.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.07447010004815,
+			longitude=4.468075101577653,
+			zoom=14.0,
+			filename='9_52.07447010004815_4.468075101577653.png',
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.20936891128352,
+			longitude=4.6878016641018965,
+			zoom=14.0,
+			filename="1_52.20936891128352_4.6878016641018965.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.27666518663308,
+			longitude=4.797664945364018,
+			zoom=14.0,
+			filename='9_52.27666518663308_4.797664945364018.png',
+			new_folder_path=ANY,
+			),
+			],
+			any_order=True
+		)
