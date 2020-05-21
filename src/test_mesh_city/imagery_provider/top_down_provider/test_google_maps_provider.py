@@ -24,8 +24,16 @@ class GoogleMapsProviderTest(unittest.TestCase):
 		)
 
 
+	def mock_response(self,status=200,content="content"):
+		mock_resp = mock.Mock()
+		mock_resp.status_code = status
+
+
 	def test_get_and_store(self):
 		g_map = self.google_maps_prov
+
+
 		g_map.get_and_store_location(latitude=self.latitude, longitude=self.longitude
 		                             , zoom=self.zoom, filename="test_google_top_down"
 		                             , new_folder_path=self.file_path)
+
