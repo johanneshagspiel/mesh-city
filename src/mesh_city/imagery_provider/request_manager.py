@@ -131,7 +131,11 @@ class RequestManager:
 					"_" + str(latitude) + "," + str(longitude) + ".png"
 				)
 				self.map_entity.get_and_store_location(
-					latitude, longitude, zoom, file_name, new_folder_path
+					latitude=latitude,
+					longitude=longitude,
+					zoom=zoom,
+					filename=file_name,
+					new_folder_path=new_folder_path
 				)
 				csv_writer.writerow(
 					{
@@ -307,7 +311,11 @@ class RequestManager:
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
 				self.map_entity.get_and_store_location(
-					location[0], location[1], zoom, temp_name, new_folder_path
+					latitude=location[0],
+					longitude=location[1],
+					zoom=zoom,
+					filename=temp_name,
+					new_folder_path=new_folder_path
 				)
 				counter += 1
 
@@ -336,7 +344,11 @@ class RequestManager:
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
 				self.map_entity.get_and_store_location(
-					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
+					latitude=location[0],
+					longitude=location[1],
+					zoom=self.map_entity.max_zoom,
+					filename=temp_name,
+					new_folder_path=new_folder_path
 				)
 				counter += 1
 
