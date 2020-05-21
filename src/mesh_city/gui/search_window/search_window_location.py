@@ -1,9 +1,8 @@
 """
 See :class:`.SearchWindowLocation`
 """
-
-from mesh_city.gui.search_window.preview_window import PreviewWindow
 from tkinter import Button, Entry, Label, Toplevel
+from mesh_city.gui.search_window.preview_window import PreviewWindow
 
 
 class SearchWindowLocation:

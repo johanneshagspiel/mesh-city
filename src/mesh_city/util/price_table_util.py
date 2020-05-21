@@ -1,13 +1,20 @@
 """
-See :func:`.calculate_action_price`
+Module containing price table util class
 """
 import sys
-
 from range_key_dict import RangeKeyDict
 
 class PriceTableUtil:
+	"""
+	A utility class needed to calculate the costs of a request
+	"""
 
 	def __init__(self, image_provider_entity, action):
+		"""
+		Sets up a price table dictionary to check how much a request costs
+		:param image_provider_entity: the image provider entity making the request
+		:param action: what kind of request it is
+		"""
 		self.image_provider_entity = image_provider_entity
 		self.action = action
 
@@ -43,6 +50,10 @@ class PriceTableUtil:
 	}
 
 	def calculate_action_price(self):
+		"""
+		calculates the price of an action
+		:return: the cost in list form (in case of error additional information)
+		"""
 		cost = 0
 		temp_type = self.image_provider_entity.type
 		for entry in self.action:
@@ -55,42 +66,3 @@ class PriceTableUtil:
 				if cost >= self.image_provider_entity.quota and number != self.image_provider_entity.usage[action_type]+entry[1]:
 					return ["Quota", number, cost]
 		return [cost]
-
-
-		# for entry in self.action:
-		# 	for image in range(1, entry):
-		# 		if self.image_provider_entity.type == "google_maps":
-		# 			if entry[0] == "static_map":
-		# 				if self.image_provider_entity.usage["static_map"] < 100000:
-		# 					return 0.002
-		# 				if self.image_provider_entity.usage["static_map"] < 500000:
-		# 					return 0.0016
-		# 			if entry[0] == "geocoding":
-		# 				if self.image_provider_entity.usage["geocoding"] < 100000:
-		# 					return 0.005
-		# 				if self.image_provider_entity.usage["geocoding"] < 500000:
-		# 					return 0.004
-		# 		if self.image_provider_entity.type == "ahn":
-		# 			if entry[0] == "static_map":
-		# 				return 0
-		# 		if self.image_provider_entity.type == "mapbox":
-		# 			if entry[0] == "static_map":
-		# 				if self.image_provider_entity.usage["static_map"] < 50000:
-		# 					return 0
-		# 				if self.image_provider_entity.usage["static_map"] < 500000:
-		# 					return 0.001
-		# 				if self.image_provider_entity.usage["static_map"] < 1000000:
-		# 					return 0.0008
-		# 				if self.image_provider_entity.usage["static_map"] < 5000000:
-		# 					return 0.0006
-		# 			if entry[0] == "geocoding":
-		# 				if self.image_provider_entity.usage["geocoding"] < 100000:
-		# 					return 0
-		# 				if self.image_provider_entity.usage["geocoding"] < 500000:
-		# 					return 0.00075
-		# 				if self.image_provider_entity.usage["geocoding"] < 1000000:
-		# 					return 0.0006
-		# 				if self.image_provider_entity.usage["geocoding"] < 5000000:
-		# 					return 0.00045
-		# 		raise ValueError("Invalid provider and/or action")
-		# return cost

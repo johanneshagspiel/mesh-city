@@ -56,23 +56,28 @@ class LogManager:
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
-	def write_log(self, logEntry):
+	def write_log(self, log_entry):
 		"""
 		A method to write one log entry entity to the associated correct location
 		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
 
-		with open(logEntry.path_to_store, "r") as json_log:
+		with open(log_entry.path_to_store, "r") as json_log:
 			data = json_log.read()
 		logs = json.loads(data)
-		result = logEntry.action(logs)
+		result = log_entry.action(logs)
 
-		with open(logEntry.path_to_store, "w") as json_log:
+		with open(log_entry.path_to_store, "w") as json_log:
 			json.dump(result, fp=json_log)
 			json_log.close()
 
 	def read_log(self, path):
+		"""
+		Method to read what is at the path and then build it appropriately
+		:param path: the path where to load the log from
+		:return: whatever the result of building that object is
+		"""
 		with open(path[0], "r") as json_log:
 			data = json_log.read()
 		logs = json.loads(data)

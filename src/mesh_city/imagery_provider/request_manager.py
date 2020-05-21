@@ -12,11 +12,9 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.logs.log_manager import LogManager
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.logs.log_entry.top_down_provider_log_entry import TopDownProviderLogEntity
-from mesh_city.logs.log_manager import LogManager
+
 
 
 class RequestManager:
@@ -62,7 +60,7 @@ class RequestManager:
 			height,
 			width,
 			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
-			self.images_folder_path
+			self.file_handler.folder_overview["image_path"][0]
 		)
 
 	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
@@ -104,7 +102,7 @@ class RequestManager:
 		print("Total Images to download: " + str(num_of_images_total))
 
 		new_folder_path = Path.joinpath(
-			self.images_folder_path, "request_" + str(self.request_number)
+			self.file_handler.folder_overview["image_path"][0], "request_" + str(self.request_number)
 		)
 		os.makedirs(new_folder_path)
 
@@ -286,7 +284,7 @@ class RequestManager:
 			temp = coordinates.pop(0)
 			max_latitude = temp[0]
 
-		bounding_box = [coordinates[0], coordinates[-1]]
+		#bounding_box = [coordinates[0], coordinates[-1]]
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
@@ -321,17 +319,6 @@ class RequestManager:
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_request_path"][0] = \
 						new_folder_path.parents[0]
-
-					# log_entry = TopDownProviderLogEntity(
-					# 	request_number,
-					# 	zoom,
-					# 	self.user_entity,
-					# 	self.map_entity,
-					# 	number_requests,
-					# 	bounding_box,
-					# 	coordinates,
-					# )
-					# self.log_manager.write_log(log_entry)
 
 		# download and store the information in case a whole area was asked for
 		if len(coordinates) > 9:
@@ -376,16 +363,6 @@ class RequestManager:
 					self.file_handler.folder_overview["active_request_path"][0] = \
 					new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					# log_entry = TopDownProviderLogEntity(
-					# 	request_number,
-					# 	zoom,
-					# 	self.user_entity,
-					# 	self.map_entity,
-					# 	number_requests,
-					# 	bounding_box,
-					# 	coordinates,
-					# )
-					# self.log_manager.write_log(self, log_entry)
 
 		return new_folder_path
 
@@ -525,7 +502,7 @@ class RequestManager:
 		:param zoom:
 		:return:
 		"""
-		if zoom == None:
+		if zoom is None:
 			zoom = self.map_entity.max_zoom
 
 		image_size = 640 - self.map_entity.padding

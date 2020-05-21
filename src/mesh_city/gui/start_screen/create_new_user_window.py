@@ -1,10 +1,23 @@
+"""
+A module containing the create new user window
+"""
 from tkinter import Toplevel, Label, Button, Entry
 from mesh_city.user.entities.user_entity import UserEntity
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 
+# TODO check user input (check that google maps api key is an google maps api key)
 class CreateNewUserWindow:
-
+	"""
+	The create new user window class is where a new user can enter their information to make a new
+	account which is stored in a json file
+	"""
 	def __init__(self, master, application):
+		"""
+		First the user is asked for their name, then they can add as many google maps api accounts
+		as they want
+		:param master: the master tkinter object
+		:param application: the global application context
+		"""
 		self.value = ""
 		self.master = master
 		self.application = application
@@ -30,7 +43,12 @@ class CreateNewUserWindow:
 		self.map_providers = []
 		self.map_providers_size = -1
 
+	# pylint: disable=W0201
 	def google_maps(self):
+		"""
+		Creates additional buttons if the user wants to add another google maps account
+		:return: nothing
+		"""
 
 		temp_name = str("Google Maps ") + str(self.count)
 		self.count += 1
@@ -62,20 +80,25 @@ class CreateNewUserWindow:
 		self.confirm_button.grid(row=self.end, column=1)
 
 	def cleanup(self):
+		"""
+		The method called when the user clicks on the confirm button. Creates a new user with the
+		provided information, saves that to json and loads the main_screen
+		:return: nothing
+		"""
 
 		image_provider_entity_dic = {}
 
 		temp_counter = 1
-		for x in range(0, self.map_providers_size, 2):
-			temp_api_key = self.map_providers[x].get()
-			x += 1
-			temp_quota = self.map_providers[x].get()
-			x += 1
+		for number in range(0, self.map_providers_size, 2):
+			temp_api_key = self.map_providers[number].get()
+			number += 1
+			temp_quota = self.map_providers[number].get()
+			number += 1
 			temp_name = "Google Maps " + str(temp_counter)
 			image_provider_entity_dic[temp_name] = ImageProviderEntity(file_handler=self.application.file_handler,
-			                                                      type="google_maps",
-			                                                      api_key=temp_api_key,
-			                                                      quota=temp_quota)
+			                                                           type_map_provider="google_maps",
+			                                                           api_key=temp_api_key,
+			                                                           quota=temp_quota)
 			temp_counter += 1
 
 		name = self.name_entry.get()

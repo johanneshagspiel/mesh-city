@@ -1,18 +1,37 @@
+"""
+A module containing the overlay creator
+"""
 from pathlib import Path
 from shutil import copyfile
-from PIL import Image, ImageDraw
 import csv
+from PIL import Image, ImageDraw
+
 
 class OverlayCreator:
+	"""
+	Class responsible for creating and managing overlays associated with the different detection
+	requests
+	"""
 
-	def __init__(self, application, mainscreen):
+	def __init__(self, application, main_screen):
+		"""
+		Initializes the overlay creator
+		:param application: the global application context 
+		:param main_screen: the main screen of the application
+		"""
 		self.application = application
-		self.main_screen = mainscreen
+		self.main_screen = main_screen
 		# TODO needs to change when we change to another request
 		self.overlay_overview = {}
 
-	def create_overlay(self, type, image_size):
-		if type == "trees":
+	def create_overlay(self, detection_algorithm, image_size):
+		"""
+		Creates one overlay from the results of a detection algorithm
+		:param detection_algorithm: what kind of detection algorithm created the result
+		:param image_size: the size of the image used by the detection algorithm
+		:return: nothing (adds the overlay to the overlay dictionary and updates main screen
+		"""
+		if detection_algorithm == "trees":
 			# TODO change image size depending on image size used for prediction
 			tree_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_overlay)
@@ -37,6 +56,11 @@ class OverlayCreator:
 			self.overlay_overview["trees"] = (temp_path, (int(image_size[0]), int(image_size[1])))
 
 	def create_composite_image(self, overlays):
+		"""
+		Creates a composite overlay from multiple layers
+		:param overlays: which layers to use for the composite image
+		:return: nothing (creates a composite image and updates the main screen with it)
+		"""
 
 		copyfile(next(self.application.file_handler.folder_overview["active_image_path"][0].glob(
 			"concat_image_*")),

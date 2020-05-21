@@ -47,7 +47,7 @@ class LoadWindow:
 
 	def load_request(self, name_directory):
 		"""
-		Loads an old request as the current request into the mainscreen
+		Loads an old request as the current request into the main_screen
 		:param name_directory: the directory where the request to be loaded is stored
 		:return: nothing
 		"""

@@ -1,11 +1,18 @@
-import json
+"""
+Module containing preliminary file handler
+"""
 from pathlib import Path
 
-from mesh_city.user.entities.user_entity import UserEntity
-
 class FileHandler:
+	"""
+	Preliminary filehanler class that stores all the information surrounding paths
+	"""
 
 	def __init__(self):
+		"""
+		Creates a dictionary of name to (path, name). Name is needed in the tuple so that a method
+		can now where it is
+		"""
 		self.root = Path(__file__).parents[1]
 		self.folder_overview = {
 			"resource_path" : [Path.joinpath(self.root, 'resources'), "resource_path"],
@@ -21,4 +28,11 @@ class FileHandler:
 		}
 
 	def change(self, path_of_interest, new_location):
+		"""
+		Preliminary method to unify all changes of a path in the file_handler so that they can be
+		changed more easily later on
+		:param path_of_interest: what to change
+		:param new_location: what to change it to
+		:return: nothing (updates path dictionary)
+		"""
 		self.folder_overview[path_of_interest][0] = new_location
