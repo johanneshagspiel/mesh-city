@@ -298,7 +298,7 @@ class RequestManager:
 		max_latitude = temp[0]
 
 		number_requests = len(coordinates)
-		print("Requestnumber: " + str(self.request_number))
+		print("Request number: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
 		number_requests_temp = number_requests
