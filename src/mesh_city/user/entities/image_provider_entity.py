@@ -9,6 +9,7 @@ from mesh_city.imagery_provider.top_down_provider.google_maps_provider import Go
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 
+
 class ImageProviderEntity(LogEntity):
 	"""
 	The image provider log class that stores all information regarding one image provider associated
@@ -90,11 +91,11 @@ class ImageProviderEntity(LogEntity):
 		Loads the approp
 		:return:
 		"""
-		if(self.type == "google_maps"):
+		if self.type == "google_maps":
 			return GoogleMapsProvider(image_provider_entity=self)
-		if (self.type == "mapbox"):
+		if self.type == "mapbox":
 			return MapboxProvider(image_provider_entity=self)
-		if (self.type == "ahn"):
+		if self.type == "ahn":
 			return AhnProvider(image_provider_entity=self)
 		return None
 
