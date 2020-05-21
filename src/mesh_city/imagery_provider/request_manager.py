@@ -318,7 +318,7 @@ class RequestManager:
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_request_path"][0] = \
-                                    new_folder_path.parents[0]
+                                                   new_folder_path.parents[0]
 
 		# download and store the information in case a whole area was asked for
 		if len(coordinates) > 9:
@@ -361,7 +361,7 @@ class RequestManager:
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_request_path"][0] = \
-                                   new_folder_path.parents[0]
+                                                  new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path

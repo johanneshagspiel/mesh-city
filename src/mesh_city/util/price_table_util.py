@@ -43,7 +43,7 @@ class PriceTableUtil:
 		"geocoding":
 		RangeKeyDict(
 		{
-		(0, 100000): 0, (100001, 500001): 0.00075, (500001, 1000001): 0.0006, (1000001, 5000001):
+		(0, 100001): 0, (100001, 500001): 0.00075, (500001, 1000001): 0.0006, (1000001, 5000001):
 		0.00045
 		}
 		)
@@ -60,10 +60,14 @@ class PriceTableUtil:
 		"""
 		cost = 0
 		for number in range(previous_usage, previous_usage + additional_usage):
+			if api_name not in PriceTableUtil.price_table_dic:
+				raise ValueError("The pricing for this API is not defined")
+			if service_type not in PriceTableUtil.price_table_dic[api_name]:
+				raise ValueError("The pricing for this API service is not defined")
 			temp_result = PriceTableUtil.price_table_dic[api_name][service_type].get(number, -1)
 			if temp_result == -1:
 				raise ValueError("The price for the given requests is not defined.")
-			cost += 1 * temp_result
+			cost += temp_result
 			if cost >= monthly_quota and number != previous_usage + additional_usage:
 				raise QuotaException("These requests would exceed the quota.")
 		return cost
