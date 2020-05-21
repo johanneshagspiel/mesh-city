@@ -14,13 +14,13 @@ class PriceTableTest(unittest.TestCase):
 	def setUp(self):
 		self.file_handler = FileHandler()
 
-	@parameterized.expand([["mapbox", "static_map", 1,0, 0.002] ])
-	def test_calculate_action_price_mapbox(self,api_type,action_type,requests,previous_usage,price):
+	@parameterized.expand([["google_maps", "static_map", 1,0, 0,0.002] ])
+	def test_calculate_action_price_mapbox(self,api_type,action_type,requests,geo_usage,static_usage,price):
 		json = {
 			"type" : api_type,
 			"api_key": "test",
-			"usage" : previous_usage,
-			"quota": 0,
+			"usage" : {"static_map": static_usage, "geocoding": geo_usage, "total": static_usage+geo_usage},
+			"quota": 1000,
 			"date_reset": "2090-05-31",
 			}
 		image_provider_entity = ImageProviderEntity(file_handler=self.file_handler,json=json)
