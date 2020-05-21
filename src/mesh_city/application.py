@@ -36,7 +36,7 @@ class Application:
 		self.request_manager = RequestManager(
 			user_info=self.user_info,
 			quota_manager=self.quota_manager,
-			map_entity=GoogleMapsProvider(self.user_info, self.quota_manager),
+			top_down_provider=GoogleMapsProvider(self.user_info, self.quota_manager),
 			log_manager=LogManager(),
 			image_util=ImageUtil(),
 			geo_location_util=GeoLocationUtil(),

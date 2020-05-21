@@ -29,7 +29,7 @@ class RequestManager:
 		self,
 		user_info,
 		quota_manager,
-		map_entity,
+		top_down_provider,
 		log_manager,
 		image_util,
 		geo_location_util,
@@ -37,7 +37,7 @@ class RequestManager:
 	):
 		self.user_info = user_info
 		self.quota_manager = quota_manager
-		self.map_entity = map_entity
+		self.top_down_provider = top_down_provider
 		self.log_manager = log_manager
 		self.image_util = image_util
 		self.geo_location_util = geo_location_util
@@ -56,7 +56,7 @@ class RequestManager:
 		:param width: width of the resulting image
 		:return:
 		"""
-		self.map_entity.get_and_store_location(
+		self.top_down_provider.get_and_store_location(
 			latitude=centre_coordinates[0],
 			longitude=centre_coordinates[1],
 			zoom=zoom,
@@ -76,11 +76,11 @@ class RequestManager:
 		:return:
 		"""
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 		if zoom < 1:
 			raise Exception("Zoom level cannot be lower than 1")
-		if zoom > self.map_entity.max_zoom:
-			zoom = self.map_entity.max_zoom
+		if zoom > self.top_down_provider.max_zoom:
+			zoom = self.top_down_provider.max_zoom
 
 		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
 			first_coordinate, second_coordinate, zoom
@@ -130,7 +130,7 @@ class RequestManager:
 					str(image_number) + "_" + str(horizontal_position) + "," + str(vertical_position) +
 					"_" + str(latitude) + "," + str(longitude) + ".png"
 				)
-				self.map_entity.get_and_store_location(
+				self.top_down_provider.get_and_store_location(
 					latitude=latitude,
 					longitude=longitude,
 					zoom=zoom,
@@ -199,9 +199,9 @@ class RequestManager:
 				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
-		side_resolution_image = self.map_entity.max_side_resolution_image
+		side_resolution_image = self.top_down_provider.max_side_resolution_image
 
-		if isinstance(self.map_entity, GoogleMapsProvider):
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
 			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
@@ -260,7 +260,7 @@ class RequestManager:
 		"""
 
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
@@ -310,7 +310,7 @@ class RequestManager:
 				x_position = str(location[0])
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				self.map_entity.get_and_store_location(
+				self.top_down_provider.get_and_store_location(
 					latitude=location[0],
 					longitude=location[1],
 					zoom=zoom,
@@ -328,7 +328,7 @@ class RequestManager:
 						request_number=request_number,
 						zoom_level=zoom,
 						user_info=self.user_info,
-						map_entity=self.map_entity,
+						map_entity=self.top_down_provider,
 						number_requests=number_requests,
 						bounding_box=bounding_box,
 						coordinates=coordinates,
@@ -343,10 +343,10 @@ class RequestManager:
 				x_position = str(location[0])
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				self.map_entity.get_and_store_location(
+				self.top_down_provider.get_and_store_location(
 					latitude=location[0],
 					longitude=location[1],
-					zoom=self.map_entity.max_zoom,
+					zoom=self.top_down_provider.max_zoom,
 					filename=temp_name,
 					new_folder_path=new_folder_path
 				)
@@ -382,7 +382,7 @@ class RequestManager:
 						request_number,
 						zoom,
 						self.user_info,
-						self.map_entity,
+						self.top_down_provider,
 						number_requests,
 						bounding_box,
 						coordinates,
@@ -419,9 +419,9 @@ class RequestManager:
 				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
-		side_resolution_image = self.map_entity.max_side_resolution_image
+		side_resolution_image = self.top_down_provider.max_side_resolution_image
 
-		if isinstance(self.map_entity, GoogleMapsProvider):
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
 			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
@@ -525,7 +525,7 @@ class RequestManager:
 		:param zoom:
 		:return:
 		"""
-		image_size = 640 - self.map_entity.padding
+		image_size = 640 - self.top_down_provider.padding
 
 		if len(coordinates) == 2:
 			latitude = coordinates[0]
