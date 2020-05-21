@@ -6,16 +6,9 @@ from range_key_dict import RangeKeyDict
 
 
 class QuotaException(Exception):
-	"""Exception raised for errors in the input.
-
-    Attributes:
-        expression -- input expression in which the error occurred
-        message -- explanation of the error
-    """
-
-	def __init__(self, expression, message):
-		self.expression = expression
-		self.message = message
+	"""
+	A simple exception to signal that an action would exceed a set quota.
+	"""
 
 
 class PriceTableUtil:

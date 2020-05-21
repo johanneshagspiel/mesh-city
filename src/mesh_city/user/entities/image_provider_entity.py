@@ -17,11 +17,13 @@ class ImageProviderEntity(LogEntity):
 	with a user such as api key, usage, quota etc.
 	"""
 
-	def __init__(self, file_handler, json=None, type_map_provider=None, api_key=None, quota=None):
+	def __init__(
+		self, file_handler, json_data=None, type_map_provider=None, api_key=None, quota=None
+	):
 		"""
 		Sets up a image provider, either from json or when created for the first time
 		:param file_handler: the file handler needed to store the image provider
-		:param json: the json from which to load the image provider
+		:param json_data: the json from which to load the image provider
 		:param type_map_provider: what kind of image provider this is
 		:param api_key: the api key associated with the image provider
 		:param quota: the quota to be observed
@@ -41,20 +43,20 @@ class ImageProviderEntity(LogEntity):
 			self.quota = None
 			self.date_reset = None
 			self.map_entity = None
-			self.load_json(json)
+			self.load_json(json_data)
 			self.map_entity = self.load_map_entity()
 
-	def load_json(self, json):
+	def load_json(self, json_data):
 		"""
 		Sets the fields of the class based on a json file
-		:param json:
+		:param json_data:
 		:return:
 		"""
-		self.type = json["type"]
-		self.api_key = json["api_key"]
-		self.usage = json["usage"]
-		self.quota = int(json["quota"])
-		self.date_reset = json["date_reset"]
+		self.type = json_data["type"]
+		self.api_key = json_data["api_key"]
+		self.usage = json_data["usage"]
+		self.quota = int(json_data["quota"])
+		self.date_reset = json_data["date_reset"]
 		self.check_date_reset()
 
 	def for_json(self):

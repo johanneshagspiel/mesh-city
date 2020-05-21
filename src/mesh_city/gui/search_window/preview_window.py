@@ -69,8 +69,6 @@ class PreviewWindow:
 		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
 		self.number_requests_label.grid(row=1, column=0)
 
-		("static_map", number_requests)
-		print()
 		temp_cost = PriceTableUtil.calculate_action_price(
 			image_provider_entity.type,
 			"static_map",
