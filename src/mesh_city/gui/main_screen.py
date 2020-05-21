@@ -7,6 +7,7 @@ from tkinter import Button, Canvas, Label, mainloop, NW, Tk
 
 from PIL import Image, ImageTk
 
+from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
@@ -65,7 +66,7 @@ class MainScreen:
 		self.canvas.create_window(30, 92, window=load_button)
 
 		detect_button = Button(
-			self.canvas, text="Detect", width=6, height=3, command=None, bg="grey"
+			self.canvas, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
 		)
 		self.canvas.create_window(30, 151, window=detect_button)
 
@@ -80,58 +81,6 @@ class MainScreen:
 		user_button = Button(self.canvas, text="User", width=6, height=3, command=None, bg="grey")
 		self.canvas.create_window(30, 328, window=user_button)
 
-		# test6_button = Button(self.canvas, text="Test6", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(30, 387, window=test6_button)
-		#
-		# test7_button = Button(self.canvas, text="Test7", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(30, 446, window=test7_button)
-		#
-		# test8_button = Button(self.canvas, text="Test8", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(30, 505, window=test8_button)
-		#
-		# test9_button = Button(self.canvas, text="Test9", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(30, 564, window=test9_button)
-		#
-		# test10_button = Button(
-		# 	self.canvas, text="Test10", width=6, height=3, command=None, bg="grey"
-		# )
-		# self.canvas.create_window(30, 623, window=test10_button)
-		#
-		# up_arrow = Button(self.canvas, text="Up", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(560, 685, window=up_arrow)
-		#
-		# right_arrow = Button(self.canvas, text="Right", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(613, 714.5, window=right_arrow)
-		#
-		# down_arrow = Button(self.canvas, text="Down", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(560, 744, window=down_arrow)
-		#
-		# left_arrow = Button(self.canvas, text="Left", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(507, 714.5, window=left_arrow)
-		#
-		# zoom_in_button = Button(self.canvas, text="In", width=6, height=3, command=None, bg="grey")
-		# self.canvas.create_window(430, 685, window=zoom_in_button)
-		#
-		# zoom_out_button = Button(
-		# 	self.canvas, text="Out", width=6, height=3, command=None, bg="grey"
-		# )
-		# self.canvas.create_window(430, 744, window=zoom_out_button)
-		#
-		# self.canvas_information_line_1 = self.canvas.create_text(
-		# 	195, 670, text="INFOINFOINFOINFOINFOINFOINFOINFOINFOINFO"
-		# )
-		# self.canvas_information_line_2 = self.canvas.create_text(
-		# 	195, 690, text="INFOINFOINFOINFOINFOINFOINFOINFOINFOINFO"
-		# )
-		# self.canvas_information_line_3 = self.canvas.create_text(
-		# 	195, 710, text="INFOINFOINFOINFOINFOINFOINFOINFOINFOINFO"
-		# )
-		# self.canvas_information_line_4 = self.canvas.create_text(
-		# 	195, 730, text="INFOINFOINFOINFOINFOINFOINFOINFOINFOINFO"
-		# )
-		# self.canvas_information_line_5 = self.canvas.create_text(
-		# 	195, 750, text="INFOINFOINFOINFOINFOINFOINFOINFOINFOINFO"
-		# )
 
 		self.load_large_image_on_map(self.image)
 
@@ -190,6 +139,9 @@ class MainScreen:
 		:return: Nothing
 		"""
 		SearchWindowStart(self.master, self.application, self)
+
+	def detect_window(self):
+		DetectionScreen(self.master, self.application, self)
 
 	def update_image(self):
 		"""

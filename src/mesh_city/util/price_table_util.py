@@ -43,9 +43,7 @@ class PriceTableUtil:
 	}
 
 	def calculate_action_price(self):
-
 		cost = 0
-
 		temp_type = self.image_provider_entity.type
 		for entry in self.action:
 			action_type = entry[0]
@@ -57,6 +55,8 @@ class PriceTableUtil:
 				if cost >= self.image_provider_entity.quota and number != self.image_provider_entity.usage[action_type]+entry[1]:
 					return ["Quota", number, cost]
 		return [cost]
+
+
 		# for entry in self.action:
 		# 	for image in range(1, entry):
 		# 		if self.image_provider_entity.type == "google_maps":

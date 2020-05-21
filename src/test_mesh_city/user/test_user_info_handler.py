@@ -1,3 +1,5 @@
+# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+
 import unittest
 from pathlib import Path
 
@@ -9,7 +11,7 @@ class UserInfoHandlerTest(unittest.TestCase):
 
 	def setUp(self):
 		self.api_file_path = Path.joinpath(
-			Path(__file__).parents[1], "test_resources", "test_api_key.json"
+			Path(__file__).parents[1], "resources", "test_api_key.json"
 		)
 		self.user_info_init = UserInfo("Blue", "a12ec", 500, 25, 1452, 8, 15, 10, 55, 42)
 		self.user_handler = UserInfoHandler(self.api_file_path)
@@ -39,7 +41,3 @@ class UserInfoHandlerTest(unittest.TestCase):
 		self.alt_set_up()
 		flag = self.user_handler.file_exists()
 		self.assertFalse(flag)
-
-
-if __name__ == '__main__':
-	unittest.main()

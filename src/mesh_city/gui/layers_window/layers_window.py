@@ -53,7 +53,7 @@ class LayersWindow:
 						counter += 1
 					if self.main_screen.layer_active != "normal":
 						self.temp_name = Button(
-							self.top, text="Normal", width=20, height=3, command=self.load_standard, bg="grey"
+							self.top, text="normal", width=20, height=3, command=self.load_standard, bg="grey"
 						)
 						self.temp_name.grid(row=counter, column=1)
 
@@ -62,8 +62,10 @@ class LayersWindow:
 		Loads the layer from the provided layer directory and updates the image on the main_screen.
 		:param name_directory: The layer's directory.
 		"""
-		self.application.file_handler.folder_overview["active_image_path"][0] = \
-			Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"][0], name_directory)
+		###TODO: what if layers on top of each other
+		self.application.file_handler.change("active_image_path",
+		                                     Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"][0],
+		                                                   name_directory))
 
 		self.main_screen.update_image()
 		self.main_screen.layer_active = str(name_directory)
