@@ -2,7 +2,6 @@
 See :class:`.MainScreen`
 """
 
-from pathlib import Path
 from tkinter import Button, Canvas, Label, mainloop, NW, Tk
 
 from PIL import Image, ImageTk
@@ -87,39 +86,6 @@ class MainScreen:
 
 		mainloop()
 
-	def get_height(self):
-		"""
-		The function called when pressing on the height button to get the height from pixel.
-		"""
-		concat_temp_path = Path.joinpath(
-			self.currently_active_tile,
-			"layers",
-			"ahn_height",
-			"concat_image_request_10_tile_0_0.png",
-		)
-		self.image_util.resize_image(
-			path_to_temp=self.path_to_temp,
-			width=self.image_width,
-			height=self.image_height,
-			path=concat_temp_path,
-			name="test1",
-		)
-		self.canvas.tag_bind(self.tkinter_image, "<Button-1>", self.get_coordinates)
-
-	def get_coordinates(self, event):
-		"""
-		A method to get the height at the pixels pressed on
-		:param event: a mouseclick anywhere on the image
-		:return: height at the pixel pressed
-		"""
-		xpos = event.x - self.padding_x
-		ypos = event.y - self.padding_y
-		height = self.application.request_manager.ahn.get_height_from_pixel(
-			xpos, ypos, Path.joinpath(self.path_to_temp, "test1")
-		)
-		text = "Height: " + str(height)
-		self.canvas.itemconfig(self.canvas_information_line_1, text=text)
-
 	def layers_window(self):
 		"""
 		Creates a layers window object
@@ -142,6 +108,10 @@ class MainScreen:
 		SearchWindowStart(self.master, self.application, self)
 
 	def detect_window(self):
+		"""
+		Creates a detect window object
+		:return:
+		"""
 		DetectionScreen(self.master, self.application, self)
 
 	def update_image(self):

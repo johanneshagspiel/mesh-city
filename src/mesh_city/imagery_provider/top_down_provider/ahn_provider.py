@@ -3,7 +3,6 @@ A top-down provider which can gather information regarding the heights of object
 """
 
 import json
-import math
 import operator
 from pathlib import Path
 
@@ -23,6 +22,7 @@ class AhnProvider(TopDownProvider):
 	temp_path = Path(__file__).parents[2]
 	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
+
 	def __init__(self, image_provider_entity):
 		"""
 		The initialization method
@@ -30,9 +30,6 @@ class AhnProvider(TopDownProvider):
 		"""
 		super().__init__(image_provider_entity=image_provider_entity)
 		self.geo_util = GeoLocationUtil()
-
-	def __init__(self, image_provider_entity):
-		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)
 		self.name = "ahn"
 		self.max_zoom = 20
 		self.color_to_height = self.load_from_json()
@@ -63,11 +60,11 @@ class AhnProvider(TopDownProvider):
 					counter += 1
 				if element in [" ", "(", ")"]:
 					counter += 1
-					pass
+					#pass
 				else:
 					if element == ",":
 						counter += 1
-						pass
+						#pass
 					else:
 						temp_string += element
 						counter += 1

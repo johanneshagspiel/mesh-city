@@ -8,10 +8,17 @@ from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindo
 
 
 class StartScreen:
+	"""
+	The start screen where the user can select an existing account or make a new one
+	"""
 
 	def __init__(self, master, application):
+		"""
+		The user either selects and existing account or creates a new one
+		:param master: the master tkinter object
+		:param application: the global application context
+		"""
 
-		self.value = ""
 		self.master = master
 		self.application = application
 		top = self.top = Toplevel(master)
@@ -25,7 +32,7 @@ class StartScreen:
 		)
 
 		counter = 1
-		for key, value in self.dic_users.items():
+		for key in self.dic_users.keys():
 			name_user = key
 			self.temp_name = Button(
 				self.top,
@@ -49,10 +56,21 @@ class StartScreen:
 		self.create_user.grid(row=counter, column=1)
 
 	def load_user(self, name_user):
+		"""
+		Method called when the user wants to login with an existing user
+		:param name_user: the user name
+		:return: nothing (changes to main screen and initializes the missing user information
+		in the global application context)
+		"""
 		self.application.late_init(name_user)
 		self.top.destroy()
 
+	# pylint: disable=W0201
 	def create_new_user(self):
+		"""
+		Method called when the user wants to create a new user.
+		:return: nothing (changes to create new user window)
+		"""
 		self.window = CreateNewUserWindow(self.master, self.application)
 		self.top.destroy()
 		self.master.wait_window(self.window.top)
