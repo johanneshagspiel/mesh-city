@@ -12,10 +12,10 @@ class LogManager:
 	A class that is responsible for logging every request made.
 	"""
 
-	temp_path = Path(__file__).parents[2]
-	resource_path = Path.joinpath(temp_path, "resources")
-	image_path = Path.joinpath(resource_path, "images")
-	log_path = Path.joinpath(resource_path, "logs", "log_request_.json")
+	def __init__(self, resource_path=Path(__file__).parents[1].joinpath("resources")):
+		self.resource_path = resource_path
+		self.image_path = resource_path.joinpath("images")
+		self.log_path = resource_path.joinpath("logs", "log_request_.json")
 
 	def get_request_number(self):
 		"""
@@ -42,6 +42,7 @@ class LogManager:
 
 		max_directory = 0
 
+		self.image_path.mkdir(exist_ok=True)
 		if len(os.listdir(self.image_path)) == 0:
 			max_directory = 0
 		else:
