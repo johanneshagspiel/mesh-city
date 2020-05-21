@@ -85,11 +85,17 @@ class RequestManager:
 		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
 			first_coordinate, second_coordinate, zoom
 		)
+
+		print("Requestnumber: " + str(self.request_number))
+		print("Total Images to download: " + str(coordinates_info[0][0]))
+		print("Total number of horizontal images: " + str(coordinates_info[0][1]))
+		print("Total number of vertical images: " + str(coordinates_info[0][2]))
+
 		coordinates_list = coordinates_info[1]
 
 		self.make_request_list_of_coordinates(coordinates_list, zoom)
 
-	def make_request_list_of_coordinates(self, coordinates_list, zoom, num_of_images_total=None):
+	def make_request_list_of_coordinates(self, coordinates_list, zoom):
 		"""
 		Makes a number of API requests based on the input of a coordinate list.
 		:param coordinates_list: list of coordinates, and image positions in the global grid.
@@ -100,9 +106,6 @@ class RequestManager:
 		:param num_of_images_total: number of images to be downloaded
 		:return: saves all images on disk, and creates an CSV document with metadata.
 		"""
-
-		print("Requestnumber: " + str(self.request_number))
-		print("Total Images to download: " + str(num_of_images_total))
 
 		new_folder_path = Path.joinpath(
 			self.images_folder_path, "request_" + str(self.request_number)
