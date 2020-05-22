@@ -3,7 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, Label, Toplevel
 
-from mesh_city.util.price_table_util import PriceTableUtil
+from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
 
 
 class PreviewWindow:
@@ -68,26 +68,33 @@ class PreviewWindow:
 		number_requests_label_text = "Images to download: " + str(number_requests)
 		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
 		self.number_requests_label.grid(row=1, column=0)
+		try:
+			temp_cost = PriceTableUtil.calculate_action_price(
+				image_provider_entity.type,
+				"static_map",
+				image_provider_entity.usage["static_map"],
+				number_requests,
+				image_provider_entity.quota
+			)
+		except ValueError:
+			# should be integrated into the GUI
+			print("The value is not defined")
+		except QuotaException:
+			# should be integrated into the GUI
+			print("This would exceed the quota")
+		else:
+			cost_request_label_text = "Cost: " + str(temp_cost)
+			self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
+			self.cost_request_label.grid(row=2, column=0)
 
-		temp_cost = PriceTableUtil.calculate_action_price(
-			image_provider_entity.type,
-			"static_map",
-			image_provider_entity.usage["static_map"],
-			number_requests,
-			image_provider_entity.quota
-		)
-		cost_request_label_text = "Cost: " + str(temp_cost)
-		self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
-		self.cost_request_label.grid(row=2, column=0)
+			usage_left_label_text = "Usage left: " + str(image_provider_entity.quota - temp_cost)
+			self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
+			self.usage_left_label.grid(row=3, column=0)
 
-		usage_left_label_text = "Usage left: " + str(image_provider_entity.quota - temp_cost)
-		self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
-		self.usage_left_label.grid(row=3, column=0)
-
-		self.confirm_button = Button(
-			self.top, text="Confirm", command=lambda: self.cleanup(self.locations)
-		)
-		self.confirm_button.grid(row=4)
+			self.confirm_button = Button(
+				self.top, text="Confirm", command=lambda: self.cleanup(self.locations)
+			)
+			self.confirm_button.grid(row=4)
 
 	def cleanup(self, locations):
 		"""
