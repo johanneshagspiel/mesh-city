@@ -31,7 +31,6 @@ class GoogleMapsProvider(TopDownProvider):
 	):
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
-		:param response:
 		:param latitude: latitude centre coordinate
 		:param longitude: latitude centre coordinate
 		:param zoom: how zoomed in the image is
@@ -39,6 +38,7 @@ class GoogleMapsProvider(TopDownProvider):
 		:param new_folder_path: directory for where the file should be saved.
 		:param width: the width dimension of the image
 		:param height: the height dimension of the image
+		:param: response: the response received from a request,used in testing.
 		:return:
 		"""
 
