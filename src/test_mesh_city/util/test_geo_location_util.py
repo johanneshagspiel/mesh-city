@@ -44,30 +44,63 @@ class TestGeoLocationUtil(unittest.TestCase):
 			calculated_resolution = self.geo_location_util.calc_meters_per_px(0, zoom)
 			self.assertAlmostEqual(answer_resolution, calculated_resolution, 4)
 
+
 	def test_calc_next_location_latitude_true(self):
-		answer_latitude = 51.91803031195189
+		answer_latitude = 50.000457076228585
 		calculated_latitude = self.geo_location_util.calc_next_location_latitude(
-			51.917534, 20, 600, True
+			50, 5, 20, True
 		)
 		self.assertEqual(answer_latitude, calculated_latitude)
 
 	def test_calc_next_location_latitude_false(self):
-		answer_latitude = 51.91703768804812
+		answer_latitude = 49.99957434206772
 		calculated_latitude = self.geo_location_util.calc_next_location_latitude(
-			51.917534, 20, 600, False
+			50, 5, 20, False
 		)
 		self.assertEqual(answer_latitude, calculated_latitude)
 
 	def test_calc_next_location_longitude_true(self):
-		answer_longitude = 4.456396662704557
+		answer_longitude = 5.000495910644531
 		calculated_latitude = self.geo_location_util.calc_next_location_longitude(
-			51.917534, 4.455592, 20, 600, True
+			50, 5, 20, True
 		)
 		self.assertEqual(answer_longitude, calculated_latitude)
 
 	def test_calc_next_location_longitude_false(self):
-		answer_longitude = 4.454787337295444
+		answer_longitude = 4.999122619628906
 		calculated_latitude = self.geo_location_util.calc_next_location_longitude(
-			51.917534, 4.455592, 20, 600, False
+			50, 5, 20, False
 		)
 		self.assertEqual(answer_longitude, calculated_latitude)
+
+	def test_degree_to_tile_value_illegal_lat_input(self):
+		self.assertRaises(ValueError, self.geo_location_util.degree_to_tile_value, 86, 5, 20)
+
+	def test_degree_to_tile_value_illegal_long_input(self):
+		self.assertRaises(ValueError, self.geo_location_util.degree_to_tile_value, 50, 181, 20)
+
+	def test_tile_value_to_degree_illegal_y_input(self):
+		self.assertRaises(ValueError, self.geo_location_util.tile_value_to_degree, 1, 9, 3)
+
+	def test_tile_value_to_degree_illegal_x_input(self):
+		self.assertRaises(ValueError, self.geo_location_util.tile_value_to_degree, -1, 16, 5)
+
+	def test_degree_to_tile_value(self):
+		closest_tiles_without_normalisation = 538852, 355620
+		closest_tiles_with_normalisation = 538851, 355619
+		calculated_answer = self.geo_location_util.degree_to_tile_value(49.99979502712741, 5.000152587890625, 20)
+		self.assertNotEqual(calculated_answer, closest_tiles_without_normalisation)
+		self.assertEqual(calculated_answer, closest_tiles_with_normalisation)
+
+	def tile_value_to_degree(self):
+		answer1 = (50.00001571117412, 4.999809265136719)
+		answer2 = (49.99979502712741, 5.000152587890625)
+		calculated_answer1 = self.geo_location_util.tile_value_to_degree(538851, 355619, 20)
+		calculated_answer2 = self.geo_location_util.tile_value_to_degree(538852, 355620, 20)
+		self.assertEqual(answer1, calculated_answer1)
+		self.assertEqual(answer2, calculated_answer2)
+
+	def test_normalise_coordinates(self):
+		answer_coordinates = 50.00001571117412, 4.999809265136719
+		calculated_coordinates = self.geo_location_util.normalise_coordinates(50, 5, 20)
+		self.assertEqual(answer_coordinates, calculated_coordinates)
