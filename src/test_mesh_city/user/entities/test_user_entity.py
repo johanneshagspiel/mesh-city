@@ -13,7 +13,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 	def setUp(self):
 		self.provider1 = ImageProviderEntity(
 			FileHandler(),
-			type="google_maps",
+			type_map_provider="google_maps",
 			api_key="test",
 			quota=100,
 			usage=None,
@@ -21,7 +21,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 		)
 		self.provider2 = ImageProviderEntity(
 			FileHandler(),
-			type="ahn",
+			type_map_provider="ahn",
 			api_key="test",
 			quota=100,
 			usage=None,

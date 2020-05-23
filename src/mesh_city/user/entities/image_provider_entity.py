@@ -1,13 +1,9 @@
 """
 This module contains the image provider log
 """
-import json
 from calendar import monthrange
 from datetime import datetime
 
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.util.logs.log_entry.log_entity import LogEntity
 
 
@@ -17,28 +13,28 @@ class ImageProviderEntity(LogEntity):
 	with a user such as api key, usage, quota etc.
 	"""
 
-	def __init__(self, file_handler, type, api_key, quota, usage=None, date_reset=None):
+	def __init__(self, file_handler, type_map_provider, api_key, quota, usage=None, date_reset=None):
 		"""
 		Sets up a image provider, either from json or when created for the first time
 		:param file_handler: the file handler needed to store the image provider
-		:param json_data: the json from which to load the image provider
 		:param type_map_provider: what kind of image provider this is
 		:param api_key: the api key associated with the image provider
 		:param quota: the quota to be observed
+		:param usage: a dictionary representing the total usage, static map usage
+		and geocoding usage.
+		:param date_reset: The date the monthly usage should be reset.
 		"""
 		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
-		self.type = type
+		self.type = type_map_provider
 		self.api_key = api_key
+		self.usage = usage
 		if usage is None:
 			self.usage = {"static_map": 0, "geocoding": 0, "total": 0}
-		else:
-			self.usage = usage
 		self.quota = int(quota)
-		self.date_reset = date_reset
+		self.date_reset = self.calculate_end_of_month(datetime.today())
 		if date_reset is not None:
+			self.date_reset = date_reset
 			self.check_date_reset(datetime.today())
-		else:
-			self.date_reset = self.calculate_end_of_month(datetime.today())
 
 	def for_json(self):
 		"""
@@ -49,11 +45,11 @@ class ImageProviderEntity(LogEntity):
 			"type": self.type,
 			"api_key": self.api_key,
 			"usage":
-			{
-			"static_map": self.usage["static_map"],
-			"geocoding": self.usage["geocoding"],
-			"total": self.usage["total"]
-			},
+				{
+					"static_map": self.usage["static_map"],
+					"geocoding": self.usage["geocoding"],
+					"total": self.usage["total"]
+				},
 			"quota": self.quota,
 			"date_reset": self.date_reset.date().isoformat()
 		}

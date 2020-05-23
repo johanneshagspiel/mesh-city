@@ -56,7 +56,7 @@ class PreviewWindow:
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
 		top_down_factory = TopDownProviderFactory()
-		self.application.request_manager.map_entity = top_down_factory.construct_image_provider(
+		self.application.request_manager.map_entity = top_down_factory.get_top_down_provider(
 			image_provider_entity
 		)
 		self.locations = self.application.request_manager.calculate_locations(

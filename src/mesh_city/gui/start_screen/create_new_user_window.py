@@ -100,7 +100,7 @@ class CreateNewUserWindow:
 			temp_name = "Google Maps " + str(temp_counter)
 			image_provider_entity_dic[temp_name] = ImageProviderEntity(
 				file_handler=self.application.file_handler,
-				type="google_maps",
+				type_map_provider="google_maps",
 				api_key=temp_api_key,
 				quota=temp_quota
 			)
