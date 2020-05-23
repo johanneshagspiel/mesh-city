@@ -64,7 +64,7 @@ class UserEntity(LogEntity):
 		for key, value in self.image_providers.items():
 			temp_image_providers[key] = value.for_json()
 
-		return {self.name : temp_image_providers}
+		return {self.name: temp_image_providers}
 
 	def action(self, logs):
 		"""

@@ -15,17 +15,19 @@ class ProviderFactoryTest(unittest.TestCase):
 
 	def test_construct_image_provider_right(self):
 		top_down_factory = TopDownProviderFactory()
-		entity = ImageProviderEntity(FileHandler(), type="ahn", api_key="test", quota=100, usage=None,
-		                             date_reset=None)
-		self.assertIsInstance(
-			top_down_factory.get_top_down_provider(entity), AhnProvider
+		entity = ImageProviderEntity(
+			FileHandler(), type="ahn", api_key="test", quota=100, usage=None, date_reset=None
 		)
+		self.assertIsInstance(top_down_factory.get_top_down_provider(entity), AhnProvider)
 
 	def test_construct_image_provider_wrong(self):
 		top_down_factory = TopDownProviderFactory()
-		entity = ImageProviderEntity(FileHandler(), type="this_is_an_undefined_image_provider_type", api_key="test", quota=100, usage=None,
-		                             date_reset=None)
-		self.assertRaises(
-			ValueError,
-			top_down_factory.get_top_down_provider, entity
+		entity = ImageProviderEntity(
+			FileHandler(),
+			type="this_is_an_undefined_image_provider_type",
+			api_key="test",
+			quota=100,
+			usage=None,
+			date_reset=None
 		)
+		self.assertRaises(ValueError, top_down_factory.get_top_down_provider, entity)

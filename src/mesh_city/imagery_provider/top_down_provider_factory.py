@@ -25,7 +25,8 @@ class TopDownProviderFactory:
 	:param user_info: information about the user
 	:param quota_manager: quota manager associated with the user
 	"""
-	def get_top_down_provider(self,image_provider_entity):
+
+	def get_top_down_provider(self, image_provider_entity):
 		if image_provider_entity.type == "google_maps":
 			return GoogleMapsProvider(image_provider_entity=self)
 		if image_provider_entity.type == "mapbox":
