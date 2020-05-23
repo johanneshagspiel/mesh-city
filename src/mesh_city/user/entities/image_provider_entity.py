@@ -13,7 +13,9 @@ class ImageProviderEntity(LogEntity):
 	with a user such as api key, usage, quota etc.
 	"""
 
-	def __init__(self, file_handler, type_map_provider, api_key, quota, usage=None, date_reset=None):
+	def __init__(
+		self, file_handler, type_map_provider, api_key, quota, usage=None, date_reset=None
+	):
 		"""
 		Sets up a image provider, either from json or when created for the first time
 		:param file_handler: the file handler needed to store the image provider
@@ -42,14 +44,14 @@ class ImageProviderEntity(LogEntity):
 		:return: the class in a json compliant form
 		"""
 		return {
-			"type": self.type,
+			"type_map_provider": self.type,
 			"api_key": self.api_key,
 			"usage":
-				{
-					"static_map": self.usage["static_map"],
-					"geocoding": self.usage["geocoding"],
-					"total": self.usage["total"]
-				},
+			{
+			"static_map": self.usage["static_map"],
+			"geocoding": self.usage["geocoding"],
+			"total": self.usage["total"]
+			},
 			"quota": self.quota,
 			"date_reset": self.date_reset.date().isoformat()
 		}

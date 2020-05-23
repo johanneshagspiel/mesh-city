@@ -29,7 +29,12 @@ class ImageProviderEntityTest(unittest.TestCase):
 	def test_usage_not_reset(self, current_date, date_reset):
 		test_usage_dict = {"static_map": 42, "geocoding": 42, "total": 84}
 		entity = ImageProviderEntity(
-			FileHandler(), type_map_provider="test", api_key="test", quota=100, usage=None, date_reset=date_reset
+			FileHandler(),
+			type_map_provider="test",
+			api_key="test",
+			quota=100,
+			usage=None,
+			date_reset=date_reset
 		)
 		# circumvents the use of current time in __init__
 		entity.date_reset = date_reset
@@ -46,7 +51,12 @@ class ImageProviderEntityTest(unittest.TestCase):
 	def test_usage_reset(self, current_date, date_reset):
 		test_usage_dict = {"static_map": 42, "geocoding": 42, "total": 84}
 		entity = ImageProviderEntity(
-			FileHandler(), type_map_provider="test", api_key="test", quota=100, usage=None, date_reset=date_reset
+			FileHandler(),
+			type_map_provider="test",
+			api_key="test",
+			quota=100,
+			usage=None,
+			date_reset=date_reset
 		)
 		# circumvents the use of current time in __init__
 		entity.date_reset = date_reset
@@ -68,7 +78,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'api_key': 'test',
 			'date_reset': '2020-05-31',
 			'quota': 100,
-			'type': 'test',
+			'type_map_provider': 'test',
 			'usage': {
 			'geocoding': 0, 'static_map': 0, 'total': 0
 			}

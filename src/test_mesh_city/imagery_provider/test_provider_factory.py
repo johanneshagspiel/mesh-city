@@ -1,9 +1,6 @@
 # pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
 
 import unittest
-from datetime import datetime
-
-from parameterized import parameterized
 
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
@@ -16,7 +13,12 @@ class ProviderFactoryTest(unittest.TestCase):
 	def test_construct_image_provider_right(self):
 		top_down_factory = TopDownProviderFactory()
 		entity = ImageProviderEntity(
-			FileHandler(), type_map_provider="ahn", api_key="test", quota=100, usage=None, date_reset=None
+			FileHandler(),
+			type_map_provider="ahn",
+			api_key="test",
+			quota=100,
+			usage=None,
+			date_reset=None
 		)
 		self.assertIsInstance(top_down_factory.get_top_down_provider(entity), AhnProvider)
 

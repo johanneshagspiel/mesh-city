@@ -40,7 +40,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'api_key': 'test',
 			'date_reset': '2020-05-31',
 			'quota': 100,
-			'type': 'google_maps',
+			'type_map_provider': 'google_maps',
 			'usage': {
 			'geocoding': 0, 'static_map': 0, 'total': 0
 			}
@@ -50,7 +50,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'api_key': 'test',
 			'date_reset': '2020-05-31',
 			'quota': 100,
-			'type': 'ahn',
+			'type_map_provider': 'ahn',
 			'usage': {
 			'geocoding': 0, 'static_map': 0, 'total': 0
 			}
@@ -73,7 +73,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 				'api_key': 'test',
 				'date_reset': '2020-05-31',
 				'quota': 100,
-				'type': 'google_maps',
+				'type_map_provider': 'google_maps',
 				'usage': {
 				'geocoding': 0, 'static_map': 0, 'total': 0
 				}
@@ -83,7 +83,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 				'api_key': 'test',
 				'date_reset': '2020-05-31',
 				'quota': 100,
-				'type': 'ahn',
+				'type_map_provider': 'ahn',
 				'usage': {
 				'geocoding': 0, 'static_map': 0, 'total': 0
 				}
