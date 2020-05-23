@@ -3,6 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, Label, Toplevel
 
+from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
 
 
@@ -54,7 +55,10 @@ class PreviewWindow:
 		:param image_provider_entity: the image provider entity used for the request
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
-		self.application.request_manager.map_entity = image_provider_entity.construct_image_provider()
+		top_down_factory = TopDownProviderFactory()
+		self.application.request_manager.map_entity = top_down_factory.construct_image_provider(
+			image_provider_entity
+		)
 		self.locations = self.application.request_manager.calculate_locations(
 			coordinates=self.coordinates
 		)
