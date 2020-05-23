@@ -58,18 +58,18 @@ class SearchWindowLocation:
 		:return: None
 		"""
 
-		if self.latitude["text"] == "Latitude:":
-			self.latitude["text"] = "Address:"
+		if self.latitude["information_general"] == "Latitude:":
+			self.latitude["information_general"] = "Address:"
 			self.long_entry.grid_forget()
 			self.type_button.configure(text="Coordinates")
-			self.longitude["text"] = ""
+			self.longitude["information_general"] = ""
 			first_time = False
 
-		if self.latitude["text"] == "Address:" and first_time:
+		if self.latitude["information_general"] == "Address:" and first_time:
 			self.latitude.config(text="Latitude:")
 			self.long_entry.grid(row=2, column=3)
 			self.type_button.configure(text="Address")
-			self.longitude["text"] = "Longitude:"
+			self.longitude["information_general"] = "Longitude:"
 
 	def cleanup(self):
 		"""

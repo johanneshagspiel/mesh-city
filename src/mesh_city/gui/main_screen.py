@@ -2,17 +2,18 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, Canvas, Label, mainloop, NW, Tk
+from tkinter import Button, Canvas, END, Label, mainloop, NW, Tk, Frame, Text, WORD, DISABLED, RIDGE
 
 from PIL import Image, ImageTk
 
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
+from mesh_city.gui.generate_screen.generate_screen import GenerateWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_screen.start_screen import StartScreen
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.overlay_creator import OverlayCreator
+from mesh_city.detection.overlay_creator import OverlayCreator
 
 
 class MainScreen:
@@ -33,7 +34,7 @@ class MainScreen:
 
 		self.master = Tk()
 		self.master.title("Mesh City")
-		self.master.geometry("710x780")
+		self.master.geometry("901x655")
 
 		self.master.withdraw()
 		self.window = StartScreen(self.master, application)
@@ -50,11 +51,12 @@ class MainScreen:
 		self.image = self.load_large_image()
 
 		# Definition of UI of main window
-		self.canvas = Canvas(self.master, width=710, height=777)
-		self.canvas.grid(column=3, columnspan=30, row=0, rowspan=30)
+		self.canvas = Canvas(self.master, width=900, height=777)
+		self.canvas.grid(column=3, row=0, rowspan=30)
+		self.master.columnconfigure(3, weight=1)
 
-		side_bar = Label(self.canvas, width=15, height=645, text="")
-		self.canvas.create_window(0, 0, window=side_bar)
+		# side_bar = Label(self.canvas, width=15, height=645, information_general="")
+		# self.canvas.create_window(0, 0, window=side_bar)
 
 		search_button = Button(
 			self.canvas, text="Search", width=6, height=3, command=self.search_window, bg="grey"
@@ -76,11 +78,36 @@ class MainScreen:
 		)
 		self.canvas.create_window(30, 210, window=layers_button)
 
-		info_button = Button(self.canvas, text="Info", width=6, height=3, command=None, bg="grey")
-		self.canvas.create_window(30, 269, window=info_button)
+		generate_button = Button(self.canvas, text="Generate", width=6, height=3, command=self.generate_window, bg="grey")
+		self.canvas.create_window(30, 269, window=generate_button)
+
+		export_button = Button(self.canvas, text="Export", width=6, height=3, command=None, bg="grey")
+		self.canvas.create_window(30, 328, window=export_button)
 
 		user_button = Button(self.canvas, text="User", width=6, height=3, command=None, bg="grey")
-		self.canvas.create_window(30, 328, window=user_button)
+		self.canvas.create_window(30, 387, window=user_button)
+
+		self.test_frame = Frame(self.canvas, width=185, height=646)
+		self.test_frame.grid_propagate(0)
+		self.canvas.create_window(803, 328, window=self.test_frame)
+
+		self.information_general = Text(self.test_frame, width=26, height=30, wrap=WORD)
+		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
+		self.information_general.grid(row=0, column=0, sticky ="w")
+		self.information_general.insert(END, "General")
+		self.information_general.config(state=DISABLED)
+		self.information_general.bind("<Double-1>", lambda event: "break")
+		self.information_general.bind("<Button-1>", lambda event: "break")
+		self.information_general.config(cursor="")
+
+		self.information_selection = Text(self.test_frame, width=26, height=14, wrap=WORD)
+		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
+		self.information_selection.grid(row=1, column=0, sticky ="w")
+		self.information_selection.insert(END, "Selection")
+		self.information_selection.config(state=DISABLED)
+		self.information_selection.bind("<Double-1>", lambda event: "break")
+		self.information_selection.bind("<Button-1>", lambda event: "break")
+		self.information_selection.config(cursor="")
 
 		self.load_large_image_on_map(self.image)
 
@@ -113,6 +140,13 @@ class MainScreen:
 		:return:
 		"""
 		DetectionScreen(self.master, self.application, self)
+
+	def generate_window(self):
+		"""
+		Creates a generate window object
+		:return:
+		"""
+		GenerateWindow(self.master, self.application, self)
 
 	def update_image(self):
 		"""

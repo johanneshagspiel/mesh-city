@@ -3,6 +3,7 @@ Module containing the deep_forest tree detection algorithm
 """
 import os
 from pathlib import Path
+from deepforest import deepforest
 
 
 class DeepForest:

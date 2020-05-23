@@ -64,7 +64,7 @@ class LayersWindow:
 
 		for element in self.temp_int_var_list:
 			if element.get() == 1:
-				overlays.append(self.check_box_list[temp_counter].cget("text"))
+				overlays.append(self.check_box_list[temp_counter].cget("information_general"))
 				temp_sum += 1
 			temp_counter += 1
 

@@ -42,4 +42,8 @@ class Pipeline:
 		self.main_screen.overlay_creator.create_overlay(
 			detection_algorithm=self.type, image_size=(image_size[0], image_size[1])
 		)
+		self.main_screen.overlay_creator.create_map_overlay(
+			detection_algorithm=self.type, image_size=(image_size[0], image_size[1])
+		)
 		self.main_screen.overlay_creator.create_composite_image(["trees"])
+
