@@ -17,9 +17,7 @@ class ImageProviderEntity(LogEntity):
 	with a user such as api key, usage, quota etc.
 	"""
 
-	def __init__(
-		self, file_handler, type, api_key, quota, usage=None, date_reset=None
-	):
+	def __init__(self, file_handler, type, api_key, quota, usage=None, date_reset=None):
 		"""
 		Sets up a image provider, either from json or when created for the first time
 		:param file_handler: the file handler needed to store the image provider
@@ -47,9 +45,20 @@ class ImageProviderEntity(LogEntity):
 		Turns the class into a json compliant form
 		:return: the class in a json compliant form
 		"""
-		json.dumps(self, indent=4, sort_keys=True, default=str)
+		return {
+			"type": self.type,
+			"api_key": self.api_key,
+			"usage":
+			{
+			"static_map": self.usage["static_map"],
+			"geocoding": self.usage["geocoding"],
+			"total": self.usage["total"]
+			},
+			"quota": self.quota,
+			"date_reset": self.date_reset.date().isoformat()
+		}
 
-	def check_date_reset(self,current_date):
+	def check_date_reset(self, current_date):
 		"""
 		Checks if the usage should be reset if a new month has started
 		:return: nothing (but the usage fields are reset to 0)
@@ -61,7 +70,6 @@ class ImageProviderEntity(LogEntity):
 			self.usage["total"] = 0
 			self.date_reset = self.calculate_end_of_month(current_date)
 
-
 	# pylint: disable=W0613
 	def action(self, logs):
 		"""
@@ -70,20 +78,6 @@ class ImageProviderEntity(LogEntity):
 		:return: just turns the object to json
 		"""
 		return self.for_json()
-
-	def construct_image_provider(self):
-		"""
-		Loads the appropriate image provider.
-		:return:
-		"""
-		if self.type == "google_maps":
-			return GoogleMapsProvider(image_provider_entity=self)
-		if self.type == "mapbox":
-			return MapboxProvider(image_provider_entity=self)
-		if self.type == "ahn":
-			return AhnProvider(image_provider_entity=self)
-		else:
-			raise ValueError("This image provider type is not defined")
 
 	@staticmethod
 	def calculate_end_of_month(date):

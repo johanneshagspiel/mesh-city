@@ -1,6 +1,8 @@
 """
 Module containing the user_entity class
 """
+from datetime import datetime
+
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.logs.log_entry.log_entity import LogEntity
 
@@ -49,7 +51,9 @@ class UserEntity(LogEntity):
 		:return: None
 		"""
 		for item in json.items():
-			self.image_providers[item[0]] = (ImageProviderEntity(self.file_handler, **item[1]))
+			provider_dict = item[1]
+			provider_dict["date_reset"] = datetime.strptime(provider_dict["date_reset"], "%Y-%m-%d")
+			self.image_providers[item[0]] = (ImageProviderEntity(self.file_handler, **provider_dict))
 
 	def for_json(self):
 		"""
