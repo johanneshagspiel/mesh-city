@@ -22,7 +22,7 @@ class UserEntity(LogEntity):
 		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
 		self.file_handler = file_handler
 
-		if (name and image_providers is not None):
+		if name and image_providers is not None:
 			self.name = name
 			self.image_providers = image_providers
 			self.check_name()
@@ -35,7 +35,7 @@ class UserEntity(LogEntity):
 		"""
 		Sets up the user from a json file
 		:param json: the json file from which to set up the user
-		:return: nothing (the fields of the user are initialized correctly)
+		:return: None
 		"""
 		key, value = list(json.items())[0]
 		self.name = key
@@ -46,10 +46,10 @@ class UserEntity(LogEntity):
 		"""
 		Helper method to set up the image providers from json
 		:param json: the json file from which to set up the image providers
-		:return: nothing (the image providers field is set up correctly)
+		:return: None
 		"""
 		for item in json.items():
-			self.image_providers[item[0]] = (ImageProviderEntity(self.file_handler, item[1]))
+			self.image_providers[item[0]] = (ImageProviderEntity(self.file_handler, **item[1]))
 
 	def for_json(self):
 		"""
@@ -76,7 +76,7 @@ class UserEntity(LogEntity):
 	def check_name(self):
 		"""
 		Helper method to check that each name of the image providers is unique
-		:return: nothing (all the image providers have unique names)
+		:return: None
 		"""
 		names = {}
 		for key in self.image_providers.keys():
@@ -87,9 +87,5 @@ class UserEntity(LogEntity):
 
 				names[new_name] = 0
 				names[old_name] = new_value
-
-				# new_key = new_name
-				# self.image_providers[new_key] = self.image_providers.pop(old_name)
-				# names[old_name] = new_value
 			else:
 				names[key] = 0

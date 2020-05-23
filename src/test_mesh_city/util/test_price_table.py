@@ -85,6 +85,3 @@ class PriceTableTest(unittest.TestCase):
 			1,
 			1
 		)
-
-if __name__ == '__main__':
-    unittest.main()

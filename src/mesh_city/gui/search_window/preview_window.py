@@ -54,7 +54,7 @@ class PreviewWindow:
 		:param image_provider_entity: the image provider entity used for the request
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
-		self.application.request_manager.map_entity = image_provider_entity.map_entity
+		self.application.request_manager.map_entity = image_provider_entity.construct_image_provider()
 		self.locations = self.application.request_manager.calculate_locations(
 			coordinates=self.coordinates
 		)

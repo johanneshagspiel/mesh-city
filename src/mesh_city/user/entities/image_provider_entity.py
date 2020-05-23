@@ -18,7 +18,7 @@ class ImageProviderEntity(LogEntity):
 	"""
 
 	def __init__(
-		self, file_handler, json_data=None, type_map_provider=None, api_key=None, quota=None
+		self, file_handler, type, api_key, quota, usage=None, date_reset=None
 	):
 		"""
 		Sets up a image provider, either from json or when created for the first time
@@ -29,56 +29,38 @@ class ImageProviderEntity(LogEntity):
 		:param quota: the quota to be observed
 		"""
 		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
-		if (type_map_provider and api_key and quota is not None):
-			self.type = type_map_provider
-			self.api_key = api_key
+		self.type = type
+		self.api_key = api_key
+		if usage is None:
 			self.usage = {"static_map": 0, "geocoding": 0, "total": 0}
-			self.quota = int(quota)
-			self.date_reset = self.calculate_end_this_month()
-			self.map_entity = self.load_map_entity()
 		else:
-			self.type = None
-			self.api_key = None
-			self.usage = None
-			self.quota = None
-			self.date_reset = None
-			self.map_entity = None
-			self.load_json(json_data)
-			self.map_entity = self.load_map_entity()
-
-	def load_json(self, json_data):
-		"""
-		Sets the fields of the class based on a json file
-		:param json_data:
-		:return:
-		"""
-		self.type = json_data["type"]
-		self.api_key = json_data["api_key"]
-		self.usage = json_data["usage"]
-		self.quota = int(json_data["quota"])
-		self.date_reset = json_data["date_reset"]
-		self.check_date_reset()
+			self.usage = usage
+		self.quota = int(quota)
+		self.date_reset = date_reset
+		if date_reset is not None:
+			self.check_date_reset(datetime.today())
+		else:
+			self.date_reset = self.calculate_end_of_month(datetime.today())
 
 	def for_json(self):
 		"""
 		Turns the class into a json compliant form
 		:return: the class in a json compliant form
 		"""
-		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+		json.dumps(self, indent=4, sort_keys=True, default=str)
 
-	def check_date_reset(self):
+	def check_date_reset(self,current_date):
 		"""
 		Checks if the usage should be reset if a new month has started
 		:return: nothing (but the usage fields are reset to 0)
 		"""
-		old_date = datetime.strptime(self.date_reset, "%Y-%m-%d")
-		today = datetime.today()
 
-		if (today >= old_date):
+		if current_date >= self.date_reset:
 			self.usage["static_map"] = 0
 			self.usage["geocoding"] = 0
 			self.usage["total"] = 0
-			self.date_reset = datetime.strftime(self.calculate_end_this_month(), "%Y-%m-%d")
+			self.date_reset = self.calculate_end_of_month(current_date)
+
 
 	# pylint: disable=W0613
 	def action(self, logs):
@@ -89,9 +71,9 @@ class ImageProviderEntity(LogEntity):
 		"""
 		return self.for_json()
 
-	def load_map_entity(self):
+	def construct_image_provider(self):
 		"""
-		Loads the approp
+		Loads the appropriate image provider.
 		:return:
 		"""
 		if self.type == "google_maps":
@@ -100,15 +82,14 @@ class ImageProviderEntity(LogEntity):
 			return MapboxProvider(image_provider_entity=self)
 		if self.type == "ahn":
 			return AhnProvider(image_provider_entity=self)
-		return None
+		else:
+			raise ValueError("This image provider type is not defined")
 
-	def calculate_end_this_month(self):
+	@staticmethod
+	def calculate_end_of_month(date):
 		"""
 		Helper method to calculate the end of a month
 		:return: a string containing the end of the month
 		"""
-		temp_today = datetime.today()
-		temp_month = temp_today.month
-		temp_year = temp_today.year
-		temp_end = monthrange(temp_year, temp_month)
-		return str(temp_year) + "-" + str(temp_month) + "-" + str(temp_end[1])
+		temp_end = monthrange(date.year, date.month)
+		return datetime(date.year, date.month, temp_end[1])
