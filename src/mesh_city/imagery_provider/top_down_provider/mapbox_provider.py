@@ -25,7 +25,7 @@ class MapboxProvider(TopDownProvider):
 
 	def get_and_store_location(
 		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
-	):
+		, response=None):
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
 		:param latitude: latitude centre coordinate
@@ -54,25 +54,25 @@ class MapboxProvider(TopDownProvider):
 		attribution = "attribution=false"
 		logo = "logo=false"
 		access_token = self.user_info.api_key
-
-		response = requests.get(
-			"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
-			% (
-			username,
-			style_id,
-			lon,
-			lat,
-			zoom,
-			bearing,
-			pitch,
-			width,
-			height,
-			scale,
-			access_token,
-			attribution,
-			logo,
+		if response is None:
+			response = requests.get(
+				"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
+				% (
+					username,
+					style_id,
+					lon,
+					lat,
+					zoom,
+					bearing,
+					pitch,
+					width,
+					height,
+					scale,
+					access_token,
+					attribution,
+					logo,
+				)
 			)
-		)
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
