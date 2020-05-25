@@ -5,16 +5,13 @@ requests are stored on disk.
 """
 
 import csv
-import math
 import os
 from pathlib import Path
 
+import math
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.logs.log_manager import LogManager
-from mesh_city.util.geo_location_util import GeoLocationUtil
-from mesh_city.util.image_util import ImageUtil
 
 
 class RequestManager:
@@ -29,25 +26,19 @@ class RequestManager:
 
 	def __init__(
 		self,
-		user_info,
-		quota_manager,
-		top_down_provider,
 		log_manager,
 		image_util,
 		geo_location_util,
-		resource_path=Path(__file__).parents[1].joinpath("resources"),
+		file_handler,
+		top_down_provider=None,
 	):
-		self.user_info = user_info
-		self.quota_manager = quota_manager
-		if top_down_provider is None:
-			self.top_down_provider = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.top_down_provider = AhnProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.top_down_provider = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
+		self.top_down_provider = top_down_provider
+		self.log_manager = log_manager
+		self.image_util = image_util
+		self.geo_location_util = geo_location_util
+		self.file_handler = file_handler
 
-		self.log_manager = LogManager()
-		self.image_util = ImageUtil()
-		self.geo_location_util = GeoLocationUtil()
-
+		self.images_folder_path = file_handler.folder_overview["image_path"]
 		self.request_number = 1
 
 	def make_single_request(self, centre_coordinates, zoom, height, width):
@@ -336,7 +327,7 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]                                                                                                                                      new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
 
 		# download and store the information in case a whole area was asked for
 		if len(centre_coordinates) > 9:
@@ -382,8 +373,7 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = \
-                                                                                                                                                           new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path
@@ -524,12 +514,13 @@ class RequestManager:
 		:param zoom:
 		:return:
 		"""
-		side_resolution_image = self.top_down_provider.max_side_resolution_image
-		if isinstance(self.top_down_provider, GoogleMapsProvider):
-		if zoom is None:
-			zoom = self.map_entity.max_zoom
 
-		image_size = 640 - self.map_entity.padding
+		if zoom is None:
+			zoom = self.top_down_provider.max_zoom
+
+		image_size = self.top_down_provider.max_side_resolution_image
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
+			image_size = 640 - self.top_down_provider.padding
 
 		if len(coordinates) == 2:
 			latitude = coordinates[0]

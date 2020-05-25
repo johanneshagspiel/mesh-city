@@ -1,3 +1,6 @@
+from mesh_city.logs.log_entities.log_entry import LogEntry
+
+
 class TopDownProviderRequestLog(LogEntry):
 	"""
 	Meta information for one request

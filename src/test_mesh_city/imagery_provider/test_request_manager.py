@@ -7,6 +7,7 @@ from unittest.mock import ANY, call, Mock
 
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -61,13 +62,11 @@ class TestRequestManager(unittest.TestCase):
 		self, top_down_provider=Mock(), log_manager=Mock(), geo_location_util=Mock()
 	):
 		return RequestManager(
-			user_info=Mock(),
-			quota_manager=Mock(),
+			file_handler=FileHandler(root=Path(__file__).parents[1]),
 			top_down_provider=top_down_provider,
 			log_manager=log_manager,
 			image_util=Mock(),
 			geo_location_util=geo_location_util,
-			resource_path=self.resource_path,
 		)
 
 	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):

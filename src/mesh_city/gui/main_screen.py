@@ -138,8 +138,7 @@ class MainScreen:
 		:return: nothing
 		"""
 		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"]
-			[0].glob("concat_image_*")
+			self.application.file_handler.folder_overview["active_image_path"][0].glob("concat_image_*")
 		)
 		get_image = Image.open(temp_image_path)
 		resize_image = get_image.resize((self.image_width, self.image_height), Image.ANTIALIAS)

@@ -29,4 +29,9 @@ class Application:
 		Initialises the fields that need the user information.
 		"""
 		self.user_entity = user_entity
-		self.request_manager = RequestManager(user_entity=user_entity, application=self)
+		self.request_manager = RequestManager(
+			file_handler=self.file_handler,
+			log_manager=self.log_manager,
+			image_util=ImageUtil(),
+			geo_location_util=GeoLocationUtil(),
+		)

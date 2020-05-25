@@ -43,6 +43,7 @@ class PreviewWindow:
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)
 
+			print(value)
 			temp_text = "Usage left: " + str(value.quota - value.usage["total"])
 			self.temp_list.append(Label(self.top, text=temp_text))
 			self.temp_list_size += 1
@@ -56,7 +57,7 @@ class PreviewWindow:
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
 		top_down_factory = TopDownProviderFactory()
-		self.application.request_manager.map_entity = top_down_factory.get_top_down_provider(
+		self.application.request_manager.top_down_provider = top_down_factory.get_top_down_provider(
 			image_provider_entity
 		)
 		self.locations = self.application.request_manager.calculate_locations(
