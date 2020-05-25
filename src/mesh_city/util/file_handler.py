@@ -10,7 +10,7 @@ class FileHandler:
 	Preliminary filehanler class that stores all the information surrounding paths
 	"""
 
-	def __init__(self, root = None):
+	def __init__(self, root=None):
 		"""
 		Creates a dictionary of name to (path, name). Name is needed in the tuple so that a method
 		can now where it is
