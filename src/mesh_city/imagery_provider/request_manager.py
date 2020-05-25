@@ -5,10 +5,10 @@ requests are stored on disk.
 """
 
 import csv
+import math
 import os
 from pathlib import Path
 
-import math
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
@@ -25,12 +25,7 @@ class RequestManager:
 	"""
 
 	def __init__(
-		self,
-		log_manager,
-		image_util,
-		geo_location_util,
-		file_handler,
-		top_down_provider=None,
+		self, log_manager, image_util, geo_location_util, file_handler, top_down_provider=None,
 	):
 		self.top_down_provider = top_down_provider
 		self.log_manager = log_manager
@@ -327,7 +322,8 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][
+						0] = new_folder_path.parents[0]
 
 		# download and store the information in case a whole area was asked for
 		if len(centre_coordinates) > 9:
@@ -373,7 +369,8 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][
+						0] = new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path

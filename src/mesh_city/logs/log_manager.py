@@ -89,7 +89,9 @@ class LogManager:
 			print(logs.items())
 			for key, value in logs.items():
 				print(value)
-				temp_dic[key] = UserEntity(file_handler=self.file_handler, name=key, json={key:value})
+				temp_dic[key] = UserEntity(
+					file_handler=self.file_handler, name=key, json={key: value}
+				)
 			return temp_dic
 
 		return logs
