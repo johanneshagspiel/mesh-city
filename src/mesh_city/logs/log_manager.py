@@ -86,8 +86,10 @@ class LogManager:
 		temp_dic = {}
 
 		if path[1] == "users.json":
+			print(logs.items())
 			for key, value in logs.items():
-				temp_dic[key] = UserEntity(file_handler=self.file_handler, name=key, image_providers=value)
+				print(value)
+				temp_dic[key] = UserEntity(file_handler=self.file_handler, name=key, json={key:value})
 			return temp_dic
 
 		return logs

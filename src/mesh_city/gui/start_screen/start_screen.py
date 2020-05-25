@@ -5,6 +5,8 @@ See :class:`.StartScreen`
 from tkinter import Button, Label, Toplevel
 
 from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
+from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.util.file_handler import FileHandler
 
 
 class StartScreen:
@@ -30,16 +32,17 @@ class StartScreen:
 		self.dic_users = self.application.log_manager.read_log(
 			path=self.application.file_handler.folder_overview["users.json"]
 		)
+		print(self.dic_users)
 
 		counter = 1
-		for key in self.dic_users.keys():
+		for key, user_object in self.dic_users.items():
 			name_user = key
 			self.temp_name = Button(
 				self.top,
 				text=name_user,
 				width=20,
 				height=3,
-				command=lambda name_user=name_user: self.load_user(self.dic_users[name_user]),
+				command=lambda name_user=name_user: self.load_user(user=user_object),
 				bg="grey"
 			)
 			self.temp_name.grid(row=counter, column=1)
@@ -55,14 +58,14 @@ class StartScreen:
 		)
 		self.create_user.grid(row=counter, column=1)
 
-	def load_user(self, name_user):
+	def load_user(self, user):
 		"""
 		Method called when the user wants to login with an existing user
 		:param name_user: the user name
 		:return: nothing (changes to main screen and initializes the missing user information
 		in the global application context)
 		"""
-		self.application.late_init(name_user)
+		self.application.late_init(user)
 		self.top.destroy()
 
 	# pylint: disable=W0201

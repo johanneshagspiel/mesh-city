@@ -1,4 +1,5 @@
-# Sprint retrospective May 18, 2020
+# Sprint retrospective for sprint 2
+## May 18, 2020
 
 Progress has been made in terms of the project itself and our process. User stories have been translated to tasks on Wednesday and as a result work people are doing is much less coupled, resulting in a much better workflow. The sprint is not done however, the task merge requests being up on GitLab without having been reviewed. This is quite understandable however seeing that we changed the workflow completely on Wednesday and have accumulated quite a bit of technical debt by merging all our work into the development branch without serious quality checks (as many things were changing all the time writing things like tests and documentation were neglected). Progress has been made on improving the code quality and getting the existing code to an acceptable level is something we will focus on in the next sprint. 
 

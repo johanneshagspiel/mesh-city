@@ -19,9 +19,9 @@ class TopDownProviderFactory:
 		:return: A TopDownProvider instance.
 		"""
 		if image_provider_entity.type == "google_maps":
-			return GoogleMapsProvider(image_provider_entity=self)
+			return GoogleMapsProvider(image_provider_entity=image_provider_entity)
 		if image_provider_entity.type == "mapbox":
-			return MapboxProvider(image_provider_entity=self)
+			return MapboxProvider(image_provider_entity=image_provider_entity)
 		if image_provider_entity.type == "ahn":
-			return AhnProvider(image_provider_entity=self)
+			return AhnProvider(image_provider_entity=image_provider_entity)
 		raise ValueError("This image provider type is not defined")

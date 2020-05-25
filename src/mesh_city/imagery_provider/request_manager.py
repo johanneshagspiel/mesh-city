@@ -507,7 +507,7 @@ class RequestManager:
 
 		return ordered_result
 
-	def calculate_locations(self, coordinates, zoom):
+	def calculate_locations(self, coordinates, zoom=None):
 		"""
 		This method calculates all the locations to be downloaded for one request
 		:param coordinates: the central coordinates around which the other image
