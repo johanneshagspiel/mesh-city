@@ -1,0 +1,3 @@
+# Sprint retrospective for sprint 3
+### May 25, 2020
+In this week we were faced by the reality that if you do not look after your code quality when you first begin, you will have a difficult time upholding code quality standards after. As we did not follow a proper feature-based workflow in the first sprint, some of the fundamental entities in our program needed to be refactored and new features depended on such reworkings. In the end this resulted in there being a huge merge request at the end of the week, unreviewed. Although what is different this week is that many merge requests have been reviewed and merged into develop in a reasonable manner, this still means that effectively the sprint was not done in time yet
