@@ -5,9 +5,6 @@ See :class:`.StartScreen`
 from tkinter import Button, Label, Toplevel
 
 from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
-from mesh_city.user.entities.user_entity import UserEntity
-from mesh_city.util.file_handler import FileHandler
-
 
 class StartScreen:
 	"""
@@ -20,7 +17,6 @@ class StartScreen:
 		:param master: the master tkinter object
 		:param application: the global application context
 		"""
-
 		self.master = master
 		self.application = application
 		top = self.top = Toplevel(master)
@@ -36,16 +32,15 @@ class StartScreen:
 
 		counter = 1
 		for key, user_object in self.dic_users.items():
-			name_user = key
-			self.temp_name = Button(
+			temp_name = Button(
 				self.top,
-				text=name_user,
+				text=key,
 				width=20,
 				height=3,
-				command=lambda name_user=name_user: self.load_user(user=user_object),
+				command=lambda user_object=user_object: self.load_user(user=user_object),
 				bg="grey"
 			)
-			self.temp_name.grid(row=counter, column=1)
+			temp_name.grid(row=counter, column=1)
 			counter += 1
 
 		self.create_user = Button(
