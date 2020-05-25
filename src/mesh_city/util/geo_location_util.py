@@ -41,16 +41,22 @@ class GeoLocationUtil:
 		:param direction: If true gives the next higher latitude, if false the next lower.
 		:return: The next latitude.
 		"""
-		normalised_latitude, normalised_longitude = self.normalise_coordinates(latitude, longitude, zoom)
-		x_cor_tile, y_cor_tile = self.degree_to_tile_value(normalised_latitude, normalised_longitude, zoom)
+		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
-			y_cor_tile = y_cor_tile - 2
+			new_y_cor = y_cor_tile - 0.99
 		else:
-			y_cor_tile = y_cor_tile + 2
-		if x_cor_tile < 0 or y_cor_tile < 0 or x_cor_tile > 2.0 ** zoom or y_cor_tile > 2.0 ** zoom:
+			new_y_cor = y_cor_tile + 1.01
+			# TODO why the fuck does this work?
+		if x_cor_tile < 0 or new_y_cor < 0 or x_cor_tile > 2.0 ** (zoom-1) or new_y_cor > 2.0 ** (zoom-1):
 			raise ValueError("The x and y input cannot exceed the boundaries of the world tile grid")
-		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
-		return new_latitude
+
+		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, new_y_cor, zoom)
+		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)
+
+		if test_y == y_cor_tile+1 or test_y == y_cor_tile-1:
+			return new_latitude
+		else:
+			raise ValueError("New y tile coordinate is incorrect")
 
 	def calc_next_location_longitude(self, latitude, longitude, zoom, direction):
 		"""
@@ -61,16 +67,22 @@ class GeoLocationUtil:
 		:param direction: If true gives the next higher longitude, if false the next lower.
 		:return: The next longitude.
 		"""
-		normalised_latitude, normalised_longitude = self.normalise_coordinates(latitude, longitude, zoom)
-		x_cor_tile, y_cor_tile = self.degree_to_tile_value(normalised_latitude, normalised_longitude, zoom)
+		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
-			x_cor_tile = x_cor_tile + 2
+			new_x_cor = x_cor_tile + 1.01
 		else:
-			x_cor_tile = x_cor_tile - 2
-		if x_cor_tile < 0 or y_cor_tile < 0 or x_cor_tile > 2.0 ** zoom or y_cor_tile > 2.0 ** zoom:
+			new_x_cor = x_cor_tile - 0.99
+
+		if new_x_cor < 0 or y_cor_tile < 0 or new_x_cor > 2.0 ** (zoom-1) or y_cor_tile > 2.0 ** (zoom-1):
 			raise ValueError("The x and y input cannot exceed the boundaries of the world tile grid")
-		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
-		return new_longitude
+
+		new_latitude, new_longitude = self.tile_value_to_degree(new_x_cor, y_cor_tile, zoom)
+		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)
+
+		if test_x == x_cor_tile + 1 or test_x == x_cor_tile - 1:
+			return new_longitude
+		else:
+			raise ValueError("New x tile coordinate is incorrect")
 
 	def degree_to_tile_value(self, latitude, longitude, zoom):
 		"""
@@ -80,20 +92,23 @@ class GeoLocationUtil:
 		:param longitude: The current longitude.
 		:param zoom: The zoom level.
 		:return: x and y coordinates of the nearest tile in the world tile grid of the specified
-		zoom level.
+		zoom level. This returns the NW-corner of the square. Use the function with x_tile + 1 and/or
+		y_tile + 1 to get the other corners. With x_tile + 0.5 & y_tile + 0.5 it will return the
+		center of the tile.
 		"""
 		if latitude < -85 or longitude < -180 or latitude > 85 or longitude > 180:
 			raise ValueError("The latitude, longitude input cannot exceed the boundaries of the map")
 		lat_rad = math.radians(latitude)
-		n = 2.0 ** zoom
+		n = 2.0 ** (zoom-1)  # number of tiles in the world tile grid: -1 as the downloaded images
+		# have twice the resolution of the grid tiles of Google Maps, Bing Maps, and OpenStreetMap.
 		x_cor_tile = int((longitude + 180.0) / 360.0 * n)
 		y_cor_tile = int((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
 		# normalises x and y tile coordinates to always be on uneven positions, such that requested
 		# images, which are two tiles apart, can never half overlap.
-		if x_cor_tile % 2 == 0:
-			x_cor_tile = x_cor_tile - 1
-		if y_cor_tile % 2 == 0:
-			y_cor_tile = y_cor_tile - 1
+		# if x_cor_tile % 2 == 1:
+		# 	x_cor_tile = x_cor_tile - 1
+		# if y_cor_tile % 2 == 1:
+		# 	y_cor_tile = y_cor_tile - 1
 		return x_cor_tile, y_cor_tile
 
 	def tile_value_to_degree(self, x_cor_tile, y_cor_tile, zoom):
@@ -107,7 +122,7 @@ class GeoLocationUtil:
 		:param zoom: The zoom level.
 		:return: the geographical coordinates of the input point.
 		"""
-		n = 2.0 ** zoom
+		n = 2.0 ** (zoom-1)
 		if x_cor_tile < 0 or y_cor_tile < 0 or x_cor_tile > n - 1 or y_cor_tile > n - 1:
 			raise ValueError("The x and y input cannot exceed the boundaries of the world tile grid")
 		longitude = x_cor_tile / n * 360.0 - 180.0

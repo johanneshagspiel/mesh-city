@@ -46,7 +46,7 @@ class RequestManager:
 		self.active_tile_path = self.images_folder_path.joinpath("request_0", "0_tile_0_0")
 		self.request_number = 1
 
-	def make_single_request(self, centre_coordinates, zoom, height, width):
+	def make_single_request(self, centre_coordinates, zoom, height=None, width=None):
 		"""
 		Test method to make and store one image. Does not support the tile system and the image can
 		not be displayed on the map.
@@ -78,7 +78,7 @@ class RequestManager:
 		if zoom is None:
 			zoom = self.top_down_provider.max_zoom
 		if zoom < 1:
-			raise Exception("Zoom level cannot be lower than 1")
+			zoom = 1
 		if zoom > self.top_down_provider.max_zoom:
 			zoom = self.top_down_provider.max_zoom
 
@@ -92,8 +92,10 @@ class RequestManager:
 		print("Total number of vertical images: " + str(coordinates_info[0][2]))
 
 		coordinates_list = coordinates_info[1]
+		# print(coordinates_info)
 
-		self.make_request_list_of_coordinates(coordinates_list, zoom)
+		# TODO uncomment the next line
+		# self.make_request_list_of_coordinates(coordinates_list, zoom)
 
 	def make_request_list_of_coordinates(self, coordinates_list, zoom):
 		"""
@@ -198,8 +200,9 @@ class RequestManager:
 			right_long = first_coordinate[1]
 
 		if bottom_lat > top_lat or left_long > right_long:
-			raise Exception(
-				"The first coordinate should be beneath and left of the second coordinate"
+			raise ValueError(
+				"The bottom latitude should be smaller than the top and the left longitude should be"
+				"smaller than the right longitude"
 			)
 
 		side_resolution_image = self.top_down_provider.max_side_resolution_image
@@ -209,47 +212,37 @@ class RequestManager:
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
 
-		horizontal_width = distance.distance((bottom_lat, left_long), (bottom_lat, right_long)).m
-		vertical_length = distance.distance((bottom_lat, left_long), (top_lat, left_long)).m
+		# start the request in the top left corner
+		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(top_lat, left_long, zoom)
+		current_latitude, current_longitude = latitude_first_image, longitude_first_image
 
-		total_horizontal_pixels = horizontal_width / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom
-		)
-		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom
-		)
+		coordinates_list = []
+		num_of_images_horizontal = 0
+		num_of_images_vertical = 0
 
-		num_of_images_horizontal = int(
-			math.floor(1 + total_horizontal_pixels / side_resolution_image)
-		)
-		num_of_images_vertical = int(math.floor(1 + total_vertical_pixels / side_resolution_image))
+		# iterate from left to right, top to bottom
+		while current_latitude > bottom_lat:
+			while current_longitude < right_long:
+				x_cor_current_tile, y_cor_current_tile = self.geo_location_util.degree_to_tile_value(
+					current_latitude, current_longitude, zoom
+				)
+				coordinates_list.append(
+					((current_latitude, current_longitude), (x_cor_current_tile, y_cor_current_tile))
+				)
+				current_longitude = self.geo_location_util.calc_next_location_longitude(
+					current_latitude, current_longitude, zoom, True
+				)
+				if current_latitude == latitude_first_image:
+					num_of_images_vertical += 1
+
+			current_longitude = longitude_first_image
+			current_latitude = self.geo_location_util.calc_next_location_latitude(
+				current_latitude, current_longitude, zoom, False
+			)
+			num_of_images_horizontal += 1
 
 		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
 
-		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
-			bottom_lat, zoom, side_resolution_image / 2, True,
-		)
-		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
-			bottom_lat, left_long, zoom, side_resolution_image / 2, True
-		)
-
-		current_latitude = latitude_first_image
-		current_longitude = longitude_first_image
-
-		coordinates_list = []
-
-		for vertical in range(num_of_images_vertical):
-			for horizontal in range(num_of_images_horizontal):
-				coordinates_list.append(
-					((current_latitude, current_longitude), (horizontal, vertical))
-				)
-				current_longitude = self.geo_location_util.calc_next_location_longitude(
-					current_latitude, current_longitude, zoom, side_resolution_image, True
-				)
-			current_longitude = longitude_first_image
-			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, zoom, side_resolution_image, True
-			)
 		return (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
 

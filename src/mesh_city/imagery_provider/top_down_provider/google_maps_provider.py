@@ -39,7 +39,7 @@ class GoogleMapsProvider(TopDownProvider):
 		:param height: the height dimension of the image
 		:return:
 		"""
-
+		# TODO fix resolution
 		if height is None or height > 640:
 			height = 640
 		if width is None or width > 640:
@@ -47,8 +47,8 @@ class GoogleMapsProvider(TopDownProvider):
 		latitude = str(latitude)
 		longitude = str(longitude)
 		zoom = str(zoom)
-		width = str(width)
-		height = str(height)
+		width = str(552)
+		height = str(552)
 		scale = str(2)
 		file_format = "PNG"
 		map_type = "satellite"
@@ -67,8 +67,9 @@ class GoogleMapsProvider(TopDownProvider):
 		get_image = Image.open(to_store)
 		left = 40
 		upper = 40
-		right = 1240
-		lower = 1240
+		right = 1104 - 40
+			# 1240
+		lower = 1104 - 40
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
@@ -76,6 +77,7 @@ class GoogleMapsProvider(TopDownProvider):
 		im1 = get_image.crop(box=(left, upper, right, lower))
 
 		im1.save(fp=to_store)
+		# get_image.save(fp=to_store)
 
 		self.quota_manager.increase_usage()
 
