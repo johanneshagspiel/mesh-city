@@ -12,6 +12,7 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.logs.log_manager import LogManager
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
@@ -26,21 +27,28 @@ class RequestManager:
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	def __init__(self, user_entity, application, map_entity=None):
-		self.user_entity = user_entity
-		self.map_entity = map_entity
+	def __init__(
+		self,
+		user_info,
+		quota_manager,
+		top_down_provider,
+		log_manager,
+		image_util,
+		geo_location_util,
+		resource_path=Path(__file__).parents[1].joinpath("resources"),
+	):
+		self.user_info = user_info
+		self.quota_manager = quota_manager
+		if top_down_provider is None:
+			self.top_down_provider = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
+		# self.top_down_provider = AhnProvider(user_info=user_info, quota_manager=quota_manager)
+		# self.top_down_provider = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
-		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
-
-		self.file_handler = application.file_handler
-		self.log_manager = application.log_manager
-
+		self.log_manager = LogManager()
 		self.image_util = ImageUtil()
 		self.geo_location_util = GeoLocationUtil()
 
-		self.request_number = self.log_manager.get_request_number()
+		self.request_number = 1
 
 	def make_single_request(self, centre_coordinates, zoom, height, width):
 		"""
@@ -52,14 +60,14 @@ class RequestManager:
 		:param width: width of the resulting image
 		:return:
 		"""
-		self.map_entity.get_and_store_location(
-			centre_coordinates[0],
-			centre_coordinates[1],
-			zoom,
-			height,
-			width,
-			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
-			self.file_handler.folder_overview["image_path"][0]
+		self.top_down_provider.get_and_store_location(
+			latitude=centre_coordinates[0],
+			longitude=centre_coordinates[1],
+			zoom=zoom,
+			height=height,
+			width=width,
+			filename=str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
+			new_folder_path=self.images_folder_path,
 		)
 
 	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
@@ -72,20 +80,26 @@ class RequestManager:
 		:return:
 		"""
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 		if zoom < 1:
-			raise Exception("Zoom level  cannot be lower than 1")
-		if zoom > self.map_entity.max_zoom:
-			zoom = self.map_entity.max_zoom
+			raise Exception("Zoom level cannot be lower than 1")
+		if zoom > self.top_down_provider.max_zoom:
+			zoom = self.top_down_provider.max_zoom
 
 		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
 			first_coordinate, second_coordinate, zoom
 		)
+
+		print("Requestnumber: " + str(self.request_number))
+		print("Total Images to download: " + str(coordinates_info[0][0]))
+		print("Total number of horizontal images: " + str(coordinates_info[0][1]))
+		print("Total number of vertical images: " + str(coordinates_info[0][2]))
+
 		coordinates_list = coordinates_info[1]
 
 		self.make_request_list_of_coordinates(coordinates_list, zoom)
 
-	def make_request_list_of_coordinates(self, coordinates_list, zoom, num_of_images_total=None, ):
+	def make_request_list_of_coordinates(self, coordinates_list, zoom):
 		"""
 		Makes a number of API requests based on the input of a coordinate list.
 		:param coordinates_list: list of coordinates, and image positions in the global grid.
@@ -96,9 +110,6 @@ class RequestManager:
 		:param num_of_images_total: number of images to be downloaded
 		:return: saves all images on disk, and creates an CSV document with metadata.
 		"""
-
-		print("Requestnumber: " + str(self.request_number))
-		print("Total Images to download: " + str(num_of_images_total))
 
 		new_folder_path = Path.joinpath(
 			self.file_handler.folder_overview["image_path"][0], "request_" + str(self.request_number)
@@ -126,8 +137,12 @@ class RequestManager:
 					str(image_number) + "_" + str(horizontal_position) + "," + str(vertical_position) +
 					"_" + str(latitude) + "," + str(longitude) + ".png"
 				)
-				self.map_entity.get_and_store_location(
-					latitude, longitude, zoom, file_name, new_folder_path
+				self.top_down_provider.get_and_store_location(
+					latitude=latitude,
+					longitude=longitude,
+					zoom=zoom,
+					filename=file_name,
+					new_folder_path=new_folder_path
 				)
 				csv_writer.writerow(
 					{
@@ -191,9 +206,9 @@ class RequestManager:
 				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
-		side_resolution_image = self.map_entity.max_side_resolution_image
+		side_resolution_image = self.top_down_provider.max_side_resolution_image
 
-		if isinstance(self.map_entity, GoogleMapsProvider):
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
 			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
@@ -242,7 +257,7 @@ class RequestManager:
 		return (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
 
-	def make_request_for_block(self, coordinates, zoom=None):
+	def make_request_for_block(self, centre_coordinates, zoom=None):
 		"""
 		Make a request in such a way, that the images are stored in the tile system, are logged in
 		the log manager and they can be displayed on the map
@@ -252,7 +267,7 @@ class RequestManager:
 		"""
 
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
@@ -265,7 +280,7 @@ class RequestManager:
 
 		# then a folder for the first tile is created
 		# the tiles are named in such a way that their name form a coordinate system that can be used
-		# in the gui to load adjecent tiles
+		# in the gui to load adjacent tiles
 		number_tile_downloaded = 0
 		tile_number_latitude = 0
 		tile_number_longitude = 0
@@ -280,14 +295,14 @@ class RequestManager:
 
 		# in the case an area should be downloaded, the first thing returned will be the max longitude
 		# and latitude
-		if len(coordinates) > 9:
-			temp = coordinates.pop(0)
+		if len(centre_coordinates) > 9:
+			temp = centre_coordinates.pop(0)
 			max_latitude = temp[0]
 
 		#bounding_box = [coordinates[0], coordinates[-1]]
 
-		number_requests = len(coordinates)
-		print("Requestnumber: " + str(self.request_number))
+		number_requests = len(centre_coordinates)
+		print("Request number: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
 		number_requests_temp = number_requests
@@ -300,14 +315,18 @@ class RequestManager:
 
 		counter = 1
 		# download and store the information in the case of only one pair of coordinates
-		if len(coordinates) == 9:
-			for location in coordinates:
+		if len(centre_coordinates) == 9:
+			for location in centre_coordinates:
 				number = str(counter)
 				x_position = str(location[0])
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				self.map_entity.get_and_store_location(
-					location[0], location[1], zoom, temp_name, new_folder_path
+				self.top_down_provider.get_and_store_location(
+					latitude=location[0],
+					longitude=location[1],
+					zoom=zoom,
+					filename=temp_name,
+					new_folder_path=new_folder_path
 				)
 				counter += 1
 
@@ -317,19 +336,22 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = \
-                                                                                                                                                            new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]                                                                                                                                      new_folder_path.parents[0]
 
 		# download and store the information in case a whole area was asked for
-		if len(coordinates) > 9:
+		if len(centre_coordinates) > 9:
 
-			for location in coordinates:
+			for location in centre_coordinates:
 				number = str(counter)
 				x_position = str(location[0])
 				y_position = str(location[1])
 				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				self.map_entity.get_and_store_location(
-					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
+				self.top_down_provider.get_and_store_location(
+					latitude=location[0],
+					longitude=location[1],
+					zoom=self.top_down_provider.max_zoom,
+					filename=temp_name,
+					new_folder_path=new_folder_path
 				)
 				counter += 1
 
@@ -396,9 +418,9 @@ class RequestManager:
 				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
-		side_resolution_image = self.map_entity.max_side_resolution_image
+		side_resolution_image = self.top_down_provider.max_side_resolution_image
 
-		if isinstance(self.map_entity, GoogleMapsProvider):
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
 			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
@@ -495,39 +517,49 @@ class RequestManager:
 
 		return ordered_result
 
-	def calculate_locations(self, coordinates, zoom=None):
+	def calculate_locations(self, coordinates, zoom):
 		"""
 		This method calculates all the locations to be downloaded for one request
 		:param coordinates: the central coordinates around which the other image
 		:param zoom:
 		:return:
 		"""
+		side_resolution_image = self.top_down_provider.max_side_resolution_image
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
 		if zoom is None:
 			zoom = self.map_entity.max_zoom
 
 		image_size = 640 - self.map_entity.padding
 
 		if len(coordinates) == 2:
-			longitude = coordinates[0]
-			latitude = coordinates[1]
+			latitude = coordinates[0]
+			longitude = coordinates[1]
 
 			bottom = self.geo_location_util.calc_next_location_latitude(
-				latitude, zoom, image_size, False
+				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=False
 			)
 			top = self.geo_location_util.calc_next_location_latitude(
-				latitude, zoom, image_size, True
+				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
-				longitude, latitude, zoom, image_size, True
+				longitude=longitude,
+				latitude=latitude,
+				zoom=zoom,
+				image_size_y=image_size,
+				direction=True
 			)
 			left = self.geo_location_util.calc_next_location_longitude(
-				longitude, latitude, zoom, image_size, False
+				longitude=longitude,
+				latitude=latitude,
+				zoom=zoom,
+				image_size_y=image_size,
+				direction=False
 			)
 
 			return [
-				(bottom, left), (bottom, latitude), (bottom, right), (longitude, left),
-				(longitude, latitude), (longitude, right), (top, left), (top, latitude), (top, right),
-			]  # pylint: disable=invalid-name
+				(bottom, left), (bottom, longitude), (bottom, right), (latitude, left),
+				(latitude, longitude), (latitude, right), (top, left), (top, longitude), (top, right),
+			]
 
 		if len(coordinates) == 4:
 			return self.calculate_centre_coordinates_two_coordinate_input_block(

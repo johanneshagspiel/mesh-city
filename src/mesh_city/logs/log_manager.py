@@ -4,20 +4,20 @@ A module that contains the log manager who is responsible for performing all the
 
 import json
 import os
+from pathlib import Path
 
 from mesh_city.user.entities.user_entity import UserEntity
 
 
 class LogManager:
 	"""
-	A class that is reponsible for logging every request made. It can be
+	A class that is responsible for logging every request made.
 	"""
 
-	def __init__(self, file_handler):
-		"""
-		Initializes a log_manager method
-		"""
-		self.paths = file_handler.folder_overview
+	def __init__(self, file_handler, resource_path=Path(__file__).parents[1].joinpath("resources")):
+		self.resource_path = resource_path
+		self.image_path = resource_path.joinpath("images")
+		self.log_path = resource_path.joinpath("logs", "log_request_.json")
 		self.file_handler = file_handler
 
 	def get_request_number(self):
@@ -29,8 +29,8 @@ class LogManager:
 
 		max_log = 0
 
-		if (self.paths["log_request_.json"][0].is_file()):
-			with open(self.paths["log_request_.json"][0], 'r') as json_log:
+		if self.log_path.is_file():  # pylint: disable=no-member
+			with open(self.log_path, "r") as json_log:
 				data = json_log.read()
 				json_log.close()
 			logs = json.loads(data)
@@ -40,17 +40,17 @@ class LogManager:
 					element = [int(k) for k, v in element.items()][0]
 					if element > max_log:
 						max_log = element
-
 		else:
 			max_log = 0
 
 		max_directory = 0
 
-		if (len(os.listdir(self.paths["image_path"][0])) == 0):
+		self.image_path.mkdir(exist_ok=True)
+		if len(os.listdir(self.image_path)) == 0:
 			max_directory = 0
 		else:
-			for directory in os.listdir(self.paths["image_path"][0]):
-				if (directory.split("_")[1] != ''):
+			for directory in os.listdir(self.image_path):
+				if directory.split("_")[1] != "":
 					temp_result = int(directory.split("_")[1])
 					if temp_result > max_directory:
 						max_directory = temp_result
@@ -88,7 +88,7 @@ class LogManager:
 		if path[1] == "users.json":
 			for key, value in logs.items():
 				temp_dic_entry = {key: value}
-				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
+				temp_dic[key] = UserEntity(file_handler=self.file_handler, **temp_dic_entry)
 			return temp_dic
 
 		return logs
