@@ -3,7 +3,7 @@ See :class:`.ImageUtil`
 """
 
 from pathlib import Path
-
+import os
 from PIL import Image
 
 
@@ -11,6 +11,10 @@ class ImageUtil:
 	"""
 	Collection of functions related to assembling map tile images.
 	"""
+
+	# def __init__(self, application):
+	# 	self.application = application
+	# 	self.file_handler = self.application.file_handler
 
 	temp_path = Path(__file__).parents[1]
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
@@ -73,16 +77,11 @@ class ImageUtil:
 		temp.paste(image_2, (0, image_1.height))
 		return temp
 
-	def resize_image(self, path_to_temp, width, height, path, name):
-		"""
-		Resizes a tile image to given dimensions.
-		:param path_to_temp: Path for temporary files.
-		:param width: The desired width in pixels.
-		:param height: The desired height in pixels.
-		:param path: The path of the original image.
-		:param name: The filename of the new image.
-		:return: Nothing.
-		"""
-		get_image = Image.open(path)
-		resize_image = get_image.resize((width, height), Image.ANTIALIAS)
-		resize_image.save(fp=Path.joinpath(path_to_temp, name), format="png")
+	# def make_max_image(self):
+	#
+	# 	tiles = (file for file in os.listdir(self.file_handler.folder_overview["active_request_path"][0])
+	# 	         if os.path.isfile(os.path.join(self.file_handler.folder_overview["active_request_path"][0], file)))
+	#
+	# 	for tile in tiles:
+	# 		return None
+

@@ -70,7 +70,12 @@ class LogManager:
 		result = log_entry.action(logs)
 
 		with open(log_entry.path_to_store, "w") as json_log:
-			json.dump(result, fp=json_log)
+			json.dump(result, fp=json_log, indent=4)
+			json_log.close()
+
+	def create_log(self, log_entry):
+		with open(log_entry.path_to_store, "w") as json_log:
+			json.dump(log_entry.for_json(), fp=json_log, indent=4)
 			json_log.close()
 
 	def read_log(self, path):

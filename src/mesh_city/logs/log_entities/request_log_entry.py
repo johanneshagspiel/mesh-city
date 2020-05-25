@@ -11,17 +11,11 @@ class TopDownProviderRequestLog(LogEntry):
 	"""
 
 	def __init__(
-		self, path_to_store, starting_location, max_latitude, max_longitude, max_zoom, layers
+		self, path_to_store, json=None, starting_location = None, max_latitude = None,
+		max_longitude = None, max_zoom = None, layers = None
 	):
-		"""
-		Initializes a log entry to store meta information about a request
-		:param path_to_store: where to store the log
-		:param starting_location: which tile to load first in the map
-		:param max_latitude: maximum latitude of a request
-		:param max_longitude: max longitude of a request
-		:param max_zoom: max zoom level usable for this request
-		:param layers: the layers that exist for this request
-		"""
+
+		if starting_location and max_latitude and max_longitude and max_zoom and layers is not None:
 
 		super().__init__(path_to_store)
 		self.starting_location = str(starting_location)

@@ -2,10 +2,11 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, Canvas, END, Label, mainloop, NW, Tk, Frame, Text, WORD, DISABLED, RIDGE
+from tkinter import Button, Canvas, mainloop, NW, Tk, Frame
 
 from PIL import Image, ImageTk
 
+from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.generate_screen.generate_screen import GenerateWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
@@ -34,7 +35,7 @@ class MainScreen:
 
 		self.master = Tk()
 		self.master.title("Mesh City")
-		self.master.geometry("901x655")
+		self.master.geometry("910x665")
 
 		self.master.withdraw()
 		self.window = StartScreen(self.master, application)
@@ -48,68 +49,56 @@ class MainScreen:
 		self.image_height = 646
 		self.image_width = 646
 
-		self.image = self.load_large_image()
+		self.left_bar = Frame(self.master, width=52, height=665, background="white")
+		self.left_bar.grid(row=0, column=0, sticky='nsew')
+		self.left_bar.grid_propagate(0)
 
-		# Definition of UI of main window
-		self.canvas = Canvas(self.master, width=900, height=777)
-		self.canvas.grid(column=3, row=0, rowspan=30)
-		self.master.columnconfigure(3, weight=1)
-
-		# side_bar = Label(self.canvas, width=15, height=645, information_general="")
-		# self.canvas.create_window(0, 0, window=side_bar)
-
-		search_button = Button(
-			self.canvas, text="Search", width=6, height=3, command=self.search_window, bg="grey"
+		self.search_button = Button(
+			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="grey"
 		)
-		self.canvas.create_window(30, 33, window=search_button)
+		self.search_button.grid(row=0, column=0)
 
-		load_button = Button(
-			self.canvas, text="Load", width=6, height=3, command=self.load_window, bg="grey"
+		self.load_button = Button(
+			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="grey"
 		)
-		self.canvas.create_window(30, 92, window=load_button)
+		self.load_button.grid(row=1, column=0)
 
-		detect_button = Button(
-			self.canvas, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
+		self.detect_button = Button(
+			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
 		)
-		self.canvas.create_window(30, 151, window=detect_button)
+		self.detect_button.grid(row=2, column=0)
 
-		layers_button = Button(
-			self.canvas, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		self.layers_button = Button(
+			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
 		)
-		self.canvas.create_window(30, 210, window=layers_button)
+		self.layers_button.grid(row=3, column=0)
 
-		generate_button = Button(self.canvas, text="Generate", width=6, height=3, command=self.generate_window, bg="grey")
-		self.canvas.create_window(30, 269, window=generate_button)
+		self.generate_button = Button(
+			self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
+		)
+		self.generate_button.grid(row=4, column=0)
 
-		export_button = Button(self.canvas, text="Export", width=6, height=3, command=None, bg="grey")
-		self.canvas.create_window(30, 328, window=export_button)
+		# self.export_button = Button(
+		# self.left_bar, text="User", width=6, height=3, command=None, bg="grey")
+		# self.export_button.grid(row=5, column=0)
 
-		user_button = Button(self.canvas, text="User", width=6, height=3, command=None, bg="grey")
-		self.canvas.create_window(30, 387, window=user_button)
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"]
+			[0].glob("concat_image_*")
+		)
 
-		self.test_frame = Frame(self.canvas, width=185, height=646)
-		self.test_frame.grid_propagate(0)
-		self.canvas.create_window(803, 328, window=self.test_frame)
+		self.canvas_image = CanvasImage(self.master, temp_image_path)
+		self.canvas_image.grid(row=0, column=1, sticky='nsew')
+		#self.canvas.create_window(50, 250, window=canvas_image)
 
-		self.information_general = Text(self.test_frame, width=26, height=30, wrap=WORD)
-		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
-		self.information_general.grid(row=0, column=0, sticky ="w")
-		self.information_general.insert(END, "General")
-		self.information_general.config(state=DISABLED)
-		self.information_general.bind("<Double-1>", lambda event: "break")
-		self.information_general.bind("<Button-1>", lambda event: "break")
-		self.information_general.config(cursor="")
+		self.right_frame = Frame(self.master, width=185, background="white")
+		self.right_frame.grid(row=0, column=2, sticky='nsew')
+		self.right_frame.grid_propagate(0)
 
-		self.information_selection = Text(self.test_frame, width=26, height=14, wrap=WORD)
-		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
-		self.information_selection.grid(row=1, column=0, sticky ="w")
-		self.information_selection.insert(END, "Selection")
-		self.information_selection.config(state=DISABLED)
-		self.information_selection.bind("<Double-1>", lambda event: "break")
-		self.information_selection.bind("<Button-1>", lambda event: "break")
-		self.information_selection.config(cursor="")
-
-		self.load_large_image_on_map(self.image)
+		self.master.columnconfigure(1, weight=1)
+		self.master.rowconfigure(0, weight=1)
+		self.master.rowconfigure(1, weight=1)
+		self.master.rowconfigure(2, weight=1)
 
 		mainloop()
 
@@ -153,29 +142,10 @@ class MainScreen:
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		self.image = self.load_large_image()
-		self.load_large_image_on_map(self.image)
-
-	def load_large_image_on_map(self, large_image):
-		"""
-		Loads a new image onto the map
-		:param large_image: the image to be loaded
-		:return: nothing
-		"""
-		self.tkinter_image = self.canvas.create_image(
-			self.padding_x, self.padding_y, anchor=NW, image=large_image
-		)
-
-	def load_large_image(self):
-		"""
-		Stores and resizes the image to be loaded onto the map
-		:return: nothing
-		"""
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"]
 			[0].glob("concat_image_*")
 		)
-		get_image = Image.open(temp_image_path)
-		resize_image = get_image.resize((self.image_width, self.image_height), Image.ANTIALIAS)
-		get_photo = ImageTk.PhotoImage(resize_image)
-		return get_photo
+
+		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
+		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')

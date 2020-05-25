@@ -12,6 +12,7 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.logs.log_entities.tile_log_entry import TileLogEntry
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
@@ -265,18 +266,18 @@ class RequestManager:
 
 		# then a folder for the first tile is created
 		# the tiles are named in such a way that their name form a coordinate system that can be used
-		# in the gui to load adjecent tiles
+		# in the gui to load adjacent tiles
 		number_tile_downloaded = 0
 		tile_number_latitude = 0
 		tile_number_longitude = 0
 		temp_tile_number_latitude = str(tile_number_latitude)
 		temp_tile_number_longitude = str(tile_number_longitude)
-		new_folder_path = Path.joinpath(
-			new_folder_path,
-			str(number_tile_downloaded) + "_tile_" + temp_tile_number_latitude + "_" +
-			temp_tile_number_longitude
-		)
+		temp_tile_name = str(number_tile_downloaded) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
+		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
 		os.makedirs(new_folder_path)
+
+		temp_path_tile = Path.joinpath(new_folder_path, "meta_" + str(temp_tile_name) + ".json")
+		temp_tile_log_entry = TileLogEntry(path_to_store=temp_path_tile, name=temp_tile_name)
 
 		# in the case an area should be downloaded, the first thing returned will be the max longitude
 		# and latitude
@@ -303,17 +304,19 @@ class RequestManager:
 		if len(coordinates) == 9:
 			for location in coordinates:
 				number = str(counter)
-				x_position = str(location[0])
-				y_position = str(location[1])
-				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
+				longitude = str(location[0])
+				latitude = str(location[1])
+				temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
 				self.map_entity.get_and_store_location(
 					location[0], location[1], zoom, temp_name, new_folder_path
 				)
+				temp_tile_log_entry.general_information[number] = (location[0], location[1])
 				counter += 1
 
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
+					self.log_manager.create_log(temp_tile_log_entry)
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
@@ -325,29 +328,38 @@ class RequestManager:
 
 			for location in coordinates:
 				number = str(counter)
-				x_position = str(location[0])
-				y_position = str(location[1])
-				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
+				longitude = str(location[0])
+				latitude = str(location[1])
+				temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
 				self.map_entity.get_and_store_location(
 					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
 				)
+				temp_tile_log_entry.general_information[number] = (location[0], location[1])
 				counter += 1
 
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
 					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number_old)
+					self.log_manager.create_log(temp_tile_log_entry)
+
 					tile_number_latitude += 1
 					if tile_number_latitude == max_latitude:
 						tile_number_latitude = 0
 						tile_number_longitude += 1
+
 					tile_number_new = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					new_folder_path = Path.joinpath(
-						new_folder_path.parents[0],
-						str(number_tile_downloaded) + "_tile_" + tile_number_new
-					)
-					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
+					tile_name_new = str(number_tile_downloaded) + "_tile_" + tile_number_new
+					new_folder_path = Path.joinpath(new_folder_path.parents[0], tile_name_new)
 					os.makedirs(new_folder_path)
+
+					temp_path_tile = Path.joinpath(new_folder_path,
+					                               "meta_" + str(tile_name_new) + ".json")
+					temp_tile_log_entry = TileLogEntry(path_to_store=temp_path_tile,
+					                                   name=tile_name_new)
+
+					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
+
 					counter = 1
 					number_requests_temp = number_requests_temp - 9
 					if number_requests_temp == 9:
@@ -357,6 +369,7 @@ class RequestManager:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
+					self.log_manager.create_log(temp_tile_log_entry)
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
