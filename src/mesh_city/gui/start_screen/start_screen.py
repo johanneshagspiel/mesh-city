@@ -28,7 +28,6 @@ class StartScreen:
 		self.dic_users = self.application.log_manager.read_log(
 			path=self.application.file_handler.folder_overview["users.json"]
 		)
-		print(self.dic_users)
 
 		counter = 1
 		for key, user_object in self.dic_users.items():
