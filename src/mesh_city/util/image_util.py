@@ -34,21 +34,30 @@ class ImageUtil:
 		down_left = Image.open(next(new_folder_path.glob("7_*")))
 		down_center = Image.open(next(new_folder_path.glob("8_*")))
 		down_right = Image.open(next(new_folder_path.glob("9_*")))
+		images = [up_left,up_center,up_right,center_left,center_center,center_right,down_left,down_center,down_right]
+		result = self.concat_image_grid(3,3,images)
+		temp_name = "request_" + str(request) + "_tile_" + tile_number
+		result.save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
-		level_0 = self.get_concat_horizontally(
-			self.get_concat_horizontally(up_left, up_center), up_right
-		)
-		level_1 = self.get_concat_horizontally(
-			self.get_concat_horizontally(center_left, center_center), center_right
-		)
-		level_2 = self.get_concat_horizontally(
-			self.get_concat_horizontally(down_left, down_center), down_right
-		)
-
-		request_string = str(request)
-		temp_name = "request_" + request_string + "_tile_" + tile_number
-		self.get_concat_vertically(self.get_concat_vertically(level_2, level_1),
-			level_0).save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
+	def concat_image_grid(self, width, height, images):
+		"""
+		Combines a given array of images into a concatenated grid of images.
+		:param width: The width of the grid
+		:param height: The height of the grid
+		:param images: The images to concatenate. There should be width*height images to fill the grid.
+		:return: Nothing
+		"""
+		if len(images) != width * height:
+			raise ValueError(
+				"Not enough images were supplied to concatenate an image grid of the specified size")
+		result = images[0]
+		for x in range(1, width):
+			result = self.get_concat_horizontally(result,images[x])
+		for y in range(1,height):
+			new_layer = images[y*width]
+			for x in range(1,width):
+				new_layer = self.get_concat_horizontally(result, images[y*3+x])
+			result = self.get_concat_vertically(result,new_layer)
 
 	def get_concat_horizontally(self, image_1, image_2):
 		"""
@@ -74,7 +83,7 @@ class ImageUtil:
 		temp.paste(image_2, (0, image_1.height))
 		return temp
 
-	def resize_image(self, path_to_temp, width, height, path, name):
+	def create_resized_copy(self, path_to_temp, width, height, path, name):
 		"""
 		Resizes a tile image to given dimensions.
 		:param path_to_temp: Path for temporary files.

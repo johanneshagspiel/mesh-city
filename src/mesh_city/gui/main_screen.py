@@ -150,7 +150,7 @@ class MainScreen:
 			"ahn_height",
 			"concat_image_request_10_tile_0_0.png",
 		)
-		self.image_util.resize_image(
+		self.image_util.create_resized_copy(
 			path_to_temp=self.path_to_temp,
 			width=self.image_width,
 			height=self.image_height,
