@@ -43,7 +43,6 @@ class PreviewWindow:
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)
 
-			print(value)
 			temp_text = "Usage left: " + str(value.quota - value.usage["total"])
 			self.temp_list.append(Label(self.top, text=temp_text))
 			self.temp_list_size += 1

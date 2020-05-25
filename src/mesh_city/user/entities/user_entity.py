@@ -51,7 +51,6 @@ class UserEntity(LogEntity):
 		"""
 		for item in json.items():
 			provider_dict = item[1]
-			print(provider_dict)
 			provider_dict["date_reset"] = datetime.strptime(provider_dict["date_reset"], "%Y-%m-%d")
 			self.image_providers[item[0]] = ImageProviderEntity(self.file_handler, **provider_dict)
 
