@@ -92,10 +92,7 @@ class RequestManager:
 		print("Total number of vertical images: " + str(coordinates_info[0][2]))
 
 		coordinates_list = coordinates_info[1]
-		# print(coordinates_info)
-
-		# TODO uncomment the next line
-		# self.make_request_list_of_coordinates(coordinates_list, zoom)
+		self.make_request_list_of_coordinates(coordinates_list, zoom)
 
 	def make_request_list_of_coordinates(self, coordinates_list, zoom):
 		"""
@@ -204,13 +201,6 @@ class RequestManager:
 				"The bottom latitude should be smaller than the top and the left longitude should be"
 				"smaller than the right longitude"
 			)
-
-		side_resolution_image = self.top_down_provider.max_side_resolution_image
-
-		if isinstance(self.top_down_provider, GoogleMapsProvider):
-			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
-			# specific for google maps API
-			side_resolution_image = side_resolution_image - 40
 
 		# start the request in the top left corner
 		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(top_lat, left_long, zoom)

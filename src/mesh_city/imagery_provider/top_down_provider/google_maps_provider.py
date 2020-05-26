@@ -26,7 +26,7 @@ class GoogleMapsProvider(TopDownProvider):
 		self.max_side_resolution_image = 640
 
 	def get_and_store_location(
-		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
+		self, latitude, longitude, zoom, filename, new_folder_path, width=552, height=552
 	):
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
@@ -39,16 +39,15 @@ class GoogleMapsProvider(TopDownProvider):
 		:param height: the height dimension of the image
 		:return:
 		"""
-		# TODO fix resolution
-		if height is None or height > 640:
+		if height > 640:
 			height = 640
-		if width is None or width > 640:
+		if width > 640:
 			width = 640
 		latitude = str(latitude)
 		longitude = str(longitude)
 		zoom = str(zoom)
-		width = str(552)
-		height = str(552)
+		width = str(width)
+		height = str(height)
 		scale = str(2)
 		file_format = "PNG"
 		map_type = "satellite"
@@ -65,11 +64,10 @@ class GoogleMapsProvider(TopDownProvider):
 			output.write(response.content)
 
 		get_image = Image.open(to_store)
-		left = 40
-		upper = 40
-		right = 1104 - 40
-			# 1240
-		lower = 1104 - 40
+		left = self.padding
+		upper = self.padding
+		right = int(width) * 2 - self.padding
+		lower = int(height) * 2 - self.padding
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
@@ -77,7 +75,6 @@ class GoogleMapsProvider(TopDownProvider):
 		im1 = get_image.crop(box=(left, upper, right, lower))
 
 		im1.save(fp=to_store)
-		# get_image.save(fp=to_store)
 
 		self.quota_manager.increase_usage()
 
