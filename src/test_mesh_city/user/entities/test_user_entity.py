@@ -93,7 +93,3 @@ class ImageProviderEntityTest(unittest.TestCase):
 			)
 		except Exception:
 			self.fail("myFunc() raised ExceptionType unexpectedly!")
-
-
-if __name__ == '__main__':
-	unittest.main()

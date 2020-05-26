@@ -130,3 +130,61 @@ class TestRequestManager(unittest.TestCase):
 			self.two_coordinate_input[2]
 		)
 		self.assertEqual(5, number_of_images)
+
+	def test_single_request(self):
+		request_manager = self._create_request_manager(top_down_provider=self.top_down_provider)
+
+		request_manager.make_single_request((52.010442, 4.357480), 1.0, 400, 600)
+
+		self.top_down_provider.get_and_store_location.assert_called_once_with(
+			latitude=52.010442,
+			longitude=4.357480,
+			zoom=1.0,
+			filename="52.010442, 4.35748.png",
+			height=400,
+			width=600,
+			new_folder_path=ANY,
+		)
+
+	def test_bounding_box_request_bottom_left_top_right(self):
+		self.top_down_provider.max_zoom = 14.0
+		self.top_down_provider.max_side_resolution_image = 500
+		request_manager = self._create_request_manager(
+			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil()
+		)
+
+		request_manager.make_request_two_coordinates((51.989954, 4.330746), (52.021186, 4.374115))
+
+		self.top_down_provider.get_and_store_location.assert_has_calls(
+			calls=[
+			call(
+			latitude=52.00316762660327,
+			longitude=4.352203672121509,
+			zoom=14.0,
+			filename="1_0,0_52.00316762660327,4.352203672121509.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.00316762660327,
+			longitude=4.395119016364525,
+			zoom=14.0,
+			filename="2_1,0_52.00316762660327,4.395119016364525.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.02958708108182,
+			longitude=4.352203672121509,
+			zoom=14.0,
+			filename="3_0,1_52.02958708108182,4.352203672121509.png",
+			new_folder_path=ANY,
+			),
+			call(
+			latitude=52.02958708108182,
+			longitude=4.395119016364525,
+			zoom=14.0,
+			filename="4_1,1_52.02958708108182,4.395119016364525.png",
+			new_folder_path=ANY,
+			),
+			],
+			any_order=True,
+		)
