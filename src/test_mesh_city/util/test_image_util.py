@@ -14,6 +14,50 @@ class TestImageUtil(unittest.TestCase):
 	def setUp(self):
 		pass
 
+	def test_concat_grid(self):
+		img_util = ImageUtil()
+		test_images = [
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 255, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 255, 0]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 0, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 0, 0]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 255, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 255, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 255, 0]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 0, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 0, 0]]])
+		]
+		for index in range(1, 10):
+			test_images[index -
+				1].save(str(Path(__file__).parents[0]) + "/" + str(index) + "_test.png")
+
+		target_array = np.array(
+			[
+			[
+			[255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 0], [255, 255, 255],
+			[255, 0, 255]
+			],
+			[
+			[255, 255, 255], [255, 0, 0], [255, 255, 255], [0, 255, 255], [255, 255, 255],
+			[0, 255, 255]
+			],
+			[[255, 255, 255], [0, 255, 0], [255, 255, 255], [0, 0, 255], [255, 255, 255], [0, 0, 0]]
+			]
+		)
+
+		img_util.concat_images(
+			new_folder_path=Path(__file__).parents[0], request=0, tile_number="0_0"
+		)
+		result_path = str(Path(__file__).parents[0].joinpath("concat_image_request_0_tile_0_0.png"))
+		result_image = np.asarray(Image.open(result_path))
+		self.assertEqual(result_image.shape, target_array.shape)
+		self.assertEqual(result_image.all(), target_array.all())
+
+		for index in range(1, 10):
+			test_images[index - 1].close()
+			os.remove(str(Path(__file__).parents[0]) + "/" + str(index) + "_test.png")
+		os.remove(result_path)
+
 	@staticmethod
 	def matrix_to_image(matrix):
 		image = Image.fromarray(np.array(object=matrix, dtype=np.uint8), 'RGB')
@@ -26,7 +70,6 @@ class TestImageUtil(unittest.TestCase):
 		image_right = TestImageUtil.matrix_to_image(
 			[[[0, 255, 0], [0, 0, 255]], [[255, 0, 0], [0, 255, 255]]]
 		)
-		concatenated = ImageUtil.get_concat_horizontally(image_1=image_left, image_2=image_right)
 		image_array = np.asarray(
 			ImageUtil.get_concat_horizontally(image_1=image_left, image_2=image_right)
 		)
@@ -76,5 +119,34 @@ class TestImageUtil(unittest.TestCase):
 			)
 		)
 		target_array = np.array([[[255, 255, 255], [255, 255, 0]], [[255, 0, 255], [255, 0, 0]]])
+		self.assertEqual(result_array.shape, target_array.shape)
+		self.assertEqual(result_array.all(), target_array.all())
+
+	def test_3x3_grid(self):
+		test_images = [
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 255, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 255, 0]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 0, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [255, 0, 0]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 255, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 255, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 255, 0]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 0, 255]]]),
+			TestImageUtil.matrix_to_image([[[255, 255, 255], [0, 0, 0]]])
+		]
+		result_array = np.asarray(ImageUtil.concat_image_grid(3, 3, test_images))
+		target_array = np.array(
+			[
+			[
+			[255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 0], [255, 255, 255],
+			[255, 0, 255]
+			],
+			[
+			[255, 255, 255], [255, 0, 0], [255, 255, 255], [0, 255, 255], [255, 255, 255],
+			[0, 255, 255]
+			],
+			[[255, 255, 255], [0, 255, 0], [255, 255, 255], [0, 0, 255], [255, 255, 255], [0, 0, 0]]
+			]
+		)
 		self.assertEqual(result_array.shape, target_array.shape)
 		self.assertEqual(result_array.all(), target_array.all())

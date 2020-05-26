@@ -68,7 +68,9 @@ class ImageUtil:
 		for y_coord in range(1, height):
 			new_layer = images[y_coord * width]
 			for x_coord in range(1, width):
-				new_layer = ImageUtil.get_concat_horizontally(result, images[y_coord * width + x_coord])
+				new_layer = ImageUtil.get_concat_horizontally(
+					new_layer, images[y_coord * width + x_coord]
+				)
 			result = ImageUtil.get_concat_vertically(result, new_layer)
 		return result
 
