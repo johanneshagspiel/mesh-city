@@ -285,8 +285,6 @@ class RequestManager:
 			temp = centre_coordinates.pop(0)
 			max_latitude = temp[0]
 
-		#bounding_box = [coordinates[0], coordinates[-1]]
-
 		number_requests = len(centre_coordinates)
 		print("Request number: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
