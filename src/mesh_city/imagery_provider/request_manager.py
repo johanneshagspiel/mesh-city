@@ -12,7 +12,6 @@ from pathlib import Path
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.logs.top_down_provider_log_entry import TopDownProviderLogEntry
 
 
 class RequestManager:
@@ -26,24 +25,15 @@ class RequestManager:
 	"""
 
 	def __init__(
-		self,
-		user_info,
-		quota_manager,
-		top_down_provider,
-		log_manager,
-		image_util,
-		geo_location_util,
-		resource_path=Path(__file__).parents[1].joinpath("resources"),
+		self, log_manager, image_util, geo_location_util, file_handler, top_down_provider=None,
 	):
-		self.user_info = user_info
-		self.quota_manager = quota_manager
 		self.top_down_provider = top_down_provider
 		self.log_manager = log_manager
 		self.image_util = image_util
 		self.geo_location_util = geo_location_util
-		self.resource_path = resource_path
-		self.images_folder_path = resource_path.joinpath("images")
-		self.active_tile_path = self.images_folder_path.joinpath("request_0", "0_tile_0_0")
+		self.file_handler = file_handler
+
+		self.images_folder_path = file_handler.folder_overview["image_path"]
 		self.request_number = 1
 
 	def make_single_request(self, centre_coordinates, zoom, height=None, width=None):
@@ -107,7 +97,7 @@ class RequestManager:
 		"""
 
 		new_folder_path = Path.joinpath(
-			self.images_folder_path, "request_" + str(self.request_number)
+			self.file_handler.folder_overview["image_path"][0], "request_" + str(self.request_number)
 		)
 		os.makedirs(new_folder_path)
 
@@ -252,7 +242,9 @@ class RequestManager:
 		request_number_string = str(request_number)
 
 		# a new folder is created for the request if it goes ahead
-		new_folder_path = Path.joinpath(self.images_folder_path, "request_" + request_number_string)
+		new_folder_path = Path.joinpath(
+			self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string
+		)
 		os.makedirs(new_folder_path)
 
 		# then a folder for the first tile is created
@@ -270,13 +262,13 @@ class RequestManager:
 		)
 		os.makedirs(new_folder_path)
 
-		coordinates = self.calculate_locations(centre_coordinates, zoom)
-		bounding_box = [coordinates[0], coordinates[-1]]
+		# in the case an area should be downloaded, the first thing returned will be the max longitude
+		# and latitude
+		if len(centre_coordinates) > 9:
+			temp = centre_coordinates.pop(0)
+			max_latitude = temp[0]
 
-		if len(centre_coordinates) == 4:
-			max_latitude = coordinates.pop(0)[0]
-
-		number_requests = len(coordinates)
+		number_requests = len(centre_coordinates)
 		print("Request number: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
@@ -290,8 +282,8 @@ class RequestManager:
 
 		counter = 1
 		# download and store the information in the case of only one pair of coordinates
-		if len(centre_coordinates) == 2:
-			for location in coordinates:
+		if len(centre_coordinates) == 9:
+			for location in centre_coordinates:
 				number = str(counter)
 				x_position = str(location[0])
 				y_position = str(location[1])
@@ -308,23 +300,16 @@ class RequestManager:
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
-					self.active_tile_path = new_folder_path
-					log_entry = TopDownProviderLogEntry(
-						path_to_store=self.resource_path.joinpath("logs", "log_request_.json"),
-						request_number=request_number,
-						zoom_level=zoom,
-						user_info=self.user_info,
-						map_entity=self.top_down_provider,
-						number_requests=number_requests,
-						bounding_box=bounding_box,
-						coordinates=coordinates,
-					)
-					self.log_manager.write_entry_log(log_entry)
+
+					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"][
+						0] = new_folder_path.parents[0]
 
 		# download and store the information in case a whole area was asked for
-		if len(centre_coordinates) == 4:
+		if len(centre_coordinates) > 9:
 
-			for location in coordinates:
+			for location in centre_coordinates:
 				number = str(counter)
 				x_position = str(location[0])
 				y_position = str(location[1])
@@ -362,18 +347,14 @@ class RequestManager:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
+
+					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"][
+						0] = new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-					log_entry = TopDownProviderLogEntry(
-						None,
-						request_number,
-						zoom,
-						self.user_info,
-						self.top_down_provider,
-						number_requests,
-						bounding_box,
-						coordinates,
-					)
-					self.log_manager.write_entry_log(log_entry)
+
+		return new_folder_path
 
 	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
@@ -504,14 +485,20 @@ class RequestManager:
 
 		return ordered_result
 
-	def calculate_locations(self, coordinates, zoom):
+	def calculate_locations(self, coordinates, zoom=None):
 		"""
 		This method calculates all the locations to be downloaded for one request
 		:param coordinates: the central coordinates around which the other image
 		:param zoom:
 		:return:
 		"""
-		image_size = 640 - self.top_down_provider.padding
+
+		if zoom is None:
+			zoom = self.top_down_provider.max_zoom
+
+		image_size = self.top_down_provider.max_side_resolution_image
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
+			image_size = 640 - self.top_down_provider.padding
 
 		if len(coordinates) == 2:
 			latitude = coordinates[0]
