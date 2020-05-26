@@ -34,12 +34,23 @@ class ImageUtil:
 		down_left = Image.open(next(new_folder_path.glob("7_*")))
 		down_center = Image.open(next(new_folder_path.glob("8_*")))
 		down_right = Image.open(next(new_folder_path.glob("9_*")))
-		images = [up_left,up_center,up_right,center_left,center_center,center_right,down_left,down_center,down_right]
-		result = self.concat_image_grid(3,3,images)
+		images = [
+			up_left,
+			up_center,
+			up_right,
+			center_left,
+			center_center,
+			center_right,
+			down_left,
+			down_center,
+			down_right
+		]
+		result = self.concat_image_grid(3, 3, images)
 		temp_name = "request_" + str(request) + "_tile_" + tile_number
 		result.save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
-	def concat_image_grid(self, width, height, images):
+	@staticmethod
+	def concat_image_grid(width, height, images):
 		"""
 		Combines a given array of images into a concatenated grid of images.
 		:param width: The width of the grid
@@ -49,17 +60,20 @@ class ImageUtil:
 		"""
 		if len(images) != width * height:
 			raise ValueError(
-				"Not enough images were supplied to concatenate an image grid of the specified size")
+				"Not enough images were supplied to concatenate an image grid of the specified size"
+			)
 		result = images[0]
 		for x in range(1, width):
-			result = self.get_concat_horizontally(result,images[x])
-		for y in range(1,height):
-			new_layer = images[y*width]
-			for x in range(1,width):
-				new_layer = self.get_concat_horizontally(result, images[y*3+x])
-			result = self.get_concat_vertically(result,new_layer)
+			result = ImageUtil.get_concat_horizontally(result, images[x])
+		for y in range(1, height):
+			new_layer = images[y * width]
+			for x in range(1, width):
+				new_layer = ImageUtil.get_concat_horizontally(result, images[y * width + x])
+			result = ImageUtil.get_concat_vertically(result, new_layer)
+		return result
 
-	def get_concat_horizontally(self, image_1, image_2):
+	@staticmethod
+	def get_concat_horizontally(image_1, image_2):
 		"""
 		Combines two tile images horizontally.
 		:param image_1: The left image.
@@ -71,7 +85,8 @@ class ImageUtil:
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
 
-	def get_concat_vertically(self, image_1, image_2):
+	@staticmethod
+	def get_concat_vertically(image_1, image_2):
 		"""
 		Combines two tile images vertically.
 		:param image_1: The top image.
