@@ -83,20 +83,20 @@ class TestImageUtil(unittest.TestCase):
 		image = TestImageUtil.matrix_to_image(
 			[[[255, 0, 0], [0, 255, 0]], [[0, 0, 255], [255, 255, 0]]]
 		)
-		image.save("temp.png")
+		image.save(str(Path(__file__).parents[0].joinpath("test.png")))
 		img_util = ImageUtil()
 		img_util.create_resized_copy(
 			path_to_temp=Path(__file__).parents[0],
 			width=4,
 			height=4,
-			path=Path(__file__).parents[0].joinpath("temp.png"),
-			name="large_temp.png"
+			path=Path(__file__).parents[0].joinpath("test.png"),
+			name="large_test.png"
 		)
-		resized_image = Image.open("large_temp.png")
+		resized_image = Image.open(str(Path(__file__).parents[0].joinpath("large_test.png")))
 		self.assertEqual(4, resized_image.width)
 		self.assertEqual(4, resized_image.height)
 		resized_image.close()
 
 		# tears down the test
-		os.remove("temp.png")
-		os.remove("large_temp.png")
+		os.remove(str(Path(__file__).parents[0].joinpath("large_test.png")))
+		os.remove(str(Path(__file__).parents[0].joinpath("test.png")))
