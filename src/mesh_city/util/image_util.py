@@ -63,12 +63,12 @@ class ImageUtil:
 				"Not enough images were supplied to concatenate an image grid of the specified size"
 			)
 		result = images[0]
-		for x in range(1, width):
-			result = ImageUtil.get_concat_horizontally(result, images[x])
-		for y in range(1, height):
-			new_layer = images[y * width]
-			for x in range(1, width):
-				new_layer = ImageUtil.get_concat_horizontally(result, images[y * width + x])
+		for x_coord in range(1, width):
+			result = ImageUtil.get_concat_horizontally(result, images[x_coord])
+		for y_coord in range(1, height):
+			new_layer = images[y_coord * width]
+			for x_coord in range(1, width):
+				new_layer = ImageUtil.get_concat_horizontally(result, images[y_coord * width + x_coord])
 			result = ImageUtil.get_concat_vertically(result, new_layer)
 		return result
 
@@ -97,17 +97,3 @@ class ImageUtil:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
-
-	def create_resized_copy(self, path_to_temp, width, height, path, name):
-		"""
-		Resizes a tile image to given dimensions.
-		:param path_to_temp: Path for temporary files.
-		:param width: The desired width in pixels.
-		:param height: The desired height in pixels.
-		:param path: The path of the original image.
-		:param name: The filename of the new image.
-		:return: Nothing.
-		"""
-		get_image = Image.open(path)
-		resize_image = get_image.resize((width, height), Image.ANTIALIAS)
-		resize_image.save(fp=Path.joinpath(path_to_temp, name), format="png")

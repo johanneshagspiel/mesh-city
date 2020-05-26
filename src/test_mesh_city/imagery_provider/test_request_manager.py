@@ -7,6 +7,7 @@ from unittest.mock import ANY, call, Mock
 
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -61,13 +62,11 @@ class TestRequestManager(unittest.TestCase):
 		self, top_down_provider=Mock(), log_manager=Mock(), geo_location_util=Mock()
 	):
 		return RequestManager(
-			user_info=Mock(),
-			quota_manager=Mock(),
+			file_handler=FileHandler(root=Path(__file__).parents[1]),
 			top_down_provider=top_down_provider,
 			log_manager=log_manager,
 			image_util=Mock(),
 			geo_location_util=geo_location_util,
-			resource_path=self.resource_path,
 		)
 
 	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):
@@ -187,98 +186,5 @@ class TestRequestManager(unittest.TestCase):
 			new_folder_path=ANY,
 			),
 			],
-			any_order=True
-		)
-
-	def test_request_block_centre_coordinates(self):
-		self.top_down_provider.padding = 0
-		self.top_down_provider.name = "mock"
-		request_manager = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil()
-		)
-
-		request_manager.make_request_for_block(centre_coordinates=(51.989954, 4.330746), zoom=20.0)
-
-		self.top_down_provider.get_and_store_location.assert_has_calls(
-			calls=[
-			call(
-			latitude=51.98942545493587,
-			longitude=4.32988769311514,
-			zoom=20.0,
-			filename='1_51.98942545493587_4.32988769311514.png',
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=51.98942545493587,
-			longitude=4.331604306884861,
-			zoom=20.0,
-			filename='3_51.98942545493587_4.331604306884861.png',
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=51.990482545064125,
-			longitude=4.32988769311514,
-			zoom=20.0,
-			filename='7_51.990482545064125_4.32988769311514.png',
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=51.990482545064125,
-			longitude=4.331604306884861,
-			zoom=20.0,
-			filename='9_51.990482545064125_4.331604306884861.png',
-			new_folder_path=ANY,
-			)
-			],
 			any_order=True,
-		)
-
-	def test_request_block_bounding_box(self):
-		self.top_down_provider.padding = 0
-		self.top_down_provider.name = "mock"
-		self.top_down_provider.max_zoom = 14.0
-		log_manager = Mock()
-		log_manager.get_request_number.return_value = 1
-		request_manager = self._create_request_manager(
-			top_down_provider=self.top_down_provider,
-			log_manager=log_manager,
-			geo_location_util=GeoLocationUtil(),
-		)
-
-		request_manager.make_request_for_block(
-			centre_coordinates=(51.989954, 4.330746, 52.021186, 4.374115), zoom=14.0
-		)
-
-		self.top_down_provider.get_and_store_location.assert_has_calls(
-			calls=[
-			call(
-			latitude=52.00686744205219,
-			longitude=4.358211820315531,
-			zoom=14.0,
-			filename="1_52.00686744205219_4.358211820315531.png",
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=52.07447010004815,
-			longitude=4.468075101577653,
-			zoom=14.0,
-			filename='9_52.07447010004815_4.468075101577653.png',
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=52.20936891128352,
-			longitude=4.6878016641018965,
-			zoom=14.0,
-			filename="1_52.20936891128352_4.6878016641018965.png",
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=52.27666518663308,
-			longitude=4.797664945364018,
-			zoom=14.0,
-			filename='9_52.27666518663308_4.797664945364018.png',
-			new_folder_path=ANY,
-			),
-			],
-			any_order=True
 		)
