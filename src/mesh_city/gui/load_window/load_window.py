@@ -2,10 +2,9 @@
 A module that contains the loading old request window
 """
 
-import os
 from pathlib import Path
 from tkinter import Button, Label, Toplevel
-
+from mesh_city.imagery_provider.request_creator import RequestCreator
 
 class LoadWindow:
 	"""
@@ -60,6 +59,15 @@ class LoadWindow:
 
 		self.application.file_handler.folder_overview["active_request_path"][0] = \
                                        self.application.file_handler.folder_overview["active_tile_path"][0].parents[0]
+
+		if name_directory != "request_0":
+			temp_path = next(self.application.file_handler.folder_overview["active_request_path"][0].glob("building_instructions_*"))
+
+			temp_building_instructions_request = self.application.log_manager.read_log(
+				path=temp_path, type_document="building_instructions_request")
+
+			temp_request_creator = RequestCreator(application=self.application)
+			temp_request_creator.follow_instructions("normal", temp_building_instructions_request)
 
 		self.mainscreen.update_image()
 		self.mainscreen.layer_active = "normal"

@@ -19,6 +19,67 @@ class ImageUtil:
 	temp_path = Path(__file__).parents[1]
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
+	def concat_images_list(self, image_list):
+
+		up_left = Image.open(image_list[0])
+		up_center = Image.open(image_list[1])
+		up_right = Image.open(image_list[2])
+		center_left = Image.open(image_list[3])
+		center_center = Image.open(image_list[4])
+		center_right = Image.open(image_list[5])
+		down_left = Image.open(image_list[6])
+		down_center = Image.open(image_list[7])
+		down_right = Image.open(image_list[8])
+
+		level_0 = self.get_concat_horizontally(
+			self.get_concat_horizontally(up_left, up_center), up_right
+		)
+		level_1 = self.get_concat_horizontally(
+			self.get_concat_horizontally(center_left, center_center), center_right
+		)
+		level_2 = self.get_concat_horizontally(
+			self.get_concat_horizontally(down_left, down_center), down_right
+		)
+
+		temp_concat_image = self.get_concat_vertically(self.get_concat_vertically(level_2, level_1),
+			level_0)
+
+		return temp_concat_image
+
+	def combine_images_list(self, image_list, iteration_amount):
+
+		temp_list = []
+		temp_entry = None
+		counter = 0
+
+		for number in range(0, len(image_list)):
+
+			if counter == 0:
+				temp_entry = image_list[number]
+				counter += 1
+			else:
+				new_temp_1 = image_list[number]
+				new_temp = self.get_concat_horizontally(temp_entry, new_temp_1)
+				temp_entry = new_temp
+				counter += 1
+
+			if counter % iteration_amount == 0:
+				temp_list.insert(0, temp_entry)
+				counter = 0
+
+		first_Round = True
+		temp_entry = None
+		for number in range(0, len(temp_list)):
+
+			if first_Round is True:
+				temp_entry = temp_list[number]
+				first_Round = False
+			else:
+				new_temp = self.get_concat_vertically(temp_entry, temp_list[number])
+				temp_entry = new_temp
+
+		return temp_entry
+
 	def concat_images(self, new_folder_path, request, tile_number):
 		"""
 		Combines nine tile images into one.

@@ -7,6 +7,7 @@ import os
 
 from mesh_city.user.entities.user_entity import UserEntity
 from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
+from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 
 
 class LogManager:
@@ -83,17 +84,27 @@ class LogManager:
 			json.dump(log_entry.for_json(), fp=json_log, indent=4)
 			json_log.close()
 
-	def read_log(self, path):
+	def read_log(self, path, type_document=None):
 		"""
 		Method to read what is at the path and then build it appropriately
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
-		with open(path[0], "r") as json_log:
-			data = json_log.read()
-		logs = json.loads(data)
+		if type_document is not None:
+			with open(path, "r") as json_log:
+				data = json_log.read()
+			logs = json.loads(data)
 
-		temp_dic = {}
+			temp_dic = {}
+		else:
+			with open(path[0], "r") as json_log:
+				data = json_log.read()
+			logs = json.loads(data)
+
+			temp_dic = {}
+
+		if type_document == "building_instructions_request":
+			return BuildingInstructionsRequest(path_to_store=path, json=logs)
 
 		if path[1] == "users.json":
 			for key, value in logs.items():
@@ -105,4 +116,6 @@ class LogManager:
 			temp_coordinate_overview = CoordinateOverview(path_to_store=self.file_handler.folder_overview["coordinate_overview.json"][0], json=logs)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
 
-		return logs
+
+
+		return None

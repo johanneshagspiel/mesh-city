@@ -2,7 +2,6 @@
 See :class:`.Application`
 """
 
-from mesh_city.util.image_util import ImageUtil
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
@@ -20,7 +19,6 @@ class Application:
 		self.log_manager = LogManager(file_handler=self.file_handler)
 		self.request_manager = None
 		self.user_entity = None
-		#self.image_util = ImageUtil(self)
 
 		MainScreen(application=self)
 
