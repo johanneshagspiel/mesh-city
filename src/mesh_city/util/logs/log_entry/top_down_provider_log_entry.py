@@ -61,7 +61,7 @@ class TopDownProviderLogEntity(LogEntity):
 			"number_requests": self.number_requests,
 			"date": self.date,
 			"bounding_box": self.bounding_box,
-			"coordinates": self.coordinates,
+			"tile_information": self.coordinates,
 			}
 		}  # yapf: disable
 

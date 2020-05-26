@@ -7,20 +7,22 @@ requests are stored on disk.
 import csv
 import math
 import os
+from collections import defaultdict
 from pathlib import Path
-
+from range_key_dict import RangeKeyDict
 from geopy import distance
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.logs.log_entities.tile_log_entry import TileLogEntry
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
+from mesh_city.logs.log_entities.request_log_entry import RequestLogEntry
 
 
 class RequestManager:
 	"""
 	A class that is responsible for handling requests to different map providers. Based on
-	coordinates of the user it calculates all the locations that need to be downloaded, downloads them
+	tile_information of the user it calculates all the locations that need to be downloaded, downloads them
 	stores them in tile system: 9 images together make up one tile. These 9 images are, after being downloaded,
 	combined into one large image that is displayed on the map.
 	:param user_info: information about the user
@@ -65,7 +67,7 @@ class RequestManager:
 
 	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
 		"""
-		Takes as input two coordinates for a bounding box, a zoom level to specify how zoomed in the
+		Takes as input two tile_information for a bounding box, a zoom level to specify how zoomed in the
 		the images need to be and saves the retrieved images in a semi-structured way on disk.
 		:param first_coordinate:
 		:param second_coordinate:
@@ -89,7 +91,7 @@ class RequestManager:
 	def make_request_list_of_coordinates(self, coordinates_list, zoom, num_of_images_total=None, ):
 		"""
 		Makes a number of API requests based on the input of a coordinate list.
-		:param coordinates_list: list of coordinates, and image positions in the global grid.
+		:param coordinates_list: list of tile_information, and image positions in the global grid.
 		format: (latitude, longitude), (horizontal, vertical)
 		horizontal and vertical signal the images position in the world grid
 		coordinates_list = coordinates_info[1]
@@ -145,7 +147,7 @@ class RequestManager:
 	):
 		"""
 		Calculates the number of images that will be requested through the API when requesting a
-		bounding box with these two coordinates
+		bounding box with these two tile_information
 		:param first_coordinate: of the bounding box.
 		:param second_coordinate: of the bounding box.
 		:param zoom: the level of zoom (meters per pixel) the returned images will be.
@@ -166,7 +168,7 @@ class RequestManager:
 		:param zoom: the level of zoom (meters per pixel) the returned images will be.
 		:return: a pair which contains as its first value a tuple with the total number of images,
 		and the number of images along the axis, and as second value a list of the centre
-		coordinates of each image, and its horizontal and vertical position in the grid of images.
+		tile_information of each image, and its horizontal and vertical position in the grid of images.
 		The coordinate list has the following format:
 		((current_latitude, current_longitude), (horizontal, vertical))
 		The overall returned format is:
@@ -276,16 +278,19 @@ class RequestManager:
 		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
 		os.makedirs(new_folder_path)
 
-		temp_path_tile = Path.joinpath(new_folder_path, "meta_" + str(temp_tile_name) + ".json")
-		temp_tile_log_entry = TileLogEntry(path_to_store=temp_path_tile, name=temp_tile_name)
+		self.temp_stored_coordinates = {}
 
 		# in the case an area should be downloaded, the first thing returned will be the max longitude
 		# and latitude
+		max_latitude = 0
+		max_longitude = 0
+
 		if len(coordinates) > 9:
 			temp = coordinates.pop(0)
 			max_latitude = temp[0]
+			max_longitude = temp[1]
 
-		#bounding_box = [coordinates[0], coordinates[-1]]
+		#bounding_box = [tile_information[0], tile_information[-1]]
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
@@ -299,8 +304,10 @@ class RequestManager:
 		if number_requests == 9:
 			last_round = True
 
+		self.temp_list = []
+
 		counter = 1
-		# download and store the information in the case of only one pair of coordinates
+		# download and store the information in the case of only one pair of tile_information
 		if len(coordinates) == 9:
 			for location in coordinates:
 				number = str(counter)
@@ -310,18 +317,34 @@ class RequestManager:
 				self.map_entity.get_and_store_location(
 					location[0], location[1], zoom, temp_name, new_folder_path
 				)
-				temp_tile_log_entry.general_information[number] = (location[0], location[1])
+
+				if latitude in self.file_handler.coordinate_overview.grid:
+					new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+					new_to_store[longitude] = {"counter" : counter}
+					self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+				else:
+					self.file_handler.coordinate_overview.grid[latitude] = {longitude : {"counter" : counter}}
+				self.temp_list.append((longitude, latitude))
+
 				counter += 1
 
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number)
-					self.log_manager.create_log(temp_tile_log_entry)
+					temp_path = self.image_util.concat_images(new_folder_path, counter, tile_number)
+
+					for element in self.temp_list:
+						self.file_handler.coordinate_overview.grid[element[1]][element[0]]["normal"] = str(temp_path)
+					self.temp_list = []
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = \
-                                                                                 new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
+
+					temp_path_request = Path.joinpath(new_folder_path.parents[0],
+					                                  "meta_" + str(request_number) + ".json")
+
+					self.log_manager.write_log(self.file_handler.coordinate_overview)
+
 
 		# download and store the information in case a whole area was asked for
 		if len(coordinates) > 9:
@@ -334,14 +357,27 @@ class RequestManager:
 				self.map_entity.get_and_store_location(
 					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
 				)
-				temp_tile_log_entry.general_information[number] = (location[0], location[1])
+
+				if latitude in self.file_handler.coordinate_overview.grid:
+					new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+					new_to_store[longitude] = {"counter": counter}
+					self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+				else:
+					self.file_handler.coordinate_overview.grid[latitude] = {
+						longitude: {"counter": counter}}
+				self.temp_list.append((longitude, latitude))
+
 				counter += 1
 
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
 					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number_old)
-					self.log_manager.create_log(temp_tile_log_entry)
+					temp_path = self.image_util.concat_images(new_folder_path, counter, tile_number_old)
+
+					for element in self.temp_list:
+						self.file_handler.coordinate_overview.grid[element[1]][element[0]][
+							"normal"] = str(temp_path)
+					self.temp_list = []
 
 					tile_number_latitude += 1
 					if tile_number_latitude == max_latitude:
@@ -355,8 +391,6 @@ class RequestManager:
 
 					temp_path_tile = Path.joinpath(new_folder_path,
 					                               "meta_" + str(tile_name_new) + ".json")
-					temp_tile_log_entry = TileLogEntry(path_to_store=temp_path_tile,
-					                                   name=tile_name_new)
 
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
@@ -368,13 +402,22 @@ class RequestManager:
 				if counter == 10 and last_round:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number)
-					self.log_manager.create_log(temp_tile_log_entry)
+					temp_path = self.image_util.concat_images(new_folder_path, counter, tile_number)
+
+					for element in self.temp_list:
+						self.file_handler.coordinate_overview.grid[element[1]][element[0]][
+							"normal"] = str(temp_path)
+					self.temp_list = []
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = \
-                                                                                new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
+
+					temp_path_request = Path.joinpath(new_folder_path.parents[0],
+					                               "meta_" + str(request_number) + ".json")
+
+					self.log_manager.write_log(self.file_handler.coordinate_overview)
+
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path
@@ -392,7 +435,7 @@ class RequestManager:
 		:param zoom: the level of zoom (meters per pixel) the returned images will be.
 		:return: a pair which contains as its first value a tuple with the total number of images,
 		and the number of images along the axis, and as second value a list of the centre
-		coordinates of each image, and its horizontal and vertical position in the grid of images.
+		tile_information of each image, and its horizontal and vertical position in the grid of images.
 		The coordinate list has the following format:
 		((current_latitude, current_longitude), (horizontal, vertical))
 		The overall returned format is:
@@ -429,11 +472,11 @@ class RequestManager:
 
 		# to support the tile system, the total number of images to download needs to be divisible by
 		# 9 as one tile is 9 images
-		if (num_of_images_horizontal % 9) != 0:
-			num_of_images_horizontal += 9 - (num_of_images_horizontal % 9)
+		if (num_of_images_horizontal % 3) != 0:
+			num_of_images_horizontal += 3 - (num_of_images_horizontal % 3)
 		num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
-		if (num_of_images_vertical % 9) != 0:
-			num_of_images_vertical += 9 - (num_of_images_vertical % 9)
+		if (num_of_images_vertical % 3) != 0:
+			num_of_images_vertical += 3 - (num_of_images_vertical % 3)
 
 		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
 
@@ -511,7 +554,7 @@ class RequestManager:
 	def calculate_locations(self, coordinates, zoom=None):
 		"""
 		This method calculates all the locations to be downloaded for one request
-		:param coordinates: the central coordinates around which the other image
+		:param coordinates: the central tile_information around which the other image
 		:param zoom:
 		:return:
 		"""

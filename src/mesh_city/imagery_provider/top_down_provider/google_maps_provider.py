@@ -88,7 +88,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on coordinates
+		Returns an address name based on tile_information
 		:param latitude:
 		:param longitude:
 		:return:

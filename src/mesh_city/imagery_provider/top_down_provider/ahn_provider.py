@@ -123,14 +123,14 @@ class AhnProvider(TopDownProvider):
 
 	def calculate_bounding_box(self, latitude, longitude, zoom, image_size_x, image_size_y):
 		"""
-		Ahn provider does not ask for the central coordinates to get an image but for the bounding
+		Ahn provider does not ask for the central tile_information to get an image but for the bounding
 		box encompassing the area
 		:param latitude: latitude of the central location one is interested in getting the image from
 		:param longitude: longitude of the central location one is interested in getting the image from
 		:param zoom: the zoom level of the image one is interested in
 		:param image_size_x: the length of the x axis of the image
 		:param image_size_y: the length of the y axis of the image
-		:return: a list of the coordinates of the bounding box encompassing the area
+		:return: a list of the tile_information of the bounding box encompassing the area
 		"""
 
 		right = self.geo_util.calc_next_location_latitude(
@@ -152,8 +152,8 @@ class AhnProvider(TopDownProvider):
 
 	def check_in_netherlands(self, coordinates):
 		"""
-		Checks for a list of tuples of coordinates whether or not these location fall within the netherlands
-		:param coordinates: a list of tuples of coordinates of the from [(latitude_0,longitude_0),..]
+		Checks for a list of tuples of tile_information whether or not these location fall within the netherlands
+		:param coordinates: a list of tuples of tile_information of the from [(latitude_0,longitude_0),..]
 		:return:
 		"""
 		for entry in coordinates:

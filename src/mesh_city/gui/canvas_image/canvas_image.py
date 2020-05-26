@@ -69,7 +69,7 @@ class CanvasImage:
             w /= self.__reduction  # divide on reduction degree
             h /= self.__reduction  # divide on reduction degree
             self.__pyramid.append(self.__pyramid[-1].resize((int(w), int(h)), self.__filter))
-        # Put image into container rectangle and use it to set proper coordinates to the image
+        # Put image into container rectangle and use it to set proper tile_information to the image
         self.container = self.canvas.create_rectangle((0, 0, self.imwidth, self.imheight), width=0)
         self.__show_image()  # show image on the canvas
         self.canvas.focus_set()  # set focus on the canvas
@@ -161,7 +161,7 @@ class CanvasImage:
             box_scroll[3]  = box_img_int[3]
         # Convert scroll region to tuple and to integer
         self.canvas.configure(scrollregion=tuple(map(int, box_scroll)))  # set scroll region
-        x1 = max(box_canvas[0] - box_image[0], 0)  # get coordinates (x1,y1,x2,y2) of the image tile
+        x1 = max(box_canvas[0] - box_image[0], 0)  # get tile_information (x1,y1,x2,y2) of the image tile
         y1 = max(box_canvas[1] - box_image[1], 0)
         x2 = min(box_canvas[2], box_image[2]) - box_image[0]
         y2 = min(box_canvas[3], box_image[3]) - box_image[1]
@@ -188,7 +188,7 @@ class CanvasImage:
             self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
     def __move_from(self, event):
-        """ Remember previous coordinates for scrolling with the mouse """
+        """ Remember previous tile_information for scrolling with the mouse """
         self.canvas.scan_mark(event.x, event.y)
 
     def __move_to(self, event):
@@ -206,7 +206,7 @@ class CanvasImage:
 
     def __wheel(self, event):
         """ Zoom with mouse wheel """
-        x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
+        x = self.canvas.canvasx(event.x)  # get tile_information of the event on the canvas
         y = self.canvas.canvasy(event.y)
         if self.outside(x, y): return  # zoom only inside image area
         scale = 1.0

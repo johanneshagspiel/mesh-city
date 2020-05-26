@@ -5,6 +5,7 @@ See :class:`.StartScreen`
 from tkinter import Button, Label, Toplevel
 
 from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 
 class StartScreen:
@@ -63,6 +64,11 @@ class StartScreen:
 		in the global application context)
 		"""
 		self.application.late_init(name_user)
+
+		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
+		temp_json = self.application.log_manager.read_log(temp_path)
+		self.application.file_handler.coordinate_overview = CoordinateOverview(path_to_store=temp_path[0], json=temp_json)
+
 		self.top.destroy()
 
 	# pylint: disable=W0201

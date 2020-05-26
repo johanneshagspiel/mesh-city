@@ -5,6 +5,7 @@ from tkinter import Button, Entry, Label, Toplevel
 
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 
 # TODO check user input (check that google maps api key is an google maps api key)
@@ -115,4 +116,9 @@ class CreateNewUserWindow:
 		self.application.log_manager.write_log(new_user)
 
 		self.application.late_init(new_user)
+
+		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
+		temp_json = self.application.log_manager.read_log(temp_path)
+		self.application.file_handler.coordinate_overview = CoordinateOverview(path_to_store=temp_path[0], json=temp_json)
+
 		self.top.destroy()

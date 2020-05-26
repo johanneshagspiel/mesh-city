@@ -20,7 +20,7 @@ class PreviewWindow:
 		:param master: the master tkinter object
 		:param application: the global application context
 		:param main_screen: the main screen of the application
-		:param coordinates: the coordinates of the request
+		:param coordinates: the tile_information of the request
 		"""
 		self.main_screen = main_screen
 		self.master = master

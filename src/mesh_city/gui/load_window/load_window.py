@@ -31,9 +31,9 @@ class LoadWindow:
 		self.top_label.grid(row=0, column=1)
 
 		counter = 1
-		for directory in os.listdir(self.image_path):
-			if directory != "":
-				name_directory = str(directory)
+		for temp in self.image_path.glob('*'):
+			if temp.is_file() is False:
+				name_directory = temp.name
 				self.temp_name = Button(
 					self.top,
 					text=name_directory,

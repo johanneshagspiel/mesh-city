@@ -6,6 +6,7 @@ import json
 import os
 
 from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 
 class LogManager:
@@ -46,14 +47,18 @@ class LogManager:
 
 		max_directory = 0
 
+		temp_path = self.paths["image_path"][0]
+
 		if (len(os.listdir(self.paths["image_path"][0])) == 0):
 			max_directory = 0
 		else:
-			for directory in os.listdir(self.paths["image_path"][0]):
-				if (directory.split("_")[1] != ''):
-					temp_result = int(directory.split("_")[1])
-					if temp_result > max_directory:
-						max_directory = temp_result
+			for temp in temp_path.glob('*'):
+				if temp.is_file() is False:
+					directory = temp.name
+					if (directory.split("_")[1] != ''):
+						temp_result = int(directory.split("_")[1])
+						if temp_result > max_directory:
+							max_directory = temp_result
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
@@ -95,5 +100,9 @@ class LogManager:
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
+
+		if path[1] == "coordinate_overview.json":
+			temp_coordinate_overview = CoordinateOverview(path_to_store=self.file_handler.folder_overview["coordinate_overview.json"][0], json=logs)
+			self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		return logs

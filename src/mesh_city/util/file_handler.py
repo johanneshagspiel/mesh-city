@@ -2,7 +2,7 @@
 Module containing preliminary file handler
 """
 from pathlib import Path
-
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 class FileHandler:
 	"""
@@ -20,6 +20,7 @@ class FileHandler:
 			"image_path": [Path.joinpath(self.root, 'resources', 'images'), "image_path"],
 			"temp_path": [Path.joinpath(self.root, 'resources', 'temp'), "temp_path"],
 			"users.json": [Path.joinpath(self.root, 'resources', 'user', 'users.json'), "users.json"],
+			"coordinate_overview.json": [Path.joinpath(self.root, 'resources', 'images', 'coordinate_overview.json'), "coordinate_overview.json"],
 			"log_request_.json": [Path.joinpath(self.root, 'resources', 'logs', 'log_request_.json'), "log_request_.json"],
 			"active_request_path": [Path.joinpath(self.root, 'resources', 'images', "request_0"), "active_request_path"],
 			"active_tile_path":[Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"), "active_tile_path"],
@@ -27,6 +28,7 @@ class FileHandler:
 			"active_layer_path": [Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"), "active_layer_path"],
 			"selected_layer_path": [Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"), "selected_layer_path"]
 		}
+		self.coordinate_overview = None
 
 	def change(self, path_of_interest, new_location):
 		"""
@@ -37,3 +39,4 @@ class FileHandler:
 		:return: nothing (updates path dictionary)
 		"""
 		self.folder_overview[path_of_interest][0] = new_location
+
