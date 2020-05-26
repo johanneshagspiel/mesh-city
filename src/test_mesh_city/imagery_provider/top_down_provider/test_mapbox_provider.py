@@ -3,21 +3,18 @@ from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
-import requests
-
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
-from mesh_city.user.entities.user_entity import UserEntity
 from mesh_city.util.file_handler import FileHandler
 
 
-class mapboxproviderTest(unittest.TestCase):
+class MapboxProviderTest(unittest.TestCase):
 
 	def setUp(self):
 		self.provider = ImageProviderEntity(
 			FileHandler(),
-			type_map_provider="google_maps",
-			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
+			type_map_provider="map_box",
+			api_key="test",
 			quota=500,
 			usage=None,
 			date_reset=datetime(2019, 2, 28)
@@ -27,11 +24,13 @@ class mapboxproviderTest(unittest.TestCase):
 		self.longitude = (11.999212921106265, 11.999195337295573)
 		self.latitude = (12.000787078893735, 12.000804662704427)
 		self.zoom = 2
-		self.file_path = Path.joinpath(Path(__file__).parents[2], "resources")
+		self.file_path = Path.joinpath(Path(__file__).parents[2], "resources", "images")
 
 	def mock_response(self):
 		mock_resp = mock.Mock()
-		path = Path.joinpath(Path(__file__).parents[2], "resources", "test_response_image.png")
+		path = Path.joinpath(
+			Path(__file__).parents[2], "resources", "images", "test_mapbox_response_mock.png"
+		)
 		with open(path, "rb") as img:
 			mock_resp.content = img.read()
 		return mock_resp
@@ -42,16 +41,21 @@ class mapboxproviderTest(unittest.TestCase):
 			latitude=self.latitude,
 			longitude=self.longitude,
 			zoom=self.zoom,
-			filename="test_google_top_down.png",
+			filename="test_mapbox_response.png",
 			new_folder_path=self.file_path,
 			response=self.mock_response()
 		)
-		mock_path = Path.joinpath(Path(__file__).parents[2], "resources", "test_response_image.png")
+		mock_path = Path.joinpath(
+			Path(__file__).parents[2], "resources", "images", "test_mapbox_response_mock.png"
+		)
 		image_path = self.file_path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "test_google_top_down.png"
+			Path(__file__).parents[2], "resources", "images", "test_mapbox_response.png"
 		)
 		with open(image_path, "rb") as image_one, open(mock_path, "rb") as image_two:
 			received_image = image_one.read()
 			mock_image = image_two.read()
 
 		self.assertEqual(received_image, mock_image)
+
+	def test_is_there_anybody_here(self):
+		self.assertEqual(0,-1)

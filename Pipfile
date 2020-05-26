@@ -22,6 +22,7 @@ deepforest = "*"
 scipy = "==1.4.1"
 setuptools = "==46.1.3"
 tensorflow = "==1.14.0"
+pathlib = "*"
 
 [requires]
 python_version = "3.7"

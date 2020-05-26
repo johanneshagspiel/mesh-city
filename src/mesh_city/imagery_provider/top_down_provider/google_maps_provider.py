@@ -26,7 +26,15 @@ class GoogleMapsProvider(TopDownProvider):
 		self.max_side_resolution_image = 640
 
 	def get_and_store_location(
-		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
+		self,
+		latitude,
+		longitude,
+		zoom,
+		filename,
+		new_folder_path,
+		width=None,
+		height=None,
+		response=None
 	):
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
@@ -55,10 +63,11 @@ class GoogleMapsProvider(TopDownProvider):
 		map_type = "satellite"
 		api_key = self.image_provider_entity.api_key
 
-		response = requests.get(
-			"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
-			% (latitude, longitude, zoom, width, height, scale, file_format, map_type, api_key)
-		)
+		if response is None:
+			response = requests.get(
+				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
+				% (latitude, longitude, zoom, width, height, scale, file_format, map_type, api_key)
+			)
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
