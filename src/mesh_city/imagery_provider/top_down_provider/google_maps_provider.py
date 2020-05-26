@@ -17,17 +17,16 @@ class GoogleMapsProvider(TopDownProvider):
 	maps API. For requesting top-down imagery. Implements the top_down_provider class.
 	"""
 
-	def __init__(self, user_info, quota_manager):
-		super().__init__(user_info=user_info, quota_manager=quota_manager)
-		self.client = googlemaps.Client(key=self.user_info.api_key)
+	def __init__(self, image_provider_entity):
+		super().__init__(image_provider_entity=image_provider_entity)
+		self.client = googlemaps.Client(key=self.image_provider_entity.api_key)
 		self.padding = 40
 		self.name = "google_maps"
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
 
 	def get_and_store_location(
-		self, latitude, longitude, zoom, filename, new_folder_path,
-		width=None, height=None, response=None
+		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
 	):
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
@@ -54,12 +53,12 @@ class GoogleMapsProvider(TopDownProvider):
 		scale = str(2)
 		file_format = "PNG"
 		map_type = "satellite"
-		api_key = self.user_info.api_key
-		if response is None:
-			response = requests.get(
-				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
-				% (latitude, longitude, zoom, width, height, scale, file_format, map_type, api_key)
-			)
+		api_key = self.image_provider_entity.api_key
+
+		response = requests.get(
+			"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
+			% (latitude, longitude, zoom, width, height, scale, file_format, map_type, api_key)
+		)
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
@@ -78,8 +77,6 @@ class GoogleMapsProvider(TopDownProvider):
 		im1 = get_image.crop(box=(left, upper, right, lower))
 
 		im1.save(fp=to_store)
-
-		self.quota_manager.increase_usage()
 
 	def get_location_from_name(self, name):
 		"""

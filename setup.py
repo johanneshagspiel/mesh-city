@@ -1,3 +1,4 @@
+import unittest
 from abc import ABC
 from distutils.cmd import Command
 from os import environ, getcwd, path, pathsep
@@ -22,7 +23,8 @@ def get_pipfile_dependencies(category: str) -> List[str]:
 
 
 subprocess_env = environ.copy()
-subprocess_env["PYTHONPATH"] = path.join(getcwd(), "src") + pathsep + subprocess_env.get("PYTHONPATH", "")
+subprocess_env["PYTHONPATH"] = path.join(getcwd(), "src") + pathsep + subprocess_env.get(
+	"PYTHONPATH", "")
 
 
 class CommandAdapter(Command, ABC):

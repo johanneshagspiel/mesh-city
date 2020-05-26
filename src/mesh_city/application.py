@@ -4,8 +4,10 @@ See :class:`.Application`
 
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.imagery_provider.request_manager import RequestManager
-from mesh_city.user.quota_manager import QuotaManager
-from mesh_city.user.user_info_handler import UserInfoHandler
+from mesh_city.logs.log_manager import LogManager
+from mesh_city.util.file_handler import FileHandler
+from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.image_util import ImageUtil
 
 
 class Application:
@@ -15,18 +17,21 @@ class Application:
 	"""
 
 	def __init__(self):
-		self.user_info_handler = UserInfoHandler()
-		self.quota_manager = None
+		self.file_handler = FileHandler()
+		self.log_manager = LogManager(file_handler=self.file_handler)
 		self.request_manager = None
-		self.user_info = None
+		self.user_entity = None
 
 		MainScreen(application=self)
 
-	def late_init(self):
+	def late_init(self, user_entity):
 		"""
 		Initialises the fields that need the user information.
 		"""
-
-		self.user_info_handler.store_user_info(self.user_info)
-		self.quota_manager = QuotaManager(self.user_info)
-		self.request_manager = RequestManager(self.user_info, self.quota_manager)
+		self.user_entity = user_entity
+		self.request_manager = RequestManager(
+			file_handler=self.file_handler,
+			log_manager=self.log_manager,
+			image_util=ImageUtil(),
+			geo_location_util=GeoLocationUtil(),
+		)
