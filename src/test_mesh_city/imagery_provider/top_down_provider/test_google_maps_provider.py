@@ -14,7 +14,7 @@ class GoogleMapsProviderTest(unittest.TestCase):
 		self.provider = ImageProviderEntity(
 			FileHandler(),
 			type_map_provider="google_maps",
-			api_key="yo",
+			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
 			quota=500,
 			usage=None,
 			date_reset=datetime(2019, 2, 28)
@@ -24,11 +24,13 @@ class GoogleMapsProviderTest(unittest.TestCase):
 		self.longitude = (11.999212921106265, 11.999195337295573)
 		self.latitude = (12.000787078893735, 12.000804662704427)
 		self.zoom = 2
-		self.file_path = Path.joinpath(Path(__file__).parents[2], "resources")
+		self.file_path = Path.joinpath(Path(__file__).parents[2], "resource_images")
 
-	def mock_response(self,path):
+	def mock_response(self):
 		mock_resp = mock.Mock()
-
+		path = Path.joinpath(
+			Path(__file__).parents[2], "resource_images", "test_mapbox_response_mock.png"
+		)
 		with open(path, "rb") as img:
 			mock_resp.content = img.read()
 
@@ -36,23 +38,20 @@ class GoogleMapsProviderTest(unittest.TestCase):
 
 	def test_get_and_store(self):
 		g_map = self.google_maps_prov
-		path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "test_mapbox_response_mock.png"
-		)
-		mockmalow =self.mock_response(path)
+
 		g_map.get_and_store_location(
 			latitude=self.latitude,
 			longitude=self.longitude,
 			zoom=self.zoom,
 			filename="test_google_top_down.png",
 			new_folder_path=self.file_path,
-			response=mockmalow
+			response=self.mock_response()
 		)
 		mock_path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "test_google_top_down_response_mock.png"
+			Path(__file__).parents[2], "resource_images", "test_google_top_down_response_mock.png"
 		)
 		image_path = self.file_path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "test_google_top_down.png"
+			Path(__file__).parents[2], "resource_images", "test_google_top_down.png"
 		)
 		with open(image_path, "rb") as image_one, open(mock_path, "rb") as image_two:
 			received_image = image_one.read()

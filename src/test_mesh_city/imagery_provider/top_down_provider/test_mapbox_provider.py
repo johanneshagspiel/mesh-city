@@ -24,12 +24,12 @@ class MapboxProviderTest(unittest.TestCase):
 		self.longitude = (11.999212921106265, 11.999195337295573)
 		self.latitude = (12.000787078893735, 12.000804662704427)
 		self.zoom = 2
-		self.file_path = Path.joinpath(Path(__file__).parents[2], "resources", "images")
+		self.file_path = Path.joinpath(Path(__file__).parents[2], "resource_images")
 
 	def mock_response(self):
 		mock_resp = mock.Mock()
 		path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "images", "test_mapbox_response_mock.png"
+			Path(__file__).parents[2], "resource_images","test_mapbox_response_mock.png"
 		)
 		with open(path, "rb") as img:
 			mock_resp.content = img.read()
@@ -46,10 +46,10 @@ class MapboxProviderTest(unittest.TestCase):
 			response=self.mock_response()
 		)
 		mock_path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "images", "test_mapbox_response_mock.png"
+			Path(__file__).parents[2], "resource_images", "test_mapbox_response_mock.png"
 		)
 		image_path = self.file_path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "images", "test_mapbox_response.png"
+			Path(__file__).parents[2], "resource_images", "test_mapbox_response.png"
 		)
 		with open(image_path, "rb") as image_one, open(mock_path, "rb") as image_two:
 			received_image = image_one.read()
@@ -57,5 +57,3 @@ class MapboxProviderTest(unittest.TestCase):
 
 		self.assertEqual(received_image, mock_image)
 
-	def test_is_there_anybody_here(self):
-		self.assertEqual(0,-1)
