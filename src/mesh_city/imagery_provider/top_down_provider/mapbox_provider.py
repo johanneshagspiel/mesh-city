@@ -17,14 +17,22 @@ class MapboxProvider(TopDownProvider):
 	"""
 
 	def __init__(self, image_provider_entity):
-		TopDownProvider.__init__(self, image_provider_entity=image_provider_entity)
+		super().__init__(image_provider_entity=image_provider_entity)
 		self.geocoder = Geocoder(access_token=image_provider_entity.api_key)
 		self.name = "mapbox"
 		self.max_zoom = 18
 		self.max_side_resolution_image = 640
 
 	def get_and_store_location(
-		self, latitude, longitude, zoom, filename, new_folder_path, width=None, height=None
+		self,
+		latitude,
+		longitude,
+		zoom,
+		filename,
+		new_folder_path,
+		width=None,
+		height=None,
+		response=None
 	):
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
@@ -35,6 +43,7 @@ class MapboxProvider(TopDownProvider):
 		:param new_folder_path: directory for where the file should be saved.
 		:param width: the width dimension of the image
 		:param height: the height dimension of the image
+		:param: response: the response received from google, used in testing.
 		:return:
 		"""
 		if height is None or height > 640:
@@ -54,25 +63,25 @@ class MapboxProvider(TopDownProvider):
 		attribution = "attribution=false"
 		logo = "logo=false"
 		access_token = self.image_provider_entity.api_key
-
-		response = requests.get(
-			"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
-			% (
-			username,
-			style_id,
-			lon,
-			lat,
-			zoom,
-			bearing,
-			pitch,
-			width,
-			height,
-			scale,
-			access_token,
-			attribution,
-			logo,
+		if response is None:
+			response = requests.get(
+				"https://api.mapbox.com/styles/v1/%s/%s/static/%s,%s,%s,%s,%s/%sx%s@%s?access_token=%s&%s&%s"
+				% (
+				username,
+				style_id,
+				lon,
+				lat,
+				zoom,
+				bearing,
+				pitch,
+				width,
+				height,
+				scale,
+				access_token,
+				attribution,
+				logo,
+				)
 			)
-		)
 
 		to_store = Path.joinpath(new_folder_path, filename)
 

@@ -1,6 +1,7 @@
 """
 Module containing preliminary file handler
 """
+
 from pathlib import Path
 from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
@@ -9,12 +10,15 @@ class FileHandler:
 	Preliminary filehanler class that stores all the information surrounding paths
 	"""
 
-	def __init__(self):
+	def __init__(self, root=None):
 		"""
 		Creates a dictionary of name to (path, name). Name is needed in the tuple so that a method
 		can now where it is
 		"""
-		self.root = Path(__file__).parents[1]
+
+		self.root = root
+		if root is None:
+			self.root = Path(__file__).parents[1]
 		self.folder_overview = {
 			"resource_path": [Path.joinpath(self.root, 'resources'), "resource_path"],
 			"image_path": [Path.joinpath(self.root, 'resources', 'images'), "image_path"],

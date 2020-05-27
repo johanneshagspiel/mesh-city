@@ -61,6 +61,6 @@ class PriceTableUtil:
 			if temp_result == -1:
 				raise ValueError("The price for the given requests is not defined.")
 			cost += temp_result
-			if cost >= monthly_quota and number != previous_usage + additional_usage:
+			if number >= monthly_quota and number != previous_usage + additional_usage:
 				raise QuotaException("These requests would exceed the quota.")
 		return cost

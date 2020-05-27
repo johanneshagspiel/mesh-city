@@ -12,14 +12,13 @@ from mesh_city.logs.log_entities.building_instructions_request import BuildingIn
 
 class LogManager:
 	"""
-	A class that is reponsible for logging every request made. It can be
+	A class that is responsible for logging every request made.
 	"""
 
-	def __init__(self, file_handler):
-		"""
-		Initializes a log_manager method
-		"""
-		self.paths = file_handler.folder_overview
+ 	def __init__(self, file_handler, resource_path=Path(__file__).parents[1].joinpath("resources")):
+		self.resource_path = resource_path
+		self.image_path = resource_path.joinpath("images")
+		self.log_path = resource_path.joinpath("logs", "log_request_.json")
 		self.file_handler = file_handler
 
 	def get_request_number(self):

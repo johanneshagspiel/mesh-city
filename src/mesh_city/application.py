@@ -6,6 +6,8 @@ from mesh_city.gui.main_screen import MainScreen
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.util.file_handler import FileHandler
+from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.image_util import ImageUtil
 
 
 class Application:
@@ -27,4 +29,9 @@ class Application:
 		Initialises the fields that need the user information.
 		"""
 		self.user_entity = user_entity
-		self.request_manager = RequestManager(user_entity=user_entity, application=self)
+		self.request_manager = RequestManager(
+			file_handler=self.file_handler,
+			log_manager=self.log_manager,
+			image_util=ImageUtil(),
+			geo_location_util=GeoLocationUtil(),
+		)

@@ -4,15 +4,13 @@ import unittest
 
 from parameterized import parameterized
 
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
-from mesh_city.util.file_handler import FileHandler
-from mesh_city.util.price_table_util import PriceTableUtil
+from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
 
 
 class PriceTableTest(unittest.TestCase):
 
 	def setUp(self):
-		self.file_handler = FileHandler()
+		pass
 
 	@parameterized.expand(
 		[
@@ -75,4 +73,15 @@ class PriceTableTest(unittest.TestCase):
 			500001,
 			1,
 			1000000
+		)
+
+	def test_exceed_quota(self):
+		self.assertRaises(
+			QuotaException,
+			PriceTableUtil.calculate_action_price,
+			"google_maps",
+			"geocoding",
+			1000,
+			1,
+			1
 		)

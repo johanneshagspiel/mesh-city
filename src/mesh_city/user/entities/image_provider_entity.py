@@ -27,6 +27,9 @@ class ImageProviderEntity(LogEntity):
 		:param type_map_provider: what kind of image provider this is
 		:param api_key: the api key associated with the image provider
 		:param quota: the quota to be observed
+		:param usage: a dictionary representing the total usage, static map usage
+		and geocoding usage.
+		:param date_reset: The date the monthly usage should be reset.
 		"""
 		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
 		if (type_map_provider and api_key and quota is not None):

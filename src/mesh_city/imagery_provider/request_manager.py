@@ -8,6 +8,7 @@ import csv
 import math
 import os
 from pathlib import Path
+
 from geopy import distance
 
 from mesh_city.imagery_provider.request_creator import RequestCreator
@@ -36,12 +37,7 @@ class RequestManager:
 		# self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		# self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
-		self.file_handler = application.file_handler
-		self.log_manager = application.log_manager
-
-		self.image_util = ImageUtil()
-		self.geo_location_util = GeoLocationUtil()
-
+		self.images_folder_path = file_handler.folder_overview["image_path"]
 		self.request_number = self.log_manager.get_request_number()
 
 	def make_request_for_block(self, coordinates, zoom=None):
@@ -209,6 +205,7 @@ class RequestManager:
 				if counter == 10 and last_round:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
+					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
@@ -263,9 +260,9 @@ class RequestManager:
 				"The first coordinate should be beneath and left of the second coordinate"
 			)
 
-		side_resolution_image = self.map_entity.max_side_resolution_image
+		side_resolution_image = self.top_down_provider.max_side_resolution_image
 
-		if isinstance(self.map_entity, GoogleMapsProvider):
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
 			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
 			# specific for google maps API
 			side_resolution_image = side_resolution_image - 40
@@ -370,9 +367,11 @@ class RequestManager:
 		:return:
 		"""
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 
-		image_size = 640 - self.map_entity.padding
+		image_size = self.top_down_provider.max_side_resolution_image
+		if isinstance(self.top_down_provider, GoogleMapsProvider):
+			image_size = 640 - self.top_down_provider.padding
 
 		if len(coordinates) == 2:
 			latitude = coordinates[0]

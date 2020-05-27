@@ -56,14 +56,14 @@ class StartScreen:
 		)
 		self.create_user.grid(row=counter, column=1)
 
-	def load_user(self, name_user):
+	def load_user(self, user):
 		"""
 		Method called when the user wants to login with an existing user
 		:param name_user: the user name
 		:return: nothing (changes to main screen and initializes the missing user information
 		in the global application context)
 		"""
-		self.application.late_init(name_user)
+		self.application.late_init(user)
 
 		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
 		self.application.log_manager.read_log(temp_path)

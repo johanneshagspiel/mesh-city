@@ -59,11 +59,9 @@ class AhnProvider(TopDownProvider):
 					counter += 1
 				if element in [" ", "(", ")"]:
 					counter += 1
-					#pass
 				else:
 					if element == ",":
 						counter += 1
-						#pass
 					else:
 						temp_string += element
 						counter += 1

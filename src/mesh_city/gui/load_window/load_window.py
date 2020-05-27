@@ -51,14 +51,20 @@ class LoadWindow:
 		:return: nothing
 		"""
 
-		self.application.file_handler.folder_overview["active_tile_path"][0] = \
-                                       Path.joinpath(self.application.file_handler.folder_overview["image_path"][0], name_directory, "0_tile_0_0")
+		self.application.file_handler.folder_overview["active_tile_path"][0] = Path.joinpath(
+			self.application.file_handler.folder_overview["image_path"][0],
+			name_directory,
+			"0_tile_0_0"
+		)
 
-		self.application.file_handler.folder_overview["active_image_path"][0] = \
-                                       Path.joinpath(self.application.file_handler.folder_overview["image_path"][0], name_directory, "0_tile_0_0")
+		self.application.file_handler.folder_overview["active_image_path"][0] = Path.joinpath(
+			self.application.file_handler.folder_overview["image_path"][0],
+			name_directory,
+			"0_tile_0_0"
+		)
 
-		self.application.file_handler.folder_overview["active_request_path"][0] = \
-                                       self.application.file_handler.folder_overview["active_tile_path"][0].parents[0]
+		self.application.file_handler.folder_overview["active_request_path"][
+			0] = self.application.file_handler.folder_overview["active_tile_path"][0].parents[0]
 
 		if name_directory != "request_0":
 			temp_path = next(self.application.file_handler.folder_overview["active_request_path"][0].glob("building_instructions_*"))
