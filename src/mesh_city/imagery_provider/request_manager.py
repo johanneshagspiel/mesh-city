@@ -413,8 +413,6 @@ class RequestManager:
 		counter=0
 		first_round = len(coordinates) > 9
 
-		print(self.file_handler.coordinate_overview.grid)
-
 		for location in coordinates:
 			if first_round:
 				temp_list.append(location)
