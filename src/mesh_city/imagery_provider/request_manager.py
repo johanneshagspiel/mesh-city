@@ -113,27 +113,28 @@ class RequestManager:
 
 		if len(coordinates) == 9:
 			for location in coordinates:
-				number = str(counter)
-				longitude = str(location[0])
-				latitude = str(location[1])
-				temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-				temp_location_stored = str(self.map_entity.get_and_store_location(
-					location[0], location[1], zoom, temp_name, new_folder_path
-				))
-				self.temp_list.append(temp_location_stored)
+				if location[1] is None:
+					number = str(counter)
+					latitude = str(location[0][0])
+					longitude = str(location[0][1])
+					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
+					temp_location_stored = str(self.map_entity.get_and_store_location(
+						location[0][0], location[0][1], zoom, temp_name, new_folder_path
+					))
+					self.temp_list.append(temp_location_stored)
 
-				if latitude in self.file_handler.coordinate_overview.grid:
-					new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-					new_to_store[longitude] = {"normal" : temp_location_stored}
-					self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+					if latitude in self.file_handler.coordinate_overview.grid:
+						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+						new_to_store[longitude] = {"normal" : temp_location_stored}
+						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+					else:
+						self.file_handler.coordinate_overview.grid[latitude] = {longitude : {"normal" : temp_location_stored}}
 				else:
-					self.file_handler.coordinate_overview.grid[latitude] = {longitude : {"normal" : temp_location_stored}}
-
+					self.temp_list.append(location[1])
 				counter += 1
 
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					temp_path = self.image_util.concat_images(new_folder_path, counter, tile_number)
 
 					self.normal_building_instructions.append(self.temp_list)
 
@@ -155,31 +156,32 @@ class RequestManager:
 
 		# download and store the information in case a whole area was asked for
 		if len(coordinates) > 9:
-
 			for location in coordinates:
-				number = str(counter)
-				longitude = str(location[0])
-				latitude = str(location[1])
-				temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-				temp_location_stored = str(self.map_entity.get_and_store_location(
-					location[0], location[1], self.map_entity.max_zoom, temp_name, new_folder_path
-				))
-				self.temp_list.append(temp_location_stored)
 
-				if latitude in self.file_handler.coordinate_overview.grid:
-					new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-					new_to_store[longitude] = {"normal" : temp_location_stored}
-					self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+				if location[1] is None:
+					number = str(counter)
+					latitude = str(location[0][0])
+					longitude = str(location[0][1])
+					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
+					temp_location_stored = str(self.map_entity.get_and_store_location(
+						location[0][0], location[0][1], self.map_entity.max_zoom, temp_name, new_folder_path
+					))
+					self.temp_list.append(temp_location_stored)
+
+					if latitude in self.file_handler.coordinate_overview.grid:
+						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+						new_to_store[longitude] = {"normal" : temp_location_stored}
+						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+					else:
+						self.file_handler.coordinate_overview.grid[latitude] = {
+							longitude: {"normal" : temp_location_stored}}
 				else:
-					self.file_handler.coordinate_overview.grid[latitude] = {
-						longitude: {"normal" : temp_location_stored}}
-
+					self.temp_list.append(location[1])
 				counter += 1
 
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
 					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					temp_path = self.image_util.concat_images(new_folder_path, counter, tile_number_old)
 
 					tile_number_latitude += 1
 					if tile_number_latitude == max_latitude:
@@ -207,7 +209,6 @@ class RequestManager:
 				if counter == 10 and last_round:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					temp_path = self.image_util.concat_images(new_folder_path, counter, tile_number)
 
 					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
@@ -374,8 +375,8 @@ class RequestManager:
 		image_size = 640 - self.map_entity.padding
 
 		if len(coordinates) == 2:
-			longitude = coordinates[1]
 			latitude = coordinates[0]
+			longitude = coordinates[1]
 
 			bottom = self.geo_location_util.calc_next_location_latitude(
 				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=False
@@ -395,8 +396,6 @@ class RequestManager:
 				(latitude, longitude), (latitude, right), (top, left), (top, longitude), (top, right),
 			]  # pylint: disable=invalid-name
 
-			print(temp_list)
-			print("calculate")
 			return temp_list
 
 		if len(coordinates) == 4:
@@ -410,13 +409,29 @@ class RequestManager:
 		)
 
 	def check_coordinates(self, coordinates):
-		temp_set = {}
+		temp_list = []
+		counter=0
+		first_round = len(coordinates) > 9
+
+		print(self.file_handler.coordinate_overview.grid)
 
 		for location in coordinates:
-			longitude = str(location[0])
-			latitude = str(location[1])
+			if first_round:
+				temp_list.append(location)
+				first_round = False
+			else:
+				latitude = str(location[0])
+				longitude = str(location[1])
 
-			if latitude in self.file_handler.coordinate_overview.grid:
-				print("hi")
-				if longitude in self.file_handler.coordinate_overview.grid[latitude]:
-					print("hi2")
+				if latitude in self.file_handler.coordinate_overview.grid:
+					if longitude in self.file_handler.coordinate_overview.grid[latitude]:
+						temp_list.append(((latitude, longitude), self.file_handler.coordinate_overview.grid[latitude][longitude]["normal"]))
+					else:
+						temp_list.append(((latitude, longitude), None))
+						counter += 1
+				else:
+					temp_list.append(((latitude, longitude), None))
+					counter += 1
+
+		temp_list.insert(0, counter)
+		return temp_list
