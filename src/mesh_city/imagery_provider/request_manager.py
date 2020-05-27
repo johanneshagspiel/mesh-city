@@ -66,7 +66,7 @@ class RequestManager:
 			max_longitude = temp[1]
 			self.normal_building_instructions.append(int(temp[1]))
 
-		checked_coordinates = self.check_coordinates(coordinates)
+		#checked_coordinates = self.check_coordinates(coordinates)
 
 		if zoom is None:
 			zoom = self.map_entity.max_zoom
@@ -110,6 +110,7 @@ class RequestManager:
 
 		counter = 1
 		# download and store the information in the case of only one pair of tile_information
+
 		if len(coordinates) == 9:
 			for location in coordinates:
 				number = str(counter)
@@ -230,217 +231,6 @@ class RequestManager:
 
 		return new_folder_path
 
-	def make_single_request(self, centre_coordinates, zoom, height, width):
-		"""
-		Test method to make and store one image. Does not support the tile system and the image can
-		not be displayed on the map.
-		:param centre_coordinates: the location where the satellite image should be downloaded
-		:param zoom: the zoom level at which the image should be downloaded
-		:param height: height of the resulting image
-		:param width: width of the resulting image
-		:return:
-		"""
-		self.map_entity.get_and_store_location(
-			centre_coordinates[0],
-			centre_coordinates[1],
-			zoom,
-			height,
-			width,
-			str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
-			self.file_handler.folder_overview["image_path"][0]
-		)
-
-	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
-		"""
-		Takes as input two tile_information for a bounding box, a zoom level to specify how zoomed in the
-		the images need to be and saves the retrieved images in a semi-structured way on disk.
-		:param first_coordinate:
-		:param second_coordinate:
-		:param zoom:
-		:return:
-		"""
-		if zoom is None:
-			zoom = self.map_entity.max_zoom
-		if zoom < 1:
-			raise Exception("Zoom level  cannot be lower than 1")
-		if zoom > self.map_entity.max_zoom:
-			zoom = self.map_entity.max_zoom
-
-		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
-			first_coordinate, second_coordinate, zoom
-		)
-		coordinates_list = coordinates_info[1]
-
-		self.make_request_list_of_coordinates(coordinates_list, zoom)
-
-	def make_request_list_of_coordinates(self, coordinates_list, zoom, num_of_images_total=None, ):
-		"""
-		Makes a number of API requests based on the input of a coordinate list.
-		:param coordinates_list: list of tile_information, and image positions in the global grid.
-		format: (latitude, longitude), (horizontal, vertical)
-		horizontal and vertical signal the images position in the world grid
-		coordinates_list = coordinates_info[1]
-		:param zoom: which level of zoom the imagery should have
-		:param num_of_images_total: number of images to be downloaded
-		:return: saves all images on disk, and creates an CSV document with metadata.
-		"""
-
-		print("Requestnumber: " + str(self.request_number))
-		print("Total Images to download: " + str(num_of_images_total))
-
-		new_folder_path = Path.joinpath(
-			self.file_handler.folder_overview["image_path"][0], "request_" + str(self.request_number)
-		)
-		os.makedirs(new_folder_path)
-
-		# saves metadata to an CSV file
-		csv_filename = Path.joinpath(new_folder_path, "imagery_metadata.csv")
-		with open(csv_filename, "w") as csvfile:
-			fieldnames = [
-				"image_number", "horizontal_position", "vertical_position", "latitude", "longitude"
-			]
-			csv_writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-			csv_writer.writeheader()
-
-			image_number = 0
-			for info in coordinates_list:
-				latitude = info[0][0]
-				longitude = info[0][1]
-				horizontal_position = info[1][0]
-				vertical_position = info[1][1]
-				image_number = image_number + 1
-
-				file_name = str(
-					str(image_number) + "_" + str(horizontal_position) + "," + str(vertical_position) +
-					"_" + str(latitude) + "," + str(longitude) + ".png"
-				)
-				self.map_entity.get_and_store_location(
-					latitude, longitude, zoom, file_name, new_folder_path
-				)
-				csv_writer.writerow(
-					{
-					"image_number": str(image_number),
-					"horizontal_position": str(horizontal_position),
-					"vertical_position": str(vertical_position),
-					"latitude": str(latitude),
-					"longitude": str(longitude),
-					}
-				)
-
-	def calculate_number_of_requested_images_two_coordinate_input(
-		self, first_coordinate, second_coordinate, zoom
-	):
-		"""
-		Calculates the number of images that will be requested through the API when requesting a
-		bounding box with these two tile_information
-		:param first_coordinate: of the bounding box.
-		:param second_coordinate: of the bounding box.
-		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:return: number of images that will be requested
-		"""
-		return self.calculate_centre_coordinates_two_coordinate_input(
-			first_coordinate, second_coordinate, zoom
-		)[0][0]
-
-	def calculate_centre_coordinates_two_coordinate_input(
-		self, first_coordinate, second_coordinate, zoom
-	):
-		"""
-		Method which calculates and retrieves the number of images that are necessary to have a
-		complete imagery set of a certain geographical area. This area is defined by a bounding box.
-		:param first_coordinate: of the bounding box.
-		:param second_coordinate:  of the bounding box.
-		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:return: a pair which contains as its first value a tuple with the total number of images,
-		and the number of images along the axis, and as second value a list of the centre
-		tile_information of each image, and its horizontal and vertical position in the grid of images.
-		The coordinate list has the following format:
-		((current_latitude, current_longitude), (horizontal, vertical))
-		The overall returned format is:
-		((num_of_images_total, num_of_images_horizontal, num_of_images_vertical), coordinates_list)
-		"""
-
-		if first_coordinate[0] < second_coordinate[0]:
-			bottom_lat = first_coordinate[0]
-			top_lat = second_coordinate[0]
-		else:
-			bottom_lat = second_coordinate[0]
-			top_lat = first_coordinate[0]
-
-		if first_coordinate[1] < second_coordinate[1]:
-			left_long = first_coordinate[1]
-			right_long = second_coordinate[1]
-		else:
-			left_long = second_coordinate[1]
-			right_long = first_coordinate[1]
-
-		if bottom_lat > top_lat or left_long > right_long:
-			raise Exception(
-				"The first coordinate should be beneath and left of the second coordinate"
-			)
-
-		side_resolution_image = self.map_entity.max_side_resolution_image
-
-		if isinstance(self.map_entity, GoogleMapsProvider):
-			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
-			# specific for google maps API
-			side_resolution_image = side_resolution_image - 40
-
-		horizontal_width = distance.distance((bottom_lat, left_long), (bottom_lat, right_long)).m
-		vertical_length = distance.distance((bottom_lat, left_long), (top_lat, left_long)).m
-
-		total_horizontal_pixels = horizontal_width / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom
-		)
-		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom
-		)
-
-		num_of_images_horizontal = int(
-			math.floor(1 + total_horizontal_pixels / side_resolution_image)
-		)
-		num_of_images_vertical = int(math.floor(1 + total_vertical_pixels / side_resolution_image))
-
-		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
-
-		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
-			bottom_lat, zoom, side_resolution_image / 2, True,
-		)
-		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
-			bottom_lat, left_long, zoom, side_resolution_image / 2, True
-		)
-
-		current_latitude = latitude_first_image
-		current_longitude = longitude_first_image
-
-		coordinates_list = []
-
-		for vertical in range(num_of_images_vertical):
-			for horizontal in range(num_of_images_horizontal):
-				coordinates_list.append(
-					((current_latitude, current_longitude), (horizontal, vertical))
-				)
-				current_longitude = self.geo_location_util.calc_next_location_longitude(
-					current_latitude, current_longitude, zoom, side_resolution_image, True
-				)
-			current_longitude = longitude_first_image
-			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, zoom, side_resolution_image, True
-			)
-		return (num_of_images_total, num_of_images_horizontal,
-			num_of_images_vertical), coordinates_list
-
-	def check_coordinates(self, coordinates):
-		temp_set = {}
-
-		for location in coordinates:
-			longitude = str(location[0])
-			latitude = str(location[1])
-
-			if latitude in self.file_handler.coordinate_overview.grid:
-				print("hi")
-				if longitude in self.file_handler.coordinate_overview.grid[latitude]:
-					print("hi2")
 
 	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
@@ -584,26 +374,30 @@ class RequestManager:
 		image_size = 640 - self.map_entity.padding
 
 		if len(coordinates) == 2:
-			longitude = coordinates[0]
-			latitude = coordinates[1]
+			longitude = coordinates[1]
+			latitude = coordinates[0]
 
 			bottom = self.geo_location_util.calc_next_location_latitude(
-				latitude, zoom, image_size, False
+				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=False
 			)
 			top = self.geo_location_util.calc_next_location_latitude(
-				latitude, zoom, image_size, True
+				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
-				longitude, latitude, zoom, image_size, True
+				latitude=latitude, longitude=longitude, zoom=zoom, image_size_y=image_size, direction=True
 			)
 			left = self.geo_location_util.calc_next_location_longitude(
-				longitude, latitude, zoom, image_size, False
+				latitude=latitude, longitude=longitude, zoom=zoom, image_size_y=image_size, direction=False
 			)
 
-			return [
-				(bottom, left), (bottom, latitude), (bottom, right), (longitude, left),
-				(longitude, latitude), (longitude, right), (top, left), (top, latitude), (top, right),
+			temp_list = [
+				(bottom, left), (bottom, longitude), (bottom, right), (latitude, left),
+				(latitude, longitude), (latitude, right), (top, left), (top, longitude), (top, right),
 			]  # pylint: disable=invalid-name
+
+			print(temp_list)
+			print("calculate")
+			return temp_list
 
 		if len(coordinates) == 4:
 			return self.calculate_centre_coordinates_two_coordinate_input_block(
@@ -614,3 +408,15 @@ class RequestManager:
 			"Something went wrong with the input, as it doesn't return something "
 			"when it should have "
 		)
+
+	def check_coordinates(self, coordinates):
+		temp_set = {}
+
+		for location in coordinates:
+			longitude = str(location[0])
+			latitude = str(location[1])
+
+			if latitude in self.file_handler.coordinate_overview.grid:
+				print("hi")
+				if longitude in self.file_handler.coordinate_overview.grid[latitude]:
+					print("hi2")
