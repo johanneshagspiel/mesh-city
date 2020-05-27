@@ -51,6 +51,7 @@ class ImageUtil:
 
 		return temp_concat_image
 
+	# pylint: disable=C0200
 	def combine_images_list(self, image_list, iteration_amount):
 		"""
 		The method to concatenate all the images from a list
@@ -124,6 +125,7 @@ class ImageUtil:
 		temp_name = "request_" + str(request) + "_tile_" + tile_number
 		result.save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
+	# pylint: disable=E1120
 	@staticmethod
 	def concat_image_grid(width, height, images):
 		"""
@@ -150,7 +152,7 @@ class ImageUtil:
 			result = ImageUtil.get_concat_vertically(result, new_layer)
 		return result
 
-	def get_concat_horizontally(image_1, image_2):
+	def get_concat_horizontally(self, image_1, image_2):
 		"""
 		Combines two tile images horizontally.
 		:param image_1: The left image.
@@ -162,7 +164,7 @@ class ImageUtil:
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
 
-	def get_concat_vertically(image_1, image_2):
+	def get_concat_vertically(self, image_1, image_2):
 		"""
 		Combines two tile images vertically.
 		:param image_1: The top image.
