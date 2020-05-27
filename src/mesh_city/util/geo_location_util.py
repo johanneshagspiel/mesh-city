@@ -153,3 +153,25 @@ class GeoLocationUtil:
 		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
 		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
 		return new_latitude, new_longitude
+
+	def get_top_left_bottom_right_coordinates(self, first_coordinate, second_coordinate):
+		if first_coordinate[0] < second_coordinate[0]:
+			bottom_lat = first_coordinate[0]
+			top_lat = second_coordinate[0]
+		else:
+			bottom_lat = second_coordinate[0]
+			top_lat = first_coordinate[0]
+
+		if first_coordinate[1] < second_coordinate[1]:
+			left_long = first_coordinate[1]
+			right_long = second_coordinate[1]
+		else:
+			left_long = second_coordinate[1]
+			right_long = first_coordinate[1]
+
+		if bottom_lat > top_lat or left_long > right_long:
+			raise ValueError(
+				"The bottom latitude should be smaller than the top and the left longitude should be"
+				"smaller than the right longitude"
+			)
+		return (top_lat, left_long), (bottom_lat, right_long)

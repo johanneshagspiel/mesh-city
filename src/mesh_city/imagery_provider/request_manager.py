@@ -171,25 +171,7 @@ class RequestManager:
 		((num_of_images_total, num_of_images_horizontal, num_of_images_vertical), coordinates_list)
 		"""
 
-		if first_coordinate[0] < second_coordinate[0]:
-			bottom_lat = first_coordinate[0]
-			top_lat = second_coordinate[0]
-		else:
-			bottom_lat = second_coordinate[0]
-			top_lat = first_coordinate[0]
-
-		if first_coordinate[1] < second_coordinate[1]:
-			left_long = first_coordinate[1]
-			right_long = second_coordinate[1]
-		else:
-			left_long = second_coordinate[1]
-			right_long = first_coordinate[1]
-
-		if bottom_lat > top_lat or left_long > right_long:
-			raise ValueError(
-				"The bottom latitude should be smaller than the top and the left longitude should be"
-				"smaller than the right longitude"
-			)
+		(top_lat, left_long), (bottom_lat, right_long) = self.geo_location_util.get_top_left_bottom_right_coordinates(first_coordinate, second_coordinate)
 
 		# start the request in the top left corner
 		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(top_lat, left_long, zoom)
