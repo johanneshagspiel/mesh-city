@@ -126,8 +126,8 @@ class AhnProvider(TopDownProvider):
 		:param latitude: latitude of the central location one is interested in getting the image from
 		:param longitude: longitude of the central location one is interested in getting the image from
 		:param zoom: the zoom level of the image one is interested in
-		:param image_size_x: the length of the x axis of the image
-		:param image_size_y: the length of the y axis of the image
+		:param image_size_x: the length of the x_axis axis of the image
+		:param image_size_y: the length of the y_axis axis of the image
 		:return: a list of the tile_information of the bounding box encompassing the area
 		"""
 
@@ -166,9 +166,9 @@ class AhnProvider(TopDownProvider):
 
 	def get_height_from_pixel(self, x_location, y_location):
 		"""
-		Gets the height from an image at the x and y location of the mouse click
-		:param x_location: the x location of the pixel
-		:param y_location: the y location of the pixel
+		Gets the height from an image at the x_axis and y_axis location of the mouse click
+		:param x_location: the x_axis location of the pixel
+		:param y_location: the y_axis location of the pixel
 		:return: the height associated with this pixel
 		"""
 

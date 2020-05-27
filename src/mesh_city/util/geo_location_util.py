@@ -4,8 +4,11 @@ See :class:`.GeoLocationUtil`
 
 import math
 
-
+# pylint: disable=W0105
 class GeoLocationUtil:
+	"""
+	A helper class representing all the methods needed for calculations with geo lcoations
+	"""
 
 	def __init__(self):
 		pass

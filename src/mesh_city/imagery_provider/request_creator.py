@@ -1,16 +1,31 @@
+"""
+The module containing the request creator
+"""
 from pathlib import Path
-
 from mesh_city.util.image_util import ImageUtil
 
 class RequestCreator:
+	"""
+	The class creating the image seen on the main screen based on a list of images to be combined
+	"""
 
 	def __init__(self, application):
+		"""
+		The initialization method
+		:param application: The global application context
+		"""
 		self.image_util = ImageUtil()
 		self.file_handler = application.file_handler
 
-	def follow_instructions(self, list_to_make, BuildingInstructionsRequest):
+	def follow_instructions(self, list_to_make, building_instructions_request):
+		"""
+		Method to create and load an image based on a list of images to load
+		:param list_to_make: which images to create
+		:param building_instructions_request: the file where the building instructions can be found
+		:return: nothing (mainscreen shows a new image)
+		"""
 
-		temp_to_build = BuildingInstructionsRequest.instructions[list_to_make]
+		temp_to_build = building_instructions_request.instructions[list_to_make]
 		iteration_amount = temp_to_build[0]
 		temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
 		                          "concat_image_normal.png")

@@ -1,14 +1,26 @@
+"""
+A module containing the canvas image class. Taken from stackoverflow
+author: FooBar167
+source: https://stackoverflow.com/questions/41656176/tkinter-canvas-zoom-move-pan
+"""
 import math
 import warnings
 import tkinter as tk
-from PIL import Image, ImageTk
 from tkinter import ttk
+from PIL import Image, ImageTk
 from mesh_city.gui.canvas_image.auto_scrollbar import AutoScrollbar
 
+# pylint: disable=invalid-name, W0107, W0613, W0612, R1705
 class CanvasImage:
-    """ Display and zoom image """
+    """
+    Class to show zoomable image on mainscreen
+    """
     def __init__(self, placeholder, path):
-        """ Initialize the ImageFrame """
+        """
+        Checks whether the image
+        :param placeholder: the master tkinter object
+        :param path: path to load the image from
+        """
         self.imscale = 1.0  # scale for the canvas image zoom, public for outer classes
         self.__delta = 1.3  # zoom magnitude
         self.__filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS

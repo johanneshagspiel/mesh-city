@@ -144,8 +144,7 @@ class OverlayCreator:
 
 		copyfile(
 			next(
-			self.application.file_handler.folder_overview["active_image_path"]
-			[0].glob("concat_image_*")
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 			),
 			Path.joinpath(
 			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"

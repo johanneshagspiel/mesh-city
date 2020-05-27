@@ -3,9 +3,7 @@ See :class:`.StartScreen`
 """
 
 from tkinter import Button, Label, Toplevel
-
 from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 
 class StartScreen:

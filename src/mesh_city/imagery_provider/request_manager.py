@@ -4,7 +4,6 @@ their APIs such that data for larger geographical areas can be made and the resu
 requests are stored on disk.
 """
 
-import csv
 import math
 import os
 from pathlib import Path
@@ -28,9 +27,9 @@ class RequestManager:
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	def __init__(self, user_entity, application, map_entity=None):
+	def __init__(self, user_entity, application, top_down_provider=None):
 		self.user_entity = user_entity
-		self.map_entity = map_entity
+		self.top_down_provider = top_down_provider
 		self.application = application
 
 		self.file_handler = application.file_handler
@@ -41,6 +40,9 @@ class RequestManager:
 
 		self.request_number = self.log_manager.get_request_number()
 
+		self.normal_building_instructions = None
+		self.temp_list = None
+
 	def make_request_for_block(self, coordinates, zoom=None):
 		"""
 		Make a request in such a way, that the images are stored in the tile system, are logged in
@@ -50,7 +52,6 @@ class RequestManager:
 		:return: nothing
 		"""
 		max_latitude = 0
-		max_longitude = 0
 
 		self.normal_building_instructions = []
 
@@ -60,13 +61,12 @@ class RequestManager:
 		if len(coordinates) > 9:
 			temp = coordinates.pop(0)
 			max_latitude = temp[0]
-			max_longitude = temp[1]
 			self.normal_building_instructions.append(int(temp[1]))
 
 		#checked_coordinates = self.check_coordinates(coordinates)
 
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
@@ -115,7 +115,7 @@ class RequestManager:
 					latitude = str(location[0][0])
 					longitude = str(location[0][1])
 					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(self.map_entity.get_and_store_location(
+					temp_location_stored = str(self.top_down_provider.get_and_store_location(
 						location[0][0], location[0][1], zoom, temp_name, new_folder_path
 					))
 					self.temp_list.append(temp_location_stored)
@@ -131,7 +131,6 @@ class RequestManager:
 				counter += 1
 
 				if counter == 10 and last_round:
-					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 
 					self.normal_building_instructions.append(self.temp_list)
 
@@ -160,8 +159,8 @@ class RequestManager:
 					latitude = str(location[0][0])
 					longitude = str(location[0][1])
 					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(self.map_entity.get_and_store_location(
-						location[0][0], location[0][1], self.map_entity.max_zoom, temp_name, new_folder_path
+					temp_location_stored = str(self.top_down_provider.get_and_store_location(
+						location[0][0], location[0][1], self.top_down_provider.max_zoom, temp_name, new_folder_path
 					))
 					self.temp_list.append(temp_location_stored)
 
@@ -178,7 +177,6 @@ class RequestManager:
 
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
-					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 
 					tile_number_latitude += 1
 					if tile_number_latitude == max_latitude:
@@ -189,9 +187,6 @@ class RequestManager:
 					tile_name_new = str(number_tile_downloaded) + "_tile_" + tile_number_new
 					new_folder_path = Path.joinpath(new_folder_path.parents[0], tile_name_new)
 					os.makedirs(new_folder_path)
-
-					temp_path_tile = Path.joinpath(new_folder_path,
-					                               "meta_" + str(tile_name_new) + ".json")
 
 					self.normal_building_instructions.append(self.temp_list)
 					self.temp_list = []
@@ -409,6 +404,11 @@ class RequestManager:
 		)
 
 	def check_coordinates(self, coordinates):
+		"""
+		Method to check whether or not the coordinates are already downloaded
+		:param coordinates: the coordinates to check
+		:return: a list indicating whether the coordinates are already downloaded or not
+		"""
 		temp_list = []
 		counter=0
 		first_round = len(coordinates) > 9

@@ -2,10 +2,7 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, Canvas, mainloop, NW, Tk, Frame
-
-from PIL import Image, ImageTk
-
+from tkinter import Button, mainloop, Tk, Frame
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.generate_screen.generate_screen import GenerateWindow
@@ -78,17 +75,13 @@ class MainScreen:
 		)
 		self.generate_button.grid(row=4, column=0)
 
-		# self.export_button = Button(
-		# self.left_bar, text="User", width=6, height=3, command=None, bg="grey")
-		# self.export_button.grid(row=5, column=0)
-
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
 
 		self.canvas_image = CanvasImage(self.master, temp_image_path)
+		self.new_canvas_image = None
 		self.canvas_image.grid(row=0, column=1, sticky='nsew')
-		#self.canvas.create_window(50, 250, window=canvas_image)
 
 		self.right_frame = Frame(self.master, width=185, background="white")
 		self.right_frame.grid(row=0, column=2, sticky='nsew')

@@ -6,8 +6,6 @@ from mesh_city.gui.main_screen import MainScreen
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.util.file_handler import FileHandler
-from mesh_city.util.geo_location_util import GeoLocationUtil
-from mesh_city.util.image_util import ImageUtil
 
 
 class Application:

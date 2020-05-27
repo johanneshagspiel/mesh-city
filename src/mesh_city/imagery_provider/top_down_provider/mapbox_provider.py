@@ -104,7 +104,7 @@ class MapboxProvider(TopDownProvider):
 		collection = response.json()
 		most_relevant_response = collection["features"][0]
 		coordinates = most_relevant_response["center"]
-		# tile_information is a list with x and y in reverse order
+		# tile_information is a list with x_axis and y_axis in reverse order
 		return coordinates
 
 	def get_name_from_location(self, latitude, longitude):

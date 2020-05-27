@@ -78,6 +78,11 @@ class LogManager:
 			json_log.close()
 
 	def create_log(self, log_entry):
+		"""
+		Method to store one new log
+		:param log_entry: the log entry to store
+		:return: nothing (the log is stored to file)
+		"""
 		with open(log_entry.path_to_store, "w") as json_log:
 			json.dump(log_entry.for_json(), fp=json_log, indent=4)
 			json_log.close()

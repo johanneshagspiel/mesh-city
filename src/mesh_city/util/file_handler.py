@@ -1,9 +1,7 @@
 """
 Module containing preliminary file handler
 """
-
 from pathlib import Path
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 class FileHandler:
 	"""

@@ -20,6 +20,11 @@ class ImageUtil:
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
 	def concat_images_list(self, image_list):
+		"""
+		Method to concatenate images from a list into one tile
+		:param image_list: the list with the paths of all the images to be concatenated
+		:return: a concatenated tile
+		"""
 
 		up_left = Image.open(image_list[0])
 		up_center = Image.open(image_list[1])
@@ -32,21 +37,27 @@ class ImageUtil:
 		down_right = Image.open(image_list[8])
 
 		level_0 = self.get_concat_horizontally(
-			self.get_concat_horizontally(up_left, up_center), up_right
+			image_1=self.get_concat_horizontally(image_1=up_left, image_2=up_center), image_2=up_right
 		)
 		level_1 = self.get_concat_horizontally(
-			self.get_concat_horizontally(center_left, center_center), center_right
+			image_1=self.get_concat_horizontally(image_1=center_left, image_2=center_center), image_2=center_right
 		)
 		level_2 = self.get_concat_horizontally(
-			self.get_concat_horizontally(down_left, down_center), down_right
+			image_1=self.get_concat_horizontally(image_1=down_left, image_2=down_center), image_2=down_right
 		)
 
-		temp_concat_image = self.get_concat_vertically(self.get_concat_vertically(level_2, level_1),
-			level_0)
+		temp_concat_image = self.get_concat_vertically(image_1=self.get_concat_vertically(image_1=level_2, image_2=level_1),
+			image_2=level_0)
 
 		return temp_concat_image
 
 	def combine_images_list(self, image_list, iteration_amount):
+		"""
+		The method to concatenate all the images from a list
+		:param image_list: the list with all the images to be concatenated
+		:param iteration_amount: many images are in one row of the concatenated image
+		:return: the concatenated image
+		"""
 
 		temp_list = []
 		temp_entry = None
@@ -67,13 +78,13 @@ class ImageUtil:
 				temp_list.insert(0, temp_entry)
 				counter = 0
 
-		first_Round = True
+		first_round = True
 		temp_entry = None
 		for number in range(0, len(temp_list)):
 
-			if first_Round is True:
+			if first_round is True:
 				temp_entry = temp_list[number]
-				first_Round = False
+				first_round = False
 			else:
 				new_temp = self.get_concat_vertically(temp_entry, temp_list[number])
 				temp_entry = new_temp
@@ -139,18 +150,7 @@ class ImageUtil:
 			result = ImageUtil.get_concat_vertically(result, new_layer)
 		return result
 
-	@staticmethod
 	def get_concat_horizontally(image_1, image_2):
-		request_string = str(request)
-		temp_name = "request_" + request_string + "_tile_" + tile_number
-		temp_path = Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png")
-
-		self.get_concat_vertically(self.get_concat_vertically(level_2, level_1),
-			level_0).save(temp_path)
-
-		return temp_path
-
-	def get_concat_horizontally(self, image_1, image_2):
 		"""
 		Combines two tile images horizontally.
 		:param image_1: The left image.
@@ -162,7 +162,6 @@ class ImageUtil:
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
 
-	@staticmethod
 	def get_concat_vertically(image_1, image_2):
 		"""
 		Combines two tile images vertically.
