@@ -30,8 +30,6 @@ class Application:
 		"""
 		self.user_entity = user_entity
 		self.request_manager = RequestManager(
-			file_handler=self.file_handler,
-			log_manager=self.log_manager,
-			image_util=ImageUtil(),
-			geo_location_util=GeoLocationUtil(),
+			user_entity=self.user_entity,
+			application=self
 		)

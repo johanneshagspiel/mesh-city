@@ -37,7 +37,7 @@ class RequestManager:
 		# self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
 		# self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
 
-		self.images_folder_path = file_handler.folder_overview["image_path"]
+		self.images_folder_path = self.application.file_handler.folder_overview["image_path"]
 		self.request_number = self.log_manager.get_request_number()
 
 	def make_request_for_block(self, coordinates, zoom=None):
