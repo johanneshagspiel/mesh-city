@@ -1,4 +1,4 @@
-# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+# pylint: disable=C0114,R0201,W0703,missing-class-docstring,missing-function-docstring
 
 import unittest
 from datetime import datetime
