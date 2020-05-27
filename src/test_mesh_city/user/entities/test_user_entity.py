@@ -91,5 +91,5 @@ class ImageProviderEntityTest(unittest.TestCase):
 				}
 				}
 			)
-		except Exception:
+		except Exception:  # pylint: disable=broad-except
 			self.fail("myFunc() raised ExceptionType unexpectedly!")

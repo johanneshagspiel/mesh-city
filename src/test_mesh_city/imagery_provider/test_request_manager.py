@@ -19,46 +19,30 @@ class TestRequestManager(unittest.TestCase):
 		self.top_down_provider = Mock()
 		self.top_down_provider.max_side_resolution_image = 640
 
-		self.two_coordinate_input = ((-22.824637, -43.242729), (-22.821384, -43.238813), 20)
-		self.correct_answer = (
-			((36, 6, 6),
-			 [((-22.82112446428687, -43.24287414550781), (199167, 296295)),
-			  ((-22.82112446428687, -43.242180633544905), (199168, 296295)),
-			  ((-22.82112446428687, -43.24149398803709), (199169, 296295)),
-			  ((-22.82112446428687, -43.24080734252928), (199170, 296295)),
-			  ((-22.82112446428687, -43.24012069702147), (199171, 296295)),
-			  ((-22.82112446428687, -43.239434051513655), (199172, 296295)),
-			  ((-22.82176368678212, -43.24287414550781), (199167, 296296)),
-			  ((-22.82176368678212, -43.242180633544905), (199168, 296296)),
-			  ((-22.82176368678212, -43.24149398803709), (199169, 296296)),
-			  ((-22.82176368678212, -43.24080734252928), (199170, 296296)),
-			  ((-22.82176368678212, -43.24012069702147), (199171, 296296)),
-			  ((-22.82176368678212, -43.239434051513655), (199172, 296296)),
-			  ((-22.82239657738521, -43.24287414550781), (199167, 296297)),
-			  ((-22.82239657738521, -43.242180633544905), (199168, 296297)),
-			  ((-22.82239657738521, -43.24149398803709), (199169, 296297)),
-			  ((-22.82239657738521, -43.24080734252928), (199170, 296297)),
-			  ((-22.82239657738521, -43.24012069702147), (199171, 296297)),
-			  ((-22.82239657738521, -43.239434051513655), (199172, 296297)),
-			  ((-22.823029465046375, -43.24287414550781), (199167, 296298)),
-			  ((-22.823029465046375, -43.242180633544905), (199168, 296298)),
-			  ((-22.823029465046375, -43.24149398803709), (199169, 296298)),
-			  ((-22.823029465046375, -43.24080734252928), (199170, 296298)),
-			  ((-22.823029465046375, -43.24012069702147), (199171, 296298)),
-			  ((-22.823029465046375, -43.239434051513655), (199172, 296298)),
-			  ((-22.82366234976556, -43.24287414550781), (199167, 296299)),
-			  ((-22.82366234976556, -43.242180633544905), (199168, 296299)),
-			  ((-22.82366234976556, -43.24149398803709), (199169, 296299)),
-			  ((-22.82366234976556, -43.24080734252928), (199170, 296299)),
-			  ((-22.82366234976556, -43.24012069702147), (199171, 296299)),
-			  ((-22.82366234976556, -43.239434051513655), (199172, 296299)),
-			  ((-22.82429523154271, -43.24287414550781), (199167, 296300)),
-			  ((-22.82429523154271, -43.242180633544905), (199168, 296300)),
-			  ((-22.82429523154271, -43.24149398803709), (199169, 296300)),
-			  ((-22.82429523154271, -43.24080734252928), (199170, 296300)),
-			  ((-22.82429523154271, -43.24012069702147), (199171, 296300)),
-			  ((-22.82429523154271, -43.239434051513655), (199172, 296300))]),
-		)  # yapf: disable
+		self.two_coordinate_input = ((51.913205, 4.453749), (51.912532, 4.456339), 20)
+		self.correct_answer = ((10, 2, 5),
+		[((51.91335572038936, 4.453582763671875), (268630, 173385)),
+		((51.91335572038936, 4.454276275634783), (268631, 173385)),
+		((51.91335572038936, 4.454962921142595), (268632, 173385)),
+		((51.91335572038936, 4.455649566650408), (268633, 173385)),
+		((51.91335572038936, 4.45633621215822), (268634, 173385)),
+		((51.91292792381704, 4.453582763671875), (268630, 173386)),
+		((51.91292792381704, 4.454276275634783), (268631, 173386)),
+		((51.91292792381704, 4.454962921142595), (268632, 173386)),
+		((51.91292792381704, 4.455649566650408), (268633, 173386)),
+		((51.91292792381704, 4.45633621215822), (268634, 173386))])  # yapf: disable
+		self.two_coordinate_input_quad = (
+			(50.000236394207846, 4.9994659423828125), (49.99979061343613, 5.00015955434572), 20
+		)
+		self.correct_answer_quad = (
+			(4, 2, 2),
+			[
+			((50.00067775723634, 4.9994659423828125), (269425, 177808)),
+			((50.00067775723634, 5.00015945434572), (269426, 177808)),
+			((50.00023198055709, 4.9994659423828125), (269425, 177809)),
+			((50.00023198055709, 5.00015945434572), (269426, 177809))
+			]
+		)
 
 	def tearDown(self):
 		for item in Path(__file__).parents[1].joinpath("resources").glob("*"):
@@ -110,7 +94,7 @@ class TestRequestManager(unittest.TestCase):
 		).calculate_number_of_requested_images_two_coordinate_input(
 			self.two_coordinate_input[0], self.two_coordinate_input[1], self.two_coordinate_input[2]
 		)
-		self.assertEqual(25, number_of_images)
+		self.assertEqual(self.correct_answer[0][0], number_of_images)
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_turned_around(self):
 		number_of_images = self._create_request_manager(
@@ -118,7 +102,7 @@ class TestRequestManager(unittest.TestCase):
 		).calculate_number_of_requested_images_two_coordinate_input(
 			self.two_coordinate_input[1], self.two_coordinate_input[0], self.two_coordinate_input[2]
 		)
-		self.assertEqual(25, number_of_images)
+		self.assertEqual(self.correct_answer[0][0], number_of_images)
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_same_latitude(self):
 		number_of_images = self._create_request_manager(
@@ -128,7 +112,7 @@ class TestRequestManager(unittest.TestCase):
 			(self.two_coordinate_input[0][0], self.two_coordinate_input[1][1]),
 			self.two_coordinate_input[2],
 		)
-		self.assertEqual(5, number_of_images)
+		self.assertEqual(self.correct_answer[0][2], number_of_images)
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_same_longitude(self):
 		number_of_images = self._create_request_manager(
@@ -138,7 +122,7 @@ class TestRequestManager(unittest.TestCase):
 			(self.two_coordinate_input[1][0], self.two_coordinate_input[0][1]),
 			self.two_coordinate_input[2]
 		)
-		self.assertEqual(5, number_of_images)
+		self.assertEqual(self.correct_answer[0][1], number_of_images)
 
 	def test_single_request(self):
 		request_manager = self._create_request_manager(top_down_provider=self.top_down_provider)
@@ -156,42 +140,45 @@ class TestRequestManager(unittest.TestCase):
 		)
 
 	def test_bounding_box_request_bottom_left_top_right(self):
-		self.top_down_provider.max_zoom = 14.0
-		self.top_down_provider.max_side_resolution_image = 500
+		self.top_down_provider.max_zoom = 20.0
 		request_manager = self._create_request_manager(
 			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil()
 		)
 
-		request_manager.make_request_two_coordinates((51.989954, 4.330746), (52.021186, 4.374115))
+		request_manager.make_request_two_coordinates(
+			(self.two_coordinate_input_quad[0][0], self.two_coordinate_input_quad[0][1]),
+			(self.two_coordinate_input_quad[1][0], self.two_coordinate_input_quad[1][1]),
+			self.two_coordinate_input_quad[2]
+		)
 
 		self.top_down_provider.get_and_store_location.assert_has_calls(
 			calls=[
 			call(
-			latitude=52.00316762660327,
-			longitude=4.352203672121509,
-			zoom=14.0,
-			filename="1_0,0_52.00316762660327,4.352203672121509.png",
+			latitude=50.00067775723634,
+			longitude=4.9994659423828125,
+			zoom=20,
+			filename="1_269425,177808_50.00067775723634,4.9994659423828125.png",
 			new_folder_path=ANY,
 			),
 			call(
-			latitude=52.00316762660327,
-			longitude=4.395119016364525,
-			zoom=14.0,
-			filename="2_1,0_52.00316762660327,4.395119016364525.png",
+			latitude=50.00067775723634,
+			longitude=5.00015945434572,
+			zoom=20.0,
+			filename="2_269426,177808_50.00067775723634,5.00015945434572.png",
 			new_folder_path=ANY,
 			),
 			call(
-			latitude=52.02958708108182,
-			longitude=4.352203672121509,
-			zoom=14.0,
-			filename="3_0,1_52.02958708108182,4.352203672121509.png",
+			latitude=50.00023198055709,
+			longitude=4.9994659423828125,
+			zoom=20.0,
+			filename="3_269425,177809_50.00023198055709,4.9994659423828125.png",
 			new_folder_path=ANY,
 			),
 			call(
-			latitude=52.02958708108182,
-			longitude=4.395119016364525,
-			zoom=14.0,
-			filename="4_1,1_52.02958708108182,4.395119016364525.png",
+			latitude=50.00023198055709,
+			longitude=5.00015945434572,
+			zoom=20.0,
+			filename="4_269426,177809_50.00023198055709,5.00015945434572.png",
 			new_folder_path=ANY,
 			),
 			],
