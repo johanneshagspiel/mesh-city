@@ -126,8 +126,7 @@ class ImageUtil:
 		result.save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
 
 	# pylint: disable=E1120
-	@staticmethod
-	def concat_image_grid(width, height, images):
+	def concat_image_grid(self, width, height, images):
 		"""
 		Combines a given array of images into a concatenated grid of images.
 		:param width: The width of the grid
@@ -142,14 +141,14 @@ class ImageUtil:
 			)
 		result = images[0]
 		for x_coord in range(1, width):
-			result = ImageUtil.get_concat_horizontally(result, images[x_coord])
+			result = ImageUtil.get_concat_horizontally(self, image_1=result, image_2=images[x_coord])
 		for y_coord in range(1, height):
 			new_layer = images[y_coord * width]
 			for x_coord in range(1, width):
-				new_layer = ImageUtil.get_concat_horizontally(
-					new_layer, images[y_coord * width + x_coord]
+				new_layer = ImageUtil.get_concat_horizontally(self,
+					image_1=new_layer, image_2=images[y_coord * width + x_coord]
 				)
-			result = ImageUtil.get_concat_vertically(result, new_layer)
+			result = ImageUtil.get_concat_vertically(self, image_1=result, image_2=new_layer)
 		return result
 
 	def get_concat_horizontally(self, image_1, image_2):

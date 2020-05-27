@@ -15,9 +15,7 @@ class MapboxProviderTest(unittest.TestCase):
 			FileHandler(),
 			type_map_provider="map_box",
 			api_key="test",
-			quota=500,
-			usage=None,
-			date_reset=datetime(2019, 2, 28)
+			quota=500
 		)
 
 		self.mapbox = MapboxProvider(self.provider)

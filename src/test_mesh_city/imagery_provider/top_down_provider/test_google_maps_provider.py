@@ -15,9 +15,7 @@ class GoogleMapsProviderTest(unittest.TestCase):
 			FileHandler(),
 			type_map_provider="google_maps",
 			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
-			quota=500,
-			usage=None,
-			date_reset=datetime(2019, 2, 28)
+			quota=500
 		)
 
 		self.google_maps_prov = GoogleMapsProvider(self.provider)
