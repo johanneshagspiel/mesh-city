@@ -8,7 +8,7 @@ from datetime import datetime
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
-from mesh_city.util.logs.log_entry.log_entity import LogEntity
+from mesh_city.logs.log_entities.log_entity import LogEntity
 
 
 class ImageProviderEntity(LogEntity):

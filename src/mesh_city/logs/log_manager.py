@@ -116,6 +116,4 @@ class LogManager:
 			temp_coordinate_overview = CoordinateOverview(path_to_store=self.file_handler.folder_overview["coordinate_overview.json"][0], json=logs)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
 
-
-
 		return None

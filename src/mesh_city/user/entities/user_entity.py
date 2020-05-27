@@ -2,8 +2,7 @@
 Module containing the user_entity class
 """
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
-from mesh_city.util.logs.log_entry.log_entity import LogEntity
-
+from mesh_city.logs.log_entities.log_entity import LogEntity
 
 class UserEntity(LogEntity):
 	"""

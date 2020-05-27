@@ -1,35 +1,134 @@
 {
+    "13.999219239216801": {
+        "13.999195337295573": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\1_13.999195337295573_13.999219239216801.png"
+        },
+        "14.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\2_14.0_13.999219239216801.png"
+        },
+        "14.000804662704427": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\3_14.000804662704427_13.999219239216801.png"
+        }
+    },
+    "14.0": {
+        "13.999195337295573": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\4_13.999195337295573_14.0.png"
+        },
+        "14.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\5_14.0_14.0.png"
+        },
+        "14.000804662704427": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\6_14.000804662704427_14.0.png"
+        }
+    },
+    "14.000780760783199": {
+        "13.999195337295573": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\7_13.999195337295573_14.000780760783199.png"
+        },
+        "14.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\8_14.0_14.000780760783199.png"
+        },
+        "14.000804662704427": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_37\\0_tile_0_0\\9_14.000804662704427_14.000780760783199.png"
+        }
+    },
+    "34.99934085890071": {
+        "34.999195337295575": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\1_34.999195337295575_34.99934085890071.png"
+        },
+        "35.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\2_35.0_34.99934085890071.png"
+        },
+        "35.000804662704425": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\3_35.000804662704425_34.99934085890071.png"
+        }
+    },
+    "35.0": {
+        "34.999195337295575": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\4_34.999195337295575_35.0.png"
+        },
+        "35.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\5_35.0_35.0.png"
+        },
+        "35.000804662704425": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\6_35.000804662704425_35.0.png"
+        }
+    },
+    "35.00065914109929": {
+        "34.999195337295575": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\7_34.999195337295575_35.00065914109929.png"
+        },
+        "35.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\8_35.0_35.00065914109929.png"
+        },
+        "35.000804662704425": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_38\\0_tile_0_0\\9_35.000804662704425_35.00065914109929.png"
+        }
+    },
+    "24.99927072792504": {
+        "24.999195337295575": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\1_24.999195337295575_24.99927072792504.png"
+        },
+        "25.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\2_25.0_24.99927072792504.png"
+        },
+        "25.000804662704425": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\3_25.000804662704425_24.99927072792504.png"
+        }
+    },
+    "25.0": {
+        "24.999195337295575": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\4_24.999195337295575_25.0.png"
+        },
+        "25.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\5_25.0_25.0.png"
+        },
+        "25.000804662704425": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\6_25.000804662704425_25.0.png"
+        }
+    },
+    "25.00072927207496": {
+        "24.999195337295575": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\7_24.999195337295575_25.00072927207496.png"
+        },
+        "25.0": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\8_25.0_25.00072927207496.png"
+        },
+        "25.000804662704425": {
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_39\\0_tile_0_0\\9_25.000804662704425_25.00072927207496.png"
+        }
+    },
     "10.999210121215828": {
         "10.999195337295573": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\1_10.999195337295573_10.999210121215828.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\1_10.999195337295573_10.999210121215828.png"
         },
         "11.0": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\2_11.0_10.999210121215828.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\2_11.0_10.999210121215828.png"
         },
         "11.000804662704427": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\3_11.000804662704427_10.999210121215828.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\3_11.000804662704427_10.999210121215828.png"
         }
     },
     "11.0": {
         "10.999195337295573": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\4_10.999195337295573_11.0.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\4_10.999195337295573_11.0.png"
         },
         "11.0": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\5_11.0_11.0.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\5_11.0_11.0.png"
         },
         "11.000804662704427": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\6_11.000804662704427_11.0.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\6_11.000804662704427_11.0.png"
         }
     },
     "11.000789878784172": {
         "10.999195337295573": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\7_10.999195337295573_11.000789878784172.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\7_10.999195337295573_11.000789878784172.png"
         },
         "11.0": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\8_11.0_11.000789878784172.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\8_11.0_11.000789878784172.png"
         },
         "11.000804662704427": {
-            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_69\\0_tile_0_0\\9_11.000804662704427_11.000789878784172.png"
+            "normal": "C:\\Users\\Johannes\\Dropbox\\Uni\\CSE\\Year 2\\Quarter 4\\Software Project\\Programming\\TestClone\\mesh-city\\src\\mesh_city\\resources\\images\\request_40\\0_tile_0_0\\9_11.000804662704427_11.000789878784172.png"
         }
     }
 }

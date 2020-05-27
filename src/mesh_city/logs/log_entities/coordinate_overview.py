@@ -1,6 +1,6 @@
-from mesh_city.logs.log_entities.log_entry import LogEntry
+from mesh_city.logs.log_entities.log_entity import LogEntity
 
-class CoordinateOverview(LogEntry):
+class CoordinateOverview(LogEntity):
 
 	def __init__(self, path_to_store, json=None):
 		super().__init__(path_to_store=path_to_store)
