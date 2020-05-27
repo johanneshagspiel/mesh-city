@@ -15,10 +15,7 @@ class LogManager:
 	A class that is responsible for logging every request made.
 	"""
 
- 	def __init__(self, file_handler, resource_path=Path(__file__).parents[1].joinpath("resources")):
-		self.resource_path = resource_path
-		self.image_path = resource_path.joinpath("images")
-		self.log_path = resource_path.joinpath("logs", "log_request_.json")
+ 	def __init__(self, file_handler):
 		self.file_handler = file_handler
 
 	def get_request_number(self):
