@@ -33,11 +33,12 @@ class RequestManager:
 		self.map_entity = map_entity
 		self.application = application
 
-		#self.map_entity = GoogleMapsProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.map_entity = AhnProvider(user_info=user_info, quota_manager=quota_manager)
-		# self.map_entity = MapboxProvider(user_info=user_info, quota_manager=quota_manager)
+		self.file_handler = application.file_handler
+		self.log_manager = application.log_manager
 
-		self.images_folder_path = self.application.file_handler.folder_overview["image_path"]
+		self.image_util = ImageUtil()
+		self.geo_location_util = GeoLocationUtil()
+
 		self.request_number = self.log_manager.get_request_number()
 
 	def make_request_for_block(self, coordinates, zoom=None):

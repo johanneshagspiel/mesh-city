@@ -83,8 +83,7 @@ class MainScreen:
 		# self.export_button.grid(row=5, column=0)
 
 		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"]
-			[0].glob("concat_image_*")
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
 
 		self.canvas_image = CanvasImage(self.master, temp_image_path)

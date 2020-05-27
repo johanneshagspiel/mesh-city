@@ -29,8 +29,8 @@ class LogManager:
 
 		max_log = 0
 
-		if (self.paths["log_request_.json"][0].is_file()):
-			with open(self.paths["log_request_.json"][0], 'r') as json_log:
+		if (self.paths["log_request_.json"].is_file()):
+			with open(self.paths["log_request_.json"], 'r') as json_log:
 				data = json_log.read()
 				json_log.close()
 			logs = json.loads(data)
@@ -46,9 +46,9 @@ class LogManager:
 
 		max_directory = 0
 
-		temp_path = self.paths["image_path"][0]
+		temp_path = self.paths["image_path"]
 
-		if (len(os.listdir(self.paths["image_path"][0])) == 0):
+		if (len(os.listdir(self.paths["image_path"])) == 0):
 			max_directory = 0
 		else:
 			for temp in temp_path.glob('*'):
@@ -105,7 +105,8 @@ class LogManager:
 			return temp_dic
 
 		if type_document == "coordinate_overview.json":
-			temp_coordinate_overview = CoordinateOverview(path_to_store=self.file_handler.folder_overview["coordinate_overview.json"][0], json=logs)
+			temp_coordinate_overview = CoordinateOverview(
+				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		return None

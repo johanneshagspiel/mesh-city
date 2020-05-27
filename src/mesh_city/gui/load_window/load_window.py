@@ -63,8 +63,8 @@ class LoadWindow:
 			"0_tile_0_0"
 		)
 
-		self.application.file_handler.folder_overview["active_request_path"][
-			0] = self.application.file_handler.folder_overview["active_tile_path"].parents[0]
+		self.application.file_handler.folder_overview["active_request_path"] = \
+			self.application.file_handler.folder_overview["active_tile_path"].parents[0]
 
 		if name_directory != "request_0":
 			temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob("building_instructions_*"))
