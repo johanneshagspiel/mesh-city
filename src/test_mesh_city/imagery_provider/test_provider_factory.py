@@ -16,9 +16,7 @@ class ProviderFactoryTest(unittest.TestCase):
 			FileHandler(),
 			type_map_provider="ahn",
 			api_key="test",
-			quota=100,
-			usage=None,
-			date_reset=None
+			quota="200"
 		)
 		self.assertIsInstance(top_down_factory.get_top_down_provider(entity), AhnProvider)
 
@@ -28,8 +26,6 @@ class ProviderFactoryTest(unittest.TestCase):
 			FileHandler(),
 			type_map_provider="this_is_an_undefined_image_provider_type",
 			api_key="test",
-			quota=100,
-			usage=None,
-			date_reset=None
+			quota="200"
 		)
 		self.assertRaises(ValueError, top_down_factory.get_top_down_provider, entity)
