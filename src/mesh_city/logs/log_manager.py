@@ -15,8 +15,10 @@ class LogManager:
 	A class that is responsible for logging every request made.
 	"""
 
- 	def __init__(self, file_handler):
+	def __init__(self, file_handler):
 		self.file_handler = file_handler
+		self.paths = file_handler.folder_overview
+
 
 	def get_request_number(self):
 		"""
@@ -80,35 +82,29 @@ class LogManager:
 			json.dump(log_entry.for_json(), fp=json_log, indent=4)
 			json_log.close()
 
-	def read_log(self, path, type_document=None):
+	def read_log(self, path, type_document):
 		"""
 		Method to read what is at the path and then build it appropriately
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
-		if type_document is not None:
-			with open(path, "r") as json_log:
-				data = json_log.read()
-			logs = json.loads(data)
+		with open(path, "r") as json_log:
+			data = json_log.read()
+		logs = json.loads(data)
 
-			temp_dic = {}
-		else:
-			with open(path[0], "r") as json_log:
-				data = json_log.read()
-			logs = json.loads(data)
+		temp_dic = {}
 
-			temp_dic = {}
 
 		if type_document == "building_instructions_request":
 			return BuildingInstructionsRequest(path_to_store=path, json=logs)
 
-		if path[1] == "users.json":
+		if type_document == "users.json":
 			for key, value in logs.items():
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
 
-		if path[1] == "coordinate_overview.json":
+		if type_document == "coordinate_overview.json":
 			temp_coordinate_overview = CoordinateOverview(path_to_store=self.file_handler.folder_overview["coordinate_overview.json"][0], json=logs)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
 

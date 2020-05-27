@@ -31,7 +31,7 @@ class ImageProviderEntity(LogEntity):
 		and geocoding usage.
 		:param date_reset: The date the monthly usage should be reset.
 		"""
-		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
+		super().__init__(path_to_store=file_handler.folder_overview['users.json'])
 		if (type_map_provider and api_key and quota is not None):
 			self.type = type_map_provider
 			self.api_key = api_key

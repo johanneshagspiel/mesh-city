@@ -72,7 +72,7 @@ class LayersWindow:
 			self.main_screen.active_layers = []
 			self.application.file_handler.change(
 				"active_image_path",
-				self.application.file_handler.folder_overview["active_tile_path"][0]
+				self.application.file_handler.folder_overview["active_tile_path"]
 			)
 			self.main_screen.update_image()
 			self.top.destroy()

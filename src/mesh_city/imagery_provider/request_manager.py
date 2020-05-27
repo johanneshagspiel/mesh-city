@@ -72,7 +72,7 @@ class RequestManager:
 
 		# a new folder is created for the request if it goes ahead
 		new_folder_path = Path.joinpath(
-			self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string
+			self.file_handler.folder_overview["image_path"], "request_" + request_number_string
 		)
 		os.makedirs(new_folder_path)
 
@@ -134,9 +134,9 @@ class RequestManager:
 
 					self.normal_building_instructions.append(self.temp_list)
 
-					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"] = new_folder_path.parents[0]
 
 					self.log_manager.write_log(self.file_handler.coordinate_overview)
 
@@ -207,9 +207,9 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
-					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][0] = new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"] = new_folder_path.parents[0]
 
 
 					self.normal_building_instructions.append(self.temp_list)

@@ -41,7 +41,7 @@ class OverlayCreator:
 
 			# TODO change path when finalizing working with layers and detection
 			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_layer_path"][0],
+				self.application.file_handler.folder_overview["active_layer_path"],
 				"trees",
 				"test.csv"
 			)
@@ -58,7 +58,7 @@ class OverlayCreator:
 					temp_counter += 1
 
 			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_layer_path"][0],
+				self.application.file_handler.folder_overview["active_layer_path"],
 				"trees",
 				"overlay_tree.png"
 			)
@@ -80,7 +80,7 @@ class OverlayCreator:
 
 			# TODO change path when finalizing working with layers and detection
 			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_layer_path"][0],
+				self.application.file_handler.folder_overview["active_layer_path"],
 				"trees",
 				"test.csv"
 			)
@@ -97,7 +97,7 @@ class OverlayCreator:
 					temp_counter += 1
 
 			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_layer_path"][0],
+				self.application.file_handler.folder_overview["active_layer_path"],
 				"trees",
 				"map_overlay_tree.png"
 			)
@@ -124,7 +124,7 @@ class OverlayCreator:
 			resized_base.alpha_composite(to_overlay)
 
 		temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["temp_path"][0],"map")
+				self.application.file_handler.folder_overview["temp_path"],"map")
 
 		# pylint: disable=E1101
 		if temp_path.exists() is False:
@@ -148,13 +148,13 @@ class OverlayCreator:
 			[0].glob("concat_image_*")
 			),
 			Path.joinpath(
-			self.application.file_handler.folder_overview["temp_path"][0], "concat_image_overlay.png"
+			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"
 			)
 		)
 
 		base = Image.open(
 			Path.joinpath(
-			self.application.file_handler.folder_overview["temp_path"][0], "concat_image_overlay.png"
+			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"
 			)
 		)
 		base.putalpha(255)
@@ -171,10 +171,10 @@ class OverlayCreator:
 
 		resized_base.save(
 			Path.joinpath(
-			self.application.file_handler.folder_overview["temp_path"][0], "concat_image_overlay.png"
+			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"
 			)
 		)
 		self.application.file_handler.change(
-			"active_image_path", self.application.file_handler.folder_overview["temp_path"][0]
+			"active_image_path", self.application.file_handler.folder_overview["temp_path"]
 		)
 		self.main_screen.active_layers = overlays

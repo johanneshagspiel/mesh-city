@@ -12,7 +12,7 @@ class RequestCreator:
 
 		temp_to_build = BuildingInstructionsRequest.instructions[list_to_make]
 		iteration_amount = temp_to_build[0]
-		temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"][0],
+		temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
 		                          "concat_image_normal.png")
 
 		if iteration_amount == 0:
@@ -28,4 +28,4 @@ class RequestCreator:
 			result_image = ImageUtil.combine_images_list(self=self.image_util, image_list=temp_list_images, iteration_amount=iteration_amount)
 
 		result_image.save(fp=temp_path, format="png")
-		self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"][0])
+		self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])

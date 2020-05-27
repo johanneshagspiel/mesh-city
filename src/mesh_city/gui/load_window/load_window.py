@@ -23,7 +23,7 @@ class LoadWindow:
 		self.master = master
 		self.value = ""
 		self.application = application
-		self.image_path = self.application.file_handler.folder_overview['image_path'][0]
+		self.image_path = self.application.file_handler.folder_overview['image_path']
 		top = self.top = Toplevel(master)
 
 		self.top_label = Label(top, text="Which request do you want to load?")
@@ -51,23 +51,23 @@ class LoadWindow:
 		:return: nothing
 		"""
 
-		self.application.file_handler.folder_overview["active_tile_path"][0] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"][0],
+		self.application.file_handler.folder_overview["active_tile_path"] = Path.joinpath(
+			self.application.file_handler.folder_overview["image_path"],
 			name_directory,
 			"0_tile_0_0"
 		)
 
-		self.application.file_handler.folder_overview["active_image_path"][0] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"][0],
+		self.application.file_handler.folder_overview["active_image_path"] = Path.joinpath(
+			self.application.file_handler.folder_overview["image_path"],
 			name_directory,
 			"0_tile_0_0"
 		)
 
 		self.application.file_handler.folder_overview["active_request_path"][
-			0] = self.application.file_handler.folder_overview["active_tile_path"][0].parents[0]
+			0] = self.application.file_handler.folder_overview["active_tile_path"].parents[0]
 
 		if name_directory != "request_0":
-			temp_path = next(self.application.file_handler.folder_overview["active_request_path"][0].glob("building_instructions_*"))
+			temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob("building_instructions_*"))
 
 			temp_building_instructions_request = self.application.log_manager.read_log(
 				path=temp_path, type_document="building_instructions_request")

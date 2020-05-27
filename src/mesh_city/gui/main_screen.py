@@ -142,7 +142,7 @@ class MainScreen:
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"][0].glob("concat_image_*"))
+		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')

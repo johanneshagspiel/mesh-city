@@ -119,7 +119,7 @@ class CreateNewUserWindow:
 
 		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
 		temp_json = self.application.log_manager.read_log(temp_path)
-		temp_overview = CoordinateOverview(path_to_store=temp_path[0], json=temp_json)
+		temp_overview = CoordinateOverview(path_to_store=temp_path, json=temp_json)
 		self.application.file_handler.coordinate_overview = temp_overview
 
 		self.top.destroy()

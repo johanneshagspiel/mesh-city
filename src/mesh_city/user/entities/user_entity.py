@@ -20,7 +20,7 @@ class UserEntity(LogEntity):
 		:param name: the name of the user
 		:param image_providers: the image providers associated with the user
 		"""
-		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
+		super().__init__(path_to_store=file_handler.folder_overview['users.json'])
 		self.file_handler = file_handler
 
 		if name and image_providers is not None:
