@@ -92,7 +92,6 @@ class RequestManager:
 		horizontal and vertical signal the images position in the world grid
 		coordinates_list = coordinates_info[1]
 		:param zoom: which level of zoom the imagery should have
-		:param num_of_images_total: number of images to be downloaded
 		:return: saves all images on disk, and creates an CSV document with metadata.
 		"""
 
