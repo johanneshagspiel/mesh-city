@@ -45,22 +45,22 @@ class TestGeoLocationUtil(unittest.TestCase):
 			self.assertAlmostEqual(answer_resolution, calculated_resolution, 4)
 
 	def test_calc_next_location_latitude_true(self):
-		answer_latitude = 50.0006733436261
+		answer_latitude = 50.000452662598086
 		calculated_latitude = self.geo_location_util.calc_next_location_latitude(50, 5, 20, True)
 		self.assertEqual(answer_latitude, calculated_latitude)
 
 	def test_calc_next_location_latitude_false(self):
-		answer_latitude = 49.99979061343613
+		answer_latitude = 49.99956992835618
 		calculated_latitude = self.geo_location_util.calc_next_location_latitude(50, 5, 20, False)
 		self.assertEqual(answer_latitude, calculated_latitude)
 
 	def test_calc_next_location_longitude_true(self):
-		answer_longitude = 5.00015945434572
+		answer_longitude = 5.000502777099626
 		calculated_latitude = self.geo_location_util.calc_next_location_longitude(50, 5, 20, True)
 		self.assertEqual(answer_longitude, calculated_latitude)
 
 	def test_calc_next_location_longitude_false(self):
-		answer_longitude = 4.998786163330095
+		answer_longitude = 4.999129486084001
 		calculated_latitude = self.geo_location_util.calc_next_location_longitude(50, 5, 20, False)
 		self.assertEqual(answer_longitude, calculated_latitude)
 
@@ -94,6 +94,20 @@ class TestGeoLocationUtil(unittest.TestCase):
 		self.assertEqual(answer2, calculated_answer2)
 
 	def test_normalise_coordinates(self):
-		answer_coordinates = 50.000236394207846, 4.9994659423828125
+		answer_coordinates = 50.00001571117412, 4.999809265136719
 		calculated_coordinates = self.geo_location_util.normalise_coordinates(50, 5, 20)
+		self.assertEqual(answer_coordinates, calculated_coordinates)
+
+	def test_get_top_left_bottom_right_coordinates(self):
+		answer_coordinates = (50, 5), (40, 6)
+		calculated_coordinates = self.geo_location_util.get_top_left_bottom_right_coordinates(
+			(40, 6), (50, 5)
+		)
+		self.assertEqual(answer_coordinates, calculated_coordinates)
+
+	def test_get_bottom_left_top_right_coordinates(self):
+		answer_coordinates = (40, 5), (50, 6)
+		calculated_coordinates = self.geo_location_util.get_bottom_left_top_right_coordinates(
+			(40, 6), (50, 5)
+		)
 		self.assertEqual(answer_coordinates, calculated_coordinates)

@@ -46,16 +46,15 @@ class GeoLocationUtil:
 			new_y_cor = y_cor_tile - 0.99
 		else:
 			new_y_cor = y_cor_tile + 1.01
-		# 	offset values by slightly more than 1, such that there is no rounding error ambiguity
+		# offset values by slightly more than 1, such that there is no rounding error ambiguity
+		# about which tile the next coordinates belong to. Boundary values cause problems.
 		if x_cor_tile < 0 or new_y_cor < 0 or x_cor_tile > 2.0**(zoom -
 			1) or new_y_cor > 2.0**(zoom - 1):
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
-
 		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, new_y_cor, zoom)
 		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
-
 		if test_y in (y_cor_tile + 1, y_cor_tile - 1):
 			return new_latitude
 		raise ValueError("New y tile coordinate is incorrect")
@@ -74,16 +73,15 @@ class GeoLocationUtil:
 			new_x_cor = x_cor_tile + 1.01
 		else:
 			new_x_cor = x_cor_tile - 0.99
-		# 	offset values by slightly more than 1, such that there is no rounding error ambiguity
+		# offset values by slightly more than 1, such that there is no rounding error ambiguity
+		# about which tile the next coordinates belong to. Boundary values cause problems.
 		if new_x_cor < 0 or y_cor_tile < 0 or new_x_cor > 2.0**(zoom -
 			1) or y_cor_tile > 2.0**(zoom - 1):
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
-
 		new_latitude, new_longitude = self.tile_value_to_degree(new_x_cor, y_cor_tile, zoom)
 		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
-
 		if test_x in (x_cor_tile + 1, x_cor_tile - 1):
 			return new_longitude
 		raise ValueError("New x tile coordinate is incorrect")
@@ -105,9 +103,8 @@ class GeoLocationUtil:
 				"The latitude, longitude input cannot exceed the boundaries of the map"
 			)
 		lat_rad = math.radians(latitude)
-		total_number_of_tiles = 2.0**(
-			zoom - 1
-		)  # number of tiles in the world tile grid: -1 as the downloaded images
+		total_number_of_tiles = 2.0**(zoom - 1)
+		# number of tiles in the world tile grid: -1 as the downloaded images
 		# have twice the resolution of the grid tiles of Google Maps, Bing Maps, and OpenStreetMap.
 		x_cor_tile = int((longitude + 180.0) / 360.0 * total_number_of_tiles)
 		y_cor_tile = int(
@@ -115,7 +112,7 @@ class GeoLocationUtil:
 		)
 		return x_cor_tile, y_cor_tile
 
-	def tile_value_to_degree(self, x_cor_tile, y_cor_tile, zoom):
+	def tile_value_to_degree(self, x_cor_tile, y_cor_tile, zoom, get_centre=True):
 		"""
 		Based on the x and y coordinates of a certain tile in the world grid of a certain zoom level
 		it returns the geographical coordinates of that point. The world grid start in the top left
@@ -124,8 +121,14 @@ class GeoLocationUtil:
 		:param x_cor_tile: The point's x coordinate on the world tile grid.
 		:param y_cor_tile: The point's y coordinate on the world tile grid.
 		:param zoom: The zoom level.
+		:param get_centre: if True returns centre coordinates. If False this returns the NW-corner
+		of the square. Use the function with x_tile + 1 and/or y_tile + 1 to get the other corners.
+		With x_tile + 0.5 & y_tile + 0.5 it will return the center of the tile.
 		:return: the geographical coordinates of the input point.
 		"""
+		if get_centre:
+			x_cor_tile += 0.5
+			y_cor_tile += 0.5
 		total_number_of_tiles = 2.0**(zoom - 1)
 		if x_cor_tile < 0 or y_cor_tile < 0 or x_cor_tile > total_number_of_tiles - 1 or y_cor_tile > total_number_of_tiles - 1:
 			raise ValueError(
@@ -155,6 +158,13 @@ class GeoLocationUtil:
 		return new_latitude, new_longitude
 
 	def get_top_left_bottom_right_coordinates(self, first_coordinate, second_coordinate):
+		"""
+		Helper method to normalise any two coordinate input into a box defined by its top left
+		coordinate and bottom right coordinate.
+		:param first_coordinate:
+		:param second_coordinate:
+		:return: a tuple with the two normalised coordinates
+		"""
 		if first_coordinate[0] < second_coordinate[0]:
 			bottom_lat = first_coordinate[0]
 			top_lat = second_coordinate[0]
@@ -175,3 +185,16 @@ class GeoLocationUtil:
 				"smaller than the right longitude"
 			)
 		return (top_lat, left_long), (bottom_lat, right_long)
+
+	def get_bottom_left_top_right_coordinates(self, first_coordinate, second_coordinate):
+		"""
+		Helper method to normalise any two coordinate input into a box defined by its bottom left
+		coordinate and top right coordinate.
+		:param first_coordinate:
+		:param second_coordinate:
+		:return: a tuple with the two normalised coordinates
+		"""
+		(top_lat, left_long), (bottom_lat, right_long) = self.get_top_left_bottom_right_coordinates(
+			first_coordinate, second_coordinate
+		)
+		return (bottom_lat, left_long), (top_lat, right_long)
