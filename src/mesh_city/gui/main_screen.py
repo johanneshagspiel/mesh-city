@@ -3,6 +3,7 @@ See :class:`.MainScreen`
 """
 
 from tkinter import Button, mainloop, Tk, Frame
+from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.generate_screen.generate_screen import GenerateWindow
@@ -75,6 +76,11 @@ class MainScreen:
 		)
 		self.generate_button.grid(row=4, column=0)
 
+		self.export_button = Button(
+			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
+		)
+		self.export_button.grid(row=5, column=0)
+
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
@@ -93,6 +99,9 @@ class MainScreen:
 		self.master.rowconfigure(2, weight=1)
 
 		mainloop()
+
+	def export_window(self):
+		ExportWindow(self.master, self.application, self)
 
 	def layers_window(self):
 		"""

@@ -33,7 +33,6 @@ class ImageProviderEntityTest(unittest.TestCase):
 			type_map_provider="test",
 			api_key="test",
 			quota=100,
-			usage=None,
 			date_reset=date_reset
 		)
 		# circumvents the use of current time in __init__
@@ -55,7 +54,6 @@ class ImageProviderEntityTest(unittest.TestCase):
 			type_map_provider="test",
 			api_key="test",
 			quota=100,
-			usage=None,
 			date_reset=date_reset
 		)
 		# circumvents the use of current time in __init__

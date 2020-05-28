@@ -118,7 +118,7 @@ class CreateNewUserWindow:
 		self.application.late_init(new_user)
 
 		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
-		temp_json = self.application.log_manager.read_log(temp_path)
+		temp_json = self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
 		temp_overview = CoordinateOverview(path_to_store=temp_path, json=temp_json)
 		self.application.file_handler.coordinate_overview = temp_overview
 
