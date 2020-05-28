@@ -1,7 +1,6 @@
 """
 This module contains the image provider log
 """
-import json
 from calendar import monthrange
 from datetime import datetime
 
