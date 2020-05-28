@@ -2,7 +2,7 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, mainloop, Tk, Frame
+from tkinter import Button, mainloop, Tk, Frame, Text, END, DISABLED, WORD
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
@@ -92,6 +92,24 @@ class MainScreen:
 		self.right_frame = Frame(self.master, width=185, background="white")
 		self.right_frame.grid(row=0, column=2, sticky='nsew')
 		self.right_frame.grid_propagate(0)
+
+		self.information_general = Text(self.right_frame, width=26, height=30, wrap=WORD)
+		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
+		self.information_general.grid(row=0, column=0, sticky="w")
+		self.information_general.insert(END, "General")
+		self.information_general.config(state=DISABLED)
+		self.information_general.bind("<Double-1>", lambda event: "break")
+		self.information_general.bind("<Button-1>", lambda event: "break")
+		self.information_general.config(cursor="")
+
+		self.information_selection = Text(self.right_frame, width=26, height=14, wrap=WORD)
+		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
+		self.information_selection.grid(row=1, column=0, sticky="w")
+		self.information_selection.insert(END, "Selection")
+		self.information_selection.config(state=DISABLED)
+		self.information_selection.bind("<Double-1>", lambda event: "break")
+		self.information_selection.bind("<Button-1>", lambda event: "break")
+		self.information_selection.config(cursor="")
 
 		self.master.columnconfigure(1, weight=1)
 		self.master.rowconfigure(0, weight=1)
