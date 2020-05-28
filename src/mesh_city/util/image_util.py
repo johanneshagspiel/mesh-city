@@ -19,7 +19,7 @@ class ImageUtil:
 	temp_path = Path(__file__).parents[1]
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
-	def concat_images_list(self, image_list):
+	def concat_images_tile(self, image_list):
 		"""
 		Method to concatenate images from a list into one tile
 		:param image_list: the list with the paths of all the images to be concatenated
@@ -158,7 +158,7 @@ class ImageUtil:
 		:param image_2: The right image.
 		:return: The combined image.
 		"""
-		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
+		temp = Image.new("RGBA", (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
@@ -170,7 +170,7 @@ class ImageUtil:
 		:param image_2: The bottom image.
 		:return: Nothing.
 		"""
-		temp = Image.new("RGB", (image_1.width, image_1.height + image_2.height))
+		temp = Image.new("RGBA", (image_1.width, image_1.height + image_2.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp

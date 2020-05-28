@@ -51,6 +51,7 @@ class OverlayCreator:
 
 			tree_overlay.save(temp_path, format="png")
 
+			self.building_instructions.instructions[detection_algorithm]["Overlay"][1].append(str(temp_path))
 
 	def create_map_overlay(self, detection_algorithm, image_size, number, path):
 		"""
@@ -59,8 +60,6 @@ class OverlayCreator:
 		:param image_size: the image size used by the detection algorithm
 		:return: nothing (an image is added to the overlay dictionary)
 		"""
-
-		print(detection_algorithm)
 
 		if detection_algorithm == "Trees":
 			# TODO change image size depending on image size used for prediction
@@ -82,3 +81,5 @@ class OverlayCreator:
 			temp_path = Path.joinpath(self.application.file_handler.folder_overview["active_request_path"], "trees", "map", temp_name)
 
 			tree_map_overlay.save(temp_path, format="png")
+
+			self.building_instructions.instructions[detection_algorithm]["Map"][1].append(str(temp_path))

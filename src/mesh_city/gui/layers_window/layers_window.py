@@ -77,6 +77,6 @@ class LayersWindow:
 			self.main_screen.update_image()
 			self.top.destroy()
 		else:
-			self.main_screen.overlay_creator.create_composite_image(overlays)
+			self.main_screen.overlay_creator.create_overlay_image(overlays)
 			self.main_screen.update_image()
 			self.top.destroy()

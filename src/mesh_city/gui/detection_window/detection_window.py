@@ -42,20 +42,24 @@ class DetectionWindow:
 
 		to_detect = list(set(self.list_detection_options).symmetric_difference(temp_list_detected_layers))
 
-		self.check_box_list = []
-		self.temp_int_var_list = []
-		temp_counter = 0
+		if len(to_detect) == 0:
+			self.top_label["text"] = "You have already detected everything"
 
-		for counter, element in enumerate(to_detect, 1):
-			self.temp_int_var_list.append(IntVar())
-			self.check_box_list.append(
-				Checkbutton(self.top, text=element, variable=self.temp_int_var_list[counter - 1])
-			)
-			self.check_box_list[counter - 1].grid(row=counter)
-			temp_counter = counter
+		else:
+			self.check_box_list = []
+			self.temp_int_var_list = []
+			temp_counter = 0
 
-		self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions))
-		self.confirm_button.grid(row=temp_counter+1)
+			for counter, element in enumerate(to_detect, 1):
+				self.temp_int_var_list.append(IntVar())
+				self.check_box_list.append(
+					Checkbutton(self.top, text=element, variable=self.temp_int_var_list[counter - 1])
+				)
+				self.check_box_list[counter - 1].grid(row=counter)
+				temp_counter = counter
+
+			self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions))
+			self.confirm_button.grid(row=temp_counter+1)
 
 	def cleanup(self, building_instructions):
 		"""

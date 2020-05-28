@@ -147,7 +147,7 @@ class RequestManager:
 					self.log_manager.create_log(temp_building_instructions_request)
 
 					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_create_instructions(self.top_down_provider.name, temp_building_instructions_request)
+					temp_request_creator.follow_create_instructions([self.top_down_provider.name], temp_building_instructions_request)
 
 
 		# download and store the information in case a whole area was asked for
@@ -217,7 +217,7 @@ class RequestManager:
 					self.log_manager.write_log(self.file_handler.coordinate_overview)
 
 					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_create_instructions(self.top_down_provider.name,
+					temp_request_creator.follow_create_instructions([self.top_down_provider.name],
 					                                                temp_building_instructions_request)
 
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
