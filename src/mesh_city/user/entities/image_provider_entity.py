@@ -121,9 +121,9 @@ class ImageProviderEntity(LogEntity):
 		Loads the approp
 		:return:
 		"""
-		if self.type == "google_maps":
+		if self.type == "Google Maps":
 			return GoogleMapsProvider(image_provider_entity=self)
-		if self.type == "mapbox":
+		if self.type == "Mapbox":
 			return MapboxProvider(image_provider_entity=self)
 		if self.type == "ahn":
 			return AhnProvider(image_provider_entity=self)
