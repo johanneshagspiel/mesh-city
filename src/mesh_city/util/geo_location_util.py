@@ -10,6 +10,10 @@ class GeoLocationUtil:
 	A helper class representing all the methods needed for calculations with geo lcoations
 	"""
 
+	radius_earth = 6378137  # in meters.
+	circumference_earth = 40075016.69  # in meters. calculated as: 2 pi * radius_earth
+	standard_base_meters_per_px = 156543.03392  # calculated as: circumference_earth / 256
+
 	def __init__(self):
 		pass
 	"""
@@ -21,11 +25,9 @@ class GeoLocationUtil:
 	projection in Google Maps, Bing Maps, and OpenStreetMap.
 	"""
 
-	radius_earth = 6378137  # in meters.
-	circumference_earth = 40075016.69  # in meters. calculated as: 2 pi * radius_earth
-	standard_base_meters_per_px = 156543.03392  # calculated as: circumference_earth / 256
 
-	def calc_meters_per_px(self, latitude, zoom, image_resolution=256):
+	@staticmethod
+	def calc_meters_per_px(latitude, zoom, image_resolution=256):
 		"""
 		Method which calculates the number of meters one pixel at this specific latitude and zoom level
 		represents.
@@ -36,7 +38,7 @@ class GeoLocationUtil:
 		:return: the number of meters one pixel represents in an image.
 		"""
 		map_width = math.pow(2, zoom) * image_resolution
-		return self.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
+		return GeoLocationUtil.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
 
 	def calc_next_location_latitude(self, latitude, zoom, image_size_x, direction):
 		"""

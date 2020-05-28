@@ -11,9 +11,6 @@ from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
-from mesh_city.util.image_util import ImageUtil
-from mesh_city.detection.overlay_creator import OverlayCreator
-
 
 class MainScreen:
 	"""
@@ -28,10 +25,8 @@ class MainScreen:
 		"""
 
 		self.application = application
-		self.image_util = ImageUtil()
-		self.overlay_creator = OverlayCreator(self.application, self)
-
 		self.master = Tk()
+
 		self.master.title("Mesh City")
 		self.master.geometry("910x665")
 

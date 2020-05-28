@@ -24,4 +24,4 @@ class TopDownProviderFactory:
 			return MapboxProvider(image_provider_entity=image_provider_entity)
 		if image_provider_entity.type == "ahn":
 			return AhnProvider(image_provider_entity=image_provider_entity)
-		raise ValueError("This image provider type is not defined")
+		raise ValueError("This image provider type_of_detection is not defined")

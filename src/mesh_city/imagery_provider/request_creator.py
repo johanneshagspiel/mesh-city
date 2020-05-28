@@ -61,3 +61,77 @@ class RequestCreator:
 				file_name_to_move = Path(temp_to_move[outer_counter][number]).name
 				new_path = Path.joinpath(path_to_move, file_name_to_move)
 				copyfile(temp_to_move[outer_counter][number], new_path)
+
+	def create_map_image(self, overlays):
+		"""
+		Creates a map image based on the previously created map overlays
+		:param overlays: the overlays to use
+		:return: nothing (a map is created in temp)
+		"""
+		base = Image.new('RGB', (600, 600), (255, 255, 255))
+		base.putalpha(255)
+
+		for element in overlays:
+			temp_dic_element = self.map_overlay_overview[element]
+			temp_path = temp_dic_element[0]
+
+			to_overlay = Image.open(temp_path)
+			resized_base = base.resize(
+				(temp_dic_element[1][0], temp_dic_element[1][1]), Image.ANTIALIAS
+			)
+			resized_base.alpha_composite(to_overlay)
+
+		temp_path = Path.joinpath(
+				self.application.file_handler.folder_overview["temp_path"],"map")
+
+		# pylint: disable=E1101
+		if temp_path.exists() is False:
+			os.makedirs(temp_path)
+
+		resized_base.save(Path.joinpath(temp_path, "concat_image_map_overlay.png"))
+		self.application.file_handler.change(
+			"active_image_path", temp_path)
+		self.main_screen.active_layers = overlays
+
+	def create_composite_image(self, overlays):
+		"""
+		Creates a composite overlay from multiple layers
+		:param overlays: which layers to use for the composite image
+		:return: nothing (creates a composite image and updates the main screen with it)
+		"""
+
+		copyfile(
+			next(
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+			),
+			Path.joinpath(
+			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"
+			)
+		)
+
+		base = Image.open(
+			Path.joinpath(
+			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"
+			)
+		)
+		base.putalpha(255)
+
+		for element in overlays:
+			temp_dic_element = self.overlay_overview[element]
+			temp_path = temp_dic_element[0]
+
+			to_overlay = Image.open(temp_path)
+			resized_base = base.resize(
+				(temp_dic_element[1][0], temp_dic_element[1][1]), Image.ANTIALIAS
+			)
+			resized_base.alpha_composite(to_overlay)
+
+		resized_base.save(
+			Path.joinpath(
+			self.application.file_handler.folder_overview["temp_path"], "concat_image_overlay.png"
+			)
+		)
+		self.application.file_handler.change(
+			"active_image_path", self.application.file_handler.folder_overview["temp_path"]
+		)
+		self.main_screen.active_layers = overlays

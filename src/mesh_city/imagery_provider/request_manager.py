@@ -201,7 +201,6 @@ class RequestManager:
 				if counter == 10 and last_round:
 					number_tile_downloaded += 1
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
 					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"] = new_folder_path

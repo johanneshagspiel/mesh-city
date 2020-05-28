@@ -99,7 +99,6 @@ class LogManager:
 
 		temp_dic = {}
 
-
 		if type_document == "building_instructions_request":
 			return BuildingInstructionsRequest(path_to_store=path, json=logs)
 
