@@ -1,3 +1,5 @@
+# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+
 import unittest
 from datetime import datetime
 from pathlib import Path

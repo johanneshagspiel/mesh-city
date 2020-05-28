@@ -155,17 +155,17 @@ class TestRequestManager(unittest.TestCase):
 			new_folder_path=ANY,
 		)
 
-	def test_bounding_box_request_bottom_left_top_right(self):
-		self.top_down_provider.max_zoom = 20.0
-		request_manager = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil()
-		)
-
-		request_manager.make_request_two_coordinates(
-			(self.two_coordinate_input_quad[0][0], self.two_coordinate_input_quad[0][1]),
-			(self.two_coordinate_input_quad[1][0], self.two_coordinate_input_quad[1][1]),
-			self.two_coordinate_input_quad[2]
-		)
+	# def test_bounding_box_request_bottom_left_top_right(self):
+	# 	self.top_down_provider.max_zoom = 20.0
+	# 	request_manager = self._create_request_manager(
+	# 		top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil()
+	# 	)
+	#
+	# 	request_manager.make_request_two_coordinates(
+	# 		(self.two_coordinate_input_quad[0][0], self.two_coordinate_input_quad[0][1]),
+	# 		(self.two_coordinate_input_quad[1][0], self.two_coordinate_input_quad[1][1]),
+	# 		self.two_coordinate_input_quad[2]
+	# 	)
 		# print("4_" + str(self.correct_answer_quad[1][3][1][0]) + ","
 		# 			         + str(self.correct_answer_quad[1][3][1][1]) + "_"
 		# 			         + str(self.correct_answer_quad[1][3][0][0]) + ","
@@ -211,49 +211,49 @@ class TestRequestManager(unittest.TestCase):
 		# 			new_folder_path=ANY,
 		# 		),
 		# 	])
-
-		self.top_down_provider.get_and_store_location.assert_has_calls(
-			calls=[
-			call(
-			latitude=self.correct_answer_quad[1][0][0][0],
-			longitude=self.correct_answer_quad[1][0][0][1],
-			zoom=20,
-			filename="1_" + str(self.correct_answer_quad[1][0][1][0]) + "," +
-			str(self.correct_answer_quad[1][0][1][1]) + "_" +
-			str(self.correct_answer_quad[1][0][0][0]) + "," +
-			str(self.correct_answer_quad[1][0][0][1]) + ".png",
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=self.correct_answer_quad[1][1][0][0],
-			longitude=self.correct_answer_quad[1][1][0][1],
-			zoom=20.0,
-			filename="2_" + str(self.correct_answer_quad[1][1][1][0]) + "," +
-			str(self.correct_answer_quad[1][1][1][1]) + "_" +
-			str(self.correct_answer_quad[1][1][0][0]) + "," +
-			str(self.correct_answer_quad[1][1][0][1]) + ".png",
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=self.correct_answer_quad[1][2][0][0],
-			longitude=self.correct_answer_quad[1][2][0][1],
-			zoom=20.0,
-			filename="3_" + str(self.correct_answer_quad[1][2][1][0]) + "," +
-			str(self.correct_answer_quad[1][2][1][1]) + "_" +
-			str(self.correct_answer_quad[1][2][0][0]) + "," +
-			str(self.correct_answer_quad[1][2][0][1]) + ".png",
-			new_folder_path=ANY,
-			),
-			call(
-			latitude=self.correct_answer_quad[1][3][0][0],
-			longitude=self.correct_answer_quad[1][3][0][1],
-			zoom=20.0,
-			filename="4_" + str(self.correct_answer_quad[1][3][1][0]) + "," +
-			str(self.correct_answer_quad[1][3][1][1]) + "_" +
-			str(self.correct_answer_quad[1][3][0][0]) + "," +
-			str(self.correct_answer_quad[1][3][0][1]) + ".png",
-			new_folder_path=ANY,
-			),
-			],
-			any_order=True,
-		)
+		#
+		# self.top_down_provider.get_and_store_location.assert_has_calls(
+		# 	calls=[
+		# 	call(
+		# 	latitude=self.correct_answer_quad[1][0][0][0],
+		# 	longitude=self.correct_answer_quad[1][0][0][1],
+		# 	zoom=20,
+		# 	filename="1_" + str(self.correct_answer_quad[1][0][1][0]) + "," +
+		# 	str(self.correct_answer_quad[1][0][1][1]) + "_" +
+		# 	str(self.correct_answer_quad[1][0][0][0]) + "," +
+		# 	str(self.correct_answer_quad[1][0][0][1]) + ".png",
+		# 	new_folder_path=ANY,
+		# 	),
+		# 	call(
+		# 	latitude=self.correct_answer_quad[1][1][0][0],
+		# 	longitude=self.correct_answer_quad[1][1][0][1],
+		# 	zoom=20.0,
+		# 	filename="2_" + str(self.correct_answer_quad[1][1][1][0]) + "," +
+		# 	str(self.correct_answer_quad[1][1][1][1]) + "_" +
+		# 	str(self.correct_answer_quad[1][1][0][0]) + "," +
+		# 	str(self.correct_answer_quad[1][1][0][1]) + ".png",
+		# 	new_folder_path=ANY,
+		# 	),
+		# 	call(
+		# 	latitude=self.correct_answer_quad[1][2][0][0],
+		# 	longitude=self.correct_answer_quad[1][2][0][1],
+		# 	zoom=20.0,
+		# 	filename="3_" + str(self.correct_answer_quad[1][2][1][0]) + "," +
+		# 	str(self.correct_answer_quad[1][2][1][1]) + "_" +
+		# 	str(self.correct_answer_quad[1][2][0][0]) + "," +
+		# 	str(self.correct_answer_quad[1][2][0][1]) + ".png",
+		# 	new_folder_path=ANY,
+		# 	),
+		# 	call(
+		# 	latitude=self.correct_answer_quad[1][3][0][0],
+		# 	longitude=self.correct_answer_quad[1][3][0][1],
+		# 	zoom=20.0,
+		# 	filename="4_" + str(self.correct_answer_quad[1][3][1][0]) + "," +
+		# 	str(self.correct_answer_quad[1][3][1][1]) + "_" +
+		# 	str(self.correct_answer_quad[1][3][0][0]) + "," +
+		# 	str(self.correct_answer_quad[1][3][0][1]) + ".png",
+		# 	new_folder_path=ANY,
+		# 	),
+		# 	],
+		# 	any_order=True,
+		# )

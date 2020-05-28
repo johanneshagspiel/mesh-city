@@ -5,13 +5,8 @@ requests are stored on disk.
 """
 
 import csv
-import math
 import os
 from pathlib import Path
-
-from geopy import distance
-
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 
 
 class RequestManager:
@@ -210,7 +205,7 @@ class RequestManager:
 		return (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
 
-	def make_request_for_block(self, coordinates, zoom=None):
+	def make_request_for_block(self, centre_coordinates, zoom=None):
 		"""
 		Make a request in such a way, that the images are stored in the tile system, are logged in
 		the log manager and they can be displayed on the map
@@ -218,31 +213,16 @@ class RequestManager:
 		:param zoom: the zoom level at which the image should be downloaded
 		:return: nothing
 		"""
-		max_latitude = 0
-		max_longitude = 0
-
-		self.normal_building_instructions = []
-
-		if len(coordinates) == 9:
-			self.normal_building_instructions.append(0)
-
-		if len(coordinates) > 9:
-			temp = coordinates.pop(0)
-			max_latitude = temp[0]
-			max_longitude = temp[1]
-			self.normal_building_instructions.append(int(temp[1]))
-
-		#checked_coordinates = self.check_coordinates(coordinates)
 
 		if zoom is None:
-			zoom = self.map_entity.max_zoom
+			zoom = self.top_down_provider.max_zoom
 
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
 		# a new folder is created for the request if it goes ahead
 		new_folder_path = Path.joinpath(
-			self.file_handler.folder_overview["image_path"], "request_" + request_number_string
+			self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string
 		)
 		os.makedirs(new_folder_path)
 
@@ -254,16 +234,21 @@ class RequestManager:
 		tile_number_longitude = 0
 		temp_tile_number_latitude = str(tile_number_latitude)
 		temp_tile_number_longitude = str(tile_number_longitude)
-		temp_tile_name = str(
-			number_tile_downloaded
-		) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
-		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
+		new_folder_path = Path.joinpath(
+			new_folder_path,
+			str(number_tile_downloaded) + "_tile_" + temp_tile_number_latitude + "_" +
+			temp_tile_number_longitude
+		)
 		os.makedirs(new_folder_path)
 
-		#bounding_box = [tile_information[0], tile_information[-1]]
+		# in the case an area should be downloaded, the first thing returned will be the max longitude
+		# and latitude
+		if len(centre_coordinates) > 9:
+			temp = centre_coordinates.pop(0)
+			max_latitude = temp[0]
 
-		number_requests = len(coordinates)
-		print("Requestnumber: " + str(self.request_number))
+		number_requests = len(centre_coordinates)
+		print("Request number: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
 		number_requests_temp = number_requests
@@ -274,124 +259,64 @@ class RequestManager:
 		if number_requests == 9:
 			last_round = True
 
-		self.temp_list = []
-
 		counter = 1
-		# download and store the information in the case of only one pair of tile_information
-
-		if len(coordinates) == 9:
-			for location in coordinates:
-				if location[1] is None:
-					number = str(counter)
-					latitude = str(location[0][0])
-					longitude = str(location[0][1])
-					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(
-						self.map_entity.get_and_store_location(
-						location[0][0], location[0][1], zoom, temp_name, new_folder_path
-						)
-					)
-					self.temp_list.append(temp_location_stored)
-
-					if latitude in self.file_handler.coordinate_overview.grid:
-						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {"normal": temp_location_stored}
-						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
-					else:
-						self.file_handler.coordinate_overview.grid[latitude] = {
-							longitude: {
-							"normal": temp_location_stored
-							}
-						}
-				else:
-					self.temp_list.append(location[1])
+		# download and store the information in the case of only one pair of coordinates
+		if len(centre_coordinates) == 9:
+			for location in centre_coordinates:
+				number = str(counter)
+				x_position = str(location[0])
+				y_position = str(location[1])
+				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
+				self.top_down_provider.get_and_store_location(
+					latitude=location[0],
+					longitude=location[1],
+					zoom=zoom,
+					filename=temp_name,
+					new_folder_path=new_folder_path
+				)
 				counter += 1
 
 				if counter == 10 and last_round:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
+					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
-					self.normal_building_instructions.append(self.temp_list)
-
-					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"
-														] = new_folder_path.parents[0]
-
-					self.log_manager.write_log(self.file_handler.coordinate_overview)
-
-					temp_path_request = Path.joinpath(
-						new_folder_path.parents[0],
-						"building_instructions_request_" + str(request_number) + ".json"
-					)
-					temp_building_instructions_request = BuildingInstructionsRequest(
-						temp_path_request
-					)
-					temp_building_instructions_request.instructions[
-						"normal"] = self.normal_building_instructions
-					self.log_manager.create_log(temp_building_instructions_request)
-
-					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_instructions(
-						"normal", temp_building_instructions_request
-					)
+					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"][
+						0] = new_folder_path.parents[0]
 
 		# download and store the information in case a whole area was asked for
-		if len(coordinates) > 9:
-			for location in coordinates:
+		if len(centre_coordinates) > 9:
 
-				if location[1] is None:
-					number = str(counter)
-					latitude = str(location[0][0])
-					longitude = str(location[0][1])
-					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(
-						self.map_entity.get_and_store_location(
-						location[0][0],
-						location[0][1],
-						self.map_entity.max_zoom,
-						temp_name,
-						new_folder_path
-						)
-					)
-					self.temp_list.append(temp_location_stored)
-
-					if latitude in self.file_handler.coordinate_overview.grid:
-						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {"normal": temp_location_stored}
-						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
-					else:
-						self.file_handler.coordinate_overview.grid[latitude] = {
-							longitude: {
-							"normal": temp_location_stored
-							}
-						}
-				else:
-					self.temp_list.append(location[1])
+			for location in centre_coordinates:
+				number = str(counter)
+				x_position = str(location[0])
+				y_position = str(location[1])
+				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
+				self.top_down_provider.get_and_store_location(
+					latitude=location[0],
+					longitude=location[1],
+					zoom=self.top_down_provider.max_zoom,
+					filename=temp_name,
+					new_folder_path=new_folder_path
+				)
 				counter += 1
 
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
 					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-
+					self.image_util.concat_images(new_folder_path, counter, tile_number_old)
 					tile_number_latitude += 1
 					if tile_number_latitude == max_latitude:
 						tile_number_latitude = 0
 						tile_number_longitude += 1
-
 					tile_number_new = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					tile_name_new = str(number_tile_downloaded) + "_tile_" + tile_number_new
-					new_folder_path = Path.joinpath(new_folder_path.parents[0], tile_name_new)
-					os.makedirs(new_folder_path)
-
-					temp_path_tile = Path.joinpath(
-						new_folder_path, "meta_" + str(tile_name_new) + ".json"
+					new_folder_path = Path.joinpath(
+						new_folder_path.parents[0],
+						str(number_tile_downloaded) + "_tile_" + tile_number_new
 					)
-
-					self.normal_building_instructions.append(self.temp_list)
-					self.temp_list = []
-
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-
+					os.makedirs(new_folder_path)
 					counter = 1
 					number_requests_temp = number_requests_temp - 9
 					if number_requests_temp == 9:
@@ -402,30 +327,10 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
-					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"
-														] = new_folder_path.parents[0]
-
-					self.normal_building_instructions.append(self.temp_list)
-					temp_path_request = Path.joinpath(
-						new_folder_path.parents[0],
-						"building_instructions_request_" + str(request_number) + ".json"
-					)
-					temp_building_instructions_request = BuildingInstructionsRequest(
-						temp_path_request
-					)
-					temp_building_instructions_request.instructions[
-						"normal"] = self.normal_building_instructions
-					self.log_manager.create_log(temp_building_instructions_request)
-
-					self.log_manager.write_log(self.file_handler.coordinate_overview)
-
-					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_instructions(
-						"normal", temp_building_instructions_request
-					)
-
+					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"][
+						0] = new_folder_path.parents[0]
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path
@@ -579,34 +484,3 @@ class RequestManager:
 			"Something went wrong with the input, as it doesn't return something "
 			"when it should have "
 		)
-
-	def check_coordinates(self, coordinates):
-		temp_list = []
-		counter = 0
-		first_round = len(coordinates) > 9
-
-		for location in coordinates:
-			if first_round:
-				temp_list.append(location)
-				first_round = False
-			else:
-				latitude = str(location[0])
-				longitude = str(location[1])
-
-				if latitude in self.file_handler.coordinate_overview.grid:
-					if longitude in self.file_handler.coordinate_overview.grid[latitude]:
-						temp_list.append(
-							(
-							(latitude, longitude),
-							self.file_handler.coordinate_overview.grid[latitude][longitude]["normal"]
-							)
-						)
-					else:
-						temp_list.append(((latitude, longitude), None))
-						counter += 1
-				else:
-					temp_list.append(((latitude, longitude), None))
-					counter += 1
-
-		temp_list.insert(0, counter)
-		return temp_list
