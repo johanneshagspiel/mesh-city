@@ -30,6 +30,9 @@ class FileHandler:
 			"active_image_path": Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
 
 			"active_raw_data_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_map_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_overlay_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_meta_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
 
 			"temp_image_path" : Path.joinpath(self.root, 'resources', 'temp', 'image'),
 			"temp_map_path": Path.joinpath(self.root, 'resources', 'temp', 'map'),

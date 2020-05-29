@@ -83,6 +83,7 @@ class LogManager:
 		:param log_entry: the log entry to store
 		:return: nothing (the log is stored to file)
 		"""
+		print(log_entry.path_to_store)
 		with open(log_entry.path_to_store, "w") as json_log:
 			json.dump(log_entry.for_json(), fp=json_log, indent=4)
 			json_log.close()

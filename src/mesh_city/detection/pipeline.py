@@ -10,6 +10,7 @@ from PIL import Image
 
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
 from mesh_city.detection.overlay_creator import OverlayCreator
+from mesh_city.detection.meta_creator import MetaCreator
 from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.util.image_util import ImageUtil
 
@@ -76,10 +77,18 @@ class Pipeline:
 
 		temp_overlay_path = Path.joinpath(self.temp_path, "overlay")
 		os.makedirs(temp_overlay_path)
+		self.application.file_handler.change("active_overlay_path", temp_overlay_path)
+
 		temp_map_path = Path.joinpath(self.temp_path, "map")
 		os.makedirs(temp_map_path)
+		self.application.file_handler.change("active_map_path", temp_map_path)
 
-		overlay_creator = OverlayCreator(self.application, self.building_instructions)
+		temp_meta_path = Path.joinpath(self.temp_path, "meta")
+		os.makedirs(temp_meta_path)
+		self.application.file_handler.change("active_meta_path", temp_meta_path)
+
+		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
+		temp_meta_creator = MetaCreator(self.application, self.building_instructions)
 
 		counter = 1
 
@@ -90,7 +99,6 @@ class Pipeline:
 
 		for file in self.application.file_handler.folder_overview["active_raw_data_path"].glob('*'):
 			if file.is_file():
-				temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
 
 				temp_overlay_creator.create_overlay(
 					detection_algorithm=type_detection, image_size=(image_size[0], image_size[1]),
@@ -100,9 +108,10 @@ class Pipeline:
 					detection_algorithm=type_detection, image_size=(image_size[0], image_size[1]),
 					number=counter, path=file
 				)
-				# self.main_screen.meta_creator.create_information(
-				# 	detection_algorithm=type_detection, image_size=(image_size[0], image_size[1])
-				# )
+				temp_meta_creator.create_information(
+					detection_algorithm=type_detection, image_size=(image_size[0], image_size[1]),
+					number=counter, path=file
+				)
 				counter += 1
 
 		temp_len = len(self.building_instructions.instructions[type_detection]["Overlay"][1])
