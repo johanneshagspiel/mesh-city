@@ -41,6 +41,7 @@ class GeoLocationUtil:
 		:param direction: If true gives the next higher latitude, if false the next lower.
 		:return: The next latitude.
 		"""
+		latitude, longitude = self.normalise_coordinates(latitude, longitude, zoom)
 		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
 			new_y_cor = y_cor_tile - 0.99
@@ -68,6 +69,7 @@ class GeoLocationUtil:
 		:param direction: If true gives the next higher longitude, if false the next lower.
 		:return: The next longitude.
 		"""
+		latitude, longitude = self.normalise_coordinates(latitude, longitude, zoom)
 		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
 			new_x_cor = x_cor_tile + 1.01

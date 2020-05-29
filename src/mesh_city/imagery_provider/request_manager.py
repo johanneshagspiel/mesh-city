@@ -356,7 +356,7 @@ class RequestManager:
 			first_coordinate, second_coordinate
 			)
 
-		# start the request in the top left corner
+		# normalise coordinate input before adding it to coordinate list
 		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(
 			bottom_lat, left_long, zoom)
 		current_latitude, current_longitude = latitude_first_image, longitude_first_image
@@ -453,6 +453,7 @@ class RequestManager:
 		if len(coordinates) == 2:
 			latitude = coordinates[0]
 			longitude = coordinates[1]
+			# normalise coordinate input before adding it to coordinate list
 			latitude, longitude = self.geo_location_util.normalise_coordinates(
 				latitude=latitude, longitude=longitude, zoom=zoom
 			)
