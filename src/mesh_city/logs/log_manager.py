@@ -5,9 +5,9 @@ A module that contains the log manager who is responsible for performing all the
 import json
 import os
 
-from mesh_city.user.entities.user_entity import UserEntity
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
+from mesh_city.user.entities.user_entity import UserEntity
 
 
 class LogManager:
@@ -19,7 +19,6 @@ class LogManager:
 		self.file_handler = file_handler
 		self.paths = file_handler.folder_overview
 
-
 	def get_request_number(self):
 		"""
 		This method is needed because request manager needs to know the number of the next request
@@ -29,8 +28,8 @@ class LogManager:
 
 		max_log = 0
 
-		if (self.paths["log_request_.json"].is_file()):
-			with open(self.paths["log_request_.json"], 'r') as json_log:
+		if self.paths["log_request_.json"].is_file():
+			with open(self.paths["log_request_.json"], "r") as json_log:
 				data = json_log.read()
 				json_log.close()
 			logs = json.loads(data)
@@ -48,16 +47,18 @@ class LogManager:
 
 		temp_path = self.paths["image_path"]
 
-		if (len(os.listdir(self.paths["image_path"])) == 0):
+		if len(os.listdir(self.paths["image_path"])) == 0:
 			max_directory = 0
 		else:
-			for temp in temp_path.glob('*'):
-				if temp.is_file() is False:
-					directory = temp.name
-					if (directory.split("_")[1] != ''):
-						temp_result = int(directory.split("_")[1])
-						if temp_result > max_directory:
-							max_directory = temp_result
+			for temp in temp_path.glob("*"):
+				if temp.is_file():
+					continue
+				directory = temp.name
+				if directory.split("_")[1] == '':
+					continue
+				temp_result = int(directory.split("_")[1])
+				if temp_result > max_directory:
+					max_directory = temp_result
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
@@ -99,7 +100,6 @@ class LogManager:
 
 		temp_dic = {}
 
-
 		if type_document == "building_instructions_request":
 			return BuildingInstructionsRequest(path_to_store=path, json=logs)
 
@@ -111,7 +111,8 @@ class LogManager:
 
 		if type_document == "coordinate_overview.json":
 			temp_coordinate_overview = CoordinateOverview(
-				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs)
+				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs
+			)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		return None

@@ -1,5 +1,4 @@
 import unittest
-from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -12,10 +11,7 @@ class MapboxProviderTest(unittest.TestCase):
 
 	def setUp(self):
 		self.provider = ImageProviderEntity(
-			FileHandler(),
-			type_map_provider="map_box",
-			api_key="test",
-			quota=500
+			FileHandler(), type_map_provider="map_box", api_key="test", quota=500
 		)
 
 		self.mapbox = MapboxProvider(self.provider)
@@ -27,7 +23,7 @@ class MapboxProviderTest(unittest.TestCase):
 	def mock_response(self):
 		mock_resp = mock.Mock()
 		path = Path.joinpath(
-			Path(__file__).parents[2], "resource_images","test_mapbox_response_mock.png"
+			Path(__file__).parents[2], "resource_images", "test_mapbox_response_mock.png"
 		)
 		with open(path, "rb") as img:
 			mock_resp.content = img.read()
@@ -54,4 +50,3 @@ class MapboxProviderTest(unittest.TestCase):
 			mock_image = image_two.read()
 
 		self.assertEqual(received_image, mock_image)
-

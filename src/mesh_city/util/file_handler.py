@@ -3,6 +3,7 @@ Module containing preliminary file handler
 """
 from pathlib import Path
 
+
 class FileHandler:
 	"""
 	Preliminary filehanler class that stores all the information surrounding paths
@@ -18,20 +19,34 @@ class FileHandler:
 			self.root = Path(__file__).parents[1]
 
 		self.folder_overview = {
-			"resource_path": Path.joinpath(self.root, 'resources'),
-			"image_path": Path.joinpath(self.root, 'resources', 'images'),
-			"temp_path": Path.joinpath(self.root, 'resources', 'temp'),
-			"users.json": Path.joinpath(self.root, 'resources', 'user', 'users.json'),
-			"coordinate_overview.json": Path.joinpath(self.root, 'resources', 'images', 'coordinate_overview.json'),
-			"log_request_.json": Path.joinpath(self.root, 'resources', 'logs', 'log_request_.json'),
-			"active_request_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
-			"temp_image_path" : Path.joinpath(self.root, 'resources', 'temp', 'image'),
-			"temp_map_path": Path.joinpath(self.root, 'resources', 'temp', 'map'),
-			"temp_overlay_path": Path.joinpath(self.root, 'resources', 'temp', 'overlay'),
-			"active_tile_path":Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
-			"active_image_path": Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
-			"active_layer_path": Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
-			"selected_layer_path": Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
+			"resource_path":
+			Path.joinpath(self.root, 'resources'),
+			"image_path":
+			Path.joinpath(self.root, 'resources', 'images'),
+			"temp_path":
+			Path.joinpath(self.root, 'resources', 'temp'),
+			"users.json":
+			Path.joinpath(self.root, 'resources', 'user', 'users.json'),
+			"coordinate_overview.json":
+			Path.joinpath(self.root, 'resources', 'images', 'coordinate_overview.json'),
+			"log_request_.json":
+			Path.joinpath(self.root, 'resources', 'logs', 'log_request_.json'),
+			"active_request_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"temp_image_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'image'),
+			"temp_map_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'map'),
+			"temp_overlay_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'overlay'),
+			"active_tile_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
+			"active_image_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
+			"active_layer_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
+			"selected_layer_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
 		}
 		self.coordinate_overview = None
 
@@ -44,4 +59,3 @@ class FileHandler:
 		:return: nothing (updates path dictionary)
 		"""
 		self.folder_overview[path_of_interest] = new_location
-
