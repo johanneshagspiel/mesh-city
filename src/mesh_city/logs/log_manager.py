@@ -8,6 +8,7 @@ import os
 from mesh_city.user.entities.user_entity import UserEntity
 from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.logs.log_entities.detection_meta import DetectionMeta
 
 
 class LogManager:
@@ -83,7 +84,6 @@ class LogManager:
 		:param log_entry: the log entry to store
 		:return: nothing (the log is stored to file)
 		"""
-		print(log_entry.path_to_store)
 		with open(log_entry.path_to_store, "w") as json_log:
 			json.dump(log_entry.for_json(), fp=json_log, indent=4)
 			json_log.close()
@@ -113,5 +113,8 @@ class LogManager:
 			temp_coordinate_overview = CoordinateOverview(
 				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
+
+		if type_document == "information":
+			return DetectionMeta(path_to_store=path, json=logs)
 
 		return None

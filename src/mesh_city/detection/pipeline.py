@@ -95,6 +95,7 @@ class Pipeline:
 		self.building_instructions.instructions[type_detection] = {"Overlay" : [0, []]}
 		temp_entry = self.building_instructions.instructions[type_detection]
 		temp_entry["Map"] = [0, []]
+		temp_entry["Meta"] = [0, []]
 		self.building_instructions.instructions[type_detection] = temp_entry
 
 		for file in self.application.file_handler.folder_overview["active_raw_data_path"].glob('*'):
@@ -124,5 +125,6 @@ class Pipeline:
 		self.application.log_manager.write_log(self.building_instructions)
 
 		self.request_creator.create_overlay_image(self.building_instructions, self.type_of_detection, (600, 600))
+		temp_meta_creator.combine_information(self.type_of_detection)
 
 

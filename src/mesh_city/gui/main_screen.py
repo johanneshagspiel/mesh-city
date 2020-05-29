@@ -2,7 +2,7 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, mainloop, Tk, Frame, Text, END, DISABLED, WORD
+from tkinter import Button, mainloop, Tk, Frame, Text, END, DISABLED, WORD, NORMAL
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
@@ -92,7 +92,7 @@ class MainScreen:
 		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_general.grid(row=0, column=0, sticky="w")
 		self.information_general.insert(END, "General")
-		self.information_general.config(state=DISABLED)
+		#self.information_general.config(state=DISABLED)
 		self.information_general.bind("<Double-1>", lambda event: "break")
 		self.information_general.bind("<Button-1>", lambda event: "break")
 		self.information_general.config(cursor="")
@@ -101,7 +101,7 @@ class MainScreen:
 		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_selection.grid(row=1, column=0, sticky="w")
 		self.information_selection.insert(END, "Selection")
-		self.information_selection.config(state=DISABLED)
+		#self.information_selection.config(state=DISABLED)
 		self.information_selection.bind("<Double-1>", lambda event: "break")
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")
@@ -164,3 +164,15 @@ class MainScreen:
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+
+	def update_text(self):
+		temp_info_path = next(self.application.file_handler.folder_overview["active_information_path"].glob("concat_information*"))
+		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
+
+		tree_amount = temp_information_log.information["Amount"]
+		tree_amount_text = "Amount of trees detected:\n" + str(tree_amount)
+
+		self.information_general.delete('1.0', END)
+		self.information_general.insert(END, tree_amount_text)
+
+

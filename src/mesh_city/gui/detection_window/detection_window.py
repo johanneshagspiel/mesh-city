@@ -84,4 +84,5 @@ class DetectionWindow:
 		else:
 			Pipeline(self.application, self.main_screen, to_detect, self.building_instructions).push_forward()
 			self.main_screen.update_image()
+			self.main_screen.update_text()
 			self.top.destroy()

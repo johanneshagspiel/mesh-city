@@ -1,4 +1,5 @@
 import csv
+import shutil
 from pathlib import Path
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.logs.log_entities.detection_meta import DetectionMeta
@@ -43,4 +44,11 @@ class MetaCreator:
 
 			self.application.log_manager.create_log(to_store)
 
+			self.building_instructions.instructions[detection_algorithm]["Meta"][1].append(str(temp_to_store))
+
 			#total_area_covered = image_size[0] * image_size[1] * GeoLocationUtil.calc_meters_per_px()
+
+	def combine_information(self, detection_algorithm):
+
+		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json")
+		shutil.copy(self.building_instructions.instructions["Trees"]["Meta"][1][0], temp_to_store)
