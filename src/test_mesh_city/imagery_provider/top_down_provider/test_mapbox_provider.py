@@ -1,3 +1,5 @@
+# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -29,7 +31,7 @@ class MapboxProviderTest(unittest.TestCase):
 	def mock_response(self):
 		mock_resp = mock.Mock()
 		path = Path.joinpath(
-			Path(__file__).parents[2], "resource_images","test_mapbox_response_mock.png"
+			Path(__file__).parents[2], "resource_images", "test_mapbox_response_mock.png"
 		)
 		with open(path, "rb") as img:
 			mock_resp.content = img.read()
@@ -56,4 +58,3 @@ class MapboxProviderTest(unittest.TestCase):
 			mock_image = image_two.read()
 
 		self.assertEqual(received_image, mock_image)
-

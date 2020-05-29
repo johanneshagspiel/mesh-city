@@ -32,8 +32,8 @@ class GoogleMapsProvider(TopDownProvider):
 		zoom,
 		filename,
 		new_folder_path,
-		width=None,
-		height=None,
+		width=552,
+		height=552,
 		response=None
 	):
 		"""
@@ -48,10 +48,9 @@ class GoogleMapsProvider(TopDownProvider):
 		:param height: the height dimension of the image
 		:return:
 		"""
-
-		if height is None or height > 640:
+		if height > 640:
 			height = 640
-		if width is None or width > 640:
+		if width > 640:
 			width = 640
 		latitude = str(latitude)
 		longitude = str(longitude)
@@ -75,10 +74,10 @@ class GoogleMapsProvider(TopDownProvider):
 			output.write(response.content)
 
 		get_image = Image.open(to_store)
-		left = 40
-		upper = 40
-		right = 1240
-		lower = 1240
+		left = self.padding
+		upper = self.padding
+		right = int(width) * 2 - self.padding
+		lower = int(height) * 2 - self.padding
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
