@@ -33,8 +33,16 @@ class MetaCreator:
 						ymax = (float(row[4]))
 						score = (float(row[5]))
 						label = str(row[6])
+						length_image = xmax - xmin
+						height_image = ymax - ymin
+						area_image = length_image*height_image
+
 						new_to_store = to_store.information["Objects"]
-						new_to_store[object_count] = {"label" : label, "xmin" : xmin, "ymin" : ymin, "xmax" : xmax, "ymax" : ymax, "score" : score}
+						new_to_store[object_count] = {"label" : label, "xmin" : xmin, "ymin" : ymin,
+						                              "xmax" : xmax, "ymax" : ymax, "score" : score,
+						                              "length_image" : length_image,
+						                              "height_image" : height_image,
+						                              "area_image" : area_image}
 						to_store.information["Objects"] = new_to_store
 						object_count += 1
 

@@ -77,6 +77,10 @@ class LoadWindow:
 
 		self.mainscreen.update_image()
 		self.mainscreen.layer_active = "Google Maps"
+
+		self.mainscreen.information_general.configure(state='normal')
 		self.mainscreen.information_general.delete('1.0', END)
 		self.mainscreen.information_general.insert(END, "General")
+		self.mainscreen.information_general.configure(state='disabled')
+
 		self.top.destroy()
