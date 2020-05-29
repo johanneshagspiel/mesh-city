@@ -3,6 +3,7 @@ See :class:`.StartScreen`
 """
 
 from tkinter import Button, Label, Toplevel
+
 from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
 
 
@@ -27,7 +28,8 @@ class StartScreen:
 		self.top_label.grid(row=0, column=1)
 
 		self.dic_users = self.application.log_manager.read_log(
-			path=self.application.file_handler.folder_overview["users.json"], type_document="users.json"
+			path=self.application.file_handler.folder_overview["users.json"],
+			type_document="users.json"
 		)
 
 		counter = 1

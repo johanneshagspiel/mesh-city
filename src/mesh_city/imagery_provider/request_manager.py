@@ -12,9 +12,9 @@ from geopy import distance
 
 from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 
 
 class RequestManager:
@@ -85,7 +85,9 @@ class RequestManager:
 		tile_number_longitude = 0
 		temp_tile_number_latitude = str(tile_number_latitude)
 		temp_tile_number_longitude = str(tile_number_longitude)
-		temp_tile_name = str(number_tile_downloaded) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
+		temp_tile_name = str(
+			number_tile_downloaded
+		) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
 		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
 		os.makedirs(new_folder_path)
 
@@ -115,17 +117,23 @@ class RequestManager:
 					latitude = str(location[0][0])
 					longitude = str(location[0][1])
 					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(self.top_down_provider.get_and_store_location(
+					temp_location_stored = str(
+						self.top_down_provider.get_and_store_location(
 						location[0][0], location[0][1], zoom, temp_name, new_folder_path
-					))
+						)
+					)
 					self.temp_list.append(temp_location_stored)
 
 					if latitude in self.file_handler.coordinate_overview.grid:
 						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {"normal" : temp_location_stored}
+						new_to_store[longitude] = {"normal": temp_location_stored}
 						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
 					else:
-						self.file_handler.coordinate_overview.grid[latitude] = {longitude : {"normal" : temp_location_stored}}
+						self.file_handler.coordinate_overview.grid[latitude] = {
+							longitude: {
+							"normal": temp_location_stored
+							}
+						}
 				else:
 					self.temp_list.append(location[1])
 				counter += 1
@@ -136,19 +144,26 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"] = new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_request_path"
+														] = new_folder_path.parents[0]
 
 					self.log_manager.write_log(self.file_handler.coordinate_overview)
 
-					temp_path_request = Path.joinpath(new_folder_path.parents[0],
-					                                  "building_instructions_request_" + str(request_number) + ".json")
-					temp_building_instructions_request = BuildingInstructionsRequest(temp_path_request)
-					temp_building_instructions_request.instructions["normal"] = self.normal_building_instructions
+					temp_path_request = Path.joinpath(
+						new_folder_path.parents[0],
+						"building_instructions_request_" + str(request_number) + ".json"
+					)
+					temp_building_instructions_request = BuildingInstructionsRequest(
+						temp_path_request
+					)
+					temp_building_instructions_request.instructions[
+						"normal"] = self.normal_building_instructions
 					self.log_manager.create_log(temp_building_instructions_request)
 
 					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_instructions("normal", temp_building_instructions_request)
-
+					temp_request_creator.follow_instructions(
+						"normal", temp_building_instructions_request
+					)
 
 		# download and store the information in case a whole area was asked for
 		if len(coordinates) > 9:
@@ -159,18 +174,27 @@ class RequestManager:
 					latitude = str(location[0][0])
 					longitude = str(location[0][1])
 					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(self.top_down_provider.get_and_store_location(
-						location[0][0], location[0][1], self.top_down_provider.max_zoom, temp_name, new_folder_path
-					))
+					temp_location_stored = str(
+						self.top_down_provider.get_and_store_location(
+						location[0][0],
+						location[0][1],
+						self.top_down_provider.max_zoom,
+						temp_name,
+						new_folder_path
+						)
+					)
 					self.temp_list.append(temp_location_stored)
 
 					if latitude in self.file_handler.coordinate_overview.grid:
 						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {"normal" : temp_location_stored}
+						new_to_store[longitude] = {"normal": temp_location_stored}
 						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
 					else:
 						self.file_handler.coordinate_overview.grid[latitude] = {
-							longitude: {"normal" : temp_location_stored}}
+							longitude: {
+							"normal": temp_location_stored
+							}
+						}
 				else:
 					self.temp_list.append(location[1])
 				counter += 1
@@ -205,26 +229,31 @@ class RequestManager:
 
 					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"] = new_folder_path.parents[0]
-
+					self.file_handler.folder_overview["active_request_path"
+														] = new_folder_path.parents[0]
 
 					self.normal_building_instructions.append(self.temp_list)
-					temp_path_request = Path.joinpath(new_folder_path.parents[0],
-					                                  "building_instructions_request_" + str(request_number) + ".json")
-					temp_building_instructions_request = BuildingInstructionsRequest(temp_path_request)
-					temp_building_instructions_request.instructions["normal"] = self.normal_building_instructions
+					temp_path_request = Path.joinpath(
+						new_folder_path.parents[0],
+						"building_instructions_request_" + str(request_number) + ".json"
+					)
+					temp_building_instructions_request = BuildingInstructionsRequest(
+						temp_path_request
+					)
+					temp_building_instructions_request.instructions[
+						"normal"] = self.normal_building_instructions
 					self.log_manager.create_log(temp_building_instructions_request)
 
 					self.log_manager.write_log(self.file_handler.coordinate_overview)
 
 					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_instructions("normal",
-					                                         temp_building_instructions_request)
+					temp_request_creator.follow_instructions(
+						"normal", temp_building_instructions_request
+					)
 
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path
-
 
 	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
 		"""
@@ -380,10 +409,18 @@ class RequestManager:
 				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
-				latitude=latitude, longitude=longitude, zoom=zoom, image_size_y=image_size, direction=True
+				latitude=latitude,
+				longitude=longitude,
+				zoom=zoom,
+				image_size_y=image_size,
+				direction=True
 			)
 			left = self.geo_location_util.calc_next_location_longitude(
-				latitude=latitude, longitude=longitude, zoom=zoom, image_size_y=image_size, direction=False
+				latitude=latitude,
+				longitude=longitude,
+				zoom=zoom,
+				image_size_y=image_size,
+				direction=False
 			)
 
 			temp_list = [
@@ -410,7 +447,7 @@ class RequestManager:
 		:return: a list indicating whether the coordinates are already downloaded or not
 		"""
 		temp_list = []
-		counter=0
+		counter = 0
 		first_round = len(coordinates) > 9
 
 		for location in coordinates:
@@ -423,7 +460,12 @@ class RequestManager:
 
 				if latitude in self.file_handler.coordinate_overview.grid:
 					if longitude in self.file_handler.coordinate_overview.grid[latitude]:
-						temp_list.append(((latitude, longitude), self.file_handler.coordinate_overview.grid[latitude][longitude]["normal"]))
+						temp_list.append(
+							(
+							(latitude, longitude),
+							self.file_handler.coordinate_overview.grid[latitude][longitude]["normal"]
+							)
+						)
 					else:
 						temp_list.append(((latitude, longitude), None))
 						counter += 1

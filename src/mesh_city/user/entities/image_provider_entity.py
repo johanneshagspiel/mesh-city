@@ -1,7 +1,6 @@
 """
 This module contains the image provider log
 """
-import json
 from calendar import monthrange
 from datetime import datetime
 
@@ -18,7 +17,13 @@ class ImageProviderEntity(LogEntity):
 	"""
 
 	def __init__(
-		self, file_handler, json_data=None, type_map_provider=None, api_key=None, quota=None, date_reset=None
+		self,
+		file_handler,
+		json_data=None,
+		type_map_provider=None,
+		api_key=None,
+		quota=None,
+		date_reset=None
 	):
 		"""
 		Sets up a image provider, either from json or when created for the first time
@@ -85,7 +90,6 @@ class ImageProviderEntity(LogEntity):
 			"date_reset": self.date_reset.date().isoformat()
 		}
 
-
 	def check_date_reset(self, current_date):
 		"""
 		Checks if the usage should be reset if a new month has started
@@ -106,7 +110,6 @@ class ImageProviderEntity(LogEntity):
 		"""
 		temp_end = monthrange(date.year, date.month)
 		return datetime(date.year, date.month, temp_end[1])
-
 
 	# pylint: disable=W0613
 	def action(self, logs):

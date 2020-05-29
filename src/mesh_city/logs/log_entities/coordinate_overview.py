@@ -3,6 +3,7 @@ A module containing the coordinate overview class
 """
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
+
 class CoordinateOverview(LogEntity):
 	"""
 	The class representing the dictionary where the location is stored where one can find the image associated with a
@@ -17,7 +18,7 @@ class CoordinateOverview(LogEntity):
 		"""
 		super().__init__(path_to_store=path_to_store)
 		if json is None:
-			self.grid ={}
+			self.grid = {}
 		else:
 			self.grid = {}
 			self.load_json(json)
@@ -44,5 +45,3 @@ class CoordinateOverview(LogEntity):
 		:return: the class in a json compliant form
 		"""
 		return self.grid
-
-

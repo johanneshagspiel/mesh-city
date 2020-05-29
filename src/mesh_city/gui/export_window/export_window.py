@@ -1,4 +1,5 @@
-from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
+from tkinter import Label, Toplevel
+
 
 class ExportWindow:
 
@@ -11,5 +12,3 @@ class ExportWindow:
 
 		self.top_label = Label(self.top, text="What do you want to export?")
 		self.top_label.grid(row=0)
-
-

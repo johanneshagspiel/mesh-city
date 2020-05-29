@@ -4,6 +4,7 @@ See :class:`.GeoLocationUtil`
 
 import math
 
+
 # pylint: disable=W0105
 class GeoLocationUtil:
 	"""
@@ -12,6 +13,7 @@ class GeoLocationUtil:
 
 	def __init__(self):
 		pass
+
 	"""
 	Collection of functions related to converting geographical units. Based on the following:
 	Ground resolution = cos(latitude * pi/180) * earth circumference / map width.
@@ -50,14 +52,10 @@ class GeoLocationUtil:
 		meters_per_px = self.calc_meters_per_px(latitude, zoom)
 		next_center_distance_meters = meters_per_px * image_size_x
 		if direction:
-			new_latitude = latitude + (
-				(next_center_distance_meters / 6378137) * (180 / math.pi)
-			)
+			new_latitude = latitude + ((next_center_distance_meters / 6378137) * (180 / math.pi))
 			new_latitude = latitude + ((next_center_distance_meters / 6378137) * (180 / math.pi))
 		else:
-			new_latitude = latitude - (
-				(next_center_distance_meters / 6378137) * (180 / math.pi)
-			)
+			new_latitude = latitude - ((next_center_distance_meters / 6378137) * (180 / math.pi))
 			new_latitude = latitude - ((next_center_distance_meters / 6378137) * (180 / math.pi))
 		return new_latitude
 
