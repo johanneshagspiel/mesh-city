@@ -2,7 +2,9 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, mainloop, Tk, Frame
+from tkinter import Button, Frame, mainloop, Tk
+
+from mesh_city.detection.overlay_creator import OverlayCreator
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.generate_screen.generate_screen import GenerateWindow
@@ -11,7 +13,6 @@ from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_screen.start_screen import StartScreen
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.detection.overlay_creator import OverlayCreator
 
 
 class MainScreen:
@@ -134,7 +135,9 @@ class MainScreen:
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+		)
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
