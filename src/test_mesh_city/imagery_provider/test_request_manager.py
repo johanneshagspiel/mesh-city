@@ -7,7 +7,6 @@ from unittest.mock import ANY, Mock
 
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -60,20 +59,18 @@ class TestRequestManager(unittest.TestCase):
 				item.unlink()
 
 	def _create_request_manager(
-		self, top_down_provider=Mock(), log_manager=Mock(), geo_location_util=Mock()
+		self, top_down_provider=Mock(), user_entity=Mock(), application=Mock()
 	):
 		return RequestManager(
-			file_handler=FileHandler(root=Path(__file__).parents[1]),
 			top_down_provider=top_down_provider,
-			log_manager=log_manager,
-			image_util=Mock(),
-			geo_location_util=geo_location_util,
+			user_entity=user_entity,
+			application=application,
 		)
 
 	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):
 		map_entity = Mock(spec=GoogleMapsProvider, wraps=Mock())
 		request_manager = self._create_request_manager(
-			top_down_provider=map_entity, geo_location_util=GeoLocationUtil(),
+			top_down_provider=map_entity,
 		)
 
 		list_of_coordinates = request_manager.calculate_centre_coordinates_two_coordinate_input(
@@ -85,7 +82,7 @@ class TestRequestManager(unittest.TestCase):
 	def test_calculate_centre_coordinates_two_coordinate_input_turned_around(self):
 		map_entity = Mock(spec=GoogleMapsProvider, wraps=Mock())
 		request_manager = self._create_request_manager(
-			top_down_provider=map_entity, geo_location_util=GeoLocationUtil(),
+			top_down_provider=map_entity,
 		)
 
 		list_of_coordinates = request_manager.calculate_centre_coordinates_two_coordinate_input(
