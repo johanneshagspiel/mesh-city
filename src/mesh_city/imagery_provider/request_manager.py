@@ -453,6 +453,9 @@ class RequestManager:
 		if len(coordinates) == 2:
 			latitude = coordinates[0]
 			longitude = coordinates[1]
+			latitude, longitude = self.geo_location_util.normalise_coordinates(
+				latitude=latitude, longitude=longitude, zoom=zoom
+			)
 
 			bottom = self.geo_location_util.calc_next_location_latitude(
 				latitude=latitude, longitude=longitude, zoom=zoom, direction=False
@@ -484,3 +487,5 @@ class RequestManager:
 			"Something went wrong with the input, as it doesn't return something "
 			"when it should have "
 		)
+
+
