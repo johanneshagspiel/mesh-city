@@ -51,4 +51,22 @@ class MetaCreator:
 	def combine_information(self, detection_algorithm):
 
 		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json")
-		shutil.copy(self.building_instructions.instructions["Trees"]["Meta"][1][0], temp_to_store)
+		combined = DetectionMeta(path_to_store=temp_to_store)
+
+		temp_amount = 0
+		temp_object = {}
+		temp_counter = 1
+
+		for element in self.building_instructions.instructions["Trees"]["Meta"][1]:
+			temp_log = self.application.log_manager.read_log(str(element), "information")
+			temp_amount += temp_log.information["Amount"]
+
+			for value in temp_log.information["Objects"].values():
+				temp_object[temp_counter] = value
+				temp_counter += 1
+
+		combined.information["Amount"] = temp_amount
+		combined.information["Objects"] = temp_object
+		self.application.log_manager.create_log(combined)
+
+		#shutil.copy(self.building_instructions.instructions["Trees"]["Meta"][1][0], temp_to_store)
