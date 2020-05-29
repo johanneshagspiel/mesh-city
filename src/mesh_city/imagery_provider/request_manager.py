@@ -63,8 +63,6 @@ class RequestManager:
 			max_latitude = temp[0]
 			self.normal_building_instructions.append(int(temp[1]))
 
-		#checked_coordinates = self.check_coordinates(coordinates)
-
 		if zoom is None:
 			zoom = self.top_down_provider.max_zoom
 
@@ -90,8 +88,6 @@ class RequestManager:
 		) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
 		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
 		os.makedirs(new_folder_path)
-
-		#bounding_box = [tile_information[0], tile_information[-1]]
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
