@@ -3,7 +3,7 @@
 import unittest
 from pathlib import Path
 from shutil import rmtree
-from unittest.mock import ANY, call, Mock
+from unittest.mock import ANY, Mock
 
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
@@ -154,4 +154,3 @@ class TestRequestManager(unittest.TestCase):
 			width=600,
 			new_folder_path=ANY,
 		)
-

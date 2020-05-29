@@ -488,5 +488,3 @@ class RequestManager:
 			"Something went wrong with the input, as it doesn't return something "
 			"when it should have "
 		)
-
-
