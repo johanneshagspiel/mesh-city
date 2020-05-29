@@ -28,8 +28,8 @@ class LogManager:
 
 		max_log = 0
 
-		if (self.paths["log_request_.json"].is_file()):
-			with open(self.paths["log_request_.json"], 'r') as json_log:
+		if self.paths["log_request_.json"].is_file():
+			with open(self.paths["log_request_.json"], "r") as json_log:
 				data = json_log.read()
 				json_log.close()
 			logs = json.loads(data)
@@ -47,16 +47,18 @@ class LogManager:
 
 		temp_path = self.paths["image_path"]
 
-		if (len(os.listdir(self.paths["image_path"])) == 0):
+		if len(os.listdir(self.paths["image_path"])) == 0:
 			max_directory = 0
 		else:
-			for temp in temp_path.glob('*'):
-				if temp.is_file() is False:
-					directory = temp.name
-					if (directory.split("_")[1] != ''):
-						temp_result = int(directory.split("_")[1])
-						if temp_result > max_directory:
-							max_directory = temp_result
+			for temp in temp_path.glob("*"):
+				if temp.is_file():
+					continue
+				directory = temp.name
+				if directory.split("_")[1] == '':
+					continue
+				temp_result = int(directory.split("_")[1])
+				if temp_result > max_directory:
+					max_directory = temp_result
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
