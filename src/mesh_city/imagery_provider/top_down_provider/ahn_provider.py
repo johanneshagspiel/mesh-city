@@ -99,7 +99,7 @@ class AhnProvider(TopDownProvider):
 		:param new_folder_path: the path where to store the file
 		"""
 
-		bounding_box_coordinates = self.calculate_bounding_box(longitude, latitude, 20, 640, 640)
+		bounding_box_coordinates = self.calculate_bounding_box(longitude, latitude, 20)
 
 		xmin = str(bounding_box_coordinates[0])
 		ymin = str(bounding_box_coordinates[1])
@@ -119,29 +119,23 @@ class AhnProvider(TopDownProvider):
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 
-	def calculate_bounding_box(self, latitude, longitude, zoom, image_size_x, image_size_y):
+	def calculate_bounding_box(self, latitude, longitude, zoom):
 		"""
 		Ahn provider does not ask for the central coordinates to get an image but for the bounding
 		box encompassing the area
 		:param latitude: latitude of the central location one is interested in getting the image from
 		:param longitude: longitude of the central location one is interested in getting the image from
 		:param zoom: the zoom level of the image one is interested in
-		:param image_size_x: the length of the x axis of the image
-		:param image_size_y: the length of the y axis of the image
 		:return: a list of the coordinates of the bounding box encompassing the area
 		"""
 
-		right = self.geo_util.calc_next_location_latitude(
-			latitude, zoom, image_size_x=image_size_x / 2, direction=True
-		)
-		left = self.geo_util.calc_next_location_latitude(
-			latitude, zoom, image_size_x=image_size_x / 2, direction=False
-		)
+		right = self.geo_util.calc_next_location_latitude(latitude, longitude, zoom, direction=True)
+		left = self.geo_util.calc_next_location_latitude(latitude, longitude, zoom, direction=False)
 		top = self.geo_util.calc_next_location_longitude(
-			latitude, longitude, zoom, image_size_y=image_size_y / 2, direction=True,
+			latitude, longitude, zoom, direction=True,
 		)
 		bottom = self.geo_util.calc_next_location_longitude(
-			latitude, longitude, zoom, image_size_y=image_size_y / 2, direction=False
+			latitude, longitude, zoom, direction=False
 		)
 
 		self.check_in_netherlands([(left, bottom), (right, top)])

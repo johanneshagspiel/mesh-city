@@ -1,3 +1,5 @@
+# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -45,6 +47,8 @@ class GoogleMapsProviderTest(unittest.TestCase):
 			zoom=self.zoom,
 			filename="test_google_top_down.png",
 			new_folder_path=self.file_path,
+			width=640,
+			height=640,
 			response=self.mock_response()
 		)
 		mock_path = Path.joinpath(
