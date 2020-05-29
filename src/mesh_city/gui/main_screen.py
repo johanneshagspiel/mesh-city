@@ -3,7 +3,6 @@ See :class:`.MainScreen`
 """
 
 from tkinter import Button, mainloop, Tk, Frame
-from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_screen.detection_screen import DetectionScreen
 from mesh_city.gui.generate_screen.generate_screen import GenerateWindow
