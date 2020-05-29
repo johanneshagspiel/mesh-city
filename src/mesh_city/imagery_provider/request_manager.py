@@ -251,7 +251,9 @@ class RequestManager:
 
 		return new_folder_path
 
-	def calculate_centre_coordinates_two_coordinate_input_block(self, bottom_left, top_right, zoom):
+	def calculate_centre_coordinates_two_coordinate_input_block(
+		self, first_coordinate, second_coordinate, zoom
+	):
 		"""
 		CREATES BLOCKS
 
@@ -262,83 +264,52 @@ class RequestManager:
 		:param bottom_left: the bottom left coordinate of the bounding box.
 		:param top_right: the bottom left coordinate of the bounding box.
 		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:return: a pair which contains as its first value a tuple with the total number of images,
-		and the number of images along the axis, and as second value a list of the centre
-		tile_information of each image, and its horizontal and vertical position in the grid of images.
-		The coordinate list has the following format:
-		((current_latitude, current_longitude), (horizontal, vertical))
-		The overall returned format is:
-		((num_of_images_total, num_of_images_horizontal, num_of_images_vertical), coordinates_list)
+		:return: a list of coordinates, first entry indicates the number of steps between blocks.
 		"""
 
-		bottom_lat = bottom_left[0]
-		left_long = bottom_left[1]
-		top_lat = top_right[0]
-		right_long = top_right[1]
-
-		if bottom_lat > top_lat or left_long > right_long:
-			raise Exception(
-				"The first coordinate should be beneath and left of the second coordinate"
+		(bottom_lat, left_long), (top_lat,
+			right_long) = self.geo_location_util.get_bottom_left_top_right_coordinates(
+			first_coordinate, second_coordinate
 			)
 
-		side_resolution_image = self.top_down_provider.max_side_resolution_image
+		# normalise coordinate input before adding it to coordinate list
+		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(
+			bottom_lat, left_long, zoom)
+		current_latitude, current_longitude = latitude_first_image, longitude_first_image
 
-		if isinstance(self.top_down_provider, GoogleMapsProvider):
-			# Removes 40 pixels from the sides, as that will be necessary to remove the watermarks
-			# specific for google maps API
-			side_resolution_image = side_resolution_image - 40
+		coordinates_list = []
+		num_of_images_horizontal = 0
+		num_of_images_vertical = 0
 
-		horizontal_width = distance.distance((bottom_lat, left_long), (bottom_lat, right_long)).m
-		vertical_length = distance.distance((bottom_lat, left_long), (top_lat, left_long)).m
-
-		total_horizontal_pixels = horizontal_width / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom
-		)
-		total_vertical_pixels = vertical_length / self.geo_location_util.calc_meters_per_px(
-			top_lat, zoom
-		)
-		num_of_images_horizontal = int(math.ceil(total_horizontal_pixels / side_resolution_image))
-
+		# iterate from left to right, bottom to top
 		# to support the tile system, the total number of images to download needs to be divisible by
 		# 9 as one tile is 9 images
-		if (num_of_images_horizontal % 3) != 0:
-			num_of_images_horizontal += 3 - (num_of_images_horizontal % 3)
-		num_of_images_vertical = int(math.ceil(total_vertical_pixels / side_resolution_image))
-		if (num_of_images_vertical % 3) != 0:
-			num_of_images_vertical += 3 - (num_of_images_vertical % 3)
-
-		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
-
-		latitude_first_image = self.geo_location_util.calc_next_location_latitude(
-			bottom_lat, zoom, side_resolution_image / 2, True
-		)
-		longitude_first_image = self.geo_location_util.calc_next_location_longitude(
-			bottom_lat, left_long, zoom, side_resolution_image / 2, True
-		)
-
-		current_latitude = latitude_first_image
-		current_longitude = longitude_first_image
-
-		coordinates_list = list()
-
-		for vertical in range(num_of_images_vertical):
-			for horizontal in range(num_of_images_horizontal):
+		while current_latitude <= top_lat or (num_of_images_vertical % 3) != 0:
+			num_of_images_horizontal = 0
+			while current_longitude <= right_long or (num_of_images_horizontal % 3) != 0:
+				x_cor_current_tile, y_cor_current_tile = self.geo_location_util.degree_to_tile_value(
+					current_latitude, current_longitude, zoom
+				)
 				coordinates_list.append(
-					((current_latitude, current_longitude), (horizontal, vertical))
+					((current_latitude, current_longitude), (x_cor_current_tile, y_cor_current_tile))
 				)
-
 				current_longitude = self.geo_location_util.calc_next_location_longitude(
-					current_latitude, current_longitude, zoom, side_resolution_image, True
+					current_latitude, current_longitude, zoom, True
 				)
+				num_of_images_horizontal += 1
+
 			current_longitude = longitude_first_image
 			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, zoom, side_resolution_image, True
+				current_latitude, current_longitude, zoom, True
 			)
+			num_of_images_vertical += 1
+
+		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
 
 		temp_result = (num_of_images_total, num_of_images_horizontal,
 			num_of_images_vertical), coordinates_list
 
-		# here, the results need to be rearranged so that the order of coordiantes returned corresponds
+		# here, the results need to be rearranged so that the order of coordinates returned corresponds
 		# to one tile after the other. Currently the output is : 0,0 - 1,0 - 2,0 - 3,0 -4,0
 		# for the tile system, the output needs to be : 0,0 - 1,0 - 2,0 - 0,1 -1,1 - 1,2 etc.
 		result = temp_result[1]
@@ -385,47 +356,45 @@ class RequestManager:
 		This method calculates all the locations to be downloaded for one request
 		:param coordinates: the central tile_information around which the other image
 		:param zoom:
-		:return:
+		:return: a list of coordinates.
 		"""
 		if zoom is None:
 			zoom = self.top_down_provider.max_zoom
+		if zoom < 1:
+			zoom = 1
+		if zoom > self.top_down_provider.max_zoom:
+			zoom = self.top_down_provider.max_zoom
 
-		image_size = self.top_down_provider.max_side_resolution_image
-		if isinstance(self.top_down_provider, GoogleMapsProvider):
-			image_size = 640 - self.top_down_provider.padding
-
+		# if the request made is for one location
 		if len(coordinates) == 2:
 			latitude = coordinates[0]
 			longitude = coordinates[1]
+			# normalise coordinate input before adding it to coordinate list
+			latitude, longitude = self.geo_location_util.normalise_coordinates(
+				latitude=latitude, longitude=longitude, zoom=zoom
+			)
 
 			bottom = self.geo_location_util.calc_next_location_latitude(
-				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=False
+				latitude=latitude, longitude=longitude, zoom=zoom, direction=False
 			)
 			top = self.geo_location_util.calc_next_location_latitude(
-				latitude=latitude, zoom=zoom, image_size_x=image_size, direction=True
+				latitude=latitude, longitude=longitude, zoom=zoom, direction=True
 			)
 			right = self.geo_location_util.calc_next_location_longitude(
-				latitude=latitude,
-				longitude=longitude,
-				zoom=zoom,
-				image_size_y=image_size,
-				direction=True
+				latitude=latitude, longitude=longitude, zoom=zoom, direction=True
 			)
 			left = self.geo_location_util.calc_next_location_longitude(
-				latitude=latitude,
-				longitude=longitude,
-				zoom=zoom,
-				image_size_y=image_size,
-				direction=False
+				latitude=latitude, longitude=longitude, zoom=zoom, direction=False
 			)
 
-			temp_list = [
+			coordinates_list = [
 				(bottom, left), (bottom, longitude), (bottom, right), (latitude, left),
 				(latitude, longitude), (latitude, right), (top, left), (top, longitude), (top, right),
 			]  # pylint: disable=invalid-name
 
-			return temp_list
+			return coordinates_list
 
+		# if the request concerns a two coordinate input for an area
 		if len(coordinates) == 4:
 			return self.calculate_centre_coordinates_two_coordinate_input_block(
 				(coordinates[0], coordinates[1]), (coordinates[2], coordinates[3]), zoom
