@@ -75,11 +75,6 @@ class MainScreen:
 		)
 		self.generate_button.grid(row=4, column=0)
 
-		self.export_button = Button(
-			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
-		)
-		self.export_button.grid(row=5, column=0)
-
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
@@ -98,9 +93,6 @@ class MainScreen:
 		self.master.rowconfigure(2, weight=1)
 
 		mainloop()
-
-	def export_window(self):
-		ExportWindow(self.master, self.application, self)
 
 	def layers_window(self):
 		"""
