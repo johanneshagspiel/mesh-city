@@ -2,7 +2,7 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, mainloop, Tk, Frame, Text, END, DISABLED, WORD, NORMAL
+from tkinter import Button, mainloop, Tk, Frame, Text, END, WORD
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
@@ -166,6 +166,10 @@ class MainScreen:
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
 	def update_text(self):
+		"""
+		Method to update the text field on the main screen
+		:return: nothing (new text is show on the mainscreen)
+		"""
 		temp_info_path = next(self.application.file_handler.folder_overview["active_information_path"].glob("concat_information*"))
 		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
 
