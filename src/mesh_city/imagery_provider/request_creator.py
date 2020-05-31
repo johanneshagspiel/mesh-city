@@ -22,20 +22,17 @@ class RequestCreator:
 		self.image_util = ImageUtil()
 		self.file_handler = application.file_handler
 
-	def follow_create_instructions(self, list_to_make, building_instructions_request):
+	def follow_create_instructions(self, to_make, building_instructions_request, path_to_store):
 		"""
 		Method to create and load an image based on a list of images to load
-		:param list_to_make: which images to create
+		:param to_make: which images to create
 		:param building_instructions_request: the file where the building instructions can be found
 		:return: nothing (mainscreen shows a new image)
 		"""
 
-		if list_to_make[0] == "Google Maps":
-			temp_to_build = building_instructions_request.instructions[list_to_make[0]]
+		if to_make[0] == "Google Maps":
+			temp_to_build = building_instructions_request.instructions[to_make[0]][to_make[1]]
 			iteration_amount = temp_to_build[0]
-
-			temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
-			                          "concat_image_normal.png")
 
 			if iteration_amount == 0:
 				result_image = ImageUtil.concat_images_tile(self=self.image_util, image_list=temp_to_build[1])
@@ -49,15 +46,16 @@ class RequestCreator:
 
 				result_image = ImageUtil.combine_images_list(self=self.image_util, image_list=temp_list_images, iteration_amount=iteration_amount)
 
-			result_image.save(fp=temp_path, format="png")
-			self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])
+			result_image.save(fp=path_to_store, format="png")
 
-		if list_to_make[0] == "Trees":
-			temp_to_build = building_instructions_request.instructions[list_to_make[0]][list_to_make[1]]
+			#self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])
+
+		if to_make[0] == "Trees":
+			temp_to_build = building_instructions_request.instructions[to_make[0]][to_make[1]]
 			iteration_amount = temp_to_build[0]
 
-			temp_path = Path.joinpath(self.file_handler.folder_overview["temp_overlay_path"],
-			                          "combined_image_overlay.png")
+			# temp_path = Path.joinpath(self.file_handler.folder_overview["temp_overlay_path"],
+			#                           "combined_image_overlay.png")
 
 			if iteration_amount == 0:
 				result_image = Image.open(temp_to_build[1][0])
@@ -68,10 +66,10 @@ class RequestCreator:
 				                                             image_list=temp_list,
 				                                             iteration_amount=iteration_amount)
 
+			result_image.save(fp=path_to_store, format="png")
 
-			result_image.save(fp=temp_path, format="png")
-			self.file_handler.change("active_image_path",
-			                         self.file_handler.folder_overview["temp_overlay_path"])
+			# self.file_handler.change("active_image_path",
+			#                          self.file_handler.folder_overview["temp_overlay_path"])
 
 	def follow_move_instructions(self, to_move, building_instructions_request, path_to_move):
 		"""

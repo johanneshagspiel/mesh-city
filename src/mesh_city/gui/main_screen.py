@@ -169,7 +169,6 @@ class MainScreen:
 		temp_info_path = next(self.application.file_handler.folder_overview["active_information_path"].glob("concat_information*"))
 		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
 
-		print(temp_information_log.information["Objects"])
 		tree_amount = temp_information_log.information["Amount"] - 1
 		tree_amount_text = "Amount of trees detected:\n" + str(tree_amount)
 
