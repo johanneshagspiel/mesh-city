@@ -54,7 +54,7 @@ class Pipeline:
 				self.application.file_handler.change("active_raw_data_path", temp_path_2)
 
 				for tile_number in range(1, len(self.building_instructions.instructions["Google Maps"])):
-					temp_tile_image = self.image_util.concat_images_tile(image_list=self.building_instructions.instructions["Google Maps"][tile_number])
+					temp_tile_image = self.image_util.concat_images_tile(image_list=self.building_instructions.instructions["Google Maps"]["Paths"][tile_number])
 					temp_path_2 = Path.joinpath(self.application.file_handler.folder_overview["temp_detection_path"], "temp_image.png")
 					temp_tile_image.resize((600, 600), Image.ANTIALIAS).save(fp=temp_path_2, format="png")
 					result = deep_forest.detect(temp_path_2.absolute().as_posix())

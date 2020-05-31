@@ -91,11 +91,6 @@ class RequestManager:
 		number_tile_downloaded = 0
 		tile_number_latitude = 0
 		tile_number_longitude = 0
-		temp_tile_number_latitude = str(tile_number_latitude)
-		temp_tile_number_longitude = str(tile_number_longitude)
-		temp_tile_name = str(number_tile_downloaded) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
-		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
-		os.makedirs(new_folder_path)
 
 		#bounding_box = [tile_information[0], tile_information[-1]]
 

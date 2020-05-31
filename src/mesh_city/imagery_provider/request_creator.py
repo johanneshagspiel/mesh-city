@@ -23,7 +23,6 @@ class RequestCreator:
 		self.file_handler = application.file_handler
 
 	# pylint: disable= W0108
-	def follow_create_instructions(self, list_to_make, building_instructions_request):
 	def follow_create_instructions(self, to_make, building_instructions_request, path_to_store):
 		"""
 		Method to create and load an image based on a list of images to load
@@ -119,34 +118,33 @@ class RequestCreator:
 
 	# pylint: disable= E0602
 
-	def create_map_image(self, overlays):
-		"""
-		Creates a map image based on the previously created map overlays
-		:param overlays: the overlays to use
-		:return: nothing (a map is created in temp)
-		"""
-		base = Image.new('RGB', (600, 600), (255, 255, 255))
-		base.putalpha(255)
-
-		for element in overlays:
-			# pylint: disable = E1101
-			temp_dic_element = self.map_overlay_overview[element]
-			temp_path = temp_dic_element[0]
-
-			to_overlay = Image.open(temp_path)
-			resized_base = base.resize(
-				(temp_dic_element[1][0], temp_dic_element[1][1]), Image.ANTIALIAS
-			)
-			resized_base.alpha_composite(to_overlay)
-
-		temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["temp_path"],"map")
-
-		# pylint: disable=E1101
-		if temp_path.exists() is False:
-			os.makedirs(temp_path)
-
-		resized_base.save(Path.joinpath(temp_path, "concat_image_map_overlay.png"))
-		self.application.file_handler.change(
-			"active_image_path", temp_path)
-
+	# def create_map_image(self, overlays):
+	# 	"""
+	# 	Creates a map image based on the previously created map overlays
+	# 	:param overlays: the overlays to use
+	# 	:return: nothing (a map is created in temp)
+	# 	"""
+	# 	base = Image.new('RGB', (600, 600), (255, 255, 255))
+	# 	base.putalpha(255)
+	#
+	# 	for element in overlays:
+	# 		# pylint: disable = E1101
+	# 		temp_dic_element = self.map_overlay_overview[element]
+	# 		temp_path = temp_dic_element[0]
+	#
+	# 		to_overlay = Image.open(temp_path)
+	# 		resized_base = base.resize(
+	# 			(temp_dic_element[1][0], temp_dic_element[1][1]), Image.ANTIALIAS
+	# 		)
+	# 		resized_base.alpha_composite(to_overlay)
+	#
+	# 	temp_path = Path.joinpath(
+	# 			self.application.file_handler.folder_overview["temp_path"],"map")
+	#
+	# 	# pylint: disable=E1101
+	# 	if temp_path.exists() is False:
+	# 		os.makedirs(temp_path)
+	#
+	# 	resized_base.save(Path.joinpath(temp_path, "concat_image_map_overlay.png"))
+	# 	self.application.file_handler.change(
+	# 		"active_image_path", temp_path)
