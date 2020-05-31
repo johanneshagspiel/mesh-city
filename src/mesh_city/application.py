@@ -20,11 +20,12 @@ class Application:
 		self.request_manager = None
 		self.user_entity = None
 
-		MainScreen(application=self)
-
 	def late_init(self, user_entity):
 		"""
 		Initialises the fields that need the user information.
 		"""
 		self.user_entity = user_entity
 		self.request_manager = RequestManager(user_entity=self.user_entity, application=self)
+
+	def start(self):
+		MainScreen(application=self)
