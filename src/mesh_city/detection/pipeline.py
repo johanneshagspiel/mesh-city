@@ -38,6 +38,7 @@ class Pipeline:
 
 		self.temp_path = None
 
+	# pylint: disable=E1101
 	def push_forward(self):
 		"""
 		Moving the images to the appropriate detection algorithm in the required format

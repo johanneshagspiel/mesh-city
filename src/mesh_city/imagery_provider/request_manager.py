@@ -200,7 +200,6 @@ class RequestManager:
 
 				if counter == 10 and last_round:
 					number_tile_downloaded += 1
-					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 
 					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
 					self.file_handler.folder_overview["active_image_path"] = new_folder_path

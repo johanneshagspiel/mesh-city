@@ -22,6 +22,7 @@ class RequestCreator:
 		self.image_util = ImageUtil()
 		self.file_handler = application.file_handler
 
+	# pylint: disable= W0108
 	def follow_create_instructions(self, list_to_make, building_instructions_request):
 		"""
 		Method to create and load an image based on a list of images to load
@@ -117,6 +118,8 @@ class RequestCreator:
 			"active_image_path", self.application.file_handler.folder_overview["temp_overlay_path"]
 		)
 
+	# pylint: disable= E0602
+
 	def create_map_image(self, overlays):
 		"""
 		Creates a map image based on the previously created map overlays
@@ -127,6 +130,7 @@ class RequestCreator:
 		base.putalpha(255)
 
 		for element in overlays:
+			# pylint: disable = E1101
 			temp_dic_element = self.map_overlay_overview[element]
 			temp_path = temp_dic_element[0]
 

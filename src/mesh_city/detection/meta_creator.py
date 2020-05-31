@@ -1,16 +1,30 @@
+# pylint: disable=W0611, W0613
+"""
+A module containing the meta creator class
+"""
 import csv
-import shutil
 from pathlib import Path
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.logs.log_entities.detection_meta import DetectionMeta
 
 class MetaCreator:
+	"""
+	Class that stores meta information from the results of the detection algorithms
+	"""
 
 	def __init__(self, application, building_instructions):
 		self.application = application
 		self.building_instructions = building_instructions
 
 	def create_information(self, detection_algorithm, image_size, number, path):
+		"""
+		Turns the result of an detection algorithm into information
+		:param detection_algorithm: the detection algorithm that created results
+		:param image_size: the size of the image on which the detection was run
+		:param number: the number of the tile
+		:param path: the path where to read the detection algorithm results from
+		:return: nothing (creates a new log with all the information from the detection algorithm)
+		"""
 
 		temp_name = "meta_tile_" + str(number) + ".json"
 		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["active_meta_path"], temp_name)
@@ -56,7 +70,13 @@ class MetaCreator:
 
 			#total_area_covered = image_size[0] * image_size[1] * GeoLocationUtil.calc_meters_per_px()
 
+
 	def combine_information(self, detection_algorithm):
+		"""
+		Method to combine meta information from multiple tiles into one
+		:param detection_algorithm: the detection algorithm used to create the results
+		:return: nothing (created a log combining the information from the different tiles)
+		"""
 
 		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json")
 		combined = DetectionMeta(path_to_store=temp_to_store)
@@ -65,16 +85,17 @@ class MetaCreator:
 		temp_object = {}
 		temp_counter = 1
 
-		for element in self.building_instructions.instructions["Trees"]["Meta"][1]:
-			temp_log = self.application.log_manager.read_log(str(element), "information")
-			temp_amount += temp_log.information["Amount"]
+		print(detection_algorithm)
+		for algorithm in detection_algorithm:
+			if algorithm == "Trees":
+				for element in self.building_instructions.instructions["Trees"]["Meta"][1]:
+					temp_log = self.application.log_manager.read_log(str(element), "information")
+					temp_amount += temp_log.information["Amount"]
 
-			for value in temp_log.information["Objects"].values():
-				temp_object[temp_counter] = value
-				temp_counter += 1
+					for value in temp_log.information["Objects"].values():
+						temp_object[temp_counter] = value
+						temp_counter += 1
 
 		combined.information["Amount"] = temp_amount
 		combined.information["Objects"] = temp_object
 		self.application.log_manager.create_log(combined)
-
-		#shutil.copy(self.building_instructions.instructions["Trees"]["Meta"][1][0], temp_to_store)

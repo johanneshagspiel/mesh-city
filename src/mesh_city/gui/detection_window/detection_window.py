@@ -61,6 +61,7 @@ class DetectionWindow:
 			self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions))
 			self.confirm_button.grid(row=temp_counter+1)
 
+	# pylint: disable= W0613
 	def cleanup(self, building_instructions):
 		"""
 		Method called on button press: runs the appropriate detection algorithm, updates the image
