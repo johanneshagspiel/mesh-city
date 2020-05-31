@@ -98,7 +98,9 @@ class RequestCreator:
 		base = Image.open(next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")))
 		base.putalpha(255)
 
-		self.follow_create_instructions([overlays[0], "Overlay"], building_instructions_request)
+		temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_overlay_path"],
+		                          "combined_image_overlay.png")
+		self.follow_create_instructions([overlays[0], "Overlay"], building_instructions_request, temp_path)
 
 		to_overlay = Image.open(Path.joinpath(self.file_handler.folder_overview["temp_overlay_path"],
 			                          "combined_image_overlay.png"))

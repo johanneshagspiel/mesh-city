@@ -61,20 +61,20 @@ class MainScreen:
 		)
 		self.detect_button.grid(row=2, column=0)
 
-		# self.layers_button = Button(
-		# 	self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
-		# )
-		# self.layers_button.grid(row=3, column=0)
-		#
-		# self.generate_button = Button(
-		# 	self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
-		# )
-		# self.generate_button.grid(row=4, column=0)
+		self.layers_button = Button(
+			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		)
+		self.layers_button.grid(row=3, column=0)
+
+		self.generate_button = Button(
+			self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
+		)
+		self.generate_button.grid(row=4, column=0)
 
 		self.export_button = Button(
 			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
 		)
-		self.export_button.grid(row=3, column=0)
+		self.export_button.grid(row=5, column=0)
 
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
@@ -101,7 +101,7 @@ class MainScreen:
 		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_selection.grid(row=1, column=0, sticky="w")
 		self.information_selection.insert(END, "Selection")
-		#self.information_selection.config(state=DISABLED)
+		self.information_selection.configure(state='disabled')
 		self.information_selection.bind("<Double-1>", lambda event: "break")
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")

@@ -85,7 +85,6 @@ class MetaCreator:
 		temp_object = {}
 		temp_counter = 1
 
-		print(detection_algorithm)
 		for algorithm in detection_algorithm:
 			if algorithm == "Trees":
 				for element in self.building_instructions.instructions["Trees"]["Meta"][1]:
