@@ -28,4 +28,8 @@ class Application:
 		self.request_manager = RequestManager(user_entity=self.user_entity, application=self)
 
 	def start(self):
+		"""
+		Creates a mainscreen UI element and passes self as application context.
+		:return: None
+		"""
 		MainScreen(application=self)

@@ -6,7 +6,7 @@ from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 from mesh_city.detection.pipeline import Pipeline
 
 
-class DetectionScreen:
+class DetectionWindow:
 	"""
 	The detection screen where one can select what to detect i.e. trees. The main_screen then will be
 	updated automatically

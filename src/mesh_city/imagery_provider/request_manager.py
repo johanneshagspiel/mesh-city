@@ -118,12 +118,14 @@ class RequestManager:
 
 					if latitude in self.file_handler.coordinate_overview.grid:
 						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {"normal": temp_location_stored}
+						new_to_store[longitude] = {
+							self.top_down_provider.name: temp_location_stored
+						}
 						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
 					else:
 						self.file_handler.coordinate_overview.grid[latitude] = {
 							longitude: {
-							"normal": temp_location_stored
+							self.top_down_provider.name: temp_location_stored
 							}
 						}
 				else:
@@ -149,12 +151,12 @@ class RequestManager:
 						temp_path_request
 					)
 					temp_building_instructions_request.instructions[
-						"normal"] = self.normal_building_instructions
+						self.top_down_provider.name] = self.normal_building_instructions
 					self.log_manager.create_log(temp_building_instructions_request)
 
 					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_instructions(
-						"normal", temp_building_instructions_request
+					temp_request_creator.follow_create_instructions(
+						self.top_down_provider.name, temp_building_instructions_request
 					)
 
 		# download and store the information in case a whole area was asked for
@@ -179,12 +181,14 @@ class RequestManager:
 
 					if latitude in self.file_handler.coordinate_overview.grid:
 						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {"normal": temp_location_stored}
+						new_to_store[longitude] = {
+							self.top_down_provider.name: temp_location_stored
+						}
 						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
 					else:
 						self.file_handler.coordinate_overview.grid[latitude] = {
 							longitude: {
-							"normal": temp_location_stored
+							self.top_down_provider.name: temp_location_stored
 							}
 						}
 				else:
@@ -233,14 +237,14 @@ class RequestManager:
 						temp_path_request
 					)
 					temp_building_instructions_request.instructions[
-						"normal"] = self.normal_building_instructions
+						self.top_down_provider.name] = self.normal_building_instructions
 					self.log_manager.create_log(temp_building_instructions_request)
 
 					self.log_manager.write_log(self.file_handler.coordinate_overview)
 
 					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_instructions(
-						"normal", temp_building_instructions_request
+					temp_request_creator.follow_create_instructions(
+						self.top_down_provider.name, temp_building_instructions_request
 					)
 
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
@@ -424,7 +428,8 @@ class RequestManager:
 						temp_list.append(
 							(
 							(latitude, longitude),
-							self.file_handler.coordinate_overview.grid[latitude][longitude]["normal"]
+							self.file_handler.coordinate_overview.grid[latitude][longitude][
+							self.top_down_provider.name]
 							)
 						)
 					else:

@@ -21,7 +21,7 @@ class GoogleMapsProvider(TopDownProvider):
 		super().__init__(image_provider_entity=image_provider_entity)
 		self.client = googlemaps.Client(key=self.image_provider_entity.api_key)
 		self.padding = 40
-		self.name = "google_maps"
+		self.name = "Google Maps"
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
 

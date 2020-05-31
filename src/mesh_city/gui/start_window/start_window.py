@@ -4,10 +4,10 @@ See :class:`.StartScreen`
 
 from tkinter import Button, Label, Toplevel
 
-from mesh_city.gui.start_screen.create_new_user_window import CreateNewUserWindow
+from mesh_city.gui.start_window.create_new_user_window import CreateNewUserWindow
 
 
-class StartScreen:
+class StartWindow:
 	"""
 	The start screen where the user can select an existing account or make a new one
 	"""

@@ -19,7 +19,7 @@ class MapboxProvider(TopDownProvider):
 	def __init__(self, image_provider_entity):
 		super().__init__(image_provider_entity=image_provider_entity)
 		self.geocoder = Geocoder(access_token=image_provider_entity.api_key)
-		self.name = "mapbox"
+		self.name = "Mapbox"
 		self.max_zoom = 18
 		self.max_side_resolution_image = 640
 

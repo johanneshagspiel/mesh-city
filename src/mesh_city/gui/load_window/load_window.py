@@ -76,7 +76,9 @@ class LoadWindow:
 			)
 
 			temp_request_creator = RequestCreator(application=self.application)
-			temp_request_creator.follow_instructions("normal", temp_building_instructions_request)
+			temp_request_creator.follow_create_instructions(
+				"normal", temp_building_instructions_request
+			)
 
 		self.mainscreen.update_image()
 		self.mainscreen.layer_active = "normal"
