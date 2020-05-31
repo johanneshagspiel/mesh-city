@@ -23,20 +23,16 @@ class DeepForest:
 		:return: nothing
 		"""
 		os.makedirs(
-			Path.joinpath(
-			self.application.file_handler.folder_overview["active_layer_path"][0], "trees"
-			)
+			Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"], "trees")
 		)
 		self.application.file_handler.change(
 			"selected_layer_path",
-			Path.joinpath(
-			self.application.file_handler.folder_overview["active_layer_path"][0], "trees"
-			)
+			Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"], "trees")
 		)
 
 		os.rename(
-			Path.joinpath(self.application.file_handler.folder_overview["temp_path"][0], "test.csv"),
+			Path.joinpath(self.application.file_handler.folder_overview["temp_path"], "test.csv"),
 			Path.joinpath(
-			self.application.file_handler.folder_overview["selected_layer_path"][0], "test.csv"
+			self.application.file_handler.folder_overview["selected_layer_path"], "test.csv"
 			)
 		)

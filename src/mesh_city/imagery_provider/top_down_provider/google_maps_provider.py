@@ -86,6 +86,8 @@ class GoogleMapsProvider(TopDownProvider):
 
 		im1.save(fp=to_store)
 
+		return to_store
+
 	def get_location_from_name(self, name):
 		"""
 		Returns a geographical location based on an address name.
@@ -97,7 +99,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on coordinates
+		Returns an address name based on tile_information
 		:param latitude:
 		:param longitude:
 		:return:

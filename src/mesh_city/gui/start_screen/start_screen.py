@@ -18,6 +18,7 @@ class StartScreen:
 		:param master: the master tkinter object
 		:param application: the global application context
 		"""
+
 		self.master = master
 		self.application = application
 		top = self.top = Toplevel(master)
@@ -27,20 +28,22 @@ class StartScreen:
 		self.top_label.grid(row=0, column=1)
 
 		self.dic_users = self.application.log_manager.read_log(
-			path=self.application.file_handler.folder_overview["users.json"]
+			path=self.application.file_handler.folder_overview["users.json"],
+			type_document="users.json"
 		)
 
 		counter = 1
-		for key, user_object in self.dic_users.items():
-			temp_name = Button(
+		for key in self.dic_users.keys():
+			name_user = key
+			self.temp_name = Button(
 				self.top,
-				text=key,
+				text=name_user,
 				width=20,
 				height=3,
-				command=lambda user_object=user_object: self.load_user(user=user_object),
+				command=lambda name_user=name_user: self.load_user(self.dic_users[name_user]),
 				bg="grey"
 			)
-			temp_name.grid(row=counter, column=1)
+			self.temp_name.grid(row=counter, column=1)
 			counter += 1
 
 		self.create_user = Button(
@@ -61,6 +64,10 @@ class StartScreen:
 		in the global application context)
 		"""
 		self.application.late_init(user)
+
+		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
+		self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
+
 		self.top.destroy()
 
 	# pylint: disable=W0201

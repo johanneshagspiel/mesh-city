@@ -1,10 +1,8 @@
 """
 Module containing the user_entity class
 """
-from datetime import datetime
-
+from mesh_city.logs.log_entities.log_entity import LogEntity
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
-from mesh_city.util.logs.log_entry.log_entity import LogEntity
 
 
 class UserEntity(LogEntity):
@@ -21,12 +19,13 @@ class UserEntity(LogEntity):
 		:param name: the name of the user
 		:param image_providers: the image providers associated with the user
 		"""
-		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
+		super().__init__(path_to_store=file_handler.folder_overview['users.json'])
 		self.file_handler = file_handler
 
-		if name and image_providers is not None:
+		if (name and image_providers is not None):
 			self.name = name
 			self.image_providers = image_providers
+			self.check_name()
 		else:
 			self.name = None
 			self.image_providers = None
@@ -36,7 +35,7 @@ class UserEntity(LogEntity):
 		"""
 		Sets up the user from a json file
 		:param json: the json file from which to set up the user
-		:return: None
+		:return: nothing (the fields of the user are initialized correctly)
 		"""
 		key, value = list(json.items())[0]
 		self.name = key
@@ -47,23 +46,22 @@ class UserEntity(LogEntity):
 		"""
 		Helper method to set up the image providers from json
 		:param json: the json file from which to set up the image providers
-		:return: None
+		:return: nothing (the image providers field is set up correctly)
 		"""
 		for item in json.items():
-			provider_dict = item[1]
-			provider_dict["date_reset"] = datetime.strptime(provider_dict["date_reset"], "%Y-%m-%d")
-			self.image_providers[item[0]] = ImageProviderEntity(self.file_handler, **provider_dict)
+			self.image_providers[item[0]] = (ImageProviderEntity(self.file_handler, item[1]))
 
 	def for_json(self):
 		"""
 		Turns the class into a json compliant form
 		:return: the class in json compliant form
 		"""
+		self.check_name()
 		temp_image_providers = {}
 		for key, value in self.image_providers.items():
 			temp_image_providers[key] = value.for_json()
 
-		return {self.name: temp_image_providers}
+		return temp_image_providers
 
 	def action(self, logs):
 		"""
@@ -74,3 +72,24 @@ class UserEntity(LogEntity):
 		to_store = self.for_json()
 		logs[self.name] = to_store
 		return logs
+
+	def check_name(self):
+		"""
+		Helper method to check that each name of the image providers is unique
+		:return: nothing (all the image providers have unique names)
+		"""
+		names = {}
+		for key in self.image_providers.keys():
+			if key in names:
+				old_name = key
+				new_value = names[old_name] + 1
+				new_name = str(old_name) + "_" + str(new_value)
+
+				names[new_name] = 0
+				names[old_name] = new_value
+
+				# new_key = new_name
+				# self.image_providers[new_key] = self.image_providers.pop(old_name)
+				# names[old_name] = new_value
+			else:
+				names[key] = 0

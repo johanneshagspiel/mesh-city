@@ -16,7 +16,6 @@ class ImageProviderEntityTest(unittest.TestCase):
 			type_map_provider="google_maps",
 			api_key="test",
 			quota=100,
-			usage=None,
 			date_reset=datetime(2019, 2, 28)
 		)
 		self.provider2 = ImageProviderEntity(
@@ -24,7 +23,6 @@ class ImageProviderEntityTest(unittest.TestCase):
 			type_map_provider="ahn",
 			api_key="test",
 			quota=100,
-			usage=None,
 			date_reset=datetime(2019, 2, 28)
 		)
 
@@ -32,8 +30,6 @@ class ImageProviderEntityTest(unittest.TestCase):
 		provider_dict = {"ahn1": self.provider1, "ahn2": self.provider2}
 		user_entity = UserEntity(FileHandler(), name="test user", image_providers=provider_dict)
 		self.assertEqual(
-			{
-			'test user':
 			{
 			'ahn1':
 			{
@@ -53,7 +49,6 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'type_map_provider': 'ahn',
 			'usage': {
 			'geocoding': 0, 'static_map': 0, 'total': 0
-			}
 			}
 			}
 			},
