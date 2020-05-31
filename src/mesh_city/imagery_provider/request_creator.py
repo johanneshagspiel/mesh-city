@@ -3,6 +3,7 @@ The module containing the request creator
 """
 from pathlib import Path
 from shutil import copyfile
+
 from mesh_city.util.image_util import ImageUtil
 
 
