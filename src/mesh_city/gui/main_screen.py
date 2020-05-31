@@ -12,6 +12,7 @@ from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
+from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.util.image_util import ImageUtil
 
 
@@ -66,15 +67,20 @@ class MainScreen:
 		)
 		self.detect_button.grid(row=2, column=0)
 
-		self.layers_button = Button(
-			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		self.export_button = Button(
+			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
 		)
-		self.layers_button.grid(row=3, column=0)
+		self.export_button.grid(row=3, column=0)
 
-		self.generate_button = Button(
-			self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
-		)
-		self.generate_button.grid(row=4, column=0)
+		# self.layers_button = Button(
+		# 	self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		# )
+		# self.layers_button.grid(row=3, column=0)
+		#
+		# self.generate_button = Button(
+		# 	self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
+		# )
+		# self.generate_button.grid(row=4, column=0)
 
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
