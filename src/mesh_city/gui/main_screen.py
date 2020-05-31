@@ -72,16 +72,6 @@ class MainScreen:
 		)
 		self.export_button.grid(row=3, column=0)
 
-		# self.layers_button = Button(
-		# 	self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
-		# )
-		# self.layers_button.grid(row=3, column=0)
-		#
-		# self.generate_button = Button(
-		# 	self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
-		# )
-		# self.generate_button.grid(row=4, column=0)
-
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
