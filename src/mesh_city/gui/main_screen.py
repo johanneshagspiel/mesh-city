@@ -7,12 +7,12 @@ from tkinter import Button, Frame, mainloop, Tk
 from mesh_city.detection.overlay_creator import OverlayCreator
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
+from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.generate_window.generate_window import GenerateWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
-from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.util.image_util import ImageUtil
 
 
