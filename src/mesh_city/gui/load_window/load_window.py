@@ -73,7 +73,14 @@ class LoadWindow:
 				path=temp_path, type_document="building_instructions_request")
 
 			temp_request_creator = RequestCreator(application=self.application)
-			temp_request_creator.follow_create_instructions(["Google Maps"], temp_building_instructions_request)
+			temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_image_path"],
+			                          "concat_image_normal.png")
+			# TODO change when using other satillte image providers
+			temp_request_creator.follow_create_instructions(["Google Maps", "Paths"],
+			                                                temp_building_instructions_request,
+			                                                temp_path)
+			self.application.file_handler.change("active_image_path",
+			                         self.application.file_handler.folder_overview["temp_image_path"])
 
 		self.mainscreen.update_image()
 		self.mainscreen.layer_active = "Google Maps"

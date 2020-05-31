@@ -111,9 +111,6 @@ class RequestManager:
 		round_counter = 0
 		position_counter = 1
 
-		print("1")
-		print(len(coordinates))
-
 		for location in coordinates:
 			if position_counter == 10:
 				overall_list_coordinates.append(temp_list_coordinates)
@@ -124,16 +121,16 @@ class RequestManager:
 
 				position_counter = 1
 				round_counter += 1
+
+			if location[1] is None:
+				temp_list_coordinates.append(location[0])
+				to_download.append((location[0], position_counter))
+				to_download_positions.append((round_counter, position_counter - 1))
+				temp_list_path.append(None)
 			else:
-				if location[1] is None:
-					temp_list_coordinates.append(location[0])
-					to_download.append((location[0], position_counter))
-					to_download_positions.append((round_counter, position_counter - 1))
-					temp_list_path.append(None)
-				else:
-					temp_list_coordinates.append(location[0])
-					temp_list_path.append(location[1])
-				position_counter += 1
+				temp_list_coordinates.append(location[0])
+				temp_list_path.append(location[1])
+			position_counter += 1
 
 		overall_list_coordinates.append(temp_list_coordinates)
 		overall_list_path.append(temp_list_path)
@@ -166,6 +163,7 @@ class RequestManager:
 		self.log_manager.write_log(self.file_handler.coordinate_overview)
 
 		temp_request_creator = RequestCreator(application=self.application)
+
 		temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
 		                          "concat_image_normal.png")
 		temp_request_creator.follow_create_instructions([self.top_down_provider.name, "Paths"],
