@@ -47,7 +47,7 @@ class ExportWindow:
 
 		counter = 2
 		for temp in self.image_path.glob('*'):
-			if temp.is_file() is False:
+			if not temp.is_file():
 				name_directory = temp.name
 				if name_directory != name_active_request:
 					self.temp_name = Button(
