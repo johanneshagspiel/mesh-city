@@ -3,6 +3,7 @@ Module containing the generate screen class
 """
 from tkinter import Button, Label, Toplevel
 
+
 class GenerateWindow:
 	"""
 	The generate screen class where the user can select things they want to generate like a map

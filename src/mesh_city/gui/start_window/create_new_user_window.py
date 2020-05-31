@@ -3,9 +3,9 @@ A module containing the create new user window
 """
 from tkinter import Button, Entry, Label, Toplevel
 
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.user.entities.user_entity import UserEntity
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 
 
 # TODO check user input (check that google maps api key is an google maps api key)

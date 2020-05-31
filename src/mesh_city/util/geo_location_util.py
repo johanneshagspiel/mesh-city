@@ -4,14 +4,8 @@ See :class:`.GeoLocationUtil`
 
 import math
 
-# pylint: disable=W0105
-class GeoLocationUtil:
-	"""
-	A helper class representing all the methods needed for calculations with geo lcoations
-	"""
 
-	def __init__(self):
-		pass
+class GeoLocationUtil:
 	"""
 	Collection of functions related to converting geographical units. Based on the following:
 	Ground resolution = cos(latitude * pi/180) * earth circumference / map width.
@@ -38,49 +32,171 @@ class GeoLocationUtil:
 		map_width = math.pow(2, zoom) * image_resolution
 		return self.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
 
-	def calc_next_location_latitude(self, latitude, zoom, image_size_x, direction):
+	def calc_next_location_latitude(self, latitude, longitude, zoom, direction):
 		"""
-		Calculates the latitude of the next request.
-		:param latitude: The current latitude.
-		:param zoom: The zoom level.
-		:param image_size_x: The width of the tile in pixels.
-		:param direction: If true gives the next higher latitude, if false the next lower.
-		:return: The next latitude.
-		"""
-		meters_per_px = self.calc_meters_per_px(latitude, zoom)
-		next_center_distance_meters = meters_per_px * image_size_x
-		if direction:
-			new_latitude = latitude + (
-				(next_center_distance_meters / 6378137) * (180 / math.pi)
-			)
-			new_latitude = latitude + ((next_center_distance_meters / 6378137) * (180 / math.pi))
-		else:
-			new_latitude = latitude - (
-				(next_center_distance_meters / 6378137) * (180 / math.pi)
-			)
-			new_latitude = latitude - ((next_center_distance_meters / 6378137) * (180 / math.pi))
-		return new_latitude
-
-	def calc_next_location_longitude(self, latitude, longitude, zoom, image_size_y, direction):
-		"""
-		Calculates the longitude of the next request.
+		Calculates the latitude of the next adjacent tile.
 		:param latitude: The current latitude.
 		:param longitude: The current longitude.
 		:param zoom: The zoom level.
-		:param image_size_y: The height of the tile in pixels.
+		:param direction: If true gives the next higher latitude, if false the next lower.
+		:return: The next latitude.
+		"""
+		latitude, longitude = self.normalise_coordinates(latitude, longitude, zoom)
+		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
+		if direction:
+			new_y_cor = y_cor_tile - 0.99
+		else:
+			new_y_cor = y_cor_tile + 1.01
+		# offset values by slightly more than 1, such that there is no rounding error ambiguity
+		# about which tile the next coordinates belong to. Boundary values cause problems.
+		if x_cor_tile < 0 or new_y_cor < 0 or x_cor_tile > 2.0**(zoom -
+			1) or new_y_cor > 2.0**(zoom - 1):
+			raise ValueError(
+				"The x and y input cannot exceed the boundaries of the world tile grid"
+			)
+		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, new_y_cor, zoom)
+		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
+		if test_y in (y_cor_tile + 1, y_cor_tile - 1):
+			return new_latitude
+		raise ValueError("New y tile coordinate is incorrect")
+
+	def calc_next_location_longitude(self, latitude, longitude, zoom, direction):
+		"""
+		Calculates the longitude of the next adjacent tile.
+		:param latitude: The current latitude.
+		:param longitude: The current longitude.
+		:param zoom: The zoom level.
 		:param direction: If true gives the next higher longitude, if false the next lower.
 		:return: The next longitude.
 		"""
-		meters_per_px = self.calc_meters_per_px(latitude, zoom)
-		next_center_distance_meters = meters_per_px * image_size_y
+		latitude, longitude = self.normalise_coordinates(latitude, longitude, zoom)
+		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
-			new_longitude = longitude + (
-				(next_center_distance_meters / self.radius_earth) *
-				(180 / math.pi) / math.cos(latitude * math.pi / 180)
-			)
+			new_x_cor = x_cor_tile + 1.01
 		else:
-			new_longitude = longitude - (
-				(next_center_distance_meters / self.radius_earth) *
-				(180 / math.pi) / math.cos(latitude * math.pi / 180)
+			new_x_cor = x_cor_tile - 0.99
+		# offset values by slightly more than 1, such that there is no rounding error ambiguity
+		# about which tile the next coordinates belong to. Boundary values cause problems.
+		if new_x_cor < 0 or y_cor_tile < 0 or new_x_cor > 2.0**(zoom -
+			1) or y_cor_tile > 2.0**(zoom - 1):
+			raise ValueError(
+				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
-		return new_longitude
+		new_latitude, new_longitude = self.tile_value_to_degree(new_x_cor, y_cor_tile, zoom)
+		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
+		if test_x in (x_cor_tile + 1, x_cor_tile - 1):
+			return new_longitude
+		raise ValueError("New x tile coordinate is incorrect")
+
+	def degree_to_tile_value(self, latitude, longitude, zoom):
+		"""
+		Based on a geographical coordinate it returns the number coordinates of the closest tile in
+		the world-grid of a certain zoom level.
+		:param latitude: The current latitude.
+		:param longitude: The current longitude.
+		:param zoom: The zoom level.
+		:return: x and y coordinates of the nearest tile in the world tile grid of the specified
+		zoom level. This returns the NW-corner of the square. Use the function with x_tile + 1 and/or
+		y_tile + 1 to get the other corners. With x_tile + 0.5 & y_tile + 0.5 it will return the
+		center of the tile.
+		"""
+		if latitude < -85 or longitude < -180 or latitude > 85 or longitude > 180:
+			raise ValueError(
+				"The latitude, longitude input cannot exceed the boundaries of the map"
+			)
+		lat_rad = math.radians(latitude)
+		total_number_of_tiles = 2.0**(zoom - 1)
+		# number of tiles in the world tile grid: -1 as the downloaded images
+		# have twice the resolution of the grid tiles of Google Maps, Bing Maps, and OpenStreetMap.
+		x_cor_tile = int((longitude + 180.0) / 360.0 * total_number_of_tiles)
+		y_cor_tile = int(
+			(1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * total_number_of_tiles
+		)
+		return x_cor_tile, y_cor_tile
+
+	def tile_value_to_degree(self, x_cor_tile, y_cor_tile, zoom, get_centre=True):
+		"""
+		Based on the x and y coordinates of a certain tile in the world grid of a certain zoom level
+		it returns the geographical coordinates of that point. The world grid start in the top left
+		corner with coordinates (0, 0) and end in the bottom right corner with (2^zoom − 1,
+		2^zoom − 1)
+		:param x_cor_tile: The point's x coordinate on the world tile grid.
+		:param y_cor_tile: The point's y coordinate on the world tile grid.
+		:param zoom: The zoom level.
+		:param get_centre: if True returns centre coordinates. If False this returns the NW-corner
+		of the square. Use the function with x_tile + 1 and/or y_tile + 1 to get the other corners.
+		With x_tile + 0.5 & y_tile + 0.5 it will return the center of the tile.
+		:return: the geographical coordinates of the input point.
+		"""
+		if get_centre:
+			x_cor_tile += 0.5
+			y_cor_tile += 0.5
+		total_number_of_tiles = 2.0**(zoom - 1)
+		if x_cor_tile < 0 or y_cor_tile < 0 or x_cor_tile > total_number_of_tiles - 1 or y_cor_tile > total_number_of_tiles - 1:
+			raise ValueError(
+				"The x and y input cannot exceed the boundaries of the world tile grid"
+			)
+		longitude = x_cor_tile / total_number_of_tiles * 360.0 - 180.0
+		lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * y_cor_tile / total_number_of_tiles)))
+		latitude = math.degrees(lat_rad)
+		return latitude, longitude
+
+	def normalise_coordinates(self, latitude, longitude, zoom):
+		"""
+		Method that normalises any geographical coordinates input to the most nearby geographical
+		coordinates of a point on the world tile grid of that zoom level.
+		:param latitude: The current latitude.
+		:param longitude: The current longitude.
+		:param zoom: The zoom level.
+		:return: x and y coordinates of the nearest tile in the world grid of the specified zoom
+		level.
+		"""
+		if latitude < -85 or longitude < -180 or latitude > 85 or longitude > 180:
+			raise ValueError(
+				"The latitude, longitude input cannot exceed the boundaries of the map"
+			)
+		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
+		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
+		return new_latitude, new_longitude
+
+	def get_top_left_bottom_right_coordinates(self, first_coordinate, second_coordinate):
+		"""
+		Helper method to normalise any two coordinate input into a box defined by its top left
+		coordinate and bottom right coordinate.
+		:param first_coordinate:
+		:param second_coordinate:
+		:return: a tuple with the two normalised coordinates
+		"""
+		if first_coordinate[0] < second_coordinate[0]:
+			bottom_lat = first_coordinate[0]
+			top_lat = second_coordinate[0]
+		else:
+			bottom_lat = second_coordinate[0]
+			top_lat = first_coordinate[0]
+
+		if first_coordinate[1] < second_coordinate[1]:
+			left_long = first_coordinate[1]
+			right_long = second_coordinate[1]
+		else:
+			left_long = second_coordinate[1]
+			right_long = first_coordinate[1]
+
+		if bottom_lat > top_lat or left_long > right_long:
+			raise ValueError(
+				"The bottom latitude should be smaller than the top and the left longitude should be"
+				"smaller than the right longitude"
+			)
+		return (top_lat, left_long), (bottom_lat, right_long)
+
+	def get_bottom_left_top_right_coordinates(self, first_coordinate, second_coordinate):
+		"""
+		Helper method to normalise any two coordinate input into a box defined by its bottom left
+		coordinate and top right coordinate.
+		:param first_coordinate:
+		:param second_coordinate:
+		:return: a tuple with the two normalised coordinates
+		"""
+		(top_lat, left_long), (bottom_lat, right_long) = self.get_top_left_bottom_right_coordinates(
+			first_coordinate, second_coordinate
+		)
+		return (bottom_lat, left_long), (top_lat, right_long)

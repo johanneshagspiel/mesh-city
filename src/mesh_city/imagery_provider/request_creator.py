@@ -5,6 +5,7 @@ from pathlib import Path
 from shutil import copyfile
 from mesh_city.util.image_util import ImageUtil
 
+
 class RequestCreator:
 	"""
 	The class creating the image seen on the main screen based on a list of images to be combined
@@ -28,23 +29,32 @@ class RequestCreator:
 
 		temp_to_build = building_instructions_request.instructions[list_to_make]
 		iteration_amount = temp_to_build[0]
-		temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
-		                          "concat_image_normal.png")
+		temp_path = Path.joinpath(
+			self.file_handler.folder_overview["temp_image_path"], "concat_image_normal.png"
+		)
 
 		if iteration_amount == 0:
-			result_image = ImageUtil.concat_images_list(self=self.image_util,image_list=temp_to_build[1])
+			result_image = ImageUtil.concat_images_list(
+				self=self.image_util, image_list=temp_to_build[1]
+			)
 
 		else:
 			temp_list_images = []
 
 			for number in range(1, len(temp_to_build)):
-				temp_image = ImageUtil.concat_images_list(self=self.image_util,image_list=temp_to_build[number])
+				temp_image = ImageUtil.concat_images_list(
+					self=self.image_util, image_list=temp_to_build[number]
+				)
 				temp_list_images.append(temp_image)
 
-			result_image = ImageUtil.combine_images_list(self=self.image_util, image_list=temp_list_images, iteration_amount=iteration_amount)
+			result_image = ImageUtil.combine_images_list(
+				self=self.image_util, image_list=temp_list_images, iteration_amount=iteration_amount
+			)
 
 		result_image.save(fp=temp_path, format="png")
-		self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])
+		self.file_handler.change(
+			"active_image_path", self.file_handler.folder_overview["temp_image_path"]
+		)
 
 	def follow_move_instructions(self, to_move, building_instructions_request, path_to_move):
 		"""

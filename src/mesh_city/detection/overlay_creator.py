@@ -92,7 +92,8 @@ class OverlayCreator:
 					if len(row) > 0 and temp_counter > 0:
 						draw.rectangle(
 							xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
-							outline="green", fill="green"
+							outline="green",
+							fill="green"
 						)
 					temp_counter += 1
 
@@ -102,7 +103,9 @@ class OverlayCreator:
 				"map_overlay_tree.png"
 			)
 			tree_map_overlay.save(temp_path, format="png")
-			self.map_overlay_overview["trees"] = (temp_path, (int(image_size[0]), int(image_size[1])))
+			self.map_overlay_overview["trees"] = (
+				temp_path, (int(image_size[0]), int(image_size[1]))
+			)
 
 	def create_map_image(self, overlays):
 		"""
@@ -123,16 +126,14 @@ class OverlayCreator:
 			)
 			resized_base.alpha_composite(to_overlay)
 
-		temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["temp_path"],"map")
+		temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_path"], "map")
 
 		# pylint: disable=E1101
 		if temp_path.exists() is False:
 			os.makedirs(temp_path)
 
 		resized_base.save(Path.joinpath(temp_path, "concat_image_map_overlay.png"))
-		self.application.file_handler.change(
-			"active_image_path", temp_path)
+		self.application.file_handler.change("active_image_path", temp_path)
 		self.main_screen.active_layers = overlays
 
 	def create_composite_image(self, overlays):

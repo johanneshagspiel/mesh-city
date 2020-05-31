@@ -23,15 +23,11 @@ class DeepForest:
 		:return: nothing
 		"""
 		os.makedirs(
-			Path.joinpath(
-			self.application.file_handler.folder_overview["active_layer_path"], "trees"
-			)
+			Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"], "trees")
 		)
 		self.application.file_handler.change(
 			"selected_layer_path",
-			Path.joinpath(
-			self.application.file_handler.folder_overview["active_layer_path"], "trees"
-			)
+			Path.joinpath(self.application.file_handler.folder_overview["active_layer_path"], "trees")
 		)
 
 		os.rename(

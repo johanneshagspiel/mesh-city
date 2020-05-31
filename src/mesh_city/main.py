@@ -10,7 +10,7 @@ def main() -> None:
 	Entry function of the application.
 	:return: Nothing.
 	"""
-	Application()
+	Application().start()
 
 
 if __name__ == '__main__':
