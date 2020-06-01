@@ -4,8 +4,10 @@ A module containing the export window class
 
 import os
 from pathlib import Path
-from tkinter import Button, Checkbutton, IntVar, Label, Toplevel, filedialog
+from tkinter import Button, Checkbutton, filedialog, IntVar, Label, Toplevel
+
 from mesh_city.imagery_provider.request_creator import RequestCreator
+
 
 class ExportWindow:
 	"""
@@ -28,14 +30,16 @@ class ExportWindow:
 		self.top_label.grid(row=0)
 
 		self.temp_list = []
-		name_active_request = self.application.file_handler.folder_overview["active_request_path"].name
+		name_active_request = self.application.file_handler.folder_overview["active_request_path"
+																			].name
 		temp_text = "Active Request: " + name_active_request
 		self.temp_name = Button(
 			self.top,
 			text=temp_text,
 			width=20,
 			height=3,
-			command=lambda name_active_request=name_active_request: self.load_request(name_active_request),
+			command=lambda name_active_request=name_active_request: self.
+			load_request(name_active_request),
 			bg="grey"
 		)
 		self.temp_name.grid(row=1, column=0)
@@ -43,7 +47,7 @@ class ExportWindow:
 
 		counter = 2
 		for temp in self.image_path.glob('*'):
-			if temp.is_file() is False:
+			if not temp.is_file():
 				name_directory = temp.name
 				if name_directory != name_active_request:
 					self.temp_name = Button(
@@ -51,7 +55,8 @@ class ExportWindow:
 						text=name_directory,
 						width=20,
 						height=3,
-						command=lambda name_directory=name_directory: self.load_request(name_directory),
+						command=lambda name_directory=name_directory: self.
+						load_request(name_directory),
 						bg="grey"
 					)
 					self.temp_name.grid(row=counter, column=0)
@@ -69,14 +74,19 @@ class ExportWindow:
 
 		self.old_path = self.application.file_handler.folder_overview["active_request_path"]
 
-		self.application.file_handler.change("active_request_path", Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"], name_directory))
+		self.application.file_handler.change(
+			"active_request_path",
+			Path.joinpath(self.application.file_handler.folder_overview["image_path"], name_directory)
+		)
 
-		temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob(
-			"building_instructions_*"))
+		temp_path = next(
+			self.application.file_handler.folder_overview["active_request_path"].
+			glob("building_instructions_*")
+		)
 
 		temp_building_instructions_request = self.application.log_manager.read_log(
-			path=temp_path, type_document="building_instructions_request")
+			path=temp_path, type_document="building_instructions_request"
+		)
 
 		self.top_label.configure(text="What do you want to export?")
 
@@ -108,8 +118,13 @@ class ExportWindow:
 		temp_counter = 0
 		temp_sum = 0
 		temp_request_creator = RequestCreator(self.application)
-		temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob("building_instructions_request*"))
-		temp_building_instructions = self.application.log_manager.read_log(temp_path, "building_instructions_request")
+		temp_path = next(
+			self.application.file_handler.folder_overview["active_request_path"].
+			glob("building_instructions_request*")
+		)
+		temp_building_instructions = self.application.log_manager.read_log(
+			temp_path, "building_instructions_request"
+		)
 
 		for element in self.temp_int_var_list:
 			if element.get() == 1:
@@ -131,7 +146,9 @@ class ExportWindow:
 			for element in to_export:
 				temp_path = Path.joinpath(temp_new_path, element)
 				os.makedirs(temp_path)
-				temp_request_creator.follow_move_instructions(element, temp_building_instructions, temp_path)
+				temp_request_creator.follow_move_instructions(
+					element, temp_building_instructions, temp_path
+				)
 
 			self.application.file_handler.change("active_request_path", self.old_path)
 			self.top.destroy()
