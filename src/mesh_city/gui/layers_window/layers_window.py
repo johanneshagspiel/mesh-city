@@ -49,7 +49,6 @@ class LayersWindow:
 			self.temp_int_var_list = []
 
 			for layer in temp_list_detected_layers:
-				print(self.main_screen.active_layers)
 				if layer in self.main_screen.active_layers:
 					self.temp_int_var_list.append(IntVar(value=1))
 				else:

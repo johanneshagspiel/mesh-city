@@ -4,14 +4,11 @@ their APIs such that data for larger geographical areas can be made and the resu
 requests are stored on disk.
 """
 
-import math
+
 import os
 from pathlib import Path
 
-from geopy import distance
-
 from mesh_city.imagery_provider.request_creator import RequestCreator
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest

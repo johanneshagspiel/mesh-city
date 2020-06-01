@@ -86,9 +86,6 @@ class RequestCreator:
 		:param overlays: which layers to use for the composite image
 		:return: nothing (creates a composite image and updates the main screen with it)
 		"""
-
-		print(overlays)
-
 		base = Image.open(next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")))
 		base.putalpha(255)
 
