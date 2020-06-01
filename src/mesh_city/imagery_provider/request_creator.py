@@ -120,33 +120,37 @@ class RequestCreator:
 
 	# pylint: disable= E0602
 
-	# def create_map_image(self, overlays):
-	# 	"""
-	# 	Creates a map image based on the previously created map overlays
-	# 	:param overlays: the overlays to use
-	# 	:return: nothing (a map is created in temp)
-	# 	"""
-	# 	base = Image.new('RGB', (600, 600), (255, 255, 255))
-	# 	base.putalpha(255)
-	#
-	# 	for element in overlays:
-	# 		# pylint: disable = E1101
-	# 		temp_dic_element = self.map_overlay_overview[element]
-	# 		temp_path = temp_dic_element[0]
-	#
-	# 		to_overlay = Image.open(temp_path)
-	# 		resized_base = base.resize(
-	# 			(temp_dic_element[1][0], temp_dic_element[1][1]), Image.ANTIALIAS
-	# 		)
-	# 		resized_base.alpha_composite(to_overlay)
-	#
-	# 	temp_path = Path.joinpath(
-	# 			self.application.file_handler.folder_overview["temp_path"],"map")
-	#
-	# 	# pylint: disable=E1101
-	# 	if temp_path.exists() is False:
-	# 		os.makedirs(temp_path)
-	#
-	# 	resized_base.save(Path.joinpath(temp_path, "concat_image_map_overlay.png"))
-	# 	self.application.file_handler.change(
-	# 		"active_image_path", temp_path)
+	def create_map_image(self, building_instructions_request, overlays):
+		"""
+		Creates a map image based on the previously created map overlays
+		:param overlays: the overlays to use
+		:return: nothing (a map is created in temp)
+		"""
+		base = Image.new('RGB', (600, 600), (255, 255, 255))
+		base.putalpha(255)
+
+		temp_path = Path.joinpath(
+			self.application.file_handler.folder_overview["temp_map_path"],
+			"combined_image_map.png")
+		self.follow_create_instructions([overlays[0], "Map"], building_instructions_request,
+		                                temp_path)
+
+		to_overlay = Image.open(
+			Path.joinpath(self.file_handler.folder_overview["temp_map_path"],
+			              "combined_image_map.png"))
+
+		resized_overlay = to_overlay.resize((600, 600), Image.ANTIALIAS)
+		resized_base = base.resize((600, 600), Image.ANTIALIAS)
+		resized_base.alpha_composite(resized_overlay)
+
+		resized_base.save(
+			Path.joinpath(
+				self.application.file_handler.folder_overview["temp_map_path"],
+				"concat_image_map.png"
+			)
+		)
+		self.application.file_handler.change(
+			"active_image_path", self.application.file_handler.folder_overview["temp_map_path"]
+		)
+
+		# pylint: disable= E0602
