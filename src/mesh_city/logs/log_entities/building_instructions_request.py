@@ -21,7 +21,7 @@ class BuildingInstructionsRequest(LogEntity):
 			self.instructions = {}
 		else:
 			self.instructions = {}
-			self.load_json(json)
+			self.load_storage(json)
 
 	def action(self, logs):
 		"""
@@ -29,9 +29,9 @@ class BuildingInstructionsRequest(LogEntity):
 		:param logs: other logs where this one should be incorporated
 		:return: the class as json object
 		"""
-		return self.for_json()
+		return self.for_storage()
 
-	def load_json(self, json):
+	def load_storage(self, json):
 		"""
 		Sets up the fields based on a json file
 		:param json: the json file from which to load the data for the fields
@@ -39,7 +39,7 @@ class BuildingInstructionsRequest(LogEntity):
 		"""
 		self.instructions = json
 
-	def for_json(self):
+	def for_storage(self):
 		"""
 		Turns the class into a json compliant form
 		:return: the class in a json compliant form

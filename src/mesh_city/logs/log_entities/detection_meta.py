@@ -14,7 +14,7 @@ class DetectionMeta(LogEntity):
 			self.information ={}
 		else:
 			self.information = {}
-			self.load_json(json)
+			self.load_storage(json)
 
 	def action(self, logs):
 		"""
@@ -22,9 +22,9 @@ class DetectionMeta(LogEntity):
 		:param logs:
 		:return:
 		"""
-		return self.for_json()
+		return self.for_storage()
 
-	def load_json(self, list_from_csv):
+	def load_storage(self, list_from_csv):
 		"""
 		How to load the class from json
 		:param json: the json file from which to log the class from
@@ -45,11 +45,7 @@ class DetectionMeta(LogEntity):
 		self.information["Amount"] = object_count - 1
 		self.information["Objects"] = temp_object
 
-
-	def for_json(self):
-		return self.information
-
-	def for_csv(self):
+	def for_storage(self):
 		"""
 		Turns the class into a csv compliant form
 		:return: the class in csv compliant form

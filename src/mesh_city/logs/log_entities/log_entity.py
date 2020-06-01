@@ -18,11 +18,19 @@ class LogEntity(ABC):
 		self.path_to_store = path_to_store
 
 	@abstractmethod
-	def for_json(self):
+	def for_storage(self):
 		"""
-		Turns one log entry into a form that can be stored as a json
-		:param self: the object to be stored as a json
-		:return: a json compliant string
+		Turns one log entry into a form that can be stored following a storage standard (i.e. csv or json)
+		:param self: the object to be stored
+		:return: the object in a storage standard compliant form
+		"""
+
+	@abstractmethod
+	def load_storage(self, storage):
+		"""
+		Method to load a class from a stored file
+		:param storage: the file
+		:return: nothing (the fields of the class are initialized correctly)
 		"""
 
 	@abstractmethod

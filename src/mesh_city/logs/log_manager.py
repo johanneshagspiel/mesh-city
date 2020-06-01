@@ -93,11 +93,11 @@ class LogManager:
 		if type == "csv":
 			with open(log_entry.path_to_store, 'w') as csv_file:
 				wr = csv.writer(csv_file, delimiter=",")
-				for list in log_entry.for_csv():
+				for list in log_entry.for_storage():
 					wr.writerow(list)
 		else:
 			with open(log_entry.path_to_store, "w") as json_log:
-				json.dump(log_entry.for_json(), fp=json_log, indent=4)
+				json.dump(log_entry.for_storage(), fp=json_log, indent=4)
 				json_log.close()
 
 	def read_log(self, path, type_document):

@@ -68,7 +68,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'geocoding': 0, 'static_map': 0, 'total': 0
 			}
 			},
-			entity.for_json()
+			entity.for_storage()
 		)
 
 

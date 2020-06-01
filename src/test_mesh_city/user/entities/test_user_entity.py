@@ -52,9 +52,9 @@ class ImageProviderEntityTest(unittest.TestCase):
 			}
 			}
 			},
-			user_entity.for_json()
+			user_entity.for_storage()
 		)
-		print(user_entity.for_json())
+		print(user_entity.for_storage())
 
 	def test_serialize_deserialize(self):
 		try:

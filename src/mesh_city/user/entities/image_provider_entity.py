@@ -56,9 +56,9 @@ class ImageProviderEntity(LogEntity):
 			self.quota = None
 			self.date_reset = None
 			self.map_entity = None
-			self.load_json(json_data)
+			self.load_storage(json_data)
 
-	def load_json(self, json_data):
+	def load_storage(self, json_data):
 		"""
 		Sets the fields of the class based on a json file
 		:param json_data:
@@ -71,7 +71,7 @@ class ImageProviderEntity(LogEntity):
 		self.date_reset = json_data["date_reset"]
 		self.calculate_end_of_month(datetime.today())
 
-	def for_json(self):
+	def for_storage(self):
 		"""
 			Turns the class into a json compliant form
 			:return: the class in a json compliant form
@@ -118,7 +118,7 @@ class ImageProviderEntity(LogEntity):
 		:param logs: global log context
 		:return: just turns the object to json
 		"""
-		return self.for_json()
+		return self.for_storage()
 
 	def load_map_entity(self):
 		"""
