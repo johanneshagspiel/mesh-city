@@ -53,6 +53,8 @@ class RequestCreator:
 			result_image.save(fp=temp_path, format="png")
 			self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])
 
+			print(self.file_handler.folder_overview["active_image_path"])
+
 		if list_to_make[0] == "Trees":
 			temp_to_build = building_instructions_request.instructions[list_to_make[0]][list_to_make[1]]
 			iteration_amount = temp_to_build[0]

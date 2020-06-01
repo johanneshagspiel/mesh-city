@@ -133,7 +133,6 @@ class RequestManager:
 				counter += 1
 
 				if counter == 10 and last_round:
-
 					self.normal_building_instructions.append(self.temp_list)
 
 					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
@@ -156,7 +155,7 @@ class RequestManager:
 
 					temp_request_creator = RequestCreator(application=self.application)
 					temp_request_creator.follow_create_instructions(
-						self.top_down_provider.name, temp_building_instructions_request
+						[self.top_down_provider.name], temp_building_instructions_request
 					)
 
 		# download and store the information in case a whole area was asked for
@@ -244,7 +243,7 @@ class RequestManager:
 
 					temp_request_creator = RequestCreator(application=self.application)
 					temp_request_creator.follow_create_instructions(
-						self.top_down_provider.name, temp_building_instructions_request
+						[self.top_down_provider.name], temp_building_instructions_request
 					)
 
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
