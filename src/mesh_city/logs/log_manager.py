@@ -107,33 +107,29 @@ class LogManager:
 		:return: whatever the result of building that object is
 		"""
 
-		if type_document == "building_instructions_request":
+		if type_document == "building_instructions_request" or type_document == "users.json" \
+			or type_document == "coordinate_overview.json":
+
 			with open(path, "r") as json_log:
 				data = json_log.read()
 			logs = json.loads(data)
 
-			return BuildingInstructionsRequest(path_to_store=path, json=logs)
+			if type_document == "building_instructions_request":
+				return BuildingInstructionsRequest(path_to_store=path, json=logs)
 
-		if type_document == "users.json":
-			with open(path, "r") as json_log:
-				data = json_log.read()
-			logs = json.loads(data)
-			temp_dic = {}
+			if type_document == "users.json":
+				temp_dic = {}
+				for key, value in logs.items():
+					temp_dic_entry = {key: value}
+					temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
+				return temp_dic
 
-			for key, value in logs.items():
-				temp_dic_entry = {key: value}
-				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
-			return temp_dic
-
-		if type_document == "coordinate_overview.json":
-			with open(path, "r") as json_log:
-				data = json_log.read()
-			logs = json.loads(data)
-
-			temp_coordinate_overview = CoordinateOverview(
-				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs
-			)
-			self.file_handler.coordinate_overview = temp_coordinate_overview
+			if type_document == "coordinate_overview.json":
+				temp_coordinate_overview = CoordinateOverview(
+					path_to_store=self.file_handler.folder_overview["coordinate_overview.json"],
+					json=logs
+				)
+				self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		if type_document == "information":
 			temp_list = []
