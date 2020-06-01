@@ -87,6 +87,22 @@ class ExportWindow:
 		self.check_box_list = []
 		self.temp_int_var_list = []
 
+
+
+		# temp_list_detected_layers = []
+		# for key in self.building_instructions.instructions.keys():
+		# 	temp_list_detected_layers.append(key)
+		#
+		# temp_list_lower_level = []
+		# for layer in temp_list_detected_layers:
+		# 	if layer != "Google Maps":
+		# 		for sub_layer in self.building_instructions.instructions[key]:
+		# 			temp_list_lower_level.append(sub_layer)
+
+
+
+
+
 		for key in temp_building_instructions_request.instructions.keys():
 			self.temp_int_var_list.append(IntVar())
 			self.check_box_list.append(

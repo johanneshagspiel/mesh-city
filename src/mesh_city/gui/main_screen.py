@@ -155,6 +155,12 @@ class MainScreen:
 		"""
 		GenerateWindow(self.master, self.application, self)
 
+	def delete_text(self):
+		self.information_general.configure(state='normal')
+		self.information_general.delete('1.0', END)
+		self.information_general.insert(END, "General")
+		self.information_general.configure(state='disabled')
+
 	def update_image(self):
 		"""
 		Calls methods needed to updates the image seen on the map

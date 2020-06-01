@@ -11,7 +11,7 @@ class LoadWindow:
 	A window to select an old request to load onto the map
 	"""
 
-	def __init__(self, master, application, mainscreen):
+	def __init__(self, master, application, main_screen):
 		"""
 		The initialization method. Creates a button for each old request
 		:param master: the root tkinter instance
@@ -19,7 +19,7 @@ class LoadWindow:
 		:param mainscreen: the screen from which loadwindow is called
 		"""
 
-		self.mainscreen = mainscreen
+		self.main_screen = main_screen
 		self.master = master
 		self.value = ""
 		self.application = application
@@ -82,12 +82,8 @@ class LoadWindow:
 			self.application.file_handler.change("active_image_path",
 			                         self.application.file_handler.folder_overview["temp_image_path"])
 
-		self.mainscreen.update_image()
-		self.mainscreen.layer_active = "Google Maps"
-
-		self.mainscreen.information_general.configure(state='normal')
-		self.mainscreen.information_general.delete('1.0', END)
-		self.mainscreen.information_general.insert(END, "General")
-		self.mainscreen.information_general.configure(state='disabled')
+		self.main_screen.update_image()
+		self.main_screen.layer_active = "Google Maps"
+		self.main_screen.delete_text()
 
 		self.top.destroy()

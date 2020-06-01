@@ -2,8 +2,10 @@
 This module provides a GUI interface that can be used to select different layers to appear over the
 main_screen image such as an indication where all the trees are
 """
-
+from pathlib import Path
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
+
+from mesh_city.imagery_provider.request_creator import RequestCreator
 
 
 class LayersWindow:
@@ -26,19 +28,28 @@ class LayersWindow:
 
 		top = self.top = Toplevel(master)
 
-		self.top_label = Label(top, text="Tick the layers you want to see")
-		self.top_label.grid(row=0)
+		temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob('building_instructions_request_*'))
+		self.building_instructions = self.application.log_manager.read_log(temp_path, "building_instructions_request")
 
-		counter = 1
-		self.check_box_list = []
-		self.temp_int_var_list = []
+		temp_list_detected_layers = []
+		for key in self.building_instructions.instructions.keys():
+			if key != "Google Maps":
+				temp_list_detected_layers.append(key)
 
-		if len(self.main_screen.overlay_creator.overlay_overview.items()) == 0:
-			self.top_label.configure(text="There are no layers to load. Detect something first.")
+		if len(temp_list_detected_layers) is 0:
+			self.top_label = Label(top, text="There are no layers to show. You have to detect something first.")
+			self.top_label.grid(row=0)
 
 		else:
-			for key in self.main_screen.overlay_creator.overlay_overview.keys():
-				if key in self.main_screen.active_layers:
+			self.top_label = Label(top, text="Tick the layers you want to see")
+			self.top_label.grid(row=0)
+
+			counter = 1
+			self.check_box_list = []
+			self.temp_int_var_list = []
+
+			for layer in temp_list_detected_layers:
+				if layer in self.main_screen.active_layers:
 					self.temp_int_var_list.append(IntVar(value=1))
 				else:
 					self.temp_int_var_list.append(IntVar())
@@ -48,8 +59,8 @@ class LayersWindow:
 				self.check_box_list[counter - 1].grid(row=counter)
 				counter += 1
 
-			self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
-			self.confirm_button.grid(row=counter)
+				self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
+				self.confirm_button.grid(row=counter)
 
 	def cleanup(self):
 		"""
@@ -68,15 +79,25 @@ class LayersWindow:
 				temp_sum += 1
 			temp_counter += 1
 
+		temp_request_creator = RequestCreator(application=self.application)
 		if temp_sum == 0:
 			self.main_screen.active_layers = []
-			self.application.file_handler.change(
-				"active_image_path",
-				self.application.file_handler.folder_overview["active_tile_path"]
-			)
+
+			temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_image_path"],
+			                          "concat_image_normal.png")
+			# TODO change when using other satillte image providers
+			temp_request_creator.follow_create_instructions(["Google Maps", "Paths"],
+			                                                self.building_instructions,
+			                                                temp_path)
+			self.application.file_handler.change("active_image_path",
+			                         self.application.file_handler.folder_overview["temp_image_path"])
+
+			self.main_screen.delete_text()
 			self.main_screen.update_image()
 			self.top.destroy()
+
 		else:
-			self.main_screen.overlay_creator.create_overlay_image(overlays)
+			temp_request_creator.create_overlay_image(self.building_instructions, overlays, (600, 600))
+
 			self.main_screen.update_image()
 			self.top.destroy()
