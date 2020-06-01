@@ -40,14 +40,17 @@ class ImageUtil:
 			image_1=self.get_concat_horizontally(image_1=up_left, image_2=up_center), image_2=up_right
 		)
 		level_1 = self.get_concat_horizontally(
-			image_1=self.get_concat_horizontally(image_1=center_left, image_2=center_center), image_2=center_right
+			image_1=self.get_concat_horizontally(image_1=center_left, image_2=center_center),
+			image_2=center_right
 		)
 		level_2 = self.get_concat_horizontally(
-			image_1=self.get_concat_horizontally(image_1=down_left, image_2=down_center), image_2=down_right
+			image_1=self.get_concat_horizontally(image_1=down_left, image_2=down_center),
+			image_2=down_right
 		)
 
-		temp_concat_image = self.get_concat_vertically(image_1=self.get_concat_vertically(image_1=level_2, image_2=level_1),
-			image_2=level_0)
+		temp_concat_image = self.get_concat_vertically(
+			image_1=self.get_concat_vertically(image_1=level_2, image_2=level_1), image_2=level_0
+		)
 
 		return temp_concat_image
 
@@ -141,12 +144,14 @@ class ImageUtil:
 			)
 		result = images[0]
 		for x_coord in range(1, width):
-			result = ImageUtil.get_concat_horizontally(self, image_1=result, image_2=images[x_coord])
+			result = ImageUtil.get_concat_horizontally(
+				self, image_1=result, image_2=images[x_coord]
+			)
 		for y_coord in range(1, height):
 			new_layer = images[y_coord * width]
 			for x_coord in range(1, width):
-				new_layer = ImageUtil.get_concat_horizontally(self,
-					image_1=new_layer, image_2=images[y_coord * width + x_coord]
+				new_layer = ImageUtil.get_concat_horizontally(
+					self, image_1=new_layer, image_2=images[y_coord * width + x_coord]
 				)
 			result = ImageUtil.get_concat_vertically(self, image_1=result, image_2=new_layer)
 		return result
@@ -158,8 +163,10 @@ class ImageUtil:
 		:param image_2: The right image.
 		:return: The combined image.
 		"""
-		# TODO change in the future potentially
-		temp = Image.new("RGBA", (image_1.width + image_2.width, image_1.height))
+
+		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
+		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
+			temp = Image.new("RGBA", (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
@@ -172,7 +179,10 @@ class ImageUtil:
 		:return: Nothing.
 		"""
 		# TODO change in the future potentially
-		temp = Image.new("RGBA", (image_1.width, image_1.height + image_2.height))
+
+		temp = Image.new("RGB", (image_1.width, image_1.height + image_2.height))
+		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
+			temp = Image.new("RGBA", (image_1.width, image_1.height + image_2.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp

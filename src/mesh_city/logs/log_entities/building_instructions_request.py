@@ -18,7 +18,7 @@ class BuildingInstructionsRequest(LogEntity):
 		"""
 		super().__init__(path_to_store=path_to_store)
 		if json is None:
-			self.instructions ={}
+			self.instructions = {}
 		else:
 			self.instructions = {}
 			self.load_json(json)

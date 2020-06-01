@@ -170,6 +170,7 @@ class MainScreen:
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
+		print(self.application.file_handler.folder_overview["active_image_path"])
 		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
