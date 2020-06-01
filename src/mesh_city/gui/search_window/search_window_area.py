@@ -9,7 +9,7 @@ from mesh_city.gui.search_window.preview_window import PreviewWindow
 
 class SearchWindowLocationArea:
 	"""
-	A pop-up type_of_detection GUI element that the user can fill in to make an area-type_of_detection request.
+	A pop-up type GUI element that the user can fill in to make an area-type request.
 	.. todo:: Make a pop-up class that this inherits from.
 	"""
 
@@ -65,10 +65,10 @@ class SearchWindowLocationArea:
 
 	def change_search_type(self, first_time, name):
 		"""
-		Changes the search type_of_detection from address-based to coordinate-based or the other way around.
-		:param first_time: A flag indicating whether this is the first time the type_of_detection button is pressed
+		Changes the search type from address-based to coordinate-based or the other way around.
+		:param first_time: A flag indicating whether this is the first time the type button is pressed
 		:param name: The name indicating which of the points of the rectangle-defined area is to
-		have a different type_of_detection.
+		have a different typ.
 		:return:
 		"""
 
@@ -102,7 +102,7 @@ class SearchWindowLocationArea:
 
 	def cleanup(self):
 		"""
-		Makes the area-type_of_detection request and cleans up after itself by tearing down the GUI and
+		Makes the area-type request and cleans up after itself by tearing down the GUI and
 		effectively returning control to the main screen.
 		"""
 		self.value = [
