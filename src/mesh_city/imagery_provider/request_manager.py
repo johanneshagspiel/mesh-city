@@ -42,6 +42,8 @@ class RequestManager:
 
 		self.normal_building_instructions = None
 		self.temp_list = None
+		self.zoom = None
+		self.new_folder_path = None
 
 	def make_request_for_block(self, coordinates, zoom=None):
 		"""
@@ -63,7 +65,6 @@ class RequestManager:
 
 		if len(coordinates) > 9:
 			temp = coordinates.pop(0)
-			max_latitude = temp[0]
 			max_tile_right = int(temp[1])
 
 			self.normal_building_instructions["Paths"].append(int(temp[1]))
@@ -87,19 +88,9 @@ class RequestManager:
 		self.new_folder_path = Path.joinpath(new_folder_path_request, "google_maps")
 		os.makedirs(self.new_folder_path)
 
-		# some information to show in the terminal
-		number_tile_downloaded = 0
-		tile_number_latitude = 0
-		tile_number_longitude = 0
-
-		#bounding_box = [tile_information[0], tile_information[-1]]
-
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
-
-		number_requests_temp = number_requests
-		total_tile_numbers = number_requests / 9
 
 		overall_list_coordinates = []
 		temp_list_coordinates = []
@@ -137,7 +128,8 @@ class RequestManager:
 		overall_list_coordinates.append(temp_list_coordinates)
 		overall_list_path.append(temp_list_path)
 
-		downloaded_images = list(map(lambda x : self.get_missing_images(x), to_download))
+		# pylint: disable=W0108
+		downloaded_images = list(map(lambda x : self.download_image(x), to_download))
 
 		temp_counter = 0
 		for (round_counter, position_counter) in to_download_positions:
@@ -175,7 +167,13 @@ class RequestManager:
 
 		return self.new_folder_path
 
-	def get_missing_images(self, location):
+	def download_image(self, location):
+		"""
+		Method to download an image, add its path to the overall coordinate dictionary and return
+		the path so that it can be added to the building dictionary
+		:param location: the location where to download the image from
+		:return: the path where the image is stored
+		"""
 		number = str(location[1])
 		latitude = str(location[0][0])
 		longitude = str(location[0][1])

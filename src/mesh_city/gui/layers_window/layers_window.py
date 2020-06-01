@@ -36,8 +36,8 @@ class LayersWindow:
 			if key != "Google Maps":
 				temp_list_detected_layers.append(key)
 
-		if len(temp_list_detected_layers) is 0:
-			self.top_label = Label(top, text="There are no layers to show. You have to detect something first.")
+		if len(temp_list_detected_layers) == 0:
+			self.top_label = Label(top, text="There are no layers to show. Detect something first.")
 			self.top_label.grid(row=0)
 
 		else:
@@ -49,12 +49,13 @@ class LayersWindow:
 			self.temp_int_var_list = []
 
 			for layer in temp_list_detected_layers:
+				print(self.main_screen.active_layers)
 				if layer in self.main_screen.active_layers:
 					self.temp_int_var_list.append(IntVar(value=1))
 				else:
 					self.temp_int_var_list.append(IntVar())
 				self.check_box_list.append(
-					Checkbutton(self.top, text=key, variable=self.temp_int_var_list[counter - 1])
+					Checkbutton(self.top, text=layer, variable=self.temp_int_var_list[counter - 1])
 				)
 				self.check_box_list[counter - 1].grid(row=counter)
 				counter += 1
@@ -99,5 +100,6 @@ class LayersWindow:
 		else:
 			temp_request_creator.create_overlay_image(self.building_instructions, overlays, (600, 600))
 
+			self.main_screen.active_layers.extend(overlays)
 			self.main_screen.update_image()
 			self.top.destroy()

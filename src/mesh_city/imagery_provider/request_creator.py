@@ -49,14 +49,9 @@ class RequestCreator:
 
 			result_image.save(fp=path_to_store, format="png")
 
-			#self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])
-
 		if to_make[0] == "Trees":
 			temp_to_build = building_instructions_request.instructions[to_make[0]][to_make[1]]
 			iteration_amount = temp_to_build[0]
-
-			# temp_path = Path.joinpath(self.file_handler.folder_overview["temp_overlay_path"],
-			#                           "combined_image_overlay.png")
 
 			if iteration_amount == 0:
 				result_image = Image.open(temp_to_build[1][0])
@@ -69,9 +64,6 @@ class RequestCreator:
 
 			result_image.save(fp=path_to_store, format="png")
 
-			# self.file_handler.change("active_image_path",
-			#                          self.file_handler.folder_overview["temp_overlay_path"])
-
 	def follow_move_instructions(self, to_move, building_instructions_request, path_to_move):
 		"""
 		Method to move all the files stored in the path list to another folder
@@ -80,7 +72,7 @@ class RequestCreator:
 		:param path_to_move: where to move something to
 		:return: nothing (all the files are moved)
 		"""
-		temp_to_move = building_instructions_request.instructions[to_move]
+		temp_to_move = building_instructions_request.instructions[to_move[0]][to_move[1]]
 
 		for outer_counter in range(1, len(temp_to_move)):
 			for number in range(0, len(temp_to_move[outer_counter])):
@@ -94,6 +86,8 @@ class RequestCreator:
 		:param overlays: which layers to use for the composite image
 		:return: nothing (creates a composite image and updates the main screen with it)
 		"""
+
+		print(overlays)
 
 		base = Image.open(next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")))
 		base.putalpha(255)

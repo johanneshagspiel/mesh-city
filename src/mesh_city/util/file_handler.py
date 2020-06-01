@@ -27,7 +27,7 @@ class FileHandler:
 			"log_request_.json": Path.joinpath(self.root, 'resources', 'logs', 'log_request_.json'),
 
 			"active_request_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
-			"active_image_path": Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
+			"active_image_path": Path.joinpath(self.root, 'resources', 'temp', 'image'),
 			"active_information_path" : Path.joinpath(self.root, 'resources', 'temp', 'meta'),
 
 			"active_raw_data_path": Path.joinpath(self.root, 'resources', 'images', "request_0"),
