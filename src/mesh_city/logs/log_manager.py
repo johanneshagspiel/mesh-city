@@ -1,7 +1,7 @@
 """
 A module that contains the log manager who is responsible for performing all the actions associated with logs
 """
-
+import csv
 import json
 import os
 
@@ -64,31 +64,41 @@ class LogManager:
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
-	def write_log(self, log_entry):
+	def write_log(self, log_entry,type=None):
 		"""
 		A method to write one log entry entity to the associated correct location
+		:param type: what type of file you want to write to
 		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
+		if type == "csv":
+			return None
+		else:
+			with open(log_entry.path_to_store, "r") as json_log:
+				data = json_log.read()
+			logs = json.loads(data)
+			result = log_entry.action(logs)
 
-		with open(log_entry.path_to_store, "r") as json_log:
-			data = json_log.read()
-		logs = json.loads(data)
-		result = log_entry.action(logs)
+			with open(log_entry.path_to_store, "w") as json_log:
+				json.dump(result, fp=json_log, indent=4)
+				json_log.close()
 
-		with open(log_entry.path_to_store, "w") as json_log:
-			json.dump(result, fp=json_log, indent=4)
-			json_log.close()
-
-	def create_log(self, log_entry):
+	def create_log(self, log_entry, type=None):
 		"""
 		Method to store one new log
+		:param type: what type of file you want to write to
 		:param log_entry: the log entry to store
 		:return: nothing (the log is stored to file)
 		"""
-		with open(log_entry.path_to_store, "w") as json_log:
-			json.dump(log_entry.for_json(), fp=json_log, indent=4)
-			json_log.close()
+		if type == "csv":
+			with open(log_entry.path_to_store, 'w') as csv_file:
+				wr = csv.writer(csv_file, delimiter=",")
+				for list in log_entry.for_csv():
+					wr.writerow(list)
+		else:
+			with open(log_entry.path_to_store, "w") as json_log:
+				json.dump(log_entry.for_json(), fp=json_log, indent=4)
+				json_log.close()
 
 	def read_log(self, path, type_document):
 		"""
@@ -96,29 +106,42 @@ class LogManager:
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
-		with open(path, "r") as json_log:
-			data = json_log.read()
-		logs = json.loads(data)
-
-		temp_dic = {}
-
 
 		if type_document == "building_instructions_request":
+			with open(path, "r") as json_log:
+				data = json_log.read()
+			logs = json.loads(data)
+
 			return BuildingInstructionsRequest(path_to_store=path, json=logs)
 
 		if type_document == "users.json":
+			with open(path, "r") as json_log:
+				data = json_log.read()
+			logs = json.loads(data)
+			temp_dic = {}
+
 			for key, value in logs.items():
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
 
 		if type_document == "coordinate_overview.json":
+			with open(path, "r") as json_log:
+				data = json_log.read()
+			logs = json.loads(data)
+
 			temp_coordinate_overview = CoordinateOverview(
 				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs
 			)
 			self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		if type_document == "information":
-			return DetectionMeta(path_to_store=path, json=logs)
+			temp_list = []
+			with open(path, newline='') as csvfile:
+				csv_reader = csv.reader(csvfile, delimiter=',')
+				for row in csv_reader:
+					temp_list.append(row)
+
+			return DetectionMeta(path_to_store=path, json=temp_list)
 
 		return None

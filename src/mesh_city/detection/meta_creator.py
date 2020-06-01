@@ -26,7 +26,7 @@ class MetaCreator:
 		:return: nothing (creates a new log with all the information from the detection algorithm)
 		"""
 
-		temp_name = "meta_tile_" + str(number) + ".json"
+		temp_name = "meta_tile_" + str(number) + ".csv"
 		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["active_meta_path"], temp_name)
 
 		to_store = DetectionMeta(path_to_store=temp_to_store)
@@ -64,7 +64,7 @@ class MetaCreator:
 
 			to_store.information["Amount"] = object_count
 
-			self.application.log_manager.create_log(to_store)
+			self.application.log_manager.create_log(to_store, "csv")
 
 			self.building_instructions.instructions[detection_algorithm]["Meta"][1].append(str(temp_to_store))
 
@@ -78,7 +78,7 @@ class MetaCreator:
 		:return: nothing (created a log combining the information from the different tiles)
 		"""
 
-		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json")
+		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.csv")
 		combined = DetectionMeta(path_to_store=temp_to_store)
 
 		temp_amount = 0
@@ -97,4 +97,5 @@ class MetaCreator:
 
 		combined.information["Amount"] = temp_amount
 		combined.information["Objects"] = temp_object
-		self.application.log_manager.create_log(combined)
+
+		self.application.log_manager.create_log(combined, "csv")

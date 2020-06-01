@@ -85,10 +85,6 @@ class RequestManager:
 		self.new_folder_path = Path.joinpath(new_folder_path_request, "google_maps")
 		os.makedirs(self.new_folder_path)
 
-		number_requests = len(coordinates)
-		print("Requestnumber: " + str(self.request_number))
-		print("Total Images to download: " + str(number_requests))
-
 		overall_list_coordinates = []
 		temp_list_coordinates = []
 

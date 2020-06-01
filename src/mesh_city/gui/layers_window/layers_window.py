@@ -101,4 +101,5 @@ class LayersWindow:
 
 			self.main_screen.active_layers.extend(overlays)
 			self.main_screen.update_image()
+			self.main_screen.update_text()
 			self.top.destroy()

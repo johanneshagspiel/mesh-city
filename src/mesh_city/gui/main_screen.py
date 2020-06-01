@@ -11,6 +11,7 @@ from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
+from mesh_city.gui.eco_window.eco_window import EcoWindow
 
 class MainScreen:
 	"""
@@ -73,7 +74,7 @@ class MainScreen:
 		self.map_button.grid(row=4, column=0)
 
 		self.eco_button = Button(
-			self.left_bar, text="Eco", width=6, height=3, command=None, bg="grey"
+			self.left_bar, text="Eco", width=6, height=3, command=self.eco_window, bg="grey"
 		)
 		self.eco_button.grid(row=5, column=0)
 
@@ -164,6 +165,9 @@ class MainScreen:
 		:return:
 		"""
 		MapWindow(self.master, self.application, self)
+
+	def eco_window(self):
+		EcoWindow(self.master, self.application, self)
 
 	def update_image(self):
 		"""

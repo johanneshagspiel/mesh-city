@@ -83,3 +83,6 @@ class OverlayCreator:
 			tree_map_overlay.save(temp_path, format="png")
 
 			self.building_instructions.instructions[detection_algorithm]["Map"][1].append(str(temp_path))
+
+	def create_image_with_more_trees(self, trees_to_add, detection_info):
+		return None
