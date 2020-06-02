@@ -20,47 +20,47 @@ class FileHandler:
 
 		self.folder_overview = {
 			"resource_path":
-			Path.joinpath(self.root, 'resources'),
+			self.root.joinpath("resources"),
 			"image_path":
-			Path.joinpath(self.root, 'resources', 'images'),
+			self.root.joinpath("resources", "images"),
 			"temp_path":
-			Path.joinpath(self.root, 'resources', 'temp'),
+			self.root.joinpath("resources", "temp"),
 			"users.json":
-			Path.joinpath(self.root, 'resources', 'user', 'users.json'),
+			self.root.joinpath("resources", "user", "users.json"),
 			"coordinate_overview.json":
-			Path.joinpath(self.root, 'resources', 'images', 'coordinate_overview.json'),
+			self.root.joinpath("resources", "images", "coordinate_overview.json"),
 			"log_request_.json":
-			Path.joinpath(self.root, 'resources', 'logs', 'log_request_.json'),
+			self.root.joinpath("resources", "logs", "log_request_.json"),
 			"active_request_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			self.root.joinpath("resources", "images", "request_0"),
 			"active_image_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
+			self.root.joinpath("resources", "images", "request_0", "0_tile_0_0"),
 			"active_information_path":
-			Path.joinpath(self.root, 'resources', 'temp', 'meta'),
+			self.root.joinpath("resources", "temp", "meta"),
 			"active_raw_data_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			self.root.joinpath("resources", "images", "request_0"),
 			"active_map_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			self.root.joinpath("resources", "images", "request_0"),
 			"active_overlay_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			self.root.joinpath("resources", "images", "request_0"),
 			"active_meta_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			self.root.joinpath("resources", "images", "request_0"),
 			"temp_image_path":
-			Path.joinpath(self.root, 'resources', 'temp', 'image'),
+			self.root.joinpath("resources", "temp", "image"),
 			"temp_map_path":
-			Path.joinpath(self.root, 'resources', 'temp', 'map'),
+			self.root.joinpath("resources", "temp", "map"),
 			"temp_overlay_path":
-			Path.joinpath(self.root, 'resources', 'temp', 'overlay'),
+			self.root.joinpath("resources", "temp", "overlay"),
 			"temp_detection_path":
-			Path.joinpath(self.root, 'resources', 'temp', 'detection'),
+			self.root.joinpath("resources", "temp", "detection"),
 			"temp_meta_path":
-			Path.joinpath(self.root, 'resources', 'temp', 'meta'),
+			self.root.joinpath("resources", "temp", "meta"),
 			"active_tile_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
+			self.root.joinpath("resources", "images", "request_0", "0_tile_0_0"),
 			"active_layer_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
+			self.root.joinpath("resources", "images", "request_0", "0_tile_0_0", "layers"),
 			"selected_layer_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
+			self.root.joinpath("resources", "images", "request_0", "0_tile_0_0", "layers"),
 		}
 		self.coordinate_overview = None
 
