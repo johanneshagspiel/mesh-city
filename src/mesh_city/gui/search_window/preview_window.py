@@ -38,7 +38,8 @@ class PreviewWindow:
 
 		for key, value in self.application.user_entity.image_providers.items():
 			self.temp_list.append(
-				Button(self.top, text=key, command=lambda value=value: self.check_usage(value))
+				Button(self.top, text=key, command=lambda value=value: self.check_usage(value),
+				       bg="white")
 			)
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)

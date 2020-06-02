@@ -36,7 +36,7 @@ class ExportWindow:
 			width=20,
 			height=3,
 			command=lambda name_active_request=name_active_request: self.load_request(name_active_request),
-			bg="grey"
+			bg="white"
 		)
 		self.temp_name.grid(row=1, column=0)
 		self.temp_list.append(self.temp_name)
@@ -52,7 +52,7 @@ class ExportWindow:
 						width=20,
 						height=3,
 						command=lambda name_directory=name_directory: self.load_request(name_directory),
-						bg="grey"
+						bg="white"
 					)
 					self.temp_name.grid(row=counter, column=0)
 					counter += 1
@@ -105,7 +105,7 @@ class ExportWindow:
 			self.check_box_list[counter - 1].grid(row=counter)
 			counter += 1
 
-		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
+		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup, bg="white")
 		self.confirm_button.grid(row=counter)
 
 

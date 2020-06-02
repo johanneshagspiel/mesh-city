@@ -37,10 +37,10 @@ class CreateNewUserWindow:
 
 		self.select_image_provider = Label(top, text="Please select an image provider")
 		self.select_image_provider.grid(row=2, columnspan=3)
-		self.google_maps_button = Button(top, text="Google Maps", command=self.google_maps)
+		self.google_maps_button = Button(top, text="Google Maps", command=self.google_maps, bg="white")
 		self.google_maps_button.grid(row=3, column=1)
 
-		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
+		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup, bg="white")
 
 		self.end = 3
 		self.count = 1

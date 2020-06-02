@@ -47,10 +47,12 @@ class EcoWindow:
 				self.top_label["text"] = "How do you want to make this area more eco-friendly?"
 				self.top_label.grid(row=0)
 
-				self.more_trees = Button(self.top, text="Add more trees", command=self.add_more_trees)
+				self.more_trees = Button(self.top, text="Add more trees",
+				                         command=self.add_more_trees, bg="white")
 				self.more_trees.grid(row=1)
 
-				self.test_scenarios = Button(self.top, text="Test different scenarios", command=self.test_scenarios)
+				self.test_scenarios = Button(self.top, text="Test different scenarios",
+				                             command=self.test_scenarios, bg="white")
 				self.test_scenarios.grid(row=2)
 
 	def test_scenarios(self):
@@ -65,7 +67,7 @@ class EcoWindow:
 		self.tree_increase = Scale(self.top, from_=0, to=100, orient="horizontal")
 		self.tree_increase.grid(row=1)
 
-		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup_more_trees)
+		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup_more_trees, bg="white")
 		self.confirm_button.grid(row=2)
 
 	def cleanup_more_trees(self):

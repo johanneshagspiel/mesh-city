@@ -41,7 +41,7 @@ class StartWindow:
 				width=20,
 				height=3,
 				command=lambda name_user=name_user: self.load_user(self.dic_users[name_user]),
-				bg="grey"
+				bg="white"
 			)
 			self.temp_name.grid(row=counter, column=1)
 			counter += 1
@@ -52,7 +52,7 @@ class StartWindow:
 			width=20,
 			height=3,
 			command=self.create_new_user,
-			bg="grey"
+			bg="white"
 		)
 		self.create_user.grid(row=counter, column=1)
 

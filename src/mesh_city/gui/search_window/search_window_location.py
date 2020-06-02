@@ -44,10 +44,10 @@ class SearchWindowLocation:
 		)
 		self.address_info_2.grid(row=4, column=4)
 
-		self.search_button = Button(top, text="Search", command=self.cleanup)
+		self.search_button = Button(top, text="Search", command=self.cleanup, bg="white")
 		self.search_button.grid(row=3, column=3)
 		self.type_button = Button(
-			top, text="Address", command=lambda: self.change_search_type(True)
+			top, text="Address", command=lambda: self.change_search_type(True), bg="white"
 		)
 		self.type_button.grid(row=1, column=4)
 

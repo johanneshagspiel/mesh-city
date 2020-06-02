@@ -39,7 +39,7 @@ class LoadWindow:
 					width=20,
 					height=3,
 					command=lambda name_directory=name_directory: self.load_request(name_directory),
-					bg="grey"
+					bg="white"
 				)
 				self.temp_name.grid(row=counter, column=1)
 				counter += 1

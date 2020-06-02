@@ -14,7 +14,8 @@ class TutorialWindow:
 		self.top_label = Label(self.top, text="It seems like this is the first time you use this application.")
 		self.top_label.grid(row=0)
 
-		self.search_button = Button(self.top, text="Click here to make your first request", command=self.cleanup)
+		self.search_button = Button(self.top, text="Click here to make your first request",
+		                            command=self.cleanup, bg="white")
 		self.search_button.grid(row=1)
 
 	def cleanup(self):

@@ -59,7 +59,7 @@ class LayersWindow:
 				self.check_box_list[counter - 1].grid(row=counter)
 				counter += 1
 
-				self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
+				self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup, bg="white")
 				self.confirm_button.grid(row=counter)
 
 	def cleanup(self):

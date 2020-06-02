@@ -44,7 +44,9 @@ class MapWindow:
 			self.top_label["text"] = "A map can not be generated. Detect something first."
 
 		else:
-			self.map_button = Button(self.top, text="Map", command= lambda : self.create_map(building_instructions))
+			self.map_button = Button(self.top, text="Map",
+			                         command= lambda : self.create_map(building_instructions),
+			                         bg="white")
 			self.map_button.grid(row=1)
 
 	def create_map(self, building_instructions):

@@ -58,7 +58,8 @@ class DetectionWindow:
 				self.check_box_list[counter - 1].grid(row=counter)
 				temp_counter = counter
 
-			self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions))
+			self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions),
+			                             background="white")
 			self.confirm_button.grid(row=temp_counter+1)
 
 	# pylint: disable= W0613

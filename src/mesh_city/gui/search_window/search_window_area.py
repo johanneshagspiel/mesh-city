@@ -51,15 +51,15 @@ class SearchWindowLocationArea:
 		self.temp_2 = Label(self.top, text="{house number} {street} {postcode} {city} {country}")
 		self.temp_2.grid(row=6, column=4)
 
-		Button(top, text="Search", command=self.cleanup).grid(row=5, column=3)
+		Button(top, text="Search", command=self.cleanup, bg="white").grid(row=5, column=3)
 
 		self.type_button_min = Button(
-			top, text="Address", command=lambda: self.change_search_type(True, "min")
+			top, text="Address", command=lambda: self.change_search_type(True, "min"), bg="white"
 		)
 		self.type_button_min.grid(row=1, column=4)
 
 		self.type_button_max = Button(
-			top, text="Address", command=lambda: self.change_search_type(True, "max")
+			top, text="Address", command=lambda: self.change_search_type(True, "max"), bg="white"
 		)
 		self.type_button_max.grid(row=3, column=4)
 
