@@ -3,6 +3,7 @@ Module containing the deep_forest tree detection algorithm
 """
 from deepforest import deepforest
 
+
 class DeepForest:
 	"""
 	The class deepforest which contains a preliminary method to detect trees on an image.

@@ -28,8 +28,13 @@ class LayersWindow:
 
 		top = self.top = Toplevel(master)
 
-		temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob('building_instructions_request_*'))
-		self.building_instructions = self.application.log_manager.read_log(temp_path, "building_instructions_request")
+		temp_path = next(
+			self.application.file_handler.folder_overview["active_request_path"].
+			glob('building_instructions_request_*')
+		)
+		self.building_instructions = self.application.log_manager.read_log(
+			temp_path, "building_instructions_request"
+		)
 
 		temp_list_detected_layers = []
 		for key in self.building_instructions.instructions.keys():
@@ -60,7 +65,9 @@ class LayersWindow:
 				self.check_box_list[counter - 1].grid(row=counter)
 				counter += 1
 
-				self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup, bg="white")
+				self.confirm_button = Button(
+					self.top, text="Confirm", command=self.cleanup, bg="white"
+				)
 				self.confirm_button.grid(row=counter)
 
 	def cleanup(self):
@@ -84,21 +91,26 @@ class LayersWindow:
 		if temp_sum == 0:
 			self.main_screen.active_layers = []
 
-			temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_image_path"],
-			                          "concat_image_normal.png")
+			temp_path = Path.joinpath(
+				self.application.file_handler.folder_overview["temp_image_path"],
+				"concat_image_normal.png"
+			)
 			# TODO change when using other satillte image providers
-			temp_request_creator.follow_create_instructions(["Google Maps", "Paths"],
-			                                                self.building_instructions,
-			                                                temp_path)
-			self.application.file_handler.change("active_image_path",
-			                         self.application.file_handler.folder_overview["temp_image_path"])
+			temp_request_creator.follow_create_instructions(
+				["Google Maps", "Paths"], self.building_instructions, temp_path
+			)
+			self.application.file_handler.change(
+				"active_image_path", self.application.file_handler.folder_overview["temp_image_path"]
+			)
 
 			self.main_screen.delete_text()
 			self.main_screen.update_image()
 			self.top.destroy()
 
 		else:
-			temp_request_creator.create_overlay_image(self.building_instructions, overlays, (600, 600))
+			temp_request_creator.create_overlay_image(
+				self.building_instructions, overlays, (600, 600)
+			)
 
 			self.main_screen.active_layers.extend(overlays)
 			self.main_screen.update_image()

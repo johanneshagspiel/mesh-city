@@ -3,41 +3,44 @@ source: https://stackoverflow.com/questions/43770847/play-an-animated-gif-in-pyt
 author: Novel
 """
 import tkinter as tk
-from PIL import Image, ImageTk
 from itertools import count
 
+from PIL import Image, ImageTk
+
+
 class GifImage(tk.Label):
-    """a label that displays images, and plays them if they are gifs"""
-    def load(self, im):
-        if isinstance(im, str):
-            im = Image.open(im)
-        self.loc = 0
-        self.frames = []
+	"""a label that displays images, and plays them if they are gifs"""
 
-        try:
-            for i in count(1):
-                self.frames.append(ImageTk.PhotoImage(im.copy()))
-                im.seek(i)
-        except EOFError:
-            pass
+	def load(self, im):
+		if isinstance(im, str):
+			im = Image.open(im)
+		self.loc = 0
+		self.frames = []
 
-        try:
-            self.delay = im.info['duration']
-        except:
-            self.delay = 100
+		try:
+			for i in count(1):
+				self.frames.append(ImageTk.PhotoImage(im.copy()))
+				im.seek(i)
+		except EOFError:
+			pass
 
-        if len(self.frames) == 1:
-            self.config(image=self.frames[0])
-        else:
-            self.next_frame()
+		try:
+			self.delay = im.info['duration']
+		except:
+			self.delay = 100
 
-    def unload(self):
-        self.config(image=None)
-        self.frames = None
+		if len(self.frames) == 1:
+			self.config(image=self.frames[0])
+		else:
+			self.next_frame()
 
-    def next_frame(self):
-        if self.frames:
-            self.loc += 1
-            self.loc %= len(self.frames)
-            self.config(image=self.frames[self.loc])
-            self.after(self.delay, self.next_frame)
+	def unload(self):
+		self.config(image=None)
+		self.frames = None
+
+	def next_frame(self):
+		if self.frames:
+			self.loc += 1
+			self.loc %= len(self.frames)
+			self.config(image=self.frames[self.loc])
+			self.after(self.delay, self.next_frame)

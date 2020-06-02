@@ -30,10 +30,10 @@ class SearchWindowStart:
 		Label(self.top,
 			text="What kind of search are you interested in ?").grid(row=0, columnspan=3)
 		Button(self.top, text="Area", command=self.button_area_callback, bg="white")\
-			.grid(row=1, columnspan=1)
+         .grid(row=1, columnspan=1)
 		Button(self.top, text="Location",
 			command=self.button_location_callback, bg="white")\
-			.grid(row=1, columnspan=3)
+         .grid(row=1, columnspan=3)
 
 	def button_area_callback(self):
 		"""

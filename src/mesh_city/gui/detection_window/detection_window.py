@@ -31,8 +31,13 @@ class DetectionWindow:
 		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)
 
-		temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob('building_instructions_request_*'))
-		self.building_instructions = self.application.log_manager.read_log(temp_path, "building_instructions_request")
+		temp_path = next(
+			self.application.file_handler.folder_overview["active_request_path"].
+			glob('building_instructions_request_*')
+		)
+		self.building_instructions = self.application.log_manager.read_log(
+			temp_path, "building_instructions_request"
+		)
 
 		temp_list_detected_layers = []
 		for key in self.building_instructions.instructions.keys():
@@ -40,7 +45,9 @@ class DetectionWindow:
 			if key != "Google Maps":
 				temp_list_detected_layers.append(key)
 
-		to_detect = list(set(self.list_detection_options).symmetric_difference(temp_list_detected_layers))
+		to_detect = list(
+			set(self.list_detection_options).symmetric_difference(temp_list_detected_layers)
+		)
 
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"
@@ -58,9 +65,13 @@ class DetectionWindow:
 				self.check_box_list[counter - 1].grid(row=counter)
 				temp_counter = counter
 
-			self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions),
-			                             background="white")
-			self.confirm_button.grid(row=temp_counter+1)
+			self.confirm_button = Button(
+				self.top,
+				text="Confirm",
+				command=lambda: self.cleanup(self.building_instructions),
+				background="white"
+			)
+			self.confirm_button.grid(row=temp_counter + 1)
 
 	# pylint: disable= W0613
 	def cleanup(self, building_instructions):
@@ -84,7 +95,8 @@ class DetectionWindow:
 			self.top.destroy()
 
 		else:
-			Pipeline(self.application, self.main_screen, to_detect, self.building_instructions).push_forward()
+			Pipeline(self.application, self.main_screen, to_detect,
+				self.building_instructions).push_forward()
 			self.main_screen.active_layers = to_detect
 			self.main_screen.update_image()
 			self.main_screen.update_text()

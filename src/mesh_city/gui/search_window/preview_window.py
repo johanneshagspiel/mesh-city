@@ -1,7 +1,7 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, Label, Toplevel, END
+from tkinter import Button, END, Label, Toplevel
 
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
@@ -38,8 +38,9 @@ class PreviewWindow:
 
 		for key, value in self.application.user_entity.image_providers.items():
 			self.temp_list.append(
-				Button(self.top, text=key, command=lambda value=value: self.check_usage(value),
-				       bg="white")
+				Button(
+				self.top, text=key, command=lambda value=value: self.check_usage(value), bg="white"
+				)
 			)
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)

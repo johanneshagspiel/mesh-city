@@ -3,6 +3,7 @@ A module of the detection meta class
 """
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
+
 class DetectionMeta(LogEntity):
 	"""
 	The log entity that stores meta information
@@ -11,7 +12,7 @@ class DetectionMeta(LogEntity):
 	def __init__(self, path_to_store, json=None):
 		super().__init__(path_to_store=path_to_store)
 		if json is None:
-			self.information ={}
+			self.information = {}
 		else:
 			self.information = {}
 			self.load_storage(json)
@@ -38,12 +39,17 @@ class DetectionMeta(LogEntity):
 				first_round = False
 			else:
 				if len(row) > 1:
-					temp_object[object_count] = {"label" : row[0], "xmin" :  row[1], "ymin" :  row[2],
-								                              "xmax" :  row[3], "ymax" :  row[4],
-								                                "score" :  row[5],
-								                              "length_image" :  row[6],
-								                              "height_image" :  row[7],
-								                              "area_image" :  row[8]}
+					temp_object[object_count] = {
+						"label": row[0],
+						"xmin": row[1],
+						"ymin": row[2],
+						"xmax": row[3],
+						"ymax": row[4],
+						"score": row[5],
+						"length_image": row[6],
+						"height_image": row[7],
+						"area_image": row[8]
+					}
 					object_count += 1
 
 		self.information["Amount"] = object_count - 1
@@ -57,8 +63,19 @@ class DetectionMeta(LogEntity):
 		temp_list_overall = []
 		temp_list = []
 
-		temp_list_overall.append(["label", "xmin", "ymin","xmax", "ymax", "score",
-		                  "length_image", "height_image","area_image"])
+		temp_list_overall.append(
+			[
+			"label",
+			"xmin",
+			"ymin",
+			"xmax",
+			"ymax",
+			"score",
+			"length_image",
+			"height_image",
+			"area_image"
+			]
+		)
 
 		for object in self.information["Objects"].values():
 			for element in object.values():
@@ -67,5 +84,3 @@ class DetectionMeta(LogEntity):
 			temp_list = []
 
 		return temp_list_overall
-
-

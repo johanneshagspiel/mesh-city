@@ -5,10 +5,10 @@ import csv
 import json
 import os
 
-from mesh_city.user.entities.user_entity import UserEntity
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.detection_meta import DetectionMeta
+from mesh_city.user.entities.user_entity import UserEntity
 
 
 class LogManager:
@@ -19,7 +19,6 @@ class LogManager:
 	def __init__(self, file_handler):
 		self.file_handler = file_handler
 		self.paths = file_handler.folder_overview
-
 
 	def get_request_number(self):
 		"""
@@ -64,7 +63,7 @@ class LogManager:
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
-	def write_log(self, log_entry,type=None):
+	def write_log(self, log_entry, type=None):
 		"""
 		A method to write one log entry entity to the associated correct location
 		:param type: what type of file you want to write to
@@ -108,7 +107,7 @@ class LogManager:
 		"""
 
 		if type_document == "building_instructions_request" or type_document == "users.json" \
-			or type_document == "coordinate_overview.json":
+         or type_document == "coordinate_overview.json":
 
 			with open(path, "r") as json_log:
 				data = json_log.read()

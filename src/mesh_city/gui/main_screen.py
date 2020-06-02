@@ -2,21 +2,23 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, mainloop, Tk, Frame, Text, END, WORD, Label
+from tkinter import Button, END, Frame, Label, mainloop, Text, Tk, WORD
 
 from PIL import Image, ImageTk
 
-from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
-from mesh_city.gui.map_window.map_window import MapWindow
+from mesh_city.gui.eco_window.eco_window import EcoWindow
+from mesh_city.gui.export_window.export_window import ExportWindow
+from mesh_city.gui.gif_image.gif_image import GifImage
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.load_window.select_load_option import SelectLoadOption
+from mesh_city.gui.map_window.map_window import MapWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
-from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
-from mesh_city.gui.gif_image.gif_image import GifImage
+
 
 class MainScreen:
 	"""
@@ -118,7 +120,7 @@ class MainScreen:
 		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
 		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
 
-		self.temp_image= Label(self.master, image=temp_image)
+		self.temp_image = Label(self.master, image=temp_image)
 		self.temp_image.grid(row=0, column=1, sticky='nsew')
 
 		self.start_up_window = self.start_up()
@@ -162,7 +164,7 @@ class MainScreen:
 		Creates a load request window object
 		:return: Nothing
 		"""
-		LoadWindow(self.master, self.application, self)
+		SelectLoadOption(self.master, self.application, self)
 
 	def search_window(self):
 		"""
@@ -174,18 +176,22 @@ class MainScreen:
 	def detect_window(self):
 		"""
 		Creates a detect window object
-		:return:
+		:return: Nothing
 		"""
 		DetectionWindow(self.master, self.application, self)
 
 	def map_window(self):
 		"""
 		Creates a generate window object
-		:return:
+		:return: Nothing
 		"""
 		MapWindow(self.master, self.application, self)
 
 	def eco_window(self):
+		"""
+		Creates an eco window
+		:return: Nothing
+		"""
 		EcoWindow(self.master, self.application, self)
 
 	def update_image(self):
@@ -193,14 +199,21 @@ class MainScreen:
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+		)
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
-
 	def update_gif(self):
-		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
+		"""
+		Method to load a gif image on the main screen
+		:return: nothing (a gif image is shown on the main screen)
+		"""
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+		)
 
 		self.gif_image = GifImage(self.master)
 		self.gif_image.load(str(temp_image_path))
@@ -221,7 +234,10 @@ class MainScreen:
 		Method to update the text field on the main screen
 		:return: nothing (new text is show on the mainscreen)
 		"""
-		temp_info_path = next(self.application.file_handler.folder_overview["active_information_path"].glob("concat_information*"))
+		temp_info_path = next(
+			self.application.file_handler.folder_overview["active_information_path"].
+			glob("concat_information*")
+		)
 		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
 
 		tree_amount = temp_information_log.information["Amount"]
@@ -233,6 +249,11 @@ class MainScreen:
 		self.information_general.configure(state='disabled')
 
 	def start_up(self):
+		"""
+		In case the user already has downloaded something, opens the load window so that the user can load
+		the request they are interested in. Otherwise opens the tutorial window
+		:return: nothing (opens either load or tutorial window)
+		"""
 
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 		no_requests = True
@@ -244,5 +265,5 @@ class MainScreen:
 
 		if no_requests:
 			return TutorialWindow(self.master, self.application, self)
-		else:
-			return LoadWindow(self.master, self.application, self)
+
+		return LoadWindow(self.master, self.application, self)
