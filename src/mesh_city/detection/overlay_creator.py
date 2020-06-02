@@ -4,6 +4,7 @@ A module containing the overlay creator
 import csv
 from pathlib import Path
 import random
+import copy
 
 from PIL import Image, ImageDraw
 
@@ -86,6 +87,57 @@ class OverlayCreator:
 			self.building_instructions.instructions[detection_algorithm]["Map"][1].append(str(temp_path))
 
 	def create_image_with_more_trees(self, trees_to_add, detection_info, building_instructions):
+		temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_image_path"],
+		                          "concat_image_normal.png")
+		# TODO needs to change when we change tree detection size
+		temp_image = Image.open(temp_path).resize((600, 600), Image.ANTIALIAS)
+
+		images_to_add = []
+		images_to_add.append(temp_image)
+		object_counter= detection_info.information["Amount"]
+
 		for tree in range(0, trees_to_add):
 			tree_to_duplicate = detection_info.information["Objects"][random.randint(1, detection_info.information["Amount"])]
-			tree_to_place_it_to = detection_info.information["Objects"][random.randint(1, detection_info.information["Amount"])]
+			location_to_place_it_to = detection_info.information["Objects"][random.randint(1, detection_info.information["Amount"])]
+			image_to_paste = temp_image.crop(box=(float(tree_to_duplicate["xmin"]),
+			                                      float(tree_to_duplicate["ymin"]),
+			                                      float(tree_to_duplicate["xmax"]),
+			                                      float(tree_to_duplicate["ymax"])))
+
+			temp_entry = self.calculate_new_location(tree_to_duplicate, location_to_place_it_to)
+			detection_info.information["Objects"][object_counter] = temp_entry
+			object_counter += 1
+
+			# where_to_place = ((int(float(temp_entry["xmin"])),
+			#                                             int(float(temp_entry["ymax"])),
+			#                                             int(float(temp_entry["xmax"])),
+			#                                             int(float(temp_entry["ymin"]))))
+
+			where_to_place = ((int(float(temp_entry["xmin"])),
+			                                            int(float(temp_entry["ymax"]))))
+
+			temp_image.paste(image_to_paste, box=where_to_place)
+			temp_to_add_image = copy.deepcopy(temp_image)
+			images_to_add.append(temp_to_add_image)
+
+		images_to_add[0].save('test.gif',
+		               save_all=True, append_images=images_to_add[1:], optimize=False, duration=40, loop=0)
+
+	def calculate_new_location(self,what_to_place, where_to_place):
+		old_xmin = what_to_place["xmin"]
+		old_ymax = what_to_place["ymax"]
+		old_xmax = what_to_place["xmax"]
+		old_ymin = what_to_place["ymin"]
+
+		new_xmin = str(float(old_xmin) + 5)
+		new_ymax = str(float(old_ymax) + 5)
+		new_xmax = str(float(old_xmax) + 5)
+		new_ymin = str(float(old_ymin) + 5)
+
+		new_entry = {"label" : what_to_place["label"], "xmin" :  new_xmin, "ymin" :  new_ymin,
+		             "xmax" :  new_xmax, "ymax" :  new_ymax, "score" : what_to_place["score"],
+					 "length_image" :  what_to_place["length_image"],
+                     "height_image" : what_to_place["height_image"],
+                     "area_image" :  what_to_place["area_image"]}
+
+		return new_entry
