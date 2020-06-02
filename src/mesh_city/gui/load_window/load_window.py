@@ -82,7 +82,7 @@ class LoadWindow:
 		                         self.application.file_handler.folder_overview["temp_image_path"])
 
 		self.main_screen.update_image()
-		self.main_screen.layer_active = "Google Maps"
+		self.main_screen.layer_active = ["Google Maps"]
 		self.main_screen.delete_text()
 
 		self.top.destroy()

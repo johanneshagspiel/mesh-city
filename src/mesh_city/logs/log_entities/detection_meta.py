@@ -32,15 +32,19 @@ class DetectionMeta(LogEntity):
 		"""
 		temp_object = {}
 		object_count = 1
+		first_round = True
 		for row in list_from_csv:
-			if len(row) > 1:
-				object_count += 1
-				temp_object[object_count] = {"label" : row[0], "xmin" :  row[1], "ymin" :  row[2],
-							                              "xmax" :  row[3], "ymax" :  row[4],
-							                                "score" :  row[5],
-							                              "length_image" :  row[6],
-							                              "height_image" :  row[7],
-							                              "area_image" :  row[8]}
+			if first_round:
+				first_round = False
+			else:
+				if len(row) > 1:
+					object_count += 1
+					temp_object[object_count] = {"label" : row[0], "xmin" :  row[1], "ymin" :  row[2],
+								                              "xmax" :  row[3], "ymax" :  row[4],
+								                                "score" :  row[5],
+								                              "length_image" :  row[6],
+								                              "height_image" :  row[7],
+								                              "area_image" :  row[8]}
 
 		self.information["Amount"] = object_count - 1
 		self.information["Objects"] = temp_object
