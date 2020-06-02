@@ -3,8 +3,10 @@ A module that contains the loading old request window
 """
 
 from pathlib import Path
-from tkinter import Button, Label, Toplevel, END
+from tkinter import Button, END, Label, Toplevel
+
 from mesh_city.imagery_provider.request_creator import RequestCreator
+
 
 class LoadWindow:
 	"""
@@ -52,28 +54,31 @@ class LoadWindow:
 		"""
 
 		self.application.file_handler.folder_overview["active_tile_path"] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"],
-			name_directory,
-			"0_tile_0_0"
+			self.application.file_handler.folder_overview["image_path"], name_directory, "0_tile_0_0"
 		)
 
 		self.application.file_handler.folder_overview["active_image_path"] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"],
-			name_directory,
-			"0_tile_0_0"
+			self.application.file_handler.folder_overview["image_path"], name_directory, "0_tile_0_0"
 		)
 
-		self.application.file_handler.folder_overview["active_request_path"] = \
-			self.application.file_handler.folder_overview["active_tile_path"].parents[0]
+		self.application.file_handler.folder_overview[
+			"active_request_path"] = self.application.file_handler.folder_overview["active_tile_path"
+																				].parents[0]
 
 		if name_directory != "request_0":
-			temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob("building_instructions_*"))
+			temp_path = next(
+				self.application.file_handler.folder_overview["active_request_path"].
+				glob("building_instructions_*")
+			)
 
 			temp_building_instructions_request = self.application.log_manager.read_log(
-				path=temp_path, type_document="building_instructions_request")
+				path=temp_path, type_document="building_instructions_request"
+			)
 
 			temp_request_creator = RequestCreator(application=self.application)
-			temp_request_creator.follow_create_instructions(["Google Maps"], temp_building_instructions_request)
+			temp_request_creator.follow_create_instructions(
+				["Google Maps"], temp_building_instructions_request
+			)
 
 		self.mainscreen.update_image()
 		self.mainscreen.layer_active = "Google Maps"

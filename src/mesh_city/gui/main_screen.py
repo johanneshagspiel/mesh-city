@@ -2,15 +2,17 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, mainloop, Tk, Frame, Text, END, WORD
-from mesh_city.gui.export_window.export_window import ExportWindow
+from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD
+
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
+from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.generate_window.generate_window import GenerateWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
+
 
 class MainScreen:
 	"""
@@ -101,7 +103,7 @@ class MainScreen:
 		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_selection.grid(row=1, column=0, sticky="w")
 		self.information_selection.insert(END, "Selection")
-		#self.information_selection.config(state=DISABLED)
+		self.information_selection.config(state='disabled')
 		self.information_selection.bind("<Double-1>", lambda event: "break")
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")
@@ -161,7 +163,9 @@ class MainScreen:
 		:return: Nothing
 		"""
 		print(self.application.file_handler.folder_overview["active_image_path"])
-		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+		)
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
@@ -171,7 +175,10 @@ class MainScreen:
 		Method to update the text field on the main screen
 		:return: nothing (new text is show on the mainscreen)
 		"""
-		temp_info_path = next(self.application.file_handler.folder_overview["active_information_path"].glob("concat_information*"))
+		temp_info_path = next(
+			self.application.file_handler.folder_overview["active_information_path"].
+			glob("concat_information*")
+		)
 		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
 
 		print(temp_information_log.information["Objects"])
