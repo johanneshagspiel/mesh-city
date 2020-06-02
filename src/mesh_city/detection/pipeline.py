@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image
 
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
-from mesh_city.detection.meta_creator import MetaCreator
+from mesh_city.detection.meta_data_creator import MetaDataCreator
 from mesh_city.detection.overlay_creator import OverlayCreator
 from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.util.image_util import ImageUtil
@@ -103,7 +103,7 @@ class Pipeline:
 		self.application.file_handler.change("active_meta_path", temp_meta_path)
 
 		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
-		temp_meta_creator = MetaCreator(self.application, self.building_instructions)
+		temp_meta_data_creator = MetaDataCreator(self.application, self.building_instructions)
 
 		counter = 1
 
@@ -128,7 +128,7 @@ class Pipeline:
 					number=counter,
 					path=file
 				)
-				temp_meta_creator.create_information(
+				temp_meta_data_creator.create_information(
 					detection_algorithm=type_detection,
 					image_size=(image_size[0], image_size[1]),
 					number=counter,
@@ -148,4 +148,4 @@ class Pipeline:
 		self.request_creator.create_overlay_image(
 			self.building_instructions, self.type_of_detection, (600, 600)
 		)
-		temp_meta_creator.combine_information(self.type_of_detection)
+		temp_meta_data_creator.combine_information(self.type_of_detection)

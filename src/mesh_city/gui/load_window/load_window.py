@@ -61,8 +61,9 @@ class LoadWindow:
 			self.application.file_handler.folder_overview["image_path"], name_directory, "0_tile_0_0"
 		)
 
-		self.application.file_handler.folder_overview["active_request_path"] = \
-                    self.application.file_handler.folder_overview["active_tile_path"].parents[0]
+		self.application.file_handler.folder_overview[
+			"active_request_path"] = self.application.file_handler.folder_overview["active_tile_path"
+																				].parents[0]
 
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
