@@ -1,0 +1,52 @@
+image: kennethreitz/pipenv
+
+variables:
+    PYTHONPATH: "$CI_PROJECT_DIR/src:$PYTHONPATH"
+    XDG_DATA_HOME: "$CI_PROJECT_DIR/cache/.local/share/"
+    BUILD_TOOL: "pipenv run python setup.py"
+
+cache:
+    # Cache per branch
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+        - cache/
+
+stages:
+    - build
+    - check
+    - test
+    - dist
+
+build:
+    stage: build
+    artifacts:
+        expire_in: 1 hour
+        paths:
+            - cache/
+    script:
+        - pipenv clean
+        - pipenv sync --dev
+
+check:
+    stage: check
+    artifacts:
+        expose_as: Linter report
+        paths:
+            - build/pylint/report.html
+    script: $BUILD_TOOL check_code
+
+test:
+    stage: test
+    artifacts:
+        expose_as: Test coverage report
+        paths:
+            - build/coverage
+    script: $BUILD_TOOL test
+
+dist:
+    stage: dist
+    artifacts:
+        expose_as: Source code
+        paths:
+            - dist
+    script: $BUILD_TOOL sdist

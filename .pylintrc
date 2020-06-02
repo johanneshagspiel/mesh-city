@@ -1,0 +1,8 @@
+[MASTER]
+disable =
+	design,
+	elif,
+	fixme,
+	format,
+	no-self-use,
+	spelling,
