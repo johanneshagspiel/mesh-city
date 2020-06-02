@@ -34,9 +34,10 @@ class EcoWindow:
 		else:
 			meta_creator = MetaCreator(self.application, self.building_instructions)
 			meta_creator.combine_information(["Trees"])
+
 			temp_to_read = Path.joinpath(
 				self.application.file_handler.folder_overview["temp_meta_path"],
-				"concat_information.json")
+				"concat_information.csv")
 			self.temp_meta_info = self.application.log_manager.read_log(temp_to_read, "information")
 
 			if self.temp_meta_info.information["Amount"] == 0:
@@ -65,6 +66,6 @@ class EcoWindow:
 		               self.temp_meta_info.information["Amount"])
 
 		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
-		temp_overlay_creator.create_image_with_more_trees(trees_to_add, self.temp_meta_info)
+		temp_overlay_creator.create_image_with_more_trees(trees_to_add, self.temp_meta_info, self.building_instructions)
 
 		self.top.destroy()

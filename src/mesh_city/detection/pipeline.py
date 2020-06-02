@@ -127,5 +127,3 @@ class Pipeline:
 
 		self.request_creator.create_overlay_image(self.building_instructions, self.type_of_detection, (600, 600))
 		temp_meta_creator.combine_information(self.type_of_detection)
-
-

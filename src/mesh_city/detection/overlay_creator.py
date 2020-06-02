@@ -3,6 +3,7 @@ A module containing the overlay creator
 """
 import csv
 from pathlib import Path
+import random
 
 from PIL import Image, ImageDraw
 
@@ -84,5 +85,8 @@ class OverlayCreator:
 
 			self.building_instructions.instructions[detection_algorithm]["Map"][1].append(str(temp_path))
 
-	def create_image_with_more_trees(self, trees_to_add, detection_info):
-		return None
+	def create_image_with_more_trees(self, trees_to_add, detection_info, building_instructions):
+		print(detection_info.information["Objects"])
+		for tree in range(0, trees_to_add):
+			tree_to_duplicate = detection_info.information["Objects"][random.randint(1, detection_info.information["Amount"])]
+			print(tree_to_duplicate)
