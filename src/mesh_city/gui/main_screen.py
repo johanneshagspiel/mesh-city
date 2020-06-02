@@ -12,6 +12,7 @@ from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 from mesh_city.gui.eco_window.eco_window import EcoWindow
+from mesh_city.gui.start_up_window.start_up_window import StartUpWindow
 
 class MainScreen:
 	"""
@@ -88,6 +89,8 @@ class MainScreen:
 		)
 		self.user_button.grid(row=7, column=0)
 
+		self.w = LoadWindow(self.master, self.application, self)
+		self.master.wait_window(self.w)
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
@@ -205,3 +208,6 @@ class MainScreen:
 		self.information_general.delete('1.0', END)
 		self.information_general.insert(END, tree_amount_text)
 		self.information_general.configure(state='disabled')
+
+	def upon_start_up(self):
+		StartUpWindow(self.master, self.application, self)
