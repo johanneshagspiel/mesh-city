@@ -2,6 +2,7 @@
 """
 A module containing the meta creator class
 """
+
 import csv
 from pathlib import Path
 
@@ -77,8 +78,6 @@ class MetaCreator:
 			self.building_instructions.instructions[detection_algorithm]["Meta"][1].append(
 				str(temp_to_store)
 			)
-
-			#total_area_covered = image_size[0] * image_size[1] * GeoLocationUtil.calc_meters_per_px()
 
 	def combine_information(self, detection_algorithm):
 		"""
