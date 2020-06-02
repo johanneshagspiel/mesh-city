@@ -10,13 +10,13 @@ from mesh_city.gui.search_window.search_window_location import SearchWindowLocat
 
 class SearchWindowStart:
 	"""
-	This class is a GUI element that provides the user with the type of pop-up they need to make the
-	request they want to make after the request type is selected.
+	This class is a GUI element that provides the user with the type_of_detection of pop-up they need to make the
+	request they want to make after the request type_of_detection is selected.
 	"""
 
 	def __init__(self, master, application, main_screen):
 		"""
-		Initializes the GUI elements for a window and prompts the user to enter what type of search
+		Initializes the GUI elements for a window and prompts the user to enter what type_of_detection of search
 		they are interested in.
 		:param master: The Tk root.
 		:param application: The application object that is used to make requests.
@@ -35,7 +35,7 @@ class SearchWindowStart:
 
 	def button_area_callback(self):
 		"""
-		Creates an area-type pop-up that in the end makes the area request to the backend.
+		Creates an area-type_of_detection pop-up that in the end makes the area request to the backend.
 		:return: None
 		"""
 		SearchWindowLocationArea(self.master, self.application, self.main_screen)
@@ -43,7 +43,7 @@ class SearchWindowStart:
 
 	def button_location_callback(self):
 		"""
-		Creates an location-type pop-up that in the end makes the location request to the backend.
+		Creates an location-type_of_detection pop-up that in the end makes the location request to the backend.
 		:return: None
 		"""
 		SearchWindowLocation(self.master, self.application, self.main_screen)

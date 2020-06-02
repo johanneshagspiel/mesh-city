@@ -33,15 +33,29 @@ class FileHandler:
 			Path.joinpath(self.root, 'resources', 'logs', 'log_request_.json'),
 			"active_request_path":
 			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_image_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'image'),
+			"active_information_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'meta'),
+			"active_raw_data_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_map_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_overlay_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0"),
+			"active_meta_path":
+			Path.joinpath(self.root, 'resources', 'images', "request_0"),
 			"temp_image_path":
 			Path.joinpath(self.root, 'resources', 'temp', 'image'),
 			"temp_map_path":
 			Path.joinpath(self.root, 'resources', 'temp', 'map'),
 			"temp_overlay_path":
 			Path.joinpath(self.root, 'resources', 'temp', 'overlay'),
+			"temp_detection_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'detection'),
+			"temp_meta_path":
+			Path.joinpath(self.root, 'resources', 'temp', 'meta'),
 			"active_tile_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
-			"active_image_path":
 			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
 			"active_layer_path":
 			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),

@@ -8,7 +8,7 @@ from mesh_city.gui.search_window.preview_window import PreviewWindow
 
 class SearchWindowLocation:
 	"""
-	A pop-up type GUI element that the user can fill in to make a location-type request.
+	A pop-up type_of_detection GUI element that the user can fill in to make a location-type_of_detection request.
 	.. todo:: Make a pop-up class that this inherits from.
 	"""
 
@@ -53,8 +53,8 @@ class SearchWindowLocation:
 
 	def change_search_type(self, first_time):
 		"""
-		Changes the search type from address-based to coordinate-based or the other way around.
-		:param first_time: A flag indicating whether this is the first time the type button is pressed
+		Changes the search type_of_detection from address-based to coordinate-based or the other way around.
+		:param first_time: A flag indicating whether this is the first time the type_of_detection button is pressed
 		:return: None
 		"""
 
@@ -73,7 +73,7 @@ class SearchWindowLocation:
 
 	def cleanup(self):
 		"""
-		Makes the location-type request and cleans up after itself by tearing down the GUI and
+		Makes the location-type_of_detection request and cleans up after itself by tearing down the GUI and
 		effectively returning control to the main screen.
 		:return: None
 		"""

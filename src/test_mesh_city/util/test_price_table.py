@@ -14,26 +14,26 @@ class PriceTableTest(unittest.TestCase):
 
 	@parameterized.expand(
 		[
-		["google_maps", "static_map", 0, 1, 100000,
-		0.002], ["google_maps", "static_map", 100000, 1, 1000000,
-		0.002], ["google_maps", "static_map", 100001, 1, 1000000,
-		0.0016], ["google_maps", "static_map", 500000, 1, 1000000,
-		0.0016], ["google_maps", "geocoding", 0, 1, 100000,
-		0.005], ["google_maps", "geocoding", 100000, 1, 1000000, 0.005],
-		["google_maps", "geocoding", 100001, 1, 1000000, 0.004], [
-		"google_maps", "geocoding", 500000, 1, 1000000, 0.004
-		], ["mapbox", "static_map", 0, 1, 1000000, 0], ["mapbox", "static_map", 50000, 1, 10000000,
-		0], ["mapbox", "static_map", 50001, 1, 10000000, 0.001], [
-		"mapbox", "static_map", 500000, 1, 10000000, 0.001
-		], ["mapbox", "static_map", 500001, 1, 10000000, 0.0008], [
-		"mapbox", "static_map", 1000000, 1, 10000000, 0.0008
-		], ["mapbox", "static_map", 1000001, 1, 10000000, 0.0006],
-		["mapbox", "geocoding", 0, 1, 1000000, 0], ["mapbox", "geocoding", 100000, 1, 10000000,
-		0], ["mapbox", "geocoding", 100001, 1, 10000000, 0.00075], [
-		"mapbox", "geocoding", 500000, 1, 10000000, 0.00075
-		], ["mapbox", "geocoding", 500001, 1, 10000000, 0.0006], [
-		"mapbox", "geocoding", 1000000, 1, 10000000, 0.0006
-		], ["mapbox", "geocoding", 1000001, 1, 10000000, 0.00045],
+		["Google Maps", "static_map", 0, 1, 100000,
+		0.002], ["Google Maps", "static_map", 100000, 1, 1000000,
+		0.002], ["Google Maps", "static_map", 100001, 1, 1000000,
+		0.0016], ["Google Maps", "static_map", 500000, 1, 1000000,
+		0.0016], ["Google Maps", "geocoding", 0, 1, 100000,
+		0.005], ["Google Maps", "geocoding", 100000, 1, 1000000, 0.005],
+		["Google Maps", "geocoding", 100001, 1, 1000000, 0.004], [
+		"Google Maps", "geocoding", 500000, 1, 1000000, 0.004
+		], ["Mapbox", "static_map", 0, 1, 1000000, 0], ["Mapbox", "static_map", 50000, 1, 10000000,
+		0], ["Mapbox", "static_map", 50001, 1, 10000000, 0.001], [
+		"Mapbox", "static_map", 500000, 1, 10000000, 0.001
+		], ["Mapbox", "static_map", 500001, 1, 10000000, 0.0008], [
+		"Mapbox", "static_map", 1000000, 1, 10000000, 0.0008
+		], ["Mapbox", "static_map", 1000001, 1, 10000000, 0.0006],
+		["Mapbox", "geocoding", 0, 1, 1000000, 0], ["Mapbox", "geocoding", 100000, 1, 10000000,
+		0], ["Mapbox", "geocoding", 100001, 1, 10000000, 0.00075], [
+		"Mapbox", "geocoding", 500000, 1, 10000000, 0.00075
+		], ["Mapbox", "geocoding", 500001, 1, 10000000, 0.0006], [
+		"Mapbox", "geocoding", 1000000, 1, 10000000, 0.0006
+		], ["Mapbox", "geocoding", 1000001, 1, 10000000, 0.00045],
 		]
 	)
 	def test_calculate_action_price(self, api_type, action_type, usage, requests, quota, price):
@@ -46,7 +46,7 @@ class PriceTableTest(unittest.TestCase):
 		self.assertRaises(
 			ValueError,
 			PriceTableUtil.calculate_action_price,
-			"google_maps",
+			"Google Maps",
 			"geocoding",
 			500001,
 			1,
@@ -68,7 +68,7 @@ class PriceTableTest(unittest.TestCase):
 		self.assertRaises(
 			ValueError,
 			PriceTableUtil.calculate_action_price,
-			"google_maps",
+			"Google Maps",
 			"undefined_test_service",
 			500001,
 			1,
@@ -79,7 +79,7 @@ class PriceTableTest(unittest.TestCase):
 		self.assertRaises(
 			QuotaException,
 			PriceTableUtil.calculate_action_price,
-			"google_maps",
+			"Google Maps",
 			"geocoding",
 			1000,
 			1,
