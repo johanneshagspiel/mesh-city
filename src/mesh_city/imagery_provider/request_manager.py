@@ -38,6 +38,8 @@ class RequestManager:
 
 		self.normal_building_instructions = None
 		self.temp_list = None
+		self.zoom = None
+		self.new_folder_path = None
 
 	def make_request_for_block(self, coordinates, zoom=None):
 		"""
@@ -47,208 +49,153 @@ class RequestManager:
 		:param zoom: the zoom level at which the image should be downloaded
 		:return: nothing
 		"""
-		max_latitude = 0
+		max_tile_right = 0
 
-		self.normal_building_instructions = []
+		self.normal_building_instructions = {}
+		self.normal_building_instructions["Paths"] = []
+		self.normal_building_instructions["Coordinates"] = []
 
 		if len(coordinates) == 9:
-			self.normal_building_instructions.append(0)
+			self.normal_building_instructions["Paths"].append(0)
+			self.normal_building_instructions["Coordinates"].append(0)
 
 		if len(coordinates) > 9:
 			temp = coordinates.pop(0)
-			max_latitude = temp[0]
-			self.normal_building_instructions.append(int(temp[1]))
+			max_tile_right = int(temp[1])
+
+			self.normal_building_instructions["Paths"].append(int(temp[1]))
+			self.normal_building_instructions["Coordinates"].append(int(temp[1]))
+
+		self.zoom = zoom
 
 		if zoom is None:
-			zoom = self.top_down_provider.max_zoom
+			self.zoom = self.top_down_provider.max_zoom
 
 		request_number = self.log_manager.get_request_number()
 		request_number_string = str(request_number)
 
 		# a new folder is created for the request if it goes ahead
-		new_folder_path = Path.joinpath(
+		new_folder_path_request = Path.joinpath(
 			self.file_handler.folder_overview["image_path"], "request_" + request_number_string
 		)
-		os.makedirs(new_folder_path)
+		os.makedirs(new_folder_path_request)
 
-		# then a folder for the first tile is created
-		# the tiles are named in such a way that their name form a coordinate system that can be used
-		# in the gui to load adjacent tiles
-		number_tile_downloaded = 0
-		tile_number_latitude = 0
-		tile_number_longitude = 0
-		temp_tile_number_latitude = str(tile_number_latitude)
-		temp_tile_number_longitude = str(tile_number_longitude)
-		temp_tile_name = str(
-			number_tile_downloaded
-		) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
-		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
-		os.makedirs(new_folder_path)
+		# a new folder is created to store all the images in
+		self.new_folder_path = Path.joinpath(new_folder_path_request, "google_maps")
+		os.makedirs(self.new_folder_path)
 
 		number_requests = len(coordinates)
 		print("Requestnumber: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
-		number_requests_temp = number_requests
-		total_tile_numbers = number_requests / 9
-		# stores the information whether or not this is the last tile of the request
-		# if yes, information should be logged and no new folder should be created
-		last_round = False
-		if number_requests == 9:
-			last_round = True
+		overall_list_coordinates = []
+		temp_list_coordinates = []
 
-		self.temp_list = []
+		overall_list_path = []
+		temp_list_path = []
 
-		counter = 1
-		# download and store the information in the case of only one pair of tile_information
+		to_download = []
+		to_download_positions = []
 
-		if len(coordinates) == 9:
-			for location in coordinates:
-				if location[1] is None:
-					number = str(counter)
-					latitude = str(location[0][0])
-					longitude = str(location[0][1])
-					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(
-						self.top_down_provider.get_and_store_location(
-						location[0][0], location[0][1], zoom, temp_name, new_folder_path
-						)
-					)
-					self.temp_list.append(temp_location_stored)
+		round_counter = 0
+		position_counter = 1
 
-					if latitude in self.file_handler.coordinate_overview.grid:
-						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {
-							self.top_down_provider.name: temp_location_stored
-						}
-						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
-					else:
-						self.file_handler.coordinate_overview.grid[latitude] = {
-							longitude: {
-							self.top_down_provider.name: temp_location_stored
-							}
-						}
-				else:
-					self.temp_list.append(location[1])
-				counter += 1
+		for location in coordinates:
+			if position_counter == 10:
+				overall_list_coordinates.append(temp_list_coordinates)
+				temp_list_coordinates = []
 
-				if counter == 10 and last_round:
-					self.normal_building_instructions.append(self.temp_list)
+				overall_list_path.append(temp_list_path)
+				temp_list_path = []
 
-					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"
-														] = new_folder_path.parents[0]
+				position_counter = 1
+				round_counter += 1
 
-					self.log_manager.write_log(self.file_handler.coordinate_overview)
+			if location[1] is None:
+				temp_list_coordinates.append(location[0])
+				to_download.append((location[0], position_counter))
+				to_download_positions.append((round_counter, position_counter - 1))
+				temp_list_path.append(None)
+			else:
+				temp_list_coordinates.append(location[0])
+				temp_list_path.append(location[1])
+			position_counter += 1
 
-					temp_path_request = Path.joinpath(
-						new_folder_path.parents[0],
-						"building_instructions_request_" + str(request_number) + ".json"
-					)
-					temp_building_instructions_request = BuildingInstructionsRequest(
-						temp_path_request
-					)
-					temp_building_instructions_request.instructions[
-						self.top_down_provider.name] = self.normal_building_instructions
-					self.log_manager.create_log(temp_building_instructions_request)
+		overall_list_coordinates.append(temp_list_coordinates)
+		overall_list_path.append(temp_list_path)
 
-					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_create_instructions(
-						[self.top_down_provider.name], temp_building_instructions_request
-					)
+		# pylint: disable=W0108
+		downloaded_images = list(map(lambda x: self.download_image(x), to_download))
 
-		# download and store the information in case a whole area was asked for
-		if len(coordinates) > 9:
-			for location in coordinates:
+		temp_counter = 0
+		for (round_counter, position_counter) in to_download_positions:
+			overall_list_path[round_counter][position_counter] = downloaded_images[temp_counter]
+			temp_counter += 1
 
-				if location[1] is None:
-					number = str(counter)
-					latitude = str(location[0][0])
-					longitude = str(location[0][1])
-					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-					temp_location_stored = str(
-						self.top_down_provider.get_and_store_location(
-						location[0][0],
-						location[0][1],
-						self.top_down_provider.max_zoom,
-						temp_name,
-						new_folder_path
-						)
-					)
-					self.temp_list.append(temp_location_stored)
+		self.file_handler.folder_overview["active_tile_path"] = self.new_folder_path
+		self.file_handler.folder_overview["active_image_path"] = self.new_folder_path
+		self.file_handler.folder_overview["active_request_path"] = self.new_folder_path.parents[0]
 
-					if latitude in self.file_handler.coordinate_overview.grid:
-						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-						new_to_store[longitude] = {
-							self.top_down_provider.name: temp_location_stored
-						}
-						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
-					else:
-						self.file_handler.coordinate_overview.grid[latitude] = {
-							longitude: {
-							self.top_down_provider.name: temp_location_stored
-							}
-						}
-				else:
-					self.temp_list.append(location[1])
-				counter += 1
+		overall_list_path.insert(0, max_tile_right)
+		self.normal_building_instructions["Paths"] = overall_list_path
 
-				if counter == 10 and not last_round:
-					number_tile_downloaded += 1
+		overall_list_coordinates.insert(0, max_tile_right)
+		self.normal_building_instructions["Coordinates"] = overall_list_coordinates
 
-					tile_number_latitude += 1
-					if tile_number_latitude == max_latitude:
-						tile_number_latitude = 0
-						tile_number_longitude += 1
+		temp_path_request = Path.joinpath(
+			self.new_folder_path.parents[0],
+			"building_instructions_request_" + str(request_number) + ".json"
+		)
+		temp_building_instructions_request = BuildingInstructionsRequest(temp_path_request)
+		temp_building_instructions_request.instructions[self.top_down_provider.name
+														] = self.normal_building_instructions
+		self.log_manager.create_log(temp_building_instructions_request)
 
-					tile_number_new = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					tile_name_new = str(number_tile_downloaded) + "_tile_" + tile_number_new
-					new_folder_path = Path.joinpath(new_folder_path.parents[0], tile_name_new)
-					os.makedirs(new_folder_path)
+		self.log_manager.write_log(self.file_handler.coordinate_overview)
 
-					self.normal_building_instructions.append(self.temp_list)
-					self.temp_list = []
+		temp_request_creator = RequestCreator(application=self.application)
 
-					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
+		temp_path = Path.joinpath(
+			self.file_handler.folder_overview["temp_image_path"], "concat_image_normal.png"
+		)
+		temp_request_creator.follow_create_instructions(
+			[self.top_down_provider.name, "Paths"], temp_building_instructions_request, temp_path
+		)
+		self.file_handler.change(
+			"active_image_path", self.file_handler.folder_overview["temp_image_path"]
+		)
 
-					counter = 1
-					number_requests_temp = number_requests_temp - 9
-					if number_requests_temp == 9:
-						last_round = True
+		return self.new_folder_path
 
-				if counter == 10 and last_round:
-					number_tile_downloaded += 1
-					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number)
+	def download_image(self, location):
+		"""
+		Method to download an image, add its path to the overall coordinate dictionary and return
+		the path so that it can be added to the building dictionary
+		:param location: the location where to download the image from
+		:return: the path where the image is stored
+		"""
+		number = str(location[1])
+		latitude = str(location[0][0])
+		longitude = str(location[0][1])
+		temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
+		temp_location_stored = str(
+			self.top_down_provider.get_and_store_location(
+			location[0][0], location[0][1], self.zoom, temp_name, self.new_folder_path
+			)
+		)
 
-					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"
-														] = new_folder_path.parents[0]
+		if latitude in self.file_handler.coordinate_overview.grid:
+			new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+			new_to_store[longitude] = {self.top_down_provider.name: temp_location_stored}
+			self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+		else:
+			self.file_handler.coordinate_overview.grid[latitude] = {
+				longitude: {
+				self.top_down_provider.name: temp_location_stored
+				}
+			}
 
-					self.normal_building_instructions.append(self.temp_list)
-					temp_path_request = Path.joinpath(
-						new_folder_path.parents[0],
-						"building_instructions_request_" + str(request_number) + ".json"
-					)
-					temp_building_instructions_request = BuildingInstructionsRequest(
-						temp_path_request
-					)
-					temp_building_instructions_request.instructions[
-						self.top_down_provider.name] = self.normal_building_instructions
-					self.log_manager.create_log(temp_building_instructions_request)
-
-					self.log_manager.write_log(self.file_handler.coordinate_overview)
-
-					temp_request_creator = RequestCreator(application=self.application)
-					temp_request_creator.follow_create_instructions(
-						[self.top_down_provider.name], temp_building_instructions_request
-					)
-
-					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
-
-		return new_folder_path
+		return temp_location_stored
 
 	def calculate_centre_coordinates_two_coordinate_input_block(
 		self, first_coordinate, second_coordinate, zoom

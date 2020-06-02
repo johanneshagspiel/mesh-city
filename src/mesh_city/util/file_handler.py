@@ -34,7 +34,7 @@ class FileHandler:
 			"active_request_path":
 			Path.joinpath(self.root, 'resources', 'images', "request_0"),
 			"active_image_path":
-			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
+			Path.joinpath(self.root, 'resources', 'temp', 'image'),
 			"active_information_path":
 			Path.joinpath(self.root, 'resources', 'temp', 'meta'),
 			"active_raw_data_path":
