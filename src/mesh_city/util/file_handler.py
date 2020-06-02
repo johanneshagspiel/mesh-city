@@ -41,7 +41,7 @@ class FileHandler:
 			"temp_detection_path": Path.joinpath(self.root, 'resources', 'temp', 'detection'),
 			"temp_meta_path": Path.joinpath(self.root, 'resources', 'temp', 'meta'),
 
-
+			"MVRDV": Path.joinpath(self.root, 'resources', 'mvrdv', 'mvrdv_logo.png'),
 
 
 			"active_tile_path": Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0"),
