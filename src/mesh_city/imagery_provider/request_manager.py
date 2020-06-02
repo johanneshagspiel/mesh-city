@@ -4,208 +4,42 @@ their APIs such that data for larger geographical areas can be made and the resu
 requests are stored on disk.
 """
 
-import csv
 import os
 from pathlib import Path
+
+from mesh_city.imagery_provider.request_creator import RequestCreator
+from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.image_util import ImageUtil
 
 
 class RequestManager:
 	"""
 	A class that is responsible for handling requests to different map providers. Based on
-	coordinates of the user it calculates all the locations that need to be downloaded, downloads them
+	tile_information of the user it calculates all the locations that need to be downloaded, downloads them
 	stores them in tile system: 9 images together make up one tile. These 9 images are, after being downloaded,
 	combined into one large image that is displayed on the map.
 	:param user_info: information about the user
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	def __init__(
-		self, log_manager, image_util, geo_location_util, file_handler, top_down_provider=None,
-	):
+	def __init__(self, user_entity, application, top_down_provider=None):
+		self.user_entity = user_entity
 		self.top_down_provider = top_down_provider
-		self.log_manager = log_manager
-		self.image_util = image_util
-		self.geo_location_util = geo_location_util
-		self.file_handler = file_handler
+		self.application = application
 
-		self.images_folder_path = file_handler.folder_overview["image_path"]
-		self.request_number = 1
+		self.file_handler = application.file_handler
+		self.log_manager = application.log_manager
 
-	def make_single_request(self, centre_coordinates, zoom, height=None, width=None):
-		"""
-		Test method to make and store one image. Does not support the tile system and the image can
-		not be displayed on the map.
-		:param centre_coordinates: the location where the satellite image should be downloaded
-		:param zoom: the zoom level at which the image should be downloaded
-		:param height: height of the resulting image
-		:param width: width of the resulting image
-		:return:
-		"""
-		self.top_down_provider.get_and_store_location(
-			latitude=centre_coordinates[0],
-			longitude=centre_coordinates[1],
-			zoom=zoom,
-			height=height,
-			width=width,
-			filename=str(centre_coordinates[0]) + ", " + str(centre_coordinates[1]) + ".png",
-			new_folder_path=self.images_folder_path,
-		)
+		self.image_util = ImageUtil()
+		self.geo_location_util = GeoLocationUtil()
 
-	def make_request_two_coordinates(self, first_coordinate, second_coordinate, zoom=None):
-		"""
-		Takes as input two coordinates for a bounding box, a zoom level to specify how zoomed in the
-		the images need to be and saves the retrieved images in a semi-structured way on disk.
-		:param first_coordinate:
-		:param second_coordinate:
-		:param zoom:
-		:return:
-		"""
-		if zoom is None:
-			zoom = self.top_down_provider.max_zoom
-		if zoom < 1:
-			zoom = 1
-		if zoom > self.top_down_provider.max_zoom:
-			zoom = self.top_down_provider.max_zoom
+		self.request_number = self.log_manager.get_request_number()
 
-		coordinates_info = self.calculate_centre_coordinates_two_coordinate_input(
-			first_coordinate, second_coordinate, zoom
-		)
+		self.normal_building_instructions = None
+		self.temp_list = None
 
-		print("Requestnumber: " + str(self.request_number))
-		print("Total Images to download: " + str(coordinates_info[0][0]))
-		print("Total number of horizontal images: " + str(coordinates_info[0][1]))
-		print("Total number of vertical images: " + str(coordinates_info[0][2]))
-
-		coordinates_list = coordinates_info[1]
-		self.make_request_list_of_coordinates(coordinates_list, zoom)
-
-	def make_request_list_of_coordinates(self, coordinates_list, zoom):
-		"""
-		Makes a number of API requests based on the input of a coordinate list.
-		:param coordinates_list: list of coordinates, and image positions in the global grid.
-		format: (latitude, longitude), (horizontal, vertical)
-		horizontal and vertical signal the images position in the world grid
-		coordinates_list = coordinates_info[1]
-		:param zoom: which level of zoom the imagery should have
-		:return: saves all images on disk, and creates an CSV document with metadata.
-		"""
-
-		new_folder_path = Path.joinpath(
-			self.file_handler.folder_overview["image_path"][0], "request_" + str(self.request_number)
-		)
-		os.makedirs(new_folder_path)
-
-		# saves metadata to an CSV file
-		csv_filename = Path.joinpath(new_folder_path, "imagery_metadata.csv")
-		with open(csv_filename, "w") as csvfile:
-			fieldnames = [
-				"image_number", "horizontal_position", "vertical_position", "latitude", "longitude"
-			]
-			csv_writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-			csv_writer.writeheader()
-
-			image_number = 0
-			for info in coordinates_list:
-				latitude = info[0][0]
-				longitude = info[0][1]
-				horizontal_position = info[1][0]
-				vertical_position = info[1][1]
-				image_number = image_number + 1
-
-				file_name = str(
-					str(image_number) + "_" + str(horizontal_position) + "," + str(vertical_position) +
-					"_" + str(latitude) + "," + str(longitude) + ".png"
-				)
-				self.top_down_provider.get_and_store_location(
-					latitude=latitude,
-					longitude=longitude,
-					zoom=zoom,
-					filename=file_name,
-					new_folder_path=new_folder_path
-				)
-				csv_writer.writerow(
-					{
-					"image_number": str(image_number),
-					"horizontal_position": str(horizontal_position),
-					"vertical_position": str(vertical_position),
-					"latitude": str(latitude),
-					"longitude": str(longitude),
-					}
-				)
-
-	def calculate_number_of_requested_images_two_coordinate_input(
-		self, first_coordinate, second_coordinate, zoom
-	):
-		"""
-		Calculates the number of images that will be requested through the API when requesting a
-		bounding box with these two coordinates
-		:param first_coordinate: of the bounding box.
-		:param second_coordinate: of the bounding box.
-		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:return: number of images that will be requested
-		"""
-		return self.calculate_centre_coordinates_two_coordinate_input(
-			first_coordinate, second_coordinate, zoom
-		)[0][0]
-
-	def calculate_centre_coordinates_two_coordinate_input(
-		self, first_coordinate, second_coordinate, zoom
-	):
-		"""
-		Method which calculates and retrieves the number of images that are necessary to have a
-		complete imagery set of a certain geographical area. This area is defined by a bounding box.
-		:param first_coordinate: of the bounding box.
-		:param second_coordinate:  of the bounding box.
-		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:return: a pair which contains as its first value a tuple with the total number of images,
-		and the number of images along the axis, and as second value a list of the centre
-		coordinates of each image, and its horizontal and vertical position in the grid of images.
-		The coordinate list has the following format:
-		((current_latitude, current_longitude), (horizontal, vertical))
-		The overall returned format is:
-		((num_of_images_total, num_of_images_horizontal, num_of_images_vertical), coordinates_list)
-		"""
-
-		(top_lat, left_long), (bottom_lat,
-			right_long) = self.geo_location_util.get_top_left_bottom_right_coordinates(
-			first_coordinate, second_coordinate
-			)
-
-		# start the request in the top left corner
-		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(top_lat, left_long, zoom)
-		current_latitude, current_longitude = latitude_first_image, longitude_first_image
-
-		coordinates_list = []
-		num_of_images_horizontal = 0
-		num_of_images_vertical = 0
-
-		# iterate from left to right, top to bottom
-		while current_latitude > bottom_lat or num_of_images_horizontal == 0:
-			while current_longitude < right_long or num_of_images_vertical == 0:
-				x_cor_current_tile, y_cor_current_tile = self.geo_location_util.degree_to_tile_value(
-					current_latitude, current_longitude, zoom
-				)
-				coordinates_list.append(
-					((current_latitude, current_longitude), (x_cor_current_tile, y_cor_current_tile))
-				)
-				current_longitude = self.geo_location_util.calc_next_location_longitude(
-					current_latitude, current_longitude, zoom, True
-				)
-				if current_latitude == latitude_first_image:
-					num_of_images_vertical += 1
-
-			current_longitude = longitude_first_image
-			current_latitude = self.geo_location_util.calc_next_location_latitude(
-				current_latitude, current_longitude, zoom, False
-			)
-			num_of_images_horizontal += 1
-
-		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
-
-		return (num_of_images_total, num_of_images_horizontal,
-			num_of_images_vertical), coordinates_list
-
-	def make_request_for_block(self, centre_coordinates, zoom=None):
+	def make_request_for_block(self, coordinates, zoom=None):
 		"""
 		Make a request in such a way, that the images are stored in the tile system, are logged in
 		the log manager and they can be displayed on the map
@@ -213,6 +47,17 @@ class RequestManager:
 		:param zoom: the zoom level at which the image should be downloaded
 		:return: nothing
 		"""
+		max_latitude = 0
+
+		self.normal_building_instructions = []
+
+		if len(coordinates) == 9:
+			self.normal_building_instructions.append(0)
+
+		if len(coordinates) > 9:
+			temp = coordinates.pop(0)
+			max_latitude = temp[0]
+			self.normal_building_instructions.append(int(temp[1]))
 
 		if zoom is None:
 			zoom = self.top_down_provider.max_zoom
@@ -222,7 +67,7 @@ class RequestManager:
 
 		# a new folder is created for the request if it goes ahead
 		new_folder_path = Path.joinpath(
-			self.file_handler.folder_overview["image_path"][0], "request_" + request_number_string
+			self.file_handler.folder_overview["image_path"], "request_" + request_number_string
 		)
 		os.makedirs(new_folder_path)
 
@@ -234,21 +79,14 @@ class RequestManager:
 		tile_number_longitude = 0
 		temp_tile_number_latitude = str(tile_number_latitude)
 		temp_tile_number_longitude = str(tile_number_longitude)
-		new_folder_path = Path.joinpath(
-			new_folder_path,
-			str(number_tile_downloaded) + "_tile_" + temp_tile_number_latitude + "_" +
-			temp_tile_number_longitude
-		)
+		temp_tile_name = str(
+			number_tile_downloaded
+		) + "_tile_" + temp_tile_number_latitude + "_" + temp_tile_number_longitude
+		new_folder_path = Path.joinpath(new_folder_path, temp_tile_name)
 		os.makedirs(new_folder_path)
 
-		# in the case an area should be downloaded, the first thing returned will be the max longitude
-		# and latitude
-		if len(centre_coordinates) > 9:
-			temp = centre_coordinates.pop(0)
-			max_latitude = temp[0]
-
-		number_requests = len(centre_coordinates)
-		print("Request number: " + str(self.request_number))
+		number_requests = len(coordinates)
+		print("Requestnumber: " + str(self.request_number))
 		print("Total Images to download: " + str(number_requests))
 
 		number_requests_temp = number_requests
@@ -259,64 +97,122 @@ class RequestManager:
 		if number_requests == 9:
 			last_round = True
 
+		self.temp_list = []
+
 		counter = 1
-		# download and store the information in the case of only one pair of coordinates
-		if len(centre_coordinates) == 9:
-			for location in centre_coordinates:
-				number = str(counter)
-				x_position = str(location[0])
-				y_position = str(location[1])
-				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				self.top_down_provider.get_and_store_location(
-					latitude=location[0],
-					longitude=location[1],
-					zoom=zoom,
-					filename=temp_name,
-					new_folder_path=new_folder_path
-				)
+		# download and store the information in the case of only one pair of tile_information
+
+		if len(coordinates) == 9:
+			for location in coordinates:
+				if location[1] is None:
+					number = str(counter)
+					latitude = str(location[0][0])
+					longitude = str(location[0][1])
+					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
+					temp_location_stored = str(
+						self.top_down_provider.get_and_store_location(
+						location[0][0], location[0][1], zoom, temp_name, new_folder_path
+						)
+					)
+					self.temp_list.append(temp_location_stored)
+
+					if latitude in self.file_handler.coordinate_overview.grid:
+						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+						new_to_store[longitude] = {
+							self.top_down_provider.name: temp_location_stored
+						}
+						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+					else:
+						self.file_handler.coordinate_overview.grid[latitude] = {
+							longitude: {
+							self.top_down_provider.name: temp_location_stored
+							}
+						}
+				else:
+					self.temp_list.append(location[1])
 				counter += 1
 
 				if counter == 10 and last_round:
-					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
-					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][
-						0] = new_folder_path.parents[0]
+					self.normal_building_instructions.append(self.temp_list)
+
+					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"
+														] = new_folder_path.parents[0]
+
+					self.log_manager.write_log(self.file_handler.coordinate_overview)
+
+					temp_path_request = Path.joinpath(
+						new_folder_path.parents[0],
+						"building_instructions_request_" + str(request_number) + ".json"
+					)
+					temp_building_instructions_request = BuildingInstructionsRequest(
+						temp_path_request
+					)
+					temp_building_instructions_request.instructions[
+						self.top_down_provider.name] = self.normal_building_instructions
+					self.log_manager.create_log(temp_building_instructions_request)
+
+					temp_request_creator = RequestCreator(application=self.application)
+					temp_request_creator.follow_create_instructions(
+						self.top_down_provider.name, temp_building_instructions_request
+					)
 
 		# download and store the information in case a whole area was asked for
-		if len(centre_coordinates) > 9:
+		if len(coordinates) > 9:
+			for location in coordinates:
 
-			for location in centre_coordinates:
-				number = str(counter)
-				x_position = str(location[0])
-				y_position = str(location[1])
-				temp_name = str(number + "_" + x_position + "_" + y_position + ".png")
-				self.top_down_provider.get_and_store_location(
-					latitude=location[0],
-					longitude=location[1],
-					zoom=self.top_down_provider.max_zoom,
-					filename=temp_name,
-					new_folder_path=new_folder_path
-				)
+				if location[1] is None:
+					number = str(counter)
+					latitude = str(location[0][0])
+					longitude = str(location[0][1])
+					temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
+					temp_location_stored = str(
+						self.top_down_provider.get_and_store_location(
+						location[0][0],
+						location[0][1],
+						self.top_down_provider.max_zoom,
+						temp_name,
+						new_folder_path
+						)
+					)
+					self.temp_list.append(temp_location_stored)
+
+					if latitude in self.file_handler.coordinate_overview.grid:
+						new_to_store = self.file_handler.coordinate_overview.grid[latitude]
+						new_to_store[longitude] = {
+							self.top_down_provider.name: temp_location_stored
+						}
+						self.file_handler.coordinate_overview.grid[latitude] = new_to_store
+					else:
+						self.file_handler.coordinate_overview.grid[latitude] = {
+							longitude: {
+							self.top_down_provider.name: temp_location_stored
+							}
+						}
+				else:
+					self.temp_list.append(location[1])
 				counter += 1
 
 				if counter == 10 and not last_round:
 					number_tile_downloaded += 1
-					tile_number_old = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					self.image_util.concat_images(new_folder_path, counter, tile_number_old)
+
 					tile_number_latitude += 1
 					if tile_number_latitude == max_latitude:
 						tile_number_latitude = 0
 						tile_number_longitude += 1
+
 					tile_number_new = str(tile_number_latitude) + "_" + str(tile_number_longitude)
-					new_folder_path = Path.joinpath(
-						new_folder_path.parents[0],
-						str(number_tile_downloaded) + "_tile_" + tile_number_new
-					)
-					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
+					tile_name_new = str(number_tile_downloaded) + "_tile_" + tile_number_new
+					new_folder_path = Path.joinpath(new_folder_path.parents[0], tile_name_new)
 					os.makedirs(new_folder_path)
+
+					self.normal_building_instructions.append(self.temp_list)
+					self.temp_list = []
+
+					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
+
 					counter = 1
 					number_requests_temp = number_requests_temp - 9
 					if number_requests_temp == 9:
@@ -327,10 +223,30 @@ class RequestManager:
 					tile_number = str(tile_number_latitude) + "_" + str(tile_number_longitude)
 					self.image_util.concat_images(new_folder_path, counter, tile_number)
 
-					self.file_handler.folder_overview["active_tile_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_image_path"][0] = new_folder_path
-					self.file_handler.folder_overview["active_request_path"][
-						0] = new_folder_path.parents[0]
+					self.file_handler.folder_overview["active_tile_path"] = new_folder_path
+					self.file_handler.folder_overview["active_image_path"] = new_folder_path
+					self.file_handler.folder_overview["active_request_path"
+														] = new_folder_path.parents[0]
+
+					self.normal_building_instructions.append(self.temp_list)
+					temp_path_request = Path.joinpath(
+						new_folder_path.parents[0],
+						"building_instructions_request_" + str(request_number) + ".json"
+					)
+					temp_building_instructions_request = BuildingInstructionsRequest(
+						temp_path_request
+					)
+					temp_building_instructions_request.instructions[
+						self.top_down_provider.name] = self.normal_building_instructions
+					self.log_manager.create_log(temp_building_instructions_request)
+
+					self.log_manager.write_log(self.file_handler.coordinate_overview)
+
+					temp_request_creator = RequestCreator(application=self.application)
+					temp_request_creator.follow_create_instructions(
+						self.top_down_provider.name, temp_building_instructions_request
+					)
+
 					print(str(number_tile_downloaded) + "/" + str(total_tile_numbers))
 
 		return new_folder_path
@@ -488,3 +404,40 @@ class RequestManager:
 			"Something went wrong with the input, as it doesn't return something "
 			"when it should have "
 		)
+
+	def check_coordinates(self, coordinates):
+		"""
+		Method to check whether or not the coordinates are already downloaded
+		:param coordinates: the coordinates to check
+		:return: a list indicating whether the coordinates are already downloaded or not
+		"""
+		temp_list = []
+		counter = 0
+		first_round = len(coordinates) > 9
+
+		for location in coordinates:
+			if first_round:
+				temp_list.append(location)
+				first_round = False
+			else:
+				latitude = str(location[0])
+				longitude = str(location[1])
+
+				if latitude in self.file_handler.coordinate_overview.grid:
+					if longitude in self.file_handler.coordinate_overview.grid[latitude]:
+						temp_list.append(
+							(
+							(latitude, longitude),
+							self.file_handler.coordinate_overview.grid[latitude][longitude][
+							self.top_down_provider.name]
+							)
+						)
+					else:
+						temp_list.append(((latitude, longitude), None))
+						counter += 1
+				else:
+					temp_list.append(((latitude, longitude), None))
+					counter += 1
+
+		temp_list.insert(0, counter)
+		return temp_list

@@ -73,32 +73,32 @@ class SearchWindowLocationArea:
 		"""
 
 		if name == "min":
-			if self.min_lat["text"] == "Min Latitude:":
-				self.min_lat["text"] = "Address:"
+			if self.min_lat["information_general"] == "Min Latitude:":
+				self.min_lat["information_general"] = "Address:"
 				self.min_long_entry.grid_forget()
 				self.type_button_min.configure(text="Coordinates")
-				self.min_log["text"] = ""
+				self.min_log["information_general"] = ""
 				first_time = False
 
-			if (self.min_lat["text"] == "Address:") & first_time:
-				self.min_lat["text"] = "Min Latitude:"
+			if (self.min_lat["information_general"] == "Address:") & first_time:
+				self.min_lat["information_general"] = "Min Latitude:"
 				self.min_long_entry.grid(row=2, column=3)
 				self.type_button_min.configure(text="Address")
-				self.min_log["text"] = "Min Longitude:"
+				self.min_log["information_general"] = "Min Longitude:"
 
 		if name == "max":
-			if self.max_lat["text"] == "Max Latitude:":
-				self.max_lat["text"] = "Address:"
+			if self.max_lat["information_general"] == "Max Latitude:":
+				self.max_lat["information_general"] = "Address:"
 				self.max_long_entry.grid_forget()
 				self.type_button_max.configure(text="Coordinates")
-				self.max_log["text"] = ""
+				self.max_log["information_general"] = ""
 				first_time = False
 
-			if (self.max_lat["text"] == "Address:") & first_time:
-				self.max_lat["text"] = "Max Latitude:"
+			if (self.max_lat["information_general"] == "Address:") & first_time:
+				self.max_lat["information_general"] = "Max Latitude:"
 				self.max_long_entry.grid(row=4, column=3)
 				self.type_button_max.configure(text="Address")
-				self.max_log["text"] = "Max Longitude:"
+				self.max_log["information_general"] = "Max Longitude:"
 
 	def cleanup(self):
 		"""

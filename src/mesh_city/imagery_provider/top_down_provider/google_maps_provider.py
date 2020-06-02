@@ -21,7 +21,7 @@ class GoogleMapsProvider(TopDownProvider):
 		super().__init__(image_provider_entity=image_provider_entity)
 		self.client = googlemaps.Client(key=self.image_provider_entity.api_key)
 		self.padding = 40
-		self.name = "google_maps"
+		self.name = "Google Maps"
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
 
@@ -86,6 +86,8 @@ class GoogleMapsProvider(TopDownProvider):
 
 		im1.save(fp=to_store)
 
+		return to_store
+
 	def get_location_from_name(self, name):
 		"""
 		Returns a geographical location based on an address name.
@@ -97,7 +99,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on coordinates
+		Returns an address name based on tile_information
 		:param latitude:
 		:param longitude:
 		:return:

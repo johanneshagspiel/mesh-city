@@ -1,56 +1,86 @@
 # pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
 
 import unittest
+from datetime import datetime
 from pathlib import Path
 from shutil import rmtree
-from unittest.mock import ANY, Mock
+from unittest.mock import Mock
 
-from mesh_city.imagery_provider.request_manager import RequestManager
+from mesh_city.application import Application
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.entities.user_entity import UserEntity
 from mesh_city.util.file_handler import FileHandler
-from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
 class TestRequestManager(unittest.TestCase):
+
 	resource_path = Path(__file__).parents[1].joinpath("resources")
 
 	def setUp(self):
-		self.top_down_provider = Mock()
-		self.top_down_provider.max_side_resolution_image = 640
 
-		self.two_coordinate_input = ((51.913205, 4.453749), (51.912532, 4.456339), 20)
-		self.correct_answer = ((8, 2, 4),
-			[((51.9131439404174, 4.453926086425781), (268630, 173385)),
-			((51.9131439404174, 4.454619598388689), (268631, 173385)),
-			((51.9131439404174, 4.455306243896501), (268632, 173385)),
-			((51.9131439404174, 4.455992889404314), (268633, 173385)),
-			((51.91271614182748, 4.453926086425781), (268630, 173386)),
-			((51.91271614182748, 4.454619598388689), (268631, 173386)),
-			((51.91271614182748, 4.455306243896501), (268632, 173386)),
-			((51.91271614182748, 4.455992889404314), (268633, 173386))])  # yapf: disable
-		self.two_coordinate_input_quad = (
-			(50.000236394207846, 4.9994659423828125), (49.99979061343613, 5.00015955434572), 20
+		self.provider1 = ImageProviderEntity(
+			FileHandler(),
+			type_map_provider="google_maps",
+			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
+			quota=100,
+			date_reset=datetime(2019, 2, 28)
 		)
-		self.correct_answer_quad = (
-			(4, 2, 2),
-			[
-			((50.00067775723634, 4.9994659423828125), (269425, 177808)),
-			((50.00067775723634, 5.00015945434572), (269426, 177808)),
-			((50.00023198055709, 4.9994659423828125), (269425, 177809)),
-			((50.00023198055709, 5.00015945434572), (269426, 177809))
-			]
+		provider_dict = {"google_maps": self.provider1}
+		self.user_entity = UserEntity(
+			FileHandler(), name="test user", image_providers=provider_dict
 		)
-		self.correct_answer_quad_block = [
-			(1.0, 1.0),
-			(49.99957434206772, 4.999809265136719),
-			(49.99957434206772, 5.000502777099626),
-			(49.99957434206772, 5.001189422607439),
-			(50.00001129750311, 4.999809265136719),
-			(50.00001129750311, 5.000502777099626),
-			(50.00001129750311, 5.001189422607439),
-			(50.000452662598086, 4.999809265136719),
-			(50.000452662598086, 5.000502777099626),
-			(50.000452662598086, 5.001189422607439)]  # yapf: disable
+
+		self.application = Application()
+		self.application.late_init(self.user_entity)
+
+		self.request_manager = self.application.request_manager
+		self.request_manager.top_down_provider = GoogleMapsProvider(
+			image_provider_entity=self.provider1
+		)
+
+		self.location_input = (-22.824637, -43.242729)
+
+		self.two_coordinate_input = (-22.824637, -43.242729, -22.821384, -43.238813)
+		self.correct_answer = (
+			[(2.0, 2.0),
+			(-22.824605342539485, -43.242530822753906),
+			(-22.824605342539485, -43.241837310791),
+			(-22.824605342539485, -43.241150665283186),
+			(-22.823978791021894, -43.242530822753906),
+			(-22.823978791021894, -43.241837310791),
+			(-22.823978791021894, -43.241150665283186),
+			(-22.823345907773717, -43.242530822753906),
+			(-22.823345907773717, -43.241837310791),
+			(-22.823345907773717, -43.241150665283186),
+			(-22.824605342539485, -43.240464019775374),
+			(-22.824605342539485, -43.23977737426756),
+			(-22.824605342539485, -43.23909072875975),
+			(-22.823978791021894, -43.240464019775374),
+			(-22.823978791021894, -43.23977737426756),
+			(-22.823978791021894, -43.23909072875975),
+			(-22.823345907773717, -43.240464019775374),
+			(-22.823345907773717, -43.23977737426756),
+			(-22.823345907773717, -43.23909072875975),
+			(-22.82271302158353, -43.242530822753906),
+			(-22.82271302158353, -43.241837310791),
+			(-22.82271302158353, -43.241150665283186),
+			(-22.822080132451397, -43.242530822753906),
+			(-22.822080132451397, -43.241837310791),
+			(-22.822080132451397, -43.241150665283186),
+			(-22.82144724037738, -43.242530822753906),
+			(-22.82144724037738, -43.241837310791),
+			(-22.82144724037738, -43.241150665283186),
+			(-22.82271302158353, -43.240464019775374),
+			(-22.82271302158353, -43.23977737426756),
+			(-22.82271302158353, -43.23909072875975),
+			(-22.822080132451397, -43.240464019775374),
+			(-22.822080132451397, -43.23977737426756),
+			(-22.822080132451397, -43.23909072875975),
+			(-22.82144724037738, -43.240464019775374),
+			(-22.82144724037738, -43.23977737426756),
+			(-22.82144724037738, -43.23909072875975)]
+		)  # yapf: disable
 
 	def tearDown(self):
 		for item in Path(__file__).parents[1].joinpath("resources").glob("*"):
@@ -59,98 +89,82 @@ class TestRequestManager(unittest.TestCase):
 			else:
 				item.unlink()
 
-	def _create_request_manager(
-		self, top_down_provider=Mock(), log_manager=Mock(), geo_location_util=Mock()
-	):
-		return RequestManager(
-			file_handler=FileHandler(root=Path(__file__).parents[1]),
-			top_down_provider=top_down_provider,
-			log_manager=log_manager,
-			image_util=Mock(),
-			geo_location_util=geo_location_util,
-		)
-
 	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):
 		map_entity = Mock(spec=GoogleMapsProvider, wraps=Mock())
-		request_manager = self._create_request_manager(
-			top_down_provider=map_entity, geo_location_util=GeoLocationUtil(),
+		map_entity.max_side_resolution_image = 640
+		request_manager = self.application.request_manager
+
+		list_of_coordinates = request_manager.calculate_locations(
+			[
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[1],
+			self.two_coordinate_input[2],
+			self.two_coordinate_input[3]
+			]
 		)
 
-		list_of_coordinates = request_manager.calculate_centre_coordinates_two_coordinate_input(
-			self.two_coordinate_input[0], self.two_coordinate_input[1], self.two_coordinate_input[2]
-		)
-
-		self.assertEqual(self.correct_answer, list_of_coordinates)
-
-	def test_calculate_centre_coordinates_two_coordinate_input_turned_around(self):
-		map_entity = Mock(spec=GoogleMapsProvider, wraps=Mock())
-		request_manager = self._create_request_manager(
-			top_down_provider=map_entity, geo_location_util=GeoLocationUtil(),
-		)
-
-		list_of_coordinates = request_manager.calculate_centre_coordinates_two_coordinate_input(
-			self.two_coordinate_input[1], self.two_coordinate_input[0], self.two_coordinate_input[2]
-		)
-
-		self.assertEqual(self.correct_answer, list_of_coordinates)
+		for (correct_answer, coordinate) in zip(self.correct_answer, list_of_coordinates):
+			self.assertAlmostEqual(correct_answer[0], coordinate[0], places=6)
+			self.assertAlmostEqual(correct_answer[1], coordinate[1], places=6)
 
 	def test_calculate_number_of_requested_images_two_coordinate_input(self):
-		number_of_images = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil(),
-		).calculate_number_of_requested_images_two_coordinate_input(
-			self.two_coordinate_input[0], self.two_coordinate_input[1], self.two_coordinate_input[2]
+		number_of_images = self.application.request_manager.calculate_locations(
+			self.two_coordinate_input
 		)
-		self.assertEqual(self.correct_answer[0][0], number_of_images)
+		self.assertEqual(37, len(number_of_images))
 
-	def test_calculate_number_of_requested_images_two_coordinate_input_turned_around(self):
-		number_of_images = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil(),
-		).calculate_number_of_requested_images_two_coordinate_input(
-			self.two_coordinate_input[1], self.two_coordinate_input[0], self.two_coordinate_input[2]
+	def test_calculate_centre_coordinates_two_coordinate_input_latitude_turned_around(self):
+		number_of_images = self.application.request_manager.calculate_locations(
+			[
+			self.two_coordinate_input[2],
+			self.two_coordinate_input[1],
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[3]
+			]
 		)
-		self.assertEqual(self.correct_answer[0][0], number_of_images)
+		self.assertEqual(37, len(number_of_images))
+
+	def test_calculate_number_of_requested_images_two_coordinate_longitude_turned_around(self):
+		number_of_images = self.application.request_manager.calculate_locations(
+			[
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[3],
+			self.two_coordinate_input[2],
+			self.two_coordinate_input[1]
+			]
+		)
+		self.assertEqual(37, len(number_of_images))
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_same_latitude(self):
-		number_of_images = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil(),
-		).calculate_number_of_requested_images_two_coordinate_input(
-			self.two_coordinate_input[0],
-			(self.two_coordinate_input[0][0], self.two_coordinate_input[1][1]),
-			self.two_coordinate_input[2],
-		)
-		self.assertEqual(self.correct_answer[0][2], number_of_images)
+		with self.assertRaises(Exception):
+			self.application.request_manager.calculate_locations(
+				[
+				self.two_coordinate_input[0],
+				self.two_coordinate_input[1],
+				self.two_coordinate_input[0],
+				self.two_coordinate_input[3]
+				]
+			)
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_same_longitude(self):
-		number_of_images = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil(),
-		).calculate_number_of_requested_images_two_coordinate_input(
-			self.two_coordinate_input[0],
-			(self.two_coordinate_input[1][0], self.two_coordinate_input[0][1]),
-			self.two_coordinate_input[2]
-		)
-		self.assertEqual(self.correct_answer[0][1], number_of_images)
-
-	def test_calculate_centre_coordinates_two_coordinate_input_block(self):
-		coordinates = self._create_request_manager(
-			top_down_provider=self.top_down_provider, geo_location_util=GeoLocationUtil(),
-		).calculate_centre_coordinates_two_coordinate_input_block(
-			self.two_coordinate_input_quad[0],
-			self.two_coordinate_input_quad[1],
-			self.two_coordinate_input_quad[2]
-		)
-		self.assertEqual(self.correct_answer_quad_block, coordinates)
+		with self.assertRaises(Exception):
+			self.application.request_manager.calculate_locations(
+				[
+				self.two_coordinate_input[0],
+				self.two_coordinate_input[1],
+				self.two_coordinate_input[2],
+				self.two_coordinate_input[1]
+				]
+			)
 
 	def test_single_request(self):
-		request_manager = self._create_request_manager(top_down_provider=self.top_down_provider)
+		request_manager = self.request_manager
+		request_manager.top_down_provider = Mock()
 
-		request_manager.make_single_request((52.010442, 4.357480), 1.0, 400, 600)
+		request_manager.top_down_provider.get_and_store_location(
+			(52.010442, 4.357480), 1.0, 400, 600
+		)
 
-		self.top_down_provider.get_and_store_location.assert_called_once_with(
-			latitude=52.010442,
-			longitude=4.357480,
-			zoom=1.0,
-			filename="52.010442, 4.35748.png",
-			height=400,
-			width=600,
-			new_folder_path=ANY,
+		self.request_manager.top_down_provider.get_and_store_location.assert_called_once_with(
+			(52.010442, 4.357480), 1.0, 400, 600
 		)

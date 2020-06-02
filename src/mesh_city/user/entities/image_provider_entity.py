@@ -4,7 +4,10 @@ This module contains the image provider log
 from calendar import monthrange
 from datetime import datetime
 
-from mesh_city.util.logs.log_entry.log_entity import LogEntity
+from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
+from mesh_city.logs.log_entities.log_entity import LogEntity
 
 
 class ImageProviderEntity(LogEntity):
@@ -14,11 +17,18 @@ class ImageProviderEntity(LogEntity):
 	"""
 
 	def __init__(
-		self, file_handler, type_map_provider, api_key, quota, usage=None, date_reset=None
+		self,
+		file_handler,
+		json_data=None,
+		type_map_provider=None,
+		api_key=None,
+		quota=None,
+		date_reset=None
 	):
 		"""
 		Sets up a image provider, either from json or when created for the first time
 		:param file_handler: the file handler needed to store the image provider
+		:param json_data: the json from which to load the image provider
 		:param type_map_provider: what kind of image provider this is
 		:param api_key: the api key associated with the image provider
 		:param quota: the quota to be observed
@@ -26,23 +36,47 @@ class ImageProviderEntity(LogEntity):
 		and geocoding usage.
 		:param date_reset: The date the monthly usage should be reset.
 		"""
-		super().__init__(path_to_store=file_handler.folder_overview['users.json'][0])
-		self.type = type_map_provider
-		self.api_key = api_key
-		self.usage = usage
-		if usage is None:
+		super().__init__(path_to_store=file_handler.folder_overview['users.json'])
+		if (type_map_provider and api_key and quota is not None):
+			self.type = type_map_provider
+			self.api_key = api_key
 			self.usage = {"static_map": 0, "geocoding": 0, "total": 0}
-		self.quota = int(quota)
-		self.date_reset = self.calculate_end_of_month(datetime.today())
-		if date_reset is not None:
-			self.date_reset = date_reset
-			self.check_date_reset(datetime.today())
+			self.quota = int(quota)
+
+			self.date_reset = self.calculate_end_of_month(datetime.today())
+
+			if date_reset is not None:
+				self.date_reset = date_reset
+				self.check_date_reset(datetime.today())
+
+		else:
+			self.type = None
+			self.api_key = None
+			self.usage = None
+			self.quota = None
+			self.date_reset = None
+			self.map_entity = None
+			self.load_json(json_data)
+
+	def load_json(self, json_data):
+		"""
+		Sets the fields of the class based on a json file
+		:param json_data:
+		:return:
+		"""
+		self.type = json_data["type_map_provider"]
+		self.api_key = json_data["api_key"]
+		self.usage = json_data["usage"]
+		self.quota = int(json_data["quota"])
+		self.date_reset = json_data["date_reset"]
+		self.calculate_end_of_month(datetime.today())
 
 	def for_json(self):
 		"""
-		Turns the class into a json compliant form
-		:return: the class in a json compliant form
-		"""
+			Turns the class into a json compliant form
+			:return: the class in a json compliant form
+			"""
+
 		return {
 			"type_map_provider": self.type,
 			"api_key": self.api_key,
@@ -68,6 +102,15 @@ class ImageProviderEntity(LogEntity):
 			self.usage["total"] = 0
 			self.date_reset = self.calculate_end_of_month(current_date)
 
+	@staticmethod
+	def calculate_end_of_month(date):
+		"""
+		Helper method to calculate the end of a month
+		:return: a string containing the end of the month
+		"""
+		temp_end = monthrange(date.year, date.month)
+		return datetime(date.year, date.month, temp_end[1])
+
 	# pylint: disable=W0613
 	def action(self, logs):
 		"""
@@ -77,11 +120,26 @@ class ImageProviderEntity(LogEntity):
 		"""
 		return self.for_json()
 
-	@staticmethod
-	def calculate_end_of_month(date):
+	def load_map_entity(self):
+		"""
+		Loads the approp
+		:return:
+		"""
+		if self.type == "google_maps":
+			return GoogleMapsProvider(image_provider_entity=self)
+		if self.type == "mapbox":
+			return MapboxProvider(image_provider_entity=self)
+		if self.type == "ahn":
+			return AhnProvider(image_provider_entity=self)
+		return None
+
+	def calculate_end_this_month(self):
 		"""
 		Helper method to calculate the end of a month
 		:return: a string containing the end of the month
 		"""
-		temp_end = monthrange(date.year, date.month)
-		return datetime(date.year, date.month, temp_end[1])
+		temp_today = datetime.today()
+		temp_month = temp_today.month
+		temp_year = temp_today.year
+		temp_end = monthrange(temp_year, temp_month)
+		return str(temp_year) + "-" + str(temp_month) + "-" + str(temp_end[1])

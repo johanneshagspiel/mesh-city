@@ -21,7 +21,7 @@ class PreviewWindow:
 		:param master: the master tkinter object
 		:param application: the global application context
 		:param main_screen: the main screen of the application
-		:param coordinates: the coordinates of the request
+		:param coordinates: the tile_information of the request
 		"""
 		self.main_screen = main_screen
 		self.master = master
@@ -62,7 +62,8 @@ class PreviewWindow:
 		self.locations = self.application.request_manager.calculate_locations(
 			coordinates=self.coordinates
 		)
-		number_requests = len(self.locations)
+		self.locations = self.application.request_manager.check_coordinates(self.locations)
+		number_requests = self.locations.pop(0)
 
 		for widget in self.temp_list:
 			widget.grid_forget()

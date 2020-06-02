@@ -1,7 +1,6 @@
 # pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
 
 import unittest
-from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -14,12 +13,7 @@ class MapboxProviderTest(unittest.TestCase):
 
 	def setUp(self):
 		self.provider = ImageProviderEntity(
-			FileHandler(),
-			type_map_provider="map_box",
-			api_key="test",
-			quota=500,
-			usage=None,
-			date_reset=datetime(2019, 2, 28)
+			FileHandler(), type_map_provider="map_box", api_key="test", quota=500
 		)
 
 		self.mapbox = MapboxProvider(self.provider)

@@ -4,8 +4,9 @@ A module that contains the log manager who is responsible for performing all the
 
 import json
 import os
-from pathlib import Path
 
+from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.user.entities.user_entity import UserEntity
 
 
@@ -14,11 +15,9 @@ class LogManager:
 	A class that is responsible for logging every request made.
 	"""
 
-	def __init__(self, file_handler, resource_path=Path(__file__).parents[1].joinpath("resources")):
-		self.resource_path = resource_path
-		self.image_path = resource_path.joinpath("images")
-		self.log_path = resource_path.joinpath("logs", "log_request_.json")
+	def __init__(self, file_handler):
 		self.file_handler = file_handler
+		self.paths = file_handler.folder_overview
 
 	def get_request_number(self):
 		"""
@@ -29,8 +28,8 @@ class LogManager:
 
 		max_log = 0
 
-		if self.log_path.is_file():  # pylint: disable=no-member
-			with open(self.log_path, "r") as json_log:
+		if self.paths["log_request_.json"].is_file():
+			with open(self.paths["log_request_.json"], "r") as json_log:
 				data = json_log.read()
 				json_log.close()
 			logs = json.loads(data)
@@ -40,20 +39,26 @@ class LogManager:
 					element = [int(k) for k, v in element.items()][0]
 					if element > max_log:
 						max_log = element
+
 		else:
 			max_log = 0
 
 		max_directory = 0
 
-		self.image_path.mkdir(exist_ok=True)
-		if len(os.listdir(self.image_path)) == 0:
+		temp_path = self.paths["image_path"]
+
+		if len(os.listdir(self.paths["image_path"])) == 0:
 			max_directory = 0
 		else:
-			for directory in os.listdir(self.image_path):
-				if directory.split("_")[1] != "":
-					temp_result = int(directory.split("_")[1])
-					if temp_result > max_directory:
-						max_directory = temp_result
+			for temp in temp_path.glob("*"):
+				if temp.is_file():
+					continue
+				directory = temp.name
+				if directory.split("_")[1] == '':
+					continue
+				temp_result = int(directory.split("_")[1])
+				if temp_result > max_directory:
+					max_directory = temp_result
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
@@ -70,28 +75,44 @@ class LogManager:
 		result = log_entry.action(logs)
 
 		with open(log_entry.path_to_store, "w") as json_log:
-			json.dump(result, fp=json_log)
+			json.dump(result, fp=json_log, indent=4)
 			json_log.close()
 
-	def read_log(self, path):
+	def create_log(self, log_entry):
+		"""
+		Method to store one new log
+		:param log_entry: the log entry to store
+		:return: nothing (the log is stored to file)
+		"""
+		with open(log_entry.path_to_store, "w") as json_log:
+			json.dump(log_entry.for_json(), fp=json_log, indent=4)
+			json_log.close()
+
+	def read_log(self, path, type_document):
 		"""
 		Method to read what is at the path and then build it appropriately
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
-		with open(path[0], "r") as json_log:
+		with open(path, "r") as json_log:
 			data = json_log.read()
 		logs = json.loads(data)
 
 		temp_dic = {}
 
-		if path[1] == "users.json":
-			print(logs.items())
+		if type_document == "building_instructions_request":
+			return BuildingInstructionsRequest(path_to_store=path, json=logs)
+
+		if type_document == "users.json":
 			for key, value in logs.items():
-				print(value)
-				temp_dic[key] = UserEntity(
-					file_handler=self.file_handler, name=key, json={key: value}
-				)
+				temp_dic_entry = {key: value}
+				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
 
-		return logs
+		if type_document == "coordinate_overview.json":
+			temp_coordinate_overview = CoordinateOverview(
+				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs
+			)
+			self.file_handler.coordinate_overview = temp_coordinate_overview
+
+		return None
