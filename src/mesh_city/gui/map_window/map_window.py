@@ -2,7 +2,9 @@
 Module containing the generate screen class
 """
 from tkinter import Button, Label, Toplevel
+
 from mesh_city.imagery_provider.request_creator import RequestCreator
+
 
 class MapWindow:
 	"""
@@ -31,8 +33,13 @@ class MapWindow:
 		self.top_label = Label(top, text="Do you want to generate a map?")
 		self.top_label.grid(row=0)
 
-		temp_path = next(self.application.file_handler.folder_overview["active_request_path"].glob('building_instructions_request_*'))
-		building_instructions = self.application.log_manager.read_log(temp_path, "building_instructions_request")
+		temp_path = next(
+			self.application.file_handler.folder_overview["active_request_path"].
+			glob('building_instructions_request_*')
+		)
+		building_instructions = self.application.log_manager.read_log(
+			temp_path, "building_instructions_request"
+		)
 
 		self.temp_list_detected_layers = []
 		for key in building_instructions.instructions.keys():
@@ -44,7 +51,9 @@ class MapWindow:
 			self.top_label["text"] = "A map can not be generated. Detect something first."
 
 		else:
-			self.map_button = Button(self.top, text="Map", command= lambda : self.create_map(building_instructions))
+			self.map_button = Button(
+				self.top, text="Map", command=lambda: self.create_map(building_instructions)
+			)
 			self.map_button.grid(row=1)
 
 	def create_map(self, building_instructions):

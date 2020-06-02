@@ -1,7 +1,7 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, Label, Toplevel, END
+from tkinter import Button, END, Label, Toplevel
 
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
