@@ -53,42 +53,42 @@ class MainScreen:
 		self.left_bar.grid_propagate(0)
 
 		self.search_button = Button(
-			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="grey"
+			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="white"
 		)
 		self.search_button.grid(row=0, column=0)
 
 		self.load_button = Button(
-			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="grey"
+			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="white"
 		)
 		self.load_button.grid(row=1, column=0)
 
 		self.detect_button = Button(
-			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
+			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="white"
 		)
 		self.detect_button.grid(row=2, column=0)
 
 		self.layers_button = Button(
-			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="white"
 		)
 		self.layers_button.grid(row=3, column=0)
 
 		self.map_button = Button(
-			self.left_bar, text="Map", width=6, height=3, command=self.map_window, bg="grey"
+			self.left_bar, text="Map", width=6, height=3, command=self.map_window, bg="white"
 		)
 		self.map_button.grid(row=4, column=0)
 
 		self.eco_button = Button(
-			self.left_bar, text="Eco", width=6, height=3, command=self.eco_window, bg="grey"
+			self.left_bar, text="Eco", width=6, height=3, command=self.eco_window, bg="white"
 		)
 		self.eco_button.grid(row=5, column=0)
 
 		self.export_button = Button(
-			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
+			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="white"
 		)
 		self.export_button.grid(row=6, column=0)
 
 		self.user_button = Button(
-			self.left_bar, text="User", width=6, height=3, command=None, bg="grey"
+			self.left_bar, text="User", width=6, height=3, command=None, bg="white"
 		)
 		self.user_button.grid(row=7, column=0)
 
@@ -116,6 +116,7 @@ class MainScreen:
 
 		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
 		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
+
 		self.temp_image= Label(self.master, image=temp_image)
 		self.temp_image.grid(row=0, column=1, sticky='nsew')
 

@@ -45,12 +45,20 @@ class EcoWindow:
 
 			else:
 				self.top_label["text"] = "How do you want to make this area more eco-friendly?"
+				self.top_label.grid(row=0)
 
 				self.more_trees = Button(self.top, text="Add more trees", command=self.add_more_trees)
 				self.more_trees.grid(row=1)
 
+				self.test_scenarios = Button(self.top, text="Test different scenarios", command=self.test_scenarios)
+				self.test_scenarios.grid(row=2)
+
+	def test_scenarios(self):
+		self.top.destroy()
+
 	def add_more_trees(self):
 		self.more_trees.grid_forget()
+		self.test_scenarios.grid_forget()
 
 		self.top_label["text"] = "How many trees do you want to add in percentage?"
 

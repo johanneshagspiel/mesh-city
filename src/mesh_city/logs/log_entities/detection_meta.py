@@ -38,13 +38,13 @@ class DetectionMeta(LogEntity):
 				first_round = False
 			else:
 				if len(row) > 1:
-					object_count += 1
 					temp_object[object_count] = {"label" : row[0], "xmin" :  row[1], "ymin" :  row[2],
 								                              "xmax" :  row[3], "ymax" :  row[4],
 								                                "score" :  row[5],
 								                              "length_image" :  row[6],
 								                              "height_image" :  row[7],
 								                              "area_image" :  row[8]}
+					object_count += 1
 
 		self.information["Amount"] = object_count - 1
 		self.information["Objects"] = temp_object

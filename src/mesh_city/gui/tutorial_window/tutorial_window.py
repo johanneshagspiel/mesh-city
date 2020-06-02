@@ -21,4 +21,3 @@ class TutorialWindow:
 		temp_window = SearchWindowStart(self.master, self.application, self.main_screen)
 		self.top.destroy()
 		self.main_screen.master.wait_window(temp_window.top)
-
