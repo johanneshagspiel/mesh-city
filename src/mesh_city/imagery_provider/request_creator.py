@@ -8,6 +8,7 @@ from PIL import Image
 
 from mesh_city.util.image_util import ImageUtil
 
+
 class RequestCreator:
 	"""
 	The class creating the image seen on the main screen based on a list of images to be combined
@@ -35,46 +36,59 @@ class RequestCreator:
 			temp_to_build = building_instructions_request.instructions[list_to_make[0]]
 			iteration_amount = temp_to_build[0]
 
-			temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
-			                          "concat_image_normal.png")
+			temp_path = Path.joinpath(
+				self.file_handler.folder_overview["temp_image_path"], "concat_image_normal.png"
+			)
 
 			if iteration_amount == 0:
-				result_image = ImageUtil.concat_images_tile(self=self.image_util, image_list=temp_to_build[1])
+				result_image = ImageUtil.concat_images_tile(
+					self=self.image_util, image_list=temp_to_build[1]
+				)
 
 			else:
 				temp_list_images = []
 
 				for number in range(1, len(temp_to_build)):
-					temp_image = ImageUtil.concat_images_tile(self=self.image_util, image_list=temp_to_build[number])
+					temp_image = ImageUtil.concat_images_tile(
+						self=self.image_util, image_list=temp_to_build[number]
+					)
 					temp_list_images.append(temp_image)
 
-				result_image = ImageUtil.combine_images_list(self=self.image_util, image_list=temp_list_images, iteration_amount=iteration_amount)
+				result_image = ImageUtil.combine_images_list(
+					self=self.image_util,
+					image_list=temp_list_images,
+					iteration_amount=iteration_amount
+				)
 
 			result_image.save(fp=temp_path, format="png")
-			self.file_handler.change("active_image_path", self.file_handler.folder_overview["temp_image_path"])
+			self.file_handler.change(
+				"active_image_path", self.file_handler.folder_overview["temp_image_path"]
+			)
 
 			print(self.file_handler.folder_overview["active_image_path"])
 
 		if list_to_make[0] == "Trees":
-			temp_to_build = building_instructions_request.instructions[list_to_make[0]][list_to_make[1]]
+			temp_to_build = building_instructions_request.instructions[list_to_make[0]][
+				list_to_make[1]]
 			iteration_amount = temp_to_build[0]
 
-			temp_path = Path.joinpath(self.file_handler.folder_overview["temp_overlay_path"],
-			                          "combined_image_overlay.png")
+			temp_path = Path.joinpath(
+				self.file_handler.folder_overview["temp_overlay_path"], "combined_image_overlay.png"
+			)
 
 			if iteration_amount == 0:
 				result_image = Image.open(temp_to_build[1][0])
 
 			else:
-				temp_list = list(map(lambda x : Image.open(x), temp_to_build[1]))
-				result_image = ImageUtil.combine_images_list(self=self.image_util,
-				                                             image_list=temp_list,
-				                                             iteration_amount=iteration_amount)
-
+				temp_list = list(map(lambda x: Image.open(x), temp_to_build[1]))
+				result_image = ImageUtil.combine_images_list(
+					self=self.image_util, image_list=temp_list, iteration_amount=iteration_amount
+				)
 
 			result_image.save(fp=temp_path, format="png")
-			self.file_handler.change("active_image_path",
-			                         self.file_handler.folder_overview["temp_overlay_path"])
+			self.file_handler.change(
+				"active_image_path", self.file_handler.folder_overview["temp_overlay_path"]
+			)
 
 	def follow_move_instructions(self, to_move, building_instructions_request, path_to_move):
 		"""
@@ -99,21 +113,29 @@ class RequestCreator:
 		:return: nothing (creates a composite image and updates the main screen with it)
 		"""
 
-		base = Image.open(next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")))
+		base = Image.open(
+			next(
+			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+			)
+		)
 		base.putalpha(255)
 
 		self.follow_create_instructions([overlays[0], "Overlay"], building_instructions_request)
 
-		to_overlay = Image.open(Path.joinpath(self.file_handler.folder_overview["temp_overlay_path"],
-			                          "combined_image_overlay.png"))
+		to_overlay = Image.open(
+			Path.joinpath(
+			self.file_handler.folder_overview["temp_overlay_path"], "combined_image_overlay.png"
+			)
+		)
 
-		resized_overlay= to_overlay.resize((image_size[0], image_size[1]), Image.ANTIALIAS)
+		resized_overlay = to_overlay.resize((image_size[0], image_size[1]), Image.ANTIALIAS)
 		resized_base = base.resize((image_size[0], image_size[1]), Image.ANTIALIAS)
 		resized_base.alpha_composite(resized_overlay)
 
 		resized_base.save(
 			Path.joinpath(
-			self.application.file_handler.folder_overview["temp_overlay_path"], "concat_image_overlay.png"
+			self.application.file_handler.folder_overview["temp_overlay_path"],
+			"concat_image_overlay.png"
 			)
 		)
 		self.application.file_handler.change(
@@ -142,14 +164,11 @@ class RequestCreator:
 			)
 			resized_base.alpha_composite(to_overlay)
 
-		temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["temp_path"],"map")
+		temp_path = Path.joinpath(self.application.file_handler.folder_overview["temp_path"], "map")
 
 		# pylint: disable=E1101
 		if temp_path.exists() is False:
 			os.makedirs(temp_path)
 
 		resized_base.save(Path.joinpath(temp_path, "concat_image_map_overlay.png"))
-		self.application.file_handler.change(
-			"active_image_path", temp_path)
-
+		self.application.file_handler.change("active_image_path", temp_path)

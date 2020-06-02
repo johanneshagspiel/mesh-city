@@ -47,11 +47,18 @@ class OverlayCreator:
 					temp_counter += 1
 
 			temp_name = "overlay_tile_" + str(number) + ".png"
-			temp_path = Path.joinpath(self.application.file_handler.folder_overview["active_request_path"], "trees", "overlay", temp_name)
+			temp_path = Path.joinpath(
+				self.application.file_handler.folder_overview["active_request_path"],
+				"trees",
+				"overlay",
+				temp_name
+			)
 
 			tree_overlay.save(temp_path, format="png")
 
-			self.building_instructions.instructions[detection_algorithm]["Overlay"][1].append(str(temp_path))
+			self.building_instructions.instructions[detection_algorithm]["Overlay"][1].append(
+				str(temp_path)
+			)
 
 	def create_map_overlay(self, detection_algorithm, image_size, number, path):
 		"""
@@ -73,13 +80,21 @@ class OverlayCreator:
 					if len(row) > 0 and temp_counter > 0:
 						draw.rectangle(
 							xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
-							outline="green", fill="green"
+							outline="green",
+							fill="green"
 						)
 					temp_counter += 1
 
 			temp_name = "map_tile_" + str(number) + ".png"
-			temp_path = Path.joinpath(self.application.file_handler.folder_overview["active_request_path"], "trees", "map", temp_name)
+			temp_path = Path.joinpath(
+				self.application.file_handler.folder_overview["active_request_path"],
+				"trees",
+				"map",
+				temp_name
+			)
 
 			tree_map_overlay.save(temp_path, format="png")
 
-			self.building_instructions.instructions[detection_algorithm]["Map"][1].append(str(temp_path))
+			self.building_instructions.instructions[detection_algorithm]["Map"][1].append(
+				str(temp_path)
+			)

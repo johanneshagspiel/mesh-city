@@ -5,10 +5,10 @@ A module that contains the log manager who is responsible for performing all the
 import json
 import os
 
-from mesh_city.user.entities.user_entity import UserEntity
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.detection_meta import DetectionMeta
+from mesh_city.user.entities.user_entity import UserEntity
 
 
 class LogManager:
@@ -19,7 +19,6 @@ class LogManager:
 	def __init__(self, file_handler):
 		self.file_handler = file_handler
 		self.paths = file_handler.folder_overview
-
 
 	def get_request_number(self):
 		"""
@@ -101,7 +100,6 @@ class LogManager:
 		logs = json.loads(data)
 
 		temp_dic = {}
-
 
 		if type_document == "building_instructions_request":
 			return BuildingInstructionsRequest(path_to_store=path, json=logs)

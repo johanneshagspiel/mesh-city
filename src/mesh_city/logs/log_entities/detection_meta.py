@@ -3,6 +3,7 @@ A module of the detection meta class
 """
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
+
 class DetectionMeta(LogEntity):
 	"""
 	The log entity that stores meta information
@@ -11,7 +12,7 @@ class DetectionMeta(LogEntity):
 	def __init__(self, path_to_store, json=None):
 		super().__init__(path_to_store=path_to_store)
 		if json is None:
-			self.information ={}
+			self.information = {}
 		else:
 			self.information = {}
 			self.load_json(json)
@@ -38,5 +39,3 @@ class DetectionMeta(LogEntity):
 		:return: the class in json compliant form
 		"""
 		return self.information
-
-
