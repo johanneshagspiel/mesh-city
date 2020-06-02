@@ -4,14 +4,13 @@ their APIs such that data for larger geographical areas can be made and the resu
 requests are stored on disk.
 """
 
-
 import os
 from pathlib import Path
 
 from mesh_city.imagery_provider.request_creator import RequestCreator
+from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 
 
 class RequestManager:
@@ -126,7 +125,7 @@ class RequestManager:
 		overall_list_path.append(temp_list_path)
 
 		# pylint: disable=W0108
-		downloaded_images = list(map(lambda x : self.download_image(x), to_download))
+		downloaded_images = list(map(lambda x: self.download_image(x), to_download))
 
 		temp_counter = 0
 		for (round_counter, position_counter) in to_download_positions:
@@ -143,24 +142,28 @@ class RequestManager:
 		overall_list_coordinates.insert(0, max_tile_right)
 		self.normal_building_instructions["Coordinates"] = overall_list_coordinates
 
-		temp_path_request = Path.joinpath(self.new_folder_path.parents[0],
-		                                  "building_instructions_request_" + str(
-			                                  request_number) + ".json")
+		temp_path_request = Path.joinpath(
+			self.new_folder_path.parents[0],
+			"building_instructions_request_" + str(request_number) + ".json"
+		)
 		temp_building_instructions_request = BuildingInstructionsRequest(temp_path_request)
-		temp_building_instructions_request.instructions[
-			self.top_down_provider.name] = self.normal_building_instructions
+		temp_building_instructions_request.instructions[self.top_down_provider.name
+														] = self.normal_building_instructions
 		self.log_manager.create_log(temp_building_instructions_request)
 
 		self.log_manager.write_log(self.file_handler.coordinate_overview)
 
 		temp_request_creator = RequestCreator(application=self.application)
 
-		temp_path = Path.joinpath(self.file_handler.folder_overview["temp_image_path"],
-		                          "concat_image_normal.png")
-		temp_request_creator.follow_create_instructions([self.top_down_provider.name, "Paths"],
-		                                                temp_building_instructions_request, temp_path)
-		self.file_handler.change("active_image_path",
-		                         self.file_handler.folder_overview["temp_image_path"])
+		temp_path = Path.joinpath(
+			self.file_handler.folder_overview["temp_image_path"], "concat_image_normal.png"
+		)
+		temp_request_creator.follow_create_instructions(
+			[self.top_down_provider.name, "Paths"], temp_building_instructions_request, temp_path
+		)
+		self.file_handler.change(
+			"active_image_path", self.file_handler.folder_overview["temp_image_path"]
+		)
 
 		return self.new_folder_path
 
@@ -175,9 +178,11 @@ class RequestManager:
 		latitude = str(location[0][0])
 		longitude = str(location[0][1])
 		temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-		temp_location_stored = str(self.top_down_provider.get_and_store_location(
+		temp_location_stored = str(
+			self.top_down_provider.get_and_store_location(
 			location[0][0], location[0][1], self.zoom, temp_name, self.new_folder_path
-		))
+			)
+		)
 
 		if latitude in self.file_handler.coordinate_overview.grid:
 			new_to_store = self.file_handler.coordinate_overview.grid[latitude]
@@ -185,7 +190,10 @@ class RequestManager:
 			self.file_handler.coordinate_overview.grid[latitude] = new_to_store
 		else:
 			self.file_handler.coordinate_overview.grid[latitude] = {
-				longitude: {self.top_down_provider.name: temp_location_stored}}
+				longitude: {
+				self.top_down_provider.name: temp_location_stored
+				}
+			}
 
 		return temp_location_stored
 

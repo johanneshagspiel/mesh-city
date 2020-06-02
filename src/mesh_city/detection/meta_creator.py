@@ -4,8 +4,10 @@ A module containing the meta creator class
 """
 import csv
 from pathlib import Path
-from mesh_city.util.geo_location_util import GeoLocationUtil
+
 from mesh_city.logs.log_entities.detection_meta import DetectionMeta
+from mesh_city.util.geo_location_util import GeoLocationUtil
+
 
 class MetaCreator:
 	"""
@@ -27,11 +29,12 @@ class MetaCreator:
 		"""
 
 		temp_name = "meta_tile_" + str(number) + ".json"
-		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["active_meta_path"], temp_name)
+		temp_to_store = Path.joinpath(
+			self.application.file_handler.folder_overview["active_meta_path"], temp_name
+		)
 
 		to_store = DetectionMeta(path_to_store=temp_to_store)
-		to_store.information = {"Amount" : 0,
-		                        "Objects" : {}}
+		to_store.information = {"Amount": 0, "Objects": {}}
 
 		if detection_algorithm == "Trees":
 
@@ -49,14 +52,20 @@ class MetaCreator:
 						label = str(row[6])
 						length_image = xmax - xmin
 						height_image = ymax - ymin
-						area_image = length_image*height_image
+						area_image = length_image * height_image
 
 						new_to_store = to_store.information["Objects"]
-						new_to_store[object_count] = {"label" : label, "xmin" : xmin, "ymin" : ymin,
-						                              "xmax" : xmax, "ymax" : ymax, "score" : score,
-						                              "length_image" : length_image,
-						                              "height_image" : height_image,
-						                              "area_image" : area_image}
+						new_to_store[object_count] = {
+							"label": label,
+							"xmin": xmin,
+							"ymin": ymin,
+							"xmax": xmax,
+							"ymax": ymax,
+							"score": score,
+							"length_image": length_image,
+							"height_image": height_image,
+							"area_image": area_image
+						}
 						to_store.information["Objects"] = new_to_store
 						object_count += 1
 
@@ -66,10 +75,11 @@ class MetaCreator:
 
 			self.application.log_manager.create_log(to_store)
 
-			self.building_instructions.instructions[detection_algorithm]["Meta"][1].append(str(temp_to_store))
+			self.building_instructions.instructions[detection_algorithm]["Meta"][1].append(
+				str(temp_to_store)
+			)
 
 			#total_area_covered = image_size[0] * image_size[1] * GeoLocationUtil.calc_meters_per_px()
-
 
 	def combine_information(self, detection_algorithm):
 		"""
@@ -78,7 +88,9 @@ class MetaCreator:
 		:return: nothing (created a log combining the information from the different tiles)
 		"""
 
-		temp_to_store = Path.joinpath(self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json")
+		temp_to_store = Path.joinpath(
+			self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json"
+		)
 		combined = DetectionMeta(path_to_store=temp_to_store)
 
 		temp_amount = 0
