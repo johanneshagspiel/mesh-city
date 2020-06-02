@@ -4,7 +4,7 @@ A module of the detection meta class
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
 
-class DetectionMeta(LogEntity):
+class DetectionMetaData(LogEntity):
 	"""
 	The log entity that stores meta information
 	"""

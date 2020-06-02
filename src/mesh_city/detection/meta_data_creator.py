@@ -5,11 +5,11 @@ A module containing the meta creator class
 import csv
 from pathlib import Path
 
-from mesh_city.logs.log_entities.detection_meta import DetectionMeta
+from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
-class MetaCreator:
+class MetaDataCreator:
 	"""
 	Class that stores meta information from the results of the detection algorithms
 	"""
@@ -33,7 +33,7 @@ class MetaCreator:
 			self.application.file_handler.folder_overview["active_meta_path"], temp_name
 		)
 
-		to_store = DetectionMeta(path_to_store=temp_to_store)
+		to_store = DetectionMetaData(path_to_store=temp_to_store)
 		to_store.information = {"Amount": 0, "Objects": {}}
 
 		if detection_algorithm == "Trees":
@@ -91,7 +91,7 @@ class MetaCreator:
 		temp_to_store = Path.joinpath(
 			self.application.file_handler.folder_overview["temp_meta_path"], "concat_information.json"
 		)
-		combined = DetectionMeta(path_to_store=temp_to_store)
+		combined = DetectionMetaData(path_to_store=temp_to_store)
 
 		temp_amount = 0
 		temp_object = {}
