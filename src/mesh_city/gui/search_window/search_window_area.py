@@ -112,10 +112,11 @@ class SearchWindowLocationArea:
 			float(self.max_long_entry.get()),
 		]
 
-		PreviewWindow(
+		temp_window = PreviewWindow(
 			main_screen=self.main_screen,
 			master=self.master,
 			application=self.application,
 			coordinates=self.value
 		)
 		self.top.destroy()
+		self.main_screen.master.wait_window(temp_window.top)

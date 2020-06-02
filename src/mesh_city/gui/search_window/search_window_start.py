@@ -38,13 +38,15 @@ class SearchWindowStart:
 		Creates an area-type pop-up that in the end makes the area request to the backend.
 		:return: None
 		"""
-		SearchWindowLocationArea(self.master, self.application, self.main_screen)
+		temp_window = SearchWindowLocationArea(self.master, self.application, self.main_screen)
 		self.top.destroy()
+		self.main_screen.master.wait_window(temp_window.top)
 
 	def button_location_callback(self):
 		"""
 		Creates an location-type pop-up that in the end makes the location request to the backend.
 		:return: None
 		"""
-		SearchWindowLocation(self.master, self.application, self.main_screen)
+		temp_window = SearchWindowLocation(self.master, self.application, self.main_screen)
 		self.top.destroy()
+		self.main_screen.master.wait_window(temp_window.top)
