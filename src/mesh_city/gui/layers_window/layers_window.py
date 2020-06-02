@@ -34,7 +34,8 @@ class LayersWindow:
 		temp_list_detected_layers = []
 		for key in self.building_instructions.instructions.keys():
 			if key != "Google Maps":
-				temp_list_detected_layers.append(key)
+				if key != "Generated":
+					temp_list_detected_layers.append(key)
 
 		if len(temp_list_detected_layers) == 0:
 			self.top_label = Label(top, text="There are no layers to show. Detect something first.")

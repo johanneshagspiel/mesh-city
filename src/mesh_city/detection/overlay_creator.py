@@ -2,6 +2,7 @@
 A module containing the overlay creator
 """
 import csv
+import os
 from pathlib import Path
 import random
 import copy
@@ -108,20 +109,40 @@ class OverlayCreator:
 			detection_info.information["Objects"][object_counter] = temp_entry
 			object_counter += 1
 
-			# where_to_place = ((int(float(temp_entry["xmin"])),
-			#                                             int(float(temp_entry["ymax"])),
-			#                                             int(float(temp_entry["xmax"])),
-			#                                             int(float(temp_entry["ymin"]))))
-
-			where_to_place = ((int(float(temp_entry["xmin"])),
-			                                            int(float(temp_entry["ymax"]))))
+			where_to_place = ((int(float(temp_entry["xmin"])), int(float(temp_entry["ymax"]))))
 
 			temp_image.paste(image_to_paste, box=where_to_place)
 			temp_to_add_image = copy.deepcopy(temp_image)
 			images_to_add.append(temp_to_add_image)
 
-		images_to_add[0].save('test.gif',
+		temp_path_directory = Path.joinpath(self.application.file_handler.folder_overview["active_request_path"], "more_trees")
+		number_generated = 1
+
+		if "Generated" not in building_instructions.instructions.keys():
+			building_instructions.instructions["Generated"] = {}
+
+		if "More Trees" not in building_instructions.instructions["Generated"]:
+			temp_dic_entry = building_instructions.instructions["Generated"]
+			temp_dic_entry["More Trees"] =  [0, []]
+			building_instructions.instructions["Generated"] = temp_dic_entry
+			os.makedirs(temp_path_directory)
+		else:
+			number_generated = len(building_instructions.instructions["Generated"]["More Trees" ][1]) + 1
+
+		temp_name = "concat_image_trees_" + str(number_generated) + ".gif"
+		temp_path_file = Path.joinpath(temp_path_directory, temp_name)
+
+		images_to_add[0].save(temp_path_file,
 		               save_all=True, append_images=images_to_add[1:], optimize=False, duration=40, loop=0)
+
+		temp_to_store = building_instructions.instructions["Generated"]["More Trees"][1]
+		temp_to_store_addition = str(temp_path_file)
+		print(temp_to_store)
+		temp_to_store.append(temp_to_store_addition)
+
+		building_instructions.instructions["Generated"]["More Trees"][1] = temp_to_store
+		self.application.log_manager.write_log(building_instructions)
+
 
 	def calculate_new_location(self,what_to_place, where_to_place):
 		old_xmin = what_to_place["xmin"]

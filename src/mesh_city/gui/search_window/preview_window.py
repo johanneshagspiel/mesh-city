@@ -98,7 +98,7 @@ class PreviewWindow:
 			self.usage_left_label.grid(row=3, column=0)
 
 			self.confirm_button = Button(
-				self.top, text="Confirm", command=lambda: self.cleanup(self.locations)
+				self.top, text="Confirm", command=lambda: self.cleanup(self.locations), bg="white"
 			)
 			self.confirm_button.grid(row=4)
 

@@ -148,6 +148,8 @@ class ExportWindow:
 
 				if temp_split[0] == "Google":
 					temp_to_move = ("Google Maps", "Paths")
+				if temp_split[2] == "Trees":
+					temp_to_move = ("Generated", "More Trees")
 				else:
 					temp_to_move = (temp_split[0], temp_split[1])
 
