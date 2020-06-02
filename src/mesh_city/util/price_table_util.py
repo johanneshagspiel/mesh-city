@@ -16,7 +16,7 @@ class PriceTableUtil:
 	A utility class needed to calculate the costs of a request
 	"""
 	price_table_dic = {
-		"google_maps":
+		"Google Maps":
 		{
 		"static_map": RangeKeyDict({
 		(0, 100001): 0.002, (100001, 500001): 0.0016,
@@ -25,7 +25,7 @@ class PriceTableUtil:
 		(0, 100001): 0.005, (100001, 500001): 0.004,
 		})
 		},
-		"mapbox":
+		"Mapbox":
 		{
 		"static_map":
 		RangeKeyDict(

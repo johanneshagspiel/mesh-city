@@ -3,7 +3,7 @@ A module that contains the loading old request window
 """
 
 from pathlib import Path
-from tkinter import Button, Label, Toplevel
+from tkinter import Button, END, Label, Toplevel
 
 from mesh_city.imagery_provider.request_creator import RequestCreator
 
@@ -77,9 +77,15 @@ class LoadWindow:
 
 			temp_request_creator = RequestCreator(application=self.application)
 			temp_request_creator.follow_create_instructions(
-				"normal", temp_building_instructions_request
+				["Google Maps"], temp_building_instructions_request
 			)
 
 		self.mainscreen.update_image()
-		self.mainscreen.layer_active = "normal"
+		self.mainscreen.layer_active = "Google Maps"
+
+		self.mainscreen.information_general.configure(state='normal')
+		self.mainscreen.information_general.delete('1.0', END)
+		self.mainscreen.information_general.insert(END, "General")
+		self.mainscreen.information_general.configure(state='disabled')
+
 		self.top.destroy()

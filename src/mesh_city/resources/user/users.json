@@ -1,44 +1,7 @@
 {
-    "red": {
-        "google_maps": {
-            "type_map_provider": "google_maps",
-            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
-            "usage": {
-                "static_map": 3,
-                "geocoding": 0,
-                "total": 0
-            },
-            "quota": 200,
-            "date_reset": "2020-05-31"
-        },
-        "google_maps2": {
-            "type_map_provider": "google_maps",
-            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
-            "usage": {
-                "static_map": 0,
-                "geocoding": 0,
-                "total": 0
-            },
-            "quota": 200,
-            "date_reset": "2020-05-31"
-        }
-    },
-    "Test2": {
+    "Johannes": {
         "Google Maps 1": {
-            "type_map_provider": "google_maps",
-            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
-            "usage": {
-                "static_map": 0,
-                "geocoding": 0,
-                "total": 0
-            },
-            "quota": 288,
-            "date_reset": "2020-05-31"
-        }
-    },
-    "Test3": {
-        "Google Maps 1": {
-            "type_map_provider": "google_maps",
+            "type_map_provider": "Google Maps",
             "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
             "usage": {
                 "static_map": 0,

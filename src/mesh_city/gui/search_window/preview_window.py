@@ -1,7 +1,7 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, Label, Toplevel
+from tkinter import Button, END, Label, Toplevel
 
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
@@ -111,4 +111,10 @@ class PreviewWindow:
 
 		self.application.request_manager.make_request_for_block(locations)
 		self.main_screen.update_image()
+
+		self.main_screen.information_general.configure(state='normal')
+		self.main_screen.information_general.delete('1.0', END)
+		self.main_screen.information_general.insert(END, "General")
+		self.main_screen.information_general.configure(state='disabled')
+
 		self.top.destroy()

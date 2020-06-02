@@ -37,7 +37,7 @@ class AhnProvider(TopDownProvider):
 	def load_from_json(self):
 		"""
 		Loads the height associated to a color from a json file.
-		:return: a dictionary of the type color : height
+		:return: a dictionary of the type_of_detection color : height
 		"""
 
 		with open(self.json_folder_path, "r") as json_log:
