@@ -133,16 +133,16 @@ class OverlayCreator:
 		temp_path_file = Path.joinpath(temp_path_directory, temp_name)
 
 		images_to_add[0].save(temp_path_file,
-		               save_all=True, append_images=images_to_add[1:], optimize=False, duration=40, loop=0)
+		               save_all=True, append_images=images_to_add[1:], optimize=False, duration=100, loop=0)
 
 		temp_to_store = building_instructions.instructions["Generated"]["More Trees"][1]
 		temp_to_store_addition = str(temp_path_file)
-		print(temp_to_store)
 		temp_to_store.append(temp_to_store_addition)
 
 		building_instructions.instructions["Generated"]["More Trees"][1] = temp_to_store
 		self.application.log_manager.write_log(building_instructions)
 
+		self.application.file_handler.change("active_image_path", temp_path_directory)
 
 	def calculate_new_location(self,what_to_place, where_to_place):
 		old_xmin = what_to_place["xmin"]

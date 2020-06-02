@@ -16,6 +16,7 @@ from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
+from mesh_city.gui.gif_image.gif_image import GifImage
 
 class MainScreen:
 	"""
@@ -126,9 +127,13 @@ class MainScreen:
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
-		self.temp_image.grid_forget()
-		self.canvas_image = CanvasImage(self.master, temp_image_path)
+
 		self.new_canvas_image = None
+		self.gif_image = Label(self.master, text="")
+		self.gif_image.grid(row=0, column=1, sticky='nsew')
+		self.temp_image.grid_forget()
+
+		self.canvas_image = CanvasImage(self.master, temp_image_path)
 		self.canvas_image.grid(row=0, column=1, sticky='nsew')
 
 		self.master.columnconfigure(1, weight=1)
@@ -193,6 +198,13 @@ class MainScreen:
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
+
+	def update_gif(self):
+		temp_image_path = next(self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*"))
+
+		self.gif_image = GifImage(self.master)
+		self.gif_image.load(str(temp_image_path))
+		self.gif_image.grid(row=0, column=1, sticky='nsew')
 
 	def delete_text(self):
 		"""

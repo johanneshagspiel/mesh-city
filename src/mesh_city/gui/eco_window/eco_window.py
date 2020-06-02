@@ -78,4 +78,5 @@ class EcoWindow:
 		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
 		temp_overlay_creator.create_image_with_more_trees(trees_to_add, self.temp_meta_info, self.building_instructions)
 
+		self.main_screen.update_gif()
 		self.top.destroy()
