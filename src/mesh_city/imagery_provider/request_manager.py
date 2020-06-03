@@ -11,6 +11,7 @@ from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
+from mesh_city.util.price_table_util import PriceTableUtil
 
 
 class RequestManager:
@@ -23,10 +24,11 @@ class RequestManager:
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	def __init__(self, user_entity, application, top_down_provider=None):
-		self.user_entity = user_entity
-		self.top_down_provider = top_down_provider
+	def __init__(self, user_entity, application):
 		self.application = application
+
+		self.user_entity = user_entity
+		self.top_down_provider = None
 
 		self.file_handler = application.file_handler
 		self.log_manager = application.log_manager
@@ -179,6 +181,11 @@ class RequestManager:
 			location[0][0], location[0][1], self.zoom, temp_name, self.new_folder_path
 			)
 		)
+
+		old_usage = self.image_provider.usage["total"]
+		temp_cost = PriceTableUtil.one_increase(old_usage)
+		self.image_provider.usage["total"] = old_usage + temp_cost
+		self.image_provider.usage["static_map"] = old_usage + temp_cost
 
 		if latitude in self.file_handler.coordinate_overview.grid:
 			new_to_store = self.file_handler.coordinate_overview.grid[latitude]

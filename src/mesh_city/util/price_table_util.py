@@ -52,6 +52,10 @@ class PriceTableUtil:
 		:return: the cost in list form (in case of error additional information)
 		"""
 		cost = 0
+		previous_result = []
+		print(previous_usage)
+		print(previous_usage + additional_usage)
+
 		for number in range(previous_usage, previous_usage + additional_usage):
 			if api_name not in PriceTableUtil.price_table_dic:
 				raise ValueError("The pricing for this API is not defined")
@@ -59,8 +63,25 @@ class PriceTableUtil:
 				raise ValueError("The pricing for this API service is not defined")
 			temp_result = PriceTableUtil.price_table_dic[api_name][service_type].get(number, -1)
 			if temp_result == -1:
-				raise ValueError("The price for the given requests is not defined.")
+				print("-1")
+				return [-1].extend(previous_result)
 			cost += temp_result
-			if number >= monthly_quota and number != previous_usage + additional_usage:
-				raise QuotaException("These requests would exceed the quota.")
-		return cost
+			if cost >= monthly_quota and number != previous_usage + additional_usage:
+				return [-1].extend(previous_result)
+
+			previous_result = [cost, previous_usage + additional_usage - number]
+
+		if (previous_usage + additional_usage) == 0:
+			print("hi")
+			return [0]
+
+		return previous_result
+
+	@staticmethod
+	def one_increase(current_usage):
+		"""
+		calculates the price of one increase
+		:return: the cost of one increase
+		"""
+		# TODO change if we ever support multiple map providers or actions
+		return PriceTableUtil.price_table_dic["Google Maps"]["static_map"][current_usage+1]

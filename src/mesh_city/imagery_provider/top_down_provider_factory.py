@@ -11,8 +11,8 @@ class TopDownProviderFactory:
 	"""
 	A class that created different kinds of TopDownProvider's
 	"""
-
-	def get_top_down_provider(self, image_provider_entity):
+	@staticmethod
+	def get_top_down_provider(image_provider_entity):
 		"""
 		Constructs a TopDownProvider instance using an ImageProviderEntity instance
 		:param image_provider_entity: The ImageProviderEntity to instantiate the TopDownProvider with.

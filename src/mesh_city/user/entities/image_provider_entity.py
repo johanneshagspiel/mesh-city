@@ -8,6 +8,7 @@ from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvide
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.logs.log_entities.log_entity import LogEntity
+from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 
 
 class ImageProviderEntity(LogEntity):
@@ -48,6 +49,8 @@ class ImageProviderEntity(LogEntity):
 				self.date_reset = date_reset
 				self.check_date_reset(datetime.today())
 
+			self.top_down_provider = TopDownProviderFactory.get_top_down_provider(self)
+
 		else:
 			self.type = None
 			self.api_key = None
@@ -56,6 +59,7 @@ class ImageProviderEntity(LogEntity):
 			self.date_reset = None
 			self.map_entity = None
 			self.load_storage(json_data)
+			self.top_down_provider = TopDownProviderFactory.get_top_down_provider(self)
 
 	def load_storage(self, storage):
 		"""

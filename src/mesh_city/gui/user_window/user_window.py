@@ -2,7 +2,6 @@ from tkinter import Button, END, Label, Toplevel, Text, CHAR, Entry
 
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 
-
 class UserWindow:
 
 	def __init__(self, master, application, main_screen):

@@ -3,8 +3,8 @@ A module containing the preview window
 """
 from tkinter import Button, END, Label, Toplevel
 
-from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
-from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
+from mesh_city.gui.error_windows.additional_provider_error import AdditionalProviderError
+from mesh_city.util.price_table_util import PriceTableUtil
 
 
 class PreviewWindow:
@@ -42,7 +42,7 @@ class PreviewWindow:
 		for key, value in self.application.user_entity.image_providers.items():
 			self.temp_list.append(
 				Button(
-				self.top, text=key, command=lambda value=value: self.check_usage(value), bg="white"
+				self.top, text=key, command=lambda value=value: self.check_usage(key, value), bg="white"
 				)
 			)
 			self.temp_list_size += 1
@@ -54,16 +54,14 @@ class PreviewWindow:
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=1)
 			self.count += 1
 
-	def check_usage(self, image_provider_entity):
+	def check_usage(self, image_provider_entity_name, image_provider_entity):
 		"""
 		Method to check how much this request would cost
 		:param image_provider_entity: the image provider entity used for the request
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
-		top_down_factory = TopDownProviderFactory()
-		self.application.request_manager.top_down_provider = top_down_factory.get_top_down_provider(
-			image_provider_entity
-		)
+		self.application.request_manager.image_provider = image_provider_entity
+		self.application.request_manager.top_down_provider = image_provider_entity.top_down_provider
 		self.locations = self.application.request_manager.calculate_locations(
 			coordinates=self.coordinates
 		)
@@ -78,21 +76,13 @@ class PreviewWindow:
 		number_requests_label_text = "Images to download: " + str(number_requests)
 		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
 		self.number_requests_label.grid(row=1, column=0)
-		try:
-			temp_cost = PriceTableUtil.calculate_action_price(
-				image_provider_entity.type,
-				"static_map",
-				image_provider_entity.usage["static_map"],
-				number_requests,
-				image_provider_entity.quota
-			)
-		except ValueError:
-			# should be integrated into the GUI
-			print("The value is not defined")
-		except QuotaException:
-			# should be integrated into the GUI
-			print("This would exceed the quota")
-		else:
+		temp_cost = PriceTableUtil.calculate_action_price(
+			image_provider_entity.type,
+			"static_map",
+			image_provider_entity.usage["static_map"],
+			number_requests,
+			image_provider_entity.quota)
+		if temp_cost[0] != -1:
 			cost_request_label_text = "Cost: " + str(temp_cost)
 			self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
 			self.cost_request_label.grid(row=2, column=0)
@@ -105,6 +95,30 @@ class PreviewWindow:
 				self.top, text="Confirm", command=lambda: self.cleanup(self.locations), bg="white"
 			)
 			self.confirm_button.grid(row=4)
+		else:
+			providers_selected = [image_provider_entity_name]
+			images_remaining = temp_cost[1]
+			enough = False
+
+			for key, value in self.application.user_entity.image_providers.items():
+				if key not in providers_selected:
+					temp_cost_2 = PriceTableUtil.calculate_action_price(
+						value.type,
+						"static_map",
+						value.usage["static_map"],
+						images_remaining,
+						value.quota)
+					providers_selected.append(key)
+					if temp_cost_2[0] != -1:
+						enough = True
+						pass
+
+			if enough:
+				return None
+			else:
+				AdditionalProviderError(self.master, self.application, images_remaining, providers_selected)
+				self.top.destroy()
+
 
 	def cleanup(self, locations):
 		"""

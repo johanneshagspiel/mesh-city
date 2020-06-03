@@ -3,10 +3,10 @@ A module that contains the loading old request window
 """
 
 from pathlib import Path
-from tkinter import Button, Label, Toplevel
+from tkinter import Button, Label, Toplevel, Scrollbar, Canvas, Frame
 
 from mesh_city.imagery_provider.request_creator import RequestCreator
-
+from mesh_city.gui.mainscreen_image.auto_scrollbar import AutoScrollbar
 
 class LoadWindow:
 	"""
@@ -31,7 +31,18 @@ class LoadWindow:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		self.top_label = Label(top, text="Which request do you want to load?")
+		scrollbar = AutoScrollbar(self.top)
+		scrollbar.grid(row=0, column=1, sticky="ns")
+
+		temp_canvas = Canvas(self.top, yscrollcommand=scrollbar.set)
+		temp_canvas.grid(row=0, column=0, sticky="nsew")
+
+		scrollbar.config(command=temp_canvas.yview)
+
+		temp_frame = Frame(temp_canvas, width=1,height=1)
+		temp_frame.grid(row=0)
+
+		self.top_label = Label(temp_frame, text="Which request do you want to load?")
 		self.top_label.grid(row=0, column=1)
 
 		counter = 1
@@ -39,7 +50,7 @@ class LoadWindow:
 			if temp.is_file() is False:
 				name_directory = temp.name
 				self.temp_name = Button(
-					self.top,
+					temp_frame,
 					text=name_directory,
 					width=20,
 					height=3,
@@ -48,6 +59,8 @@ class LoadWindow:
 				)
 				self.temp_name.grid(row=counter, column=1)
 				counter += 1
+
+		temp_canvas.configure(scrollregion=temp_canvas.bbox("all"))
 
 	def load_request(self, name_directory):
 		"""
