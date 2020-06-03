@@ -46,5 +46,3 @@ class BuildingDetectorRasterTest(unittest.TestCase):
 		).convert('L')
 		print()
 		self.assertGreaterEqual(compute_image_similarity(result_image, ground_truth), 0.9)
-		# Uncomment for visual inspection of result
-		# result_image.show()
