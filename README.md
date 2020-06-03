@@ -32,6 +32,10 @@ Then install the dependencies that don't work with Pipenv:
 ```
 (mesh-city) $ pip install -r requirements.txt
 ```
+Then install the dependencies that don't work with Pipenv:
+```
+(mesh-city) $ pip install libs/rasterio-1.1.4-cp37-cp37m-win_amd64.whl libs/GDAL-3.0.4-cp37-cp37m-win_amd64.whl 
+```
 Now you can run the following to check your code for formatting and linting issues:
 ```
 (mesh-city) $ python setup.py check_code
