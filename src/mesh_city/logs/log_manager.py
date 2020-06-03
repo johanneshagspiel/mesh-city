@@ -7,7 +7,7 @@ import os
 
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
 from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
-from mesh_city.logs.log_entities.detection_meta import DetectionMeta
+from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
 from mesh_city.user.entities.user_entity import UserEntity
 
 
@@ -63,15 +63,18 @@ class LogManager:
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
-	def write_log(self, log_entry, type=None):
+	def write_log(self, log_entry, type_data=None):
 		"""
 		A method to write one log entry entity to the associated correct location
-		:param type: what type of file you want to write to
+		:param type_data: what type of file you want to write to
 		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
-		if type == "csv":
-			return None
+		if type_data == "csv":
+			with open(log_entry.path_to_store, 'w') as csv_file:
+				writer = csv.writer(csv_file, delimiter=",")
+				for entry in log_entry.for_storage():
+					writer.writerow(entry)
 		else:
 			with open(log_entry.path_to_store, "r") as json_log:
 				data = json_log.read()
@@ -82,18 +85,18 @@ class LogManager:
 				json.dump(result, fp=json_log, indent=4)
 				json_log.close()
 
-	def create_log(self, log_entry, type=None):
+	def create_log(self, log_entry, type_data=None):
 		"""
 		Method to store one new log
-		:param type: what type of file you want to write to
+		:param type_data: what type of file you want to write to
 		:param log_entry: the log entry to store
 		:return: nothing (the log is stored to file)
 		"""
-		if type == "csv":
+		if type_data == "csv":
 			with open(log_entry.path_to_store, 'w') as csv_file:
-				wr = csv.writer(csv_file, delimiter=",")
-				for list in log_entry.for_storage():
-					wr.writerow(list)
+				writer = csv.writer(csv_file, delimiter=",")
+				for entry in log_entry.for_storage():
+					writer.writerow(entry)
 		else:
 			with open(log_entry.path_to_store, "w") as json_log:
 				json.dump(log_entry.for_storage(), fp=json_log, indent=4)
@@ -106,8 +109,9 @@ class LogManager:
 		:return: whatever the result of building that object is
 		"""
 
-		if type_document == "building_instructions_request" or type_document == "users.json" \
-         or type_document == "coordinate_overview.json":
+		if type_document in (
+			'building_instructions_request', 'users.json', 'coordinate_overview.json'
+		):
 
 			with open(path, "r") as json_log:
 				data = json_log.read()
@@ -137,6 +141,6 @@ class LogManager:
 				for row in csv_reader:
 					temp_list.append(row)
 
-			return DetectionMeta(path_to_store=path, json=temp_list)
+			return DetectionMetaData(path_to_store=path, json=temp_list)
 
 		return None

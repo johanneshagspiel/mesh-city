@@ -31,13 +31,13 @@ class UserEntity(LogEntity):
 			self.image_providers = None
 			self.load_storage(json)
 
-	def load_storage(self, json):
+	def load_storage(self, storage):
 		"""
 		Sets up the user from a json file
 		:param json: the json file from which to set up the user
 		:return: nothing (the fields of the user are initialized correctly)
 		"""
-		key, value = list(json.items())[0]
+		key, value = list(storage.items())[0]
 		self.name = key
 		self.image_providers = {}
 		self.load_image_providers(value)

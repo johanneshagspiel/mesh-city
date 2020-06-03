@@ -5,8 +5,9 @@ import math
 from pathlib import Path
 from tkinter import Button, Label, Scale, Toplevel
 
-from mesh_city.detection.meta_creator import MetaCreator
+from mesh_city.detection.meta_data_creator import MetaDataCreator
 from mesh_city.detection.overlay_creator import OverlayCreator
+
 
 class EcoWindow:
 	"""
@@ -38,11 +39,11 @@ class EcoWindow:
 		self.top_label.grid(row=0)
 
 		if len(self.building_instructions.instructions.keys()) == 1:
-			self.top_label["text"] = \
-				"This area can not be made more eco-friendly. Detect something first"
+			self.top_label["text"
+							] = "This area can not be made more eco-friendly. Detect something first"
 
 		else:
-			meta_creator = MetaCreator(self.application, self.building_instructions)
+			meta_creator = MetaDataCreator(self.application, self.building_instructions)
 			meta_creator.combine_information(["Trees"])
 
 			temp_to_read = Path.joinpath(
@@ -100,8 +101,10 @@ class EcoWindow:
 		:return: nothing (a gif is created, stored, logged and shown on the mainscreen)
 		"""
 		increase_percentage = self.tree_increase.get() * 0.01 + 1
-		trees_to_add = math.ceil(self.temp_meta_info.information["Amount"] * increase_percentage - \
-                       self.temp_meta_info.information["Amount"])
+		trees_to_add = math.ceil(
+			self.temp_meta_info.information["Amount"] * increase_percentage -
+			self.temp_meta_info.information["Amount"]
+		)
 
 		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
 		temp_overlay_creator.create_image_with_more_trees(

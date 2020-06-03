@@ -31,13 +31,13 @@ class BuildingInstructionsRequest(LogEntity):
 		"""
 		return self.for_storage()
 
-	def load_storage(self, json):
+	def load_storage(self, storage):
 		"""
 		Sets up the fields based on a json file
-		:param json: the json file from which to load the data for the fields
+		:param storage: the json file from which to load the data for the fields
 		:return: nothing (the fields are correctly set up)
 		"""
-		self.instructions = json
+		self.instructions = storage
 
 	def for_storage(self):
 		"""

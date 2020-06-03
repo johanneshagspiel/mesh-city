@@ -31,16 +31,14 @@ class LayersWindow:
 		self.top_label = Label(top, text="")
 		self.top_label.grid(row=0)
 
-		self.confirm_button = Button(
-			self.top, text="Confirm", command=self.cleanup, bg="white"
-		)
+		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup, bg="white")
 
 		self.check_box_list = []
 		self.temp_int_var_list = []
 
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
-				glob('building_instructions_request_*')
+			glob('building_instructions_request_*')
 		)
 		self.building_instructions = self.application.log_manager.read_log(
 			temp_path, "building_instructions_request"
@@ -71,7 +69,9 @@ class LayersWindow:
 					else:
 						self.temp_int_var_list.append(IntVar())
 					self.check_box_list.append(
-						Checkbutton(self.top, text=layer, variable=self.temp_int_var_list[counter - 1])
+						Checkbutton(
+						self.top, text=layer, variable=self.temp_int_var_list[counter - 1]
+						)
 					)
 					self.check_box_list[counter - 1].grid(row=counter)
 					counter += 1

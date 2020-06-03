@@ -1,20 +1,33 @@
+"""
+The module containing the select load option window
+"""
 from pathlib import Path
 from tkinter import Button, Label, Toplevel
+
 from mesh_city.gui.load_window.load_window import LoadWindow
 
-class SelectLoadOption:
 
+class SelectLoadOption:
+	"""
+	The class where the user can select what they want to load: previous request and if they exist
+	previously created scenarios from the eco window
+	"""
+
+	# pylint: disable=E0202, W0702
 	def __init__(self, master, application, main_screen):
 		"""
-		First asks the user which request to export
+		Asks the user what they want to load: a previous request or if they exist a previously created scenario
 		:param master: the master tkinter application
 		:param application: the global application context
+		:param main_screen: the main_screen of the application
 		"""
 		self.master = master
 		self.value = ""
 		self.application = application
 		self.main_screen = main_screen
 		self.top = Toplevel(master)
+
+		self.temp_dict = {}
 
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
@@ -28,48 +41,57 @@ class SelectLoadOption:
 		self.top_label.grid(row=0)
 
 		self.load_request = Button(
-			self.top, text="Previous request", command=self.load_request,
-			bg="white"
+			self.top, text="Previous request", command=self.load_request, bg="white"
 		)
 		self.load_request.grid(row=1)
 
 		if "Generated" in self.building_instructions.instructions.keys():
 			self.load_scenario_button = Button(
-				self.top, text="Previous scenario", command=self.ask_for_scenario,
-				bg="white"
+				self.top, text="Previous scenario", command=self.ask_for_scenario, bg="white"
 			)
 			self.load_scenario_button.grid(row=2)
 
 	def load_request(self):
+		"""
+		Opens the load window where the user can select which request to load
+		:return: nothing (the load window is opened)
+		"""
 		LoadWindow(self.master, self.application, self.main_screen)
 		self.top.destroy()
 
 	def ask_for_scenario(self):
+		"""
+		The window is changed to now ask the user which of the previously created scenarios they want to load
+		:return:
+		"""
 		self.top_label["text"] = "Which scenario do you want to load?"
 
 		self.load_request.grid_forget()
 		self.load_scenario_button.grid_forget()
 
 		temp_counter = 1
-		self.temp_dict = {}
 		for key in self.building_instructions.instructions["Generated"]:
 			for path in self.building_instructions.instructions["Generated"][key][1]:
 				temp_path = Path(path)
 				temp_name = temp_path.name
 				self.temp_dict[temp_name] = temp_path
-				self.scenario_button = Button(
+				scenario_button = Button(
 					self.top,
 					text=temp_name,
 					command=lambda temp_name=temp_name: self.load_scenario(temp_name),
 					bg="white"
 				)
-				self.scenario_button.grid(row=temp_counter)
+				scenario_button.grid(row=temp_counter)
 				temp_counter += 1
 
 	def load_scenario(self, name):
+		"""
+		Loads the selected scenario onto the main_screen
+		:param name: the name of the scenario to load
+		:return: nothing (the main screen image is now the selected scenario)
+		"""
 		path = self.temp_dict[name].parents[0]
 		self.application.file_handler.change("active_image_path", path)
 		self.main_screen.update_gif()
 		self.main_screen.seen_on_screen = ["Generated"]
 		self.top.destroy()
-

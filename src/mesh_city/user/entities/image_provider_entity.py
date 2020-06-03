@@ -58,17 +58,17 @@ class ImageProviderEntity(LogEntity):
 			self.map_entity = None
 			self.load_storage(json_data)
 
-	def load_storage(self, json_data):
+	def load_storage(self, storage):
 		"""
 		Sets the fields of the class based on a json file
-		:param json_data:
+		:param storage:
 		:return:
 		"""
-		self.type = json_data["type_map_provider"]
-		self.api_key = json_data["api_key"]
-		self.usage = json_data["usage"]
-		self.quota = int(json_data["quota"])
-		self.date_reset = json_data["date_reset"]
+		self.type = storage["type_map_provider"]
+		self.api_key = storage["api_key"]
+		self.usage = storage["usage"]
+		self.quota = int(storage["quota"])
+		self.date_reset = storage["date_reset"]
 		self.calculate_end_of_month(datetime.today())
 
 	def for_storage(self):

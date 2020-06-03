@@ -45,9 +45,7 @@ class DetectionWindow:
 			if key != "Google Maps":
 				temp_list_detected_layers.append(key)
 
-		to_detect = list(
-			set(self.list_detection_options)-set(temp_list_detected_layers)
-		)
+		to_detect = list(set(self.list_detection_options) - set(temp_list_detected_layers))
 
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"

@@ -4,7 +4,7 @@ A module of the detection meta class
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
 
-class DetectionMeta(LogEntity):
+class DetectionMetaData(LogEntity):
 	"""
 	The log entity that stores meta information
 	"""
@@ -25,16 +25,16 @@ class DetectionMeta(LogEntity):
 		"""
 		return self.for_storage()
 
-	def load_storage(self, list_from_csv):
+	def load_storage(self, storage):
 		"""
 		How to load the class from json
-		:param json: the json file from which to log the class from
+		:param storage: the json file from which to log the class from
 		:return: nothing (the fields are all set correctly)
 		"""
 		temp_object = {}
 		object_count = 1
 		first_round = True
-		for row in list_from_csv:
+		for row in storage:
 			if first_round:
 				first_round = False
 			else:
@@ -77,8 +77,8 @@ class DetectionMeta(LogEntity):
 			]
 		)
 
-		for object in self.information["Objects"].values():
-			for element in object.values():
+		for entry in self.information["Objects"].values():
+			for element in entry.values():
 				temp_list.append(element)
 			temp_list_overall.append(temp_list)
 			temp_list = []
