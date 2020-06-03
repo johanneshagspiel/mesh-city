@@ -27,6 +27,9 @@ class EcoWindow:
 		self.application = application
 		self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
 			glob('building_instructions_request_*')

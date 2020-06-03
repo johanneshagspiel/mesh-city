@@ -28,6 +28,9 @@ class LoadWindow:
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 		top = self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.top_label = Label(top, text="Which request do you want to load?")
 		self.top_label.grid(row=0, column=1)
 

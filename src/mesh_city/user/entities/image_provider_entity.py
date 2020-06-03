@@ -27,7 +27,6 @@ class ImageProviderEntity(LogEntity):
 	):
 		"""
 		Sets up a image provider, either from json or when created for the first time
-		:param file_handler: the file handler needed to store the image provider
 		:param json_data: the json from which to load the image provider
 		:param type_map_provider: what kind of image provider this is
 		:param api_key: the api key associated with the image provider
@@ -43,7 +42,7 @@ class ImageProviderEntity(LogEntity):
 			self.usage = {"static_map": 0, "geocoding": 0, "total": 0}
 			self.quota = int(quota)
 
-			self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today())
+			self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today()).date()
 
 			if date_reset is not None:
 				self.date_reset = date_reset
@@ -68,7 +67,7 @@ class ImageProviderEntity(LogEntity):
 		self.api_key = storage["api_key"]
 		self.usage = storage["usage"]
 		self.quota = int(storage["quota"])
-		self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today())
+		self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today()).date()
 
 	def for_storage(self):
 		"""
@@ -86,7 +85,7 @@ class ImageProviderEntity(LogEntity):
 			"total": self.usage["total"]
 			},
 			"quota": self.quota,
-			"date_reset": self.date_reset.date().isoformat()
+			"date_reset": str(self.date_reset)
 		}
 
 	def check_date_reset(self, current_date):

@@ -27,6 +27,9 @@ class TutorialWindow:
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 		self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.top_label = Label(
 			self.top, text="It seems like this is the first time you use this application."
 		)

@@ -144,3 +144,19 @@ class LogManager:
 			return DetectionMetaData(path_to_store=path, json=temp_list)
 
 		return None
+
+	def change_name(self, old_name, new_name):
+
+		path = self.file_handler.folder_overview["users.json"]
+		with open(path, "r") as json_log:
+			data = json_log.read()
+		logs = json.loads(data)
+
+		temp_dic = {}
+		for key, value in logs.items():
+			temp_dic[key] = value
+		temp_dic[new_name] = temp_dic.pop(old_name)
+
+		with open(path, "w") as json_log:
+			json.dump(temp_dic, fp=json_log, indent=4)
+			json_log.close()

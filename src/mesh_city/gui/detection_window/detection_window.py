@@ -25,6 +25,9 @@ class DetectionWindow:
 		self.application = application
 		self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		# TODO update with new detection options
 		self.list_detection_options = ["Trees"]
 

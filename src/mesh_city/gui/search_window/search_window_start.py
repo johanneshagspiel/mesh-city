@@ -27,6 +27,10 @@ class SearchWindowStart:
 		self.value = ""
 		self.application = application
 		self.top = Toplevel(master)
+
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		Label(self.top,
 			text="What kind of search are you interested in ?").grid(row=0, columnspan=3)
 		Button(self.top, text="Area", command=self.button_area_callback,

@@ -25,6 +25,9 @@ class SearchWindowLocation:
 		self.application = application
 		top = self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		Label(top, text="Which location are you interested in downloading ?").grid(row=0, column=3)
 
 		self.latitude = Label(top, text="Latitude:")

@@ -27,6 +27,9 @@ class SelectLoadOption:
 		self.main_screen = main_screen
 		self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.temp_dict = {}
 
 		temp_path = next(

@@ -28,6 +28,9 @@ class LayersWindow:
 
 		top = self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.top_label = Label(top, text="")
 		self.top_label.grid(row=0)
 

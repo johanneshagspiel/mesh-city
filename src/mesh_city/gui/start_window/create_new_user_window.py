@@ -28,12 +28,17 @@ class CreateNewUserWindow:
 		top = self.top = Toplevel(master)
 		self.geometry = "200x200"
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.top_label = Label(top, text="Please insert your information")
 		self.top_label.grid(row=0, columnspan=3)
 		self.name_label = Label(top, text="Name")
-		self.name_label.grid(row=1, column=0)
+		self.name_label.grid(row=1, column=0, sticky="w")
 		self.name_entry = Entry(top)
 		self.name_entry.grid(row=1, column=1, columnspan=2)
+
+		self.provider_number = 0
 
 		self.select_image_provider = Label(top, text="Please select an image provider")
 		self.select_image_provider.grid(row=2, columnspan=3)
@@ -55,15 +60,15 @@ class CreateNewUserWindow:
 		Creates additional buttons if the user wants to add another google maps account
 		:return: nothing
 		"""
-
+		self.provider_number += 1
 		temp_name = str("Google Maps ") + str(self.count)
 		self.count += 1
 		self.temp_name_label = Label(self.top, text=temp_name)
-		self.temp_name_label.grid(row=self.end, column=0)
+		self.temp_name_label.grid(row=self.end, column=0, sticky="w")
 		self.end += 1
 
 		self.api_key = Label(self.top, text="API Key")
-		self.api_key.grid(row=self.end, column=0)
+		self.api_key.grid(row=self.end, column=0, sticky="w")
 
 		self.map_providers.append(Entry(self.top))
 		self.map_providers_size += 1
@@ -71,17 +76,21 @@ class CreateNewUserWindow:
 		self.end += 1
 
 		self.quota = Label(self.top, text="Monthly Quota")
-		self.quota.grid(row=self.end, column=0)
+		self.quota.grid(row=self.end, column=0, sticky="w")
 
 		self.map_providers.append(Entry(self.top))
 		self.map_providers_size += 1
 		self.map_providers[self.map_providers_size].grid(row=self.end, column=1, columnspan=2)
 		self.end += 1
 
-		self.select_image_provider.grid(row=self.end, columnspan=3)
-		self.end += 1
-		self.google_maps_button.grid(row=self.end, column=1)
-		self.end += 1
+		if self.provider_number < 5:
+			self.select_image_provider.grid(row=self.end, columnspan=3)
+			self.end += 1
+			self.google_maps_button.grid(row=self.end, column=1)
+			self.end += 1
+		else:
+			self.select_image_provider.grid_forget()
+			self.google_maps_button.grid_forget()
 
 		self.confirm_button.grid(row=self.end, column=1)
 

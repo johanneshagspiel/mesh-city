@@ -26,6 +26,9 @@ class SearchWindowLocationArea:
 		self.application = application
 		top = self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		Label(top, text="Which area are you interested in downloading ?").grid(row=0, column=3)
 
 		self.min_lat = Label(top, text="Min Latitude:")
