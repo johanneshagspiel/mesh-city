@@ -3,7 +3,7 @@ See :class:`.ImageUtil`
 """
 
 from pathlib import Path
-
+import numpy as np
 from PIL import Image
 
 
@@ -37,7 +37,8 @@ class ImageUtil:
 		down_right = Image.open(image_list[8])
 
 		level_0 = self.get_concat_horizontally(
-			image_1=self.get_concat_horizontally(image_1=up_left, image_2=up_center), image_2=up_right
+			image_1=self.get_concat_horizontally(image_1=up_left, image_2=up_center),
+			image_2=up_right
 		)
 		level_1 = self.get_concat_horizontally(
 			image_1=self.get_concat_horizontally(image_1=center_left, image_2=center_center),
@@ -186,3 +187,8 @@ class ImageUtil:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
+
+	@staticmethod
+	def greyscale_matrix_to_image(matrix):
+		image = Image.fromarray(np.array(object=matrix, dtype=np.uint8), 'L')
+		return image
