@@ -24,13 +24,13 @@ Then install the dependencies:
 ```
 $ pipenv sync --dev
 ```
-To install the pytorch dependencies, run this command:
-```
-pip install -r /path/to/requirements.txt
-```
 Then start a shell inside the virtual environment:
 ```
 $ pipenv shell
+```
+Then install the dependencies that don't work with Pipenv:
+```
+(mesh-city) $ pip install -r requirements.txt
 ```
 Now you can run the following to check your code for formatting and linting issues:
 ```
