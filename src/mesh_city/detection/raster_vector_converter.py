@@ -6,9 +6,10 @@ from rasterio.features import rasterize, shapes
 
 class RasterVectorConverter:
 
-	def convert_building_detections(self):
+	@staticmethod
+	def convert_building_detections(detection_mask_path):
 
-		with open(Path("example.png")) as file:
+		with open(Path(detection_mask_path)) as file:
 			image = file.read()
 
 		polygons = [
@@ -35,8 +36,6 @@ class RasterVectorConverter:
 					right = max(image_coord[1], right)
 				bounding_boxes.append(((top, left), (bottom, right)))
 
-		print("Number of bounding boxes:", len(bounding_boxes))
-
 		output_image = rasterize(
 			[({"coordinates": [[
 			bounding_box[0],
@@ -57,3 +56,4 @@ class RasterVectorConverter:
 			height=file.height,
 		) as output_file:
 			output_file.write(output_image, indexes=1)
+		return polygons
