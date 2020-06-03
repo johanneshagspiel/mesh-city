@@ -1,4 +1,3 @@
-import unittest
 from abc import ABC
 from distutils.cmd import Command
 from os import environ, getcwd, path, pathsep
@@ -80,7 +79,7 @@ class CoverageTestCommand(CommandAdapter):
 
 class CoverageCheckCommand(CommandAdapter):
 	def run(self) -> None:
-		check_call(args="coverage report --fail-under 70 --skip-empty --show-missing", shell=True)
+		check_call(args="coverage report --fail-under 50 --skip-empty --show-missing", shell=True)
 
 
 class CoverageReportCommand(CommandAdapter):
