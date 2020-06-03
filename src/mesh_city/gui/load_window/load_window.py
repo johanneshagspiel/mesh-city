@@ -53,16 +53,8 @@ class LoadWindow:
 		:return: nothing
 		"""
 
-		self.application.file_handler.folder_overview["active_tile_path"] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"], name_directory, "0_tile_0_0"
-		)
-
-		self.application.file_handler.folder_overview["active_image_path"] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"], name_directory, "0_tile_0_0"
-		)
-
-		self.application.file_handler.folder_overview["active_request_path"] = \
-         self.application.file_handler.folder_overview["active_tile_path"].parents[0]
+		self.application.file_handler.folder_overview["active_request_path"] = Path.joinpath(
+			self.application.file_handler.folder_overview["image_path"], name_directory)
 
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
@@ -87,7 +79,7 @@ class LoadWindow:
 		)
 
 		self.main_screen.update_image()
-		self.main_screen.active_layers = ["Google Maps"]
+		self.main_screen.seen_on_screen = ["Google Maps"]
 		self.main_screen.delete_text()
 
 		self.top.destroy()

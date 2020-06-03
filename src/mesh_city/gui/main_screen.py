@@ -6,11 +6,11 @@ from tkinter import Button, END, Frame, Label, mainloop, Text, Tk, WORD
 
 from PIL import Image, ImageTk
 
-from mesh_city.gui.canvas_image.canvas_image import CanvasImage
+from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
-from mesh_city.gui.gif_image.gif_image import GifImage
+from mesh_city.gui.mainscreen_image.gif_image import GifImage
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.load_window.select_load_option import SelectLoadOption
@@ -43,7 +43,7 @@ class MainScreen:
 		self.master.wait_window(self.window.top)
 		self.master.deiconify()
 
-		self.active_layers = []
+		self.seen_on_screen = ["Google Maps"]
 		self.generated_content = []
 
 		self.padding_x = 60

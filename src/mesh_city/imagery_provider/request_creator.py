@@ -97,7 +97,7 @@ class RequestCreator:
 		"""
 		base = Image.open(
 			next(
-			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
+			self.application.file_handler.folder_overview["temp_image_path"].glob("concat_image_*")
 			)
 		)
 		base.putalpha(255)

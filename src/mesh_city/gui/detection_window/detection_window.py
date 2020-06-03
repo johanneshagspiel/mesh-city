@@ -46,7 +46,7 @@ class DetectionWindow:
 				temp_list_detected_layers.append(key)
 
 		to_detect = list(
-			set(self.list_detection_options).symmetric_difference(temp_list_detected_layers)
+			set(self.list_detection_options)-set(temp_list_detected_layers)
 		)
 
 		if len(to_detect) == 0:
@@ -97,7 +97,7 @@ class DetectionWindow:
 		else:
 			Pipeline(self.application, self.main_screen, to_detect,
 				self.building_instructions).push_forward()
-			self.main_screen.active_layers = to_detect
+			self.main_screen.seen_on_screen = to_detect
 			self.main_screen.update_image()
 			self.main_screen.update_text()
 			self.top.destroy()

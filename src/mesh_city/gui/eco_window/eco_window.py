@@ -109,4 +109,5 @@ class EcoWindow:
 		)
 
 		self.main_screen.update_gif()
+		self.main_screen.seen_on_screen = ["Generated"]
 		self.top.destroy()

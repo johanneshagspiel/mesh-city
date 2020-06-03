@@ -1,3 +1,4 @@
+from pathlib import Path
 from tkinter import Button, Label, Toplevel
 from mesh_city.gui.load_window.load_window import LoadWindow
 
@@ -26,32 +27,49 @@ class SelectLoadOption:
 		self.top_label = Label(self.top, text="What do you want to load?")
 		self.top_label.grid(row=0)
 
-		self.load_scenario = Button(
-			self.top, text="Previous request", command=self.load_scenario,
+		self.load_request = Button(
+			self.top, text="Previous request", command=self.load_request,
 			bg="white"
 		)
-		self.load_scenario.grid(row=1)
-
+		self.load_request.grid(row=1)
 
 		if "Generated" in self.building_instructions.instructions.keys():
-			self.load_scenario = Button(
-				self.top, text="Previous scenario", command=self.load_scenario,
+			self.load_scenario_button = Button(
+				self.top, text="Previous scenario", command=self.ask_for_scenario,
 				bg="white"
 			)
-			self.load_scenario.grid(row=2)
-
-	def load_scenario(self):
-		self.top_label["text"] = "Which scenario do you want to load?"
-
-		for key in self.building_instructions["Generated"]:
-			for value in self.building_instructions["Generated"][key].values():
-				temp_name = value.name
-				self.temp_button = Button(
-					self.top, text="Load previous scenario", command=self.load_scenario,
-					bg="white"
-				)
-				self.load_scenario.grid(row=3)
+			self.load_scenario_button.grid(row=2)
 
 	def load_request(self):
 		LoadWindow(self.master, self.application, self.main_screen)
 		self.top.destroy()
+
+	def ask_for_scenario(self):
+		self.top_label["text"] = "Which scenario do you want to load?"
+
+		self.load_request.grid_forget()
+		self.load_scenario_button.grid_forget()
+
+		temp_counter = 1
+		self.temp_dict = {}
+		for key in self.building_instructions.instructions["Generated"]:
+			for path in self.building_instructions.instructions["Generated"][key][1]:
+				temp_path = Path(path)
+				temp_name = temp_path.name
+				self.temp_dict[temp_name] = temp_path
+				self.scenario_button = Button(
+					self.top,
+					text=temp_name,
+					command=lambda temp_name=temp_name: self.load_scenario(temp_name),
+					bg="white"
+				)
+				self.scenario_button.grid(row=temp_counter)
+				temp_counter += 1
+
+	def load_scenario(self, name):
+		path = self.temp_dict[name].parents[0]
+		self.application.file_handler.change("active_image_path", path)
+		self.main_screen.update_gif()
+		self.main_screen.seen_on_screen = ["Generated"]
+		self.top.destroy()
+

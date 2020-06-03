@@ -28,47 +28,55 @@ class LayersWindow:
 
 		top = self.top = Toplevel(master)
 
+		self.top_label = Label(top, text="")
+		self.top_label.grid(row=0)
+
+		self.confirm_button = Button(
+			self.top, text="Confirm", command=self.cleanup, bg="white"
+		)
+
+		self.check_box_list = []
+		self.temp_int_var_list = []
+
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
-			glob('building_instructions_request_*')
+				glob('building_instructions_request_*')
 		)
 		self.building_instructions = self.application.log_manager.read_log(
 			temp_path, "building_instructions_request"
 		)
 
-		temp_list_detected_layers = []
-		for key in self.building_instructions.instructions.keys():
-			if key != "Google Maps":
-				if key != "Generated":
-					temp_list_detected_layers.append(key)
-
-		if len(temp_list_detected_layers) == 0:
-			self.top_label = Label(top, text="There are no layers to show. Detect something first.")
-			self.top_label.grid(row=0)
+		if self.main_screen.seen_on_screen == ["Generated"]:
+			self.top_label["text"] = "Do you want to load satellite imagery?"
+			self.confirm_button.grid(row=1)
 
 		else:
-			self.top_label = Label(top, text="Tick the layers you want to see")
-			self.top_label.grid(row=0)
+			temp_list_detected_layers = []
+			for key in self.building_instructions.instructions.keys():
+				if key != "Google Maps":
+					if key != "Generated":
+						temp_list_detected_layers.append(key)
 
-			counter = 1
-			self.check_box_list = []
-			self.temp_int_var_list = []
+			if len(temp_list_detected_layers) == 0:
+				self.top_label["text"] = "Do you want to load satellite imagery?"
 
-			for layer in temp_list_detected_layers:
-				if layer in self.main_screen.active_layers:
-					self.temp_int_var_list.append(IntVar(value=1))
-				else:
-					self.temp_int_var_list.append(IntVar())
-				self.check_box_list.append(
-					Checkbutton(self.top, text=layer, variable=self.temp_int_var_list[counter - 1])
-				)
-				self.check_box_list[counter - 1].grid(row=counter)
-				counter += 1
+			else:
+				self.top_label["text"] = "Do you want to load satellite imagery?"
 
-				self.confirm_button = Button(
-					self.top, text="Confirm", command=self.cleanup, bg="white"
-				)
-				self.confirm_button.grid(row=counter)
+				counter = 1
+
+				for layer in temp_list_detected_layers:
+					if layer in self.main_screen.seen_on_screen:
+						self.temp_int_var_list.append(IntVar(value=1))
+					else:
+						self.temp_int_var_list.append(IntVar())
+					self.check_box_list.append(
+						Checkbutton(self.top, text=layer, variable=self.temp_int_var_list[counter - 1])
+					)
+					self.check_box_list[counter - 1].grid(row=counter)
+					counter += 1
+
+					self.confirm_button.grid(row=counter)
 
 	def cleanup(self):
 		"""
@@ -89,7 +97,7 @@ class LayersWindow:
 
 		temp_request_creator = RequestCreator(application=self.application)
 		if temp_sum == 0:
-			self.main_screen.active_layers = []
+			self.main_screen.seen_on_screen = ["Google Maps"]
 
 			temp_path = Path.joinpath(
 				self.application.file_handler.folder_overview["temp_image_path"],
@@ -112,7 +120,7 @@ class LayersWindow:
 				self.building_instructions, overlays, (600, 600)
 			)
 
-			self.main_screen.active_layers.extend(overlays)
+			self.main_screen.seen_on_screen.extend(overlays)
 			self.main_screen.update_image()
 			self.main_screen.update_text()
 			self.top.destroy()

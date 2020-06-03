@@ -10,7 +10,7 @@ from tkinter import ttk
 
 from PIL import Image, ImageTk
 
-from mesh_city.gui.canvas_image.auto_scrollbar import AutoScrollbar
+from mesh_city.gui.mainscreen_image.auto_scrollbar import AutoScrollbar
 
 
 # pylint: disable=invalid-name, W0107, W0613, W0612, R1705
