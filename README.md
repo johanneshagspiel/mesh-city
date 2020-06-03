@@ -24,6 +24,10 @@ Then install the dependencies:
 ```
 $ pipenv sync --dev
 ```
+To install the pytorch dependencies, run this command:
+```
+pip install -r /path/to/requirements.txt
+```
 Then start a shell inside the virtual environment:
 ```
 $ pipenv shell
