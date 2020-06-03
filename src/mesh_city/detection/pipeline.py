@@ -56,10 +56,11 @@ class Pipeline:
 				self.application.file_handler.change("active_raw_data_path", temp_path_2)
 
 				for tile_number in range(
-					1, len(self.building_instructions.instructions["Google Maps"])
+					1, len(self.building_instructions.instructions["Google Maps"]["Paths"])
 				):
 					temp_tile_image = self.image_util.concat_images_tile(
-						image_list=self.building_instructions.instructions["Google Maps"][tile_number]
+						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
+						[tile_number]
 					)
 					temp_path_2 = Path.joinpath(
 						self.application.file_handler.folder_overview["temp_detection_path"],
@@ -102,7 +103,7 @@ class Pipeline:
 		self.application.file_handler.change("active_meta_path", temp_meta_path)
 
 		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
-		temp_meta_creator = MetaDataCreator(self.application, self.building_instructions)
+		temp_meta_data_creator = MetaDataCreator(self.application, self.building_instructions)
 
 		counter = 1
 
@@ -127,7 +128,7 @@ class Pipeline:
 					number=counter,
 					path=file
 				)
-				temp_meta_creator.create_information(
+				temp_meta_data_creator.create_information(
 					detection_algorithm=type_detection,
 					image_size=(image_size[0], image_size[1]),
 					number=counter,
@@ -147,4 +148,4 @@ class Pipeline:
 		self.request_creator.create_overlay_image(
 			self.building_instructions, self.type_of_detection, (600, 600)
 		)
-		temp_meta_creator.combine_information(self.type_of_detection)
+		temp_meta_data_creator.combine_information(self.type_of_detection)

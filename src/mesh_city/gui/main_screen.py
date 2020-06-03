@@ -7,9 +7,9 @@ from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
-from mesh_city.gui.generate_window.generate_window import GenerateWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.map_window.map_window import MapWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 
@@ -38,6 +38,7 @@ class MainScreen:
 		self.master.deiconify()
 
 		self.active_layers = []
+		self.generated_content = []
 
 		self.padding_x = 60
 		self.padding_y = 5
@@ -63,25 +64,34 @@ class MainScreen:
 		)
 		self.detect_button.grid(row=2, column=0)
 
-		# self.layers_button = Button(
-		# 	self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
-		# )
-		# self.layers_button.grid(row=3, column=0)
-		#
-		# self.generate_button = Button(
-		# 	self.left_bar, text="Generate", width=6, height=3, command=self.generate_window, bg="grey"
-		# )
-		# self.generate_button.grid(row=4, column=0)
+		self.layers_button = Button(
+			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		)
+		self.layers_button.grid(row=3, column=0)
+
+		self.map_button = Button(
+			self.left_bar, text="Map", width=6, height=3, command=self.map_window, bg="grey"
+		)
+		self.map_button.grid(row=4, column=0)
+
+		self.eco_button = Button(
+			self.left_bar, text="Eco", width=6, height=3, command=None, bg="grey"
+		)
+		self.eco_button.grid(row=5, column=0)
 
 		self.export_button = Button(
 			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
 		)
-		self.export_button.grid(row=3, column=0)
+		self.export_button.grid(row=6, column=0)
+
+		self.user_button = Button(
+			self.left_bar, text="User", width=6, height=3, command=None, bg="grey"
+		)
+		self.user_button.grid(row=7, column=0)
 
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
-
 		self.canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image = None
 		self.canvas_image.grid(row=0, column=1, sticky='nsew')
@@ -103,7 +113,7 @@ class MainScreen:
 		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_selection.grid(row=1, column=0, sticky="w")
 		self.information_selection.insert(END, "Selection")
-		self.information_selection.config(state='disabled')
+		self.information_selection.configure(state='disabled')
 		self.information_selection.bind("<Double-1>", lambda event: "break")
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")
@@ -150,25 +160,34 @@ class MainScreen:
 		"""
 		DetectionWindow(self.master, self.application, self)
 
-	def generate_window(self):
+	def map_window(self):
 		"""
 		Creates a generate window object
 		:return:
 		"""
-		GenerateWindow(self.master, self.application, self)
+		MapWindow(self.master, self.application, self)
 
 	def update_image(self):
 		"""
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		print(self.application.file_handler.folder_overview["active_image_path"])
 		temp_image_path = next(
 			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
 		)
 
 		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+
+	def delete_text(self):
+		"""
+		Method to delete all text in the right hand side general information text field
+		:return: nothing (the right hand side general information text field now says "General")
+		"""
+		self.information_general.configure(state='normal')
+		self.information_general.delete('1.0', END)
+		self.information_general.insert(END, "General")
+		self.information_general.configure(state='disabled')
 
 	def update_text(self):
 		"""
@@ -181,7 +200,6 @@ class MainScreen:
 		)
 		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
 
-		print(temp_information_log.information["Objects"])
 		tree_amount = temp_information_log.information["Amount"] - 1
 		tree_amount_text = "Amount of trees detected:\n" + str(tree_amount)
 
