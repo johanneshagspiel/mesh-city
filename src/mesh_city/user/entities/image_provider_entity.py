@@ -43,7 +43,7 @@ class ImageProviderEntity(LogEntity):
 			self.usage = {"static_map": 0, "geocoding": 0, "total": 0}
 			self.quota = int(quota)
 
-			self.date_reset = self.calculate_end_of_month(datetime.today())
+			self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today())
 
 			if date_reset is not None:
 				self.date_reset = date_reset
@@ -68,8 +68,7 @@ class ImageProviderEntity(LogEntity):
 		self.api_key = storage["api_key"]
 		self.usage = storage["usage"]
 		self.quota = int(storage["quota"])
-		self.date_reset = storage["date_reset"]
-		self.calculate_end_of_month(datetime.today())
+		self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today())
 
 	def for_storage(self):
 		"""
@@ -100,7 +99,7 @@ class ImageProviderEntity(LogEntity):
 			self.usage["static_map"] = 0
 			self.usage["geocoding"] = 0
 			self.usage["total"] = 0
-			self.date_reset = self.calculate_end_of_month(current_date)
+			self.date_reset = ImageProviderEntity.calculate_end_of_month(current_date)
 
 	@staticmethod
 	def calculate_end_of_month(date):
@@ -132,14 +131,3 @@ class ImageProviderEntity(LogEntity):
 		if self.type == "ahn":
 			return AhnProvider(image_provider_entity=self)
 		return None
-
-	def calculate_end_this_month(self):
-		"""
-		Helper method to calculate the end of a month
-		:return: a string containing the end of the month
-		"""
-		temp_today = datetime.today()
-		temp_month = temp_today.month
-		temp_year = temp_today.year
-		temp_end = monthrange(temp_year, temp_month)
-		return str(temp_year) + "-" + str(temp_month) + "-" + str(temp_end[1])

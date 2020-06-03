@@ -18,6 +18,7 @@ from mesh_city.gui.map_window.map_window import MapWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
+from mesh_city.gui.user_window.user_window import UserWindow
 
 
 class MainScreen:
@@ -91,7 +92,7 @@ class MainScreen:
 		self.export_button.grid(row=6, column=0)
 
 		self.user_button = Button(
-			self.left_bar, text="User", width=6, height=3, command=None, bg="white"
+			self.left_bar, text="User", width=6, height=3, command=self.user_window, bg="white"
 		)
 		self.user_button.grid(row=7, column=0)
 
@@ -144,6 +145,9 @@ class MainScreen:
 		self.master.rowconfigure(2, weight=1)
 
 		mainloop()
+
+	def user_window(self):
+		UserWindow(self.master, self.application, self)
 
 	def export_window(self):
 		"""
