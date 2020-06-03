@@ -4,6 +4,7 @@ See :class:`.ImageUtil`
 
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 
@@ -186,3 +187,12 @@ class ImageUtil:
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
+
+	@staticmethod
+	def greyscale_matrix_to_image(matrix):
+		"""
+		Converts a given matrix with values 0-255 to a grayscale image.
+		:param matrix: The input matrix
+		:return: A greyscale PIL image corresponding to the matrix
+		"""
+		return Image.fromarray(np.array(object=matrix, dtype=np.uint8), 'L')
