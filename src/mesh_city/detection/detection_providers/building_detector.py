@@ -1,5 +1,5 @@
 """
-Module containing the deep_forest tree detection algorithm
+Module containing the code interfacing with the Spacenet neural network for building detection.
 """
 
 import numpy as np
@@ -31,9 +31,7 @@ class BuildingDetector:
 	def preprocess_datum(self, datum):
 		"""Turns numpy image representation into cuda tensor"""
 		# Scales the image to the range [-6,6], which is currently a heuristic.
-		datum_tensor = (
-			self.loader(datum).to(self.device) * 2 - 1
-		) * 6
+		datum_tensor = (self.loader(datum).to(self.device) * 2 - 1) * 6
 		datum_tensor = Variable(datum_tensor, requires_grad=False)
 		datum_tensor = datum_tensor.unsqueeze(0)  # Fixes tensor shape
 		return datum_tensor

@@ -1,19 +1,14 @@
-# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+# pylint: disable=C0114,E1141,R0201,W0621,missing-class-docstring,missing-function-docstring
 
 import unittest
-from math import ceil
+from pathlib import Path
 
 import numpy as np
-from scipy import stats
-from pathlib import Path
 from PIL import Image
-from sklearn.feature_extraction.image import extract_patches_2d, reconstruct_from_patches_2d
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 from mesh_city.util.file_handler import FileHandler
-from sklearn.feature_extraction import image
-
 from mesh_city.util.image_util import ImageUtil
 
 
@@ -46,9 +41,14 @@ class BuildingDetectorRasterTest(unittest.TestCase):
 		"""
 		building_detector = BuildingDetector(FileHandler())
 		# TODO: Set up some type of test resource in the project structure to avoid things like this.
-		result_image = Image.fromarray(building_detector.detect(
-			np.asarray(Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize((512,512)))
-		),'L')
+		result_image = Image.fromarray(
+			building_detector.detect(
+			np.asarray(
+			Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize((512, 512))
+			)
+			),
+			'L'
+		)
 		ground_truth = Image.open(
 			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
 		).convert('L')
@@ -57,17 +57,18 @@ class BuildingDetectorRasterTest(unittest.TestCase):
 
 	def test_tiled_building_detection(self):
 		image_tiler = ImageTiler(512, 512)
-		image = Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize((1024,1024))
+		image = Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize(
+			(1024, 1024)
+		)
 		array = np.asarray(image)
 		tile_dict = image_tiler.create_tile_dictionary(array)
 
 		building_detector = BuildingDetector(FileHandler())
-		for (x,y) in tile_dict:
-			tile_dict[(x,y)] = building_detector.detect(tile_dict[(x,y)])
-		result = image_tiler.reconstruct_image_from_dict(tile_dict)
-		final_image = ImageUtil.greyscale_matrix_to_image(result).resize((512,512))
+		for (x_coord, y_coord) in tile_dict:
+			tile_dict[(x_coord, y_coord)] = building_detector.detect(tile_dict[(x_coord, y_coord)])
+		result = image_tiler.construct_image_from_tiles(tile_dict)
+		final_image = ImageUtil.greyscale_matrix_to_image(result).resize((512, 512))
 		ground_truth = Image.open(
 			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
 		).convert('L')
 		self.assertGreaterEqual(compute_image_similarity(final_image, ground_truth), 0.85)
-
