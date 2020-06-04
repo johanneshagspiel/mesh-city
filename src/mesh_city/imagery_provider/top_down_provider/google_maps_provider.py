@@ -11,7 +11,6 @@ from PIL import Image
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
-
 # TODO add documentation explaining the mathematics of this class
 
 
@@ -66,7 +65,17 @@ class GoogleMapsProvider(TopDownProvider):
 		if response is None:
 			response = requests.get(
 				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
-				% (str(latitude), str(longitude), str(zoom), str(width), str(height), str(scale), file_format, map_type, api_key)
+				% (
+				str(latitude),
+				str(longitude),
+				str(zoom),
+				str(width),
+				str(height),
+				str(scale),
+				file_format,
+				map_type,
+				api_key
+				)
 			)
 
 		to_store = Path.joinpath(new_folder_path, filename)
@@ -118,6 +127,18 @@ class GoogleMapsProvider(TopDownProvider):
 		print(result)
 
 	def create_world_file(self, image_name, latitude, longitude, zoom, width, height):
+		"""
+		Method that creates a world file for an image. World files have the same name as the image,
+		but with a different extension (.pgw). World files contain the information necessary to
+		export the image to GIS software such as QGIS.
+		:param image_name: name of the image
+		:param latitude: the centre latitude of the tile
+		:param longitude: the centre longitude of the tile
+		:param zoom: the zoom level
+		:param width: image width
+		:param height: image height
+		:return:
+		"""
 		x_tile, y_tile = self.geo_location_util.degree_to_tile_value(
 			latitude=latitude,
 			longitude=longitude,
@@ -138,10 +159,12 @@ class GoogleMapsProvider(TopDownProvider):
 		world_file_name = str(image_name)[:-4] + ".pgw"
 		with open(world_file_name, "w") as world_file:
 			world_file.writelines(
-				[str(pixels_per_unit_x_direction) + "\n",
+				[
+				str(pixels_per_unit_x_direction) + "\n",
 				"0" + "\n",
 				"0" + "\n",
 				str(pixels_per_unit_y_direction) + "\n",
 				str(m_east_of_0) + "\n",
-				str(m_north_of_0)]
+				str(m_north_of_0)
+				]
 			)

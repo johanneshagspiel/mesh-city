@@ -3,6 +3,7 @@ See :class:`.GeoLocationUtil`
 """
 
 import math
+
 from pyproj import Proj, transform
 
 
@@ -50,15 +51,13 @@ class GeoLocationUtil:
 			new_y_cor = y_cor_tile + 1.01
 		# offset values by slightly more than 1, such that there is no rounding error ambiguity
 		# about which tile the next coordinates belong to. Boundary values cause problems.
-		if x_cor_tile < 0 or new_y_cor < 0 or x_cor_tile > 2.0 ** (zoom -
-		                                                           1) or new_y_cor > 2.0 ** (
-			zoom - 1):
+		if x_cor_tile < 0 or new_y_cor < 0 or x_cor_tile > 2.0**(zoom -
+			1) or new_y_cor > 2.0**(zoom - 1):
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
 		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, new_y_cor, zoom)
-		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude,
-		                                           zoom)  # pylint: disable=unused-variable
+		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
 		if test_y in (y_cor_tile + 1, y_cor_tile - 1):
 			return new_latitude
 		raise ValueError("New y tile coordinate is incorrect")
@@ -80,15 +79,13 @@ class GeoLocationUtil:
 			new_x_cor = x_cor_tile - 0.99
 		# offset values by slightly more than 1, such that there is no rounding error ambiguity
 		# about which tile the next coordinates belong to. Boundary values cause problems.
-		if new_x_cor < 0 or y_cor_tile < 0 or new_x_cor > 2.0 ** (zoom -
-		                                                          1) or y_cor_tile > 2.0 ** (
-			zoom - 1):
+		if new_x_cor < 0 or y_cor_tile < 0 or new_x_cor > 2.0**(zoom -
+			1) or y_cor_tile > 2.0**(zoom - 1):
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
 		new_latitude, new_longitude = self.tile_value_to_degree(new_x_cor, y_cor_tile, zoom)
-		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude,
-		                                           zoom)  # pylint: disable=unused-variable
+		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
 		if test_x in (x_cor_tile + 1, x_cor_tile - 1):
 			return new_longitude
 		raise ValueError("New x tile coordinate is incorrect")
@@ -110,7 +107,7 @@ class GeoLocationUtil:
 				"The latitude, longitude input cannot exceed the boundaries of the map"
 			)
 		lat_rad = math.radians(latitude)
-		total_number_of_tiles = 2.0 ** (zoom - 1)
+		total_number_of_tiles = 2.0**(zoom - 1)
 		# number of tiles in t he world tile grid: -1 as the downloaded images
 		# have twice the resolution of the grid tiles of Google Maps, Bing Maps, and OpenStreetMap.
 		x_cor_tile = int((longitude + 180.0) / 360.0 * total_number_of_tiles)
@@ -136,7 +133,7 @@ class GeoLocationUtil:
 		if get_centre:
 			x_cor_tile += 0.5
 			y_cor_tile += 0.5
-		total_number_of_tiles = 2.0 ** (zoom - 1)
+		total_number_of_tiles = 2.0**(zoom - 1)
 		if x_cor_tile < 0 or y_cor_tile < 0 or x_cor_tile > total_number_of_tiles - 1 or y_cor_tile > total_number_of_tiles - 1:
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
@@ -215,16 +212,36 @@ class GeoLocationUtil:
 		:param longitude: The current longitude.
 		:return: meters east of 0, meters north of 0
 		"""
-		m_east_of_0, m_north_of_0 = transform(Proj(init='epsg:4326'), Proj(init='epsg:3857'),
-		                                      longitude, latitude)
-		# longitude first, latitude second.
+		m_east_of_0, m_north_of_0 = transform(Proj('epsg:4326'), Proj('epsg:3857'), longitude, latitude)
 		return m_east_of_0, m_north_of_0
 
 	def calc_map_units_per_px_cor(self, latitude, longitude, image_width, image_height, zoom):
+		"""
+		Given the input in geographical coordinates, calculates number of map units per pixel for
+		the Web Mercator projection (EPSG 3857).
+		:param latitude: the centre latitude of the tile
+		:param longitude: the centre longitude of the tile
+		:param image_width: image width
+		:param image_height: image height
+		:param zoom: the zoom level
+		:return: a tuple with number of map units per pixel in x direction and y direction
+		"""
 		x_cor_grid, y_cor_grid = self.degree_to_tile_value(latitude, longitude, zoom)
-		return self.calc_map_units_per_px_grid(x_cor_grid, y_cor_grid, image_width, image_height, zoom)
+		return self.calc_map_units_per_px_grid(
+			x_cor_grid, y_cor_grid, image_width, image_height, zoom
+		)
 
 	def calc_map_units_per_px_grid(self, x_cor_grid, y_cor_grid, image_width, image_height, zoom):
+		"""
+		Given the input in grid coordinates, calculates number of map units per pixel for
+		the Web Mercator projection (EPSG 3857).
+		:param x_cor_grid: the x coordinate of the tile in the world grid
+		:param y_cor_grid: the y coordinate of the tile in the world grid
+		:param image_width: image width
+		:param image_height: image height
+		:param zoom: the zoom level
+		:return: a tuple with number of map units per pixel in x direction and y direction
+		"""
 		nw_x, nw_y = x_cor_grid, y_cor_grid
 		ne_x, ne_y = nw_x + 1, nw_y
 		sw_x, sw_y = nw_x, nw_y + 1

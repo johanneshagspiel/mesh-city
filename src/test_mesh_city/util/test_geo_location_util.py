@@ -44,15 +44,6 @@ class TestGeoLocationUtil(unittest.TestCase):
 			calculated_resolution = self.geo_location_util.calc_meters_per_px(0, zoom)
 			self.assertAlmostEqual(answer_resolution, calculated_resolution, 4)
 
-	def test_calc_meters_per_px_20(self):
-		zoom = 20
-		# answer_resolution =
-		lat = 51.923539
-		long = 4.494276613769443
-		calculated_resolution = self.geo_location_util.calc_meters_per_px(lat, zoom, 1200)
-		print(calculated_resolution)
-		# self.assertAlmostEqual(answer_resolution, calculated_resolution, 4)
-
 	def test_calc_next_location_latitude_true(self):
 		answer_latitude = 50.000452662598086
 		calculated_latitude = self.geo_location_util.calc_next_location_latitude(50, 5, 20, True)
