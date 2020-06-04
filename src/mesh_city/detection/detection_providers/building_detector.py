@@ -8,7 +8,6 @@ from torch.autograd import Variable
 from torchvision.transforms import transforms
 
 from mesh_city.detection.detection_providers.xdxd_sn4 import XDXD_SpaceNet4_UNetVGG16
-from mesh_city.util.image_util import ImageUtil
 
 
 class BuildingDetector:
@@ -25,19 +24,18 @@ class BuildingDetector:
 		)
 		self.model.load_state_dict(checkpoint)
 		self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-		if self.device == 'cuda':
-			self.model.cuda()
+		self.model.to(self.device)
 		self.image_size = 512
 		self.loader = transforms.Compose([transforms.ToTensor()])
 
 	def preprocess_datum(self, datum):
-		"""Turns numpy into cuda tensor"""
+		"""Turns numpy image representation into cuda tensor"""
 		# Scales the image to the range [-6,6], which is currently a heuristic.
 		datum_tensor = (
 			self.loader(datum).to(self.device) * 2 - 1
 		) * 6
 		datum_tensor = Variable(datum_tensor, requires_grad=False)
-		datum_tensor = datum_tensor.unsqueeze(0)  # this is for VGG, may not be needed for ResNet
+		datum_tensor = datum_tensor.unsqueeze(0)  # Fixes tensor shape
 		return datum_tensor
 
 	@staticmethod
@@ -72,5 +70,4 @@ class BuildingDetector:
 		vec_thres = np.vectorize(BuildingDetector.threshold)
 		# creates a binary classification numpy matrix by applying vectorized threshold function
 		filtered_result = vec_thres(clipped_result)
-		# returns the corresponding PIL image
 		return filtered_result
