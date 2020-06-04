@@ -45,7 +45,7 @@ class PriceTableUtil:
 
 	@staticmethod
 	def calculate_action_price(
-		api_name, service_type, previous_usage, additional_usage, monthly_quota
+		api_name, service_type, additional_usage, monthly_quota
 	):
 		"""
 		calculates the price of an action
@@ -53,26 +53,24 @@ class PriceTableUtil:
 		"""
 		cost = 0
 		previous_result = []
-		print(previous_usage)
-		print(previous_usage + additional_usage)
 
-		for number in range(previous_usage, previous_usage + additional_usage):
+		for number in range(0, additional_usage):
+			print(previous_result)
+			print(additional_usage)
 			if api_name not in PriceTableUtil.price_table_dic:
 				raise ValueError("The pricing for this API is not defined")
 			if service_type not in PriceTableUtil.price_table_dic[api_name]:
 				raise ValueError("The pricing for this API service is not defined")
 			temp_result = PriceTableUtil.price_table_dic[api_name][service_type].get(number, -1)
 			if temp_result == -1:
-				print("-1")
-				return [-1].extend(previous_result)
+				return [-1, previous_result[0], previous_result[1]]
 			cost += temp_result
-			if cost >= monthly_quota and number != previous_usage + additional_usage:
-				return [-1].extend(previous_result)
+			if cost >= monthly_quota and number != additional_usage:
+				return [-1, previous_result[0], previous_result[1]]
 
-			previous_result = [cost, previous_usage + additional_usage - number]
+			previous_result = [cost, additional_usage - number]
 
-		if (previous_usage + additional_usage) == 0:
-			print("hi")
+		if (additional_usage) == 0:
 			return [0]
 
 		return previous_result

@@ -1,7 +1,7 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, END, Label, Toplevel
+from tkinter import Button, END, Label, Toplevel, Entry
 
 from mesh_city.gui.error_windows.additional_provider_error import AdditionalProviderError
 from mesh_city.util.price_table_util import PriceTableUtil
@@ -39,7 +39,10 @@ class PreviewWindow:
 		self.temp_list = []
 		self.temp_list_size = -1
 
+		self.provider_number = 0
+
 		for key, value in self.application.user_entity.image_providers.items():
+			self.provider_number += 1
 			self.temp_list.append(
 				Button(
 				self.top, text=key, command=lambda value=value: self.check_usage(key, value), bg="white"
@@ -53,6 +56,38 @@ class PreviewWindow:
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=1)
 			self.count += 1
+
+		self.additional_provider_button = Button(
+			self.top, text="Add new image provider", command=self.add_another_provider, bg="white")
+		self.additional_provider_button.grid(row=self.count, columnspan=2)
+
+	def add_another_provider(self):
+		self.provider_number += 1
+		self.count += 1
+
+		temp_name = str("Google Maps ") + str(self.provider_number)
+		self.provider_number += 1
+		self.temp_name_label = Label(self.top, text=temp_name)
+		self.temp_name_label.grid(row=self.count, column=0)
+		self.count += 1
+
+		self.api_key = Label(self.top, text="API Key")
+		self.api_key.grid(row=self.count, column=0)
+
+		self.api_key_entry = Entry(self.top)
+		self.api_key_entry.grid(row=self.count, column=1, columnspan=2)
+		self.count += 1
+
+		self.quota = Label(self.top, text="Monthly Quota")
+		self.quota.grid(row=self.count, column=0)
+
+		self.quota_entry = Entry(self.top)
+		self.quota_entry.grid(row=self.count, column=1, columnspan=2)
+		self.count += 1
+
+		self.confirm_button = Button(self.top, text="Confirm", command=None)
+		self.confirm_button.grid(row=self.count, column=1)
+		self.additional_provider_button.grid_forget()
 
 	def check_usage(self, image_provider_entity_name, image_provider_entity):
 		"""
@@ -79,9 +114,9 @@ class PreviewWindow:
 		temp_cost = PriceTableUtil.calculate_action_price(
 			image_provider_entity.type,
 			"static_map",
-			image_provider_entity.usage["static_map"],
 			number_requests,
 			image_provider_entity.quota)
+
 		if temp_cost[0] != -1:
 			cost_request_label_text = "Cost: " + str(temp_cost)
 			self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
@@ -97,7 +132,7 @@ class PreviewWindow:
 			self.confirm_button.grid(row=4)
 		else:
 			providers_selected = [image_provider_entity_name]
-			images_remaining = temp_cost[1]
+			images_remaining = temp_cost[2]
 			enough = False
 
 			for key, value in self.application.user_entity.image_providers.items():
@@ -105,7 +140,6 @@ class PreviewWindow:
 					temp_cost_2 = PriceTableUtil.calculate_action_price(
 						value.type,
 						"static_map",
-						value.usage["static_map"],
 						images_remaining,
 						value.quota)
 					providers_selected.append(key)

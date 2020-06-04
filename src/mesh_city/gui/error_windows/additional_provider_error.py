@@ -25,10 +25,10 @@ class AdditionalProviderError:
 		self.top_label = Label(self.top, text="This request would exceed your quota.")
 		self.top_label.grid(row=0)
 
-		self.usage_needed = Label(self.top, text="Exceeding Images: ")
+		self.usage_needed = Label(self.top, text="Exceeding Images: " + str(images_remaining))
 		self.usage_needed.grid(row=1)
 
-		self.quit_button = Button(self.top, text="Quit", command=self.top.destroy())
+		self.quit_button = Button(self.top, text="Quit", command=None)
 		self.usage_needed.grid(row=3, column=0)
 
 		self.quit_button = Button(self.top, text="Add more image providers", command=self.more_providers)
