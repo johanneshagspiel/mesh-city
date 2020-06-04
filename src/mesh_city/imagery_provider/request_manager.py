@@ -45,7 +45,7 @@ class RequestManager:
 		"""
 		Make a request in such a way, that the images are stored in the tile system, are logged in
 		the log manager and they can be displayed on the map
-		:param centre_coordinates: the location where the image should be downloaded
+		:param coordinates: the location/list of locations of the images that should be downloaded
 		:param zoom: the zoom level at which the image should be downloaded
 		:return: nothing
 		"""
@@ -112,11 +112,13 @@ class RequestManager:
 				round_counter += 1
 
 			if location[1] is None:
+				# if there is no path stored for this coordinate, store it
 				temp_list_coordinates.append(location[0])
 				to_download.append((location[0], position_counter))
 				to_download_positions.append((round_counter, position_counter - 1))
 				temp_list_path.append(None)
 			else:
+				# getting longitude and latitude
 				temp_list_coordinates.append(location[0])
 				temp_list_path.append(location[1])
 			position_counter += 1
@@ -132,6 +134,7 @@ class RequestManager:
 			overall_list_path[round_counter][position_counter] = downloaded_images[temp_counter]
 			temp_counter += 1
 
+		# TODO see if everything below can become its own method
 		self.file_handler.folder_overview["active_tile_path"] = self.new_folder_path
 		self.file_handler.folder_overview["active_image_path"] = self.new_folder_path
 		self.file_handler.folder_overview["active_request_path"] = self.new_folder_path.parents[0]
@@ -174,13 +177,13 @@ class RequestManager:
 		:param location: the location where to download the image from
 		:return: the path where the image is stored
 		"""
-		number = str(location[1])
-		latitude = str(location[0][0])
-		longitude = str(location[0][1])
-		temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
+		number = location[1]
+		latitude = location[0][0]
+		longitude = location[0][1]
+		temp_name = str(number) + "_" + str(longitude) + "_" + str(latitude) + ".png"
 		temp_location_stored = str(
 			self.top_down_provider.get_and_store_location(
-			location[0][0], location[0][1], self.zoom, temp_name, self.new_folder_path
+			latitude, longitude, self.zoom, temp_name, self.new_folder_path
 			)
 		)
 
@@ -356,6 +359,9 @@ class RequestManager:
 		Method to check whether or not the coordinates are already downloaded
 		:param coordinates: the coordinates to check
 		:return: a list indicating whether the coordinates are already downloaded or not
+		first item of the list indicates number of to be downloaded coordinates
+		then the list has the following format:
+		(latitude, longitude), file path to download images
 		"""
 		temp_list = []
 		counter = 0
@@ -368,7 +374,7 @@ class RequestManager:
 			else:
 				latitude = str(location[0])
 				longitude = str(location[1])
-
+				# TODO change this to check grid positions rather than coordinates
 				if latitude in self.file_handler.coordinate_overview.grid:
 					if longitude in self.file_handler.coordinate_overview.grid[latitude]:
 						temp_list.append(

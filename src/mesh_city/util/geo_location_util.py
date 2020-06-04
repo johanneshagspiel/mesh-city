@@ -30,7 +30,7 @@ class GeoLocationUtil:
 		:param image_resolution: the height and width in pixels of the tiles/images.
 		:return: the number of meters one pixel represents in an image.
 		"""
-		map_width = math.pow(2, zoom) * image_resolution
+		map_width = math.pow(2, zoom - 1) * image_resolution
 		return self.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, direction):
@@ -219,3 +219,25 @@ class GeoLocationUtil:
 		                                      longitude, latitude)
 		# longitude first, latitude second.
 		return m_east_of_0, m_north_of_0
+
+	def calc_map_units_per_px_cor(self, latitude, longitude, image_width, image_height, zoom):
+		x_cor_grid, y_cor_grid = self.degree_to_tile_value(latitude, longitude, zoom)
+		return self.calc_map_units_per_px_grid(x_cor_grid, y_cor_grid, image_width, image_height, zoom)
+
+	def calc_map_units_per_px_grid(self, x_cor_grid, y_cor_grid, image_width, image_height, zoom):
+		nw_x, nw_y = x_cor_grid, y_cor_grid
+		ne_x, ne_y = nw_x + 1, nw_y
+		sw_x, sw_y = nw_x, nw_y + 1
+
+		nw_geo_x, nw_geo_y = self.tile_value_to_degree(nw_x, nw_y, zoom, get_centre=False)
+		ne_geo_x, ne_geo_y = self.tile_value_to_degree(ne_x, ne_y, zoom, get_centre=False)
+		sw_geo_x, sw_geo_y = self.tile_value_to_degree(sw_x, sw_y, zoom, get_centre=False)
+
+		nw_geo_x, nw_geo_y = self.transform_coordinates_to_mercator(nw_geo_x, nw_geo_y)
+		ne_geo_x, ne_geo_y = self.transform_coordinates_to_mercator(ne_geo_x, ne_geo_y)
+		sw_geo_x, sw_geo_y = self.transform_coordinates_to_mercator(sw_geo_x, sw_geo_x)
+
+		pixels_per_unit_x_direction = (ne_geo_x - nw_geo_x) / image_width
+		pixels_per_unit_y_direction = (sw_geo_y - nw_geo_y) / image_height
+
+		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
