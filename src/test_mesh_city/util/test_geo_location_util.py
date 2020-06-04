@@ -112,16 +112,20 @@ class TestGeoLocationUtil(unittest.TestCase):
 		)
 		self.assertEqual(answer_coordinates, calculated_coordinates)
 
+	def test_transform_coordinates_to_mercator(self):
+		correct_answer = 498025.45779206586, 6784206.663964961
+		latitude, longitude = 51.91187323961059, 4.473838806152344
+		calculated_answer = self.geo_location_util.transform_coordinates_to_mercator(
+			latitude, longitude
+		)
+		self.assertEqual(correct_answer, calculated_answer)
+
 	def test_calc_map_units_per_px_cor(self):
-		correct_answer = (0.0746455354347404, -0.0746455354347404)
-		longitude = 4.473838806152344
-		latitude = 51.91187323961059
+		correct_answer = (0.0746455354347404, -0.07464553543923103)
+		latitude, longitude = 51.91187323961059, 4.473838806152344
 		calculated_answer = self.geo_location_util.calc_map_units_per_px_cor(
-			latitude=latitude,
-			longitude=longitude,
-			image_height=1024,
-			image_width=1024,
-			zoom=20)
+			latitude=latitude, longitude=longitude, image_height=1024, image_width=1024, zoom=20
+		)
 		self.assertEqual(correct_answer, calculated_answer)
 
 	def test_calc_map_units_per_px_grid(self):
@@ -132,9 +136,6 @@ class TestGeoLocationUtil(unittest.TestCase):
 			20
 		)
 		calculated_answer = self.geo_location_util.calc_map_units_per_px_grid(
-			x_cor_grid=x_cor_grid,
-			y_cor_grid=y_cor_grid,
-			image_height=1024,
-			image_width=1024,
-			zoom=20)
+			x_cor_grid=x_cor_grid, y_cor_grid=y_cor_grid, image_height=1024, image_width=1024, zoom=20
+		)
 		self.assertEqual(correct_answer, calculated_answer)

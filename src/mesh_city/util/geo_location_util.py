@@ -4,7 +4,7 @@ See :class:`.GeoLocationUtil`
 
 import math
 
-from pyproj import Proj, transform
+from pyproj import Transformer
 
 
 class GeoLocationUtil:
@@ -31,7 +31,7 @@ class GeoLocationUtil:
 		:param image_resolution: the height and width in pixels of the tiles/images.
 		:return: the number of meters one pixel represents in an image.
 		"""
-		map_width = math.pow(2, zoom - 1) * image_resolution
+		map_width = math.pow(2, zoom) * image_resolution
 		return self.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
 
 	def calc_next_location_latitude(self, latitude, longitude, zoom, direction):
@@ -212,7 +212,8 @@ class GeoLocationUtil:
 		:param longitude: The current longitude.
 		:return: meters east of 0, meters north of 0
 		"""
-		m_east_of_0, m_north_of_0 = transform(Proj(init='epsg:4326'), Proj(init='epsg:3857'), longitude, latitude)
+		transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
+		m_east_of_0, m_north_of_0 = transformer.transform(latitude, longitude)
 		return m_east_of_0, m_north_of_0
 
 	def calc_map_units_per_px_cor(self, latitude, longitude, image_width, image_height, zoom):
