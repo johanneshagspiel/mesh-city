@@ -111,3 +111,30 @@ class TestGeoLocationUtil(unittest.TestCase):
 			(40, 6), (50, 5)
 		)
 		self.assertEqual(answer_coordinates, calculated_coordinates)
+
+	def test_calc_map_units_per_px_cor(self):
+		correct_answer = (0.0746455354347404, -0.0746455354347404)
+		longitude = 4.473838806152344
+		latitude = 51.91187323961059
+		calculated_answer = self.geo_location_util.calc_map_units_per_px_cor(
+			latitude=latitude,
+			longitude=longitude,
+			image_height=1024,
+			image_width=1024,
+			zoom=20)
+		self.assertEqual(correct_answer, calculated_answer)
+
+	def test_calc_map_units_per_px_grid(self):
+		correct_answer = (0.0746455354347404, -0.07464553543923103)
+		x_cor_grid, y_cor_grid = self.geo_location_util.degree_to_tile_value(
+			51.91187323961059,
+			4.473838806152344,
+			20
+		)
+		calculated_answer = self.geo_location_util.calc_map_units_per_px_grid(
+			x_cor_grid=x_cor_grid,
+			y_cor_grid=y_cor_grid,
+			image_height=1024,
+			image_width=1024,
+			zoom=20)
+		self.assertEqual(correct_answer, calculated_answer)

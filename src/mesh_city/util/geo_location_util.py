@@ -212,7 +212,7 @@ class GeoLocationUtil:
 		:param longitude: The current longitude.
 		:return: meters east of 0, meters north of 0
 		"""
-		m_east_of_0, m_north_of_0 = transform(Proj('epsg:4326'), Proj('epsg:3857'), longitude, latitude)
+		m_east_of_0, m_north_of_0 = transform(Proj(init='epsg:4326'), Proj(init='epsg:3857'), longitude, latitude)
 		return m_east_of_0, m_north_of_0
 
 	def calc_map_units_per_px_cor(self, latitude, longitude, image_width, image_height, zoom):
