@@ -28,6 +28,10 @@ Then start a shell inside the virtual environment:
 ```
 $ pipenv shell
 ```
+Then install the dependencies that don't work with Pipenv:
+```
+(mesh-city) $ pip install -r requirements.txt
+```
 Now you can run the following to check your code for formatting and linting issues:
 ```
 (mesh-city) $ python setup.py check_code
