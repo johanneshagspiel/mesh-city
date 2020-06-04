@@ -1,21 +1,42 @@
 from pathlib import Path
 
-from rasterio import open, uint8
-from rasterio.features import rasterize, shapes
+import rasterio
+from rasterio.features import shapes
 
 
 class RasterVectorConverter:
 
 	@staticmethod
-	def convert_building_detections(detection_mask_path):
+	def mask_to_vector(detection_mask: Path) -> [[[(float, float)]]]:
 
-		with open(Path(detection_mask_path)) as file:
+		with rasterio.open(detection_mask) as file:
 			image = file.read()
 
-		polygons = [
-			geometry["coordinates"] for geometry, value in shapes(source=image, mask=(image == 255))
-		]
+		return [geometry["coordinates"] for geometry, value in shapes(source=image, mask=(image == 255))]
 
+		# output_image = rasterize(
+		# 	[({"coordinates": [[
+		# 	bounding_box[0],
+		# 	(bounding_box[1][0], bounding_box[0][1]),
+		# 	bounding_box[1],
+		# 	(bounding_box[0][0], bounding_box[1][1]),
+		# 	]], "type": "Polygon"}, 255) for bounding_box in bounding_boxes],
+		# 	out_shape=file.shape,
+		# )  # yapf: disable
+		#
+		# with open(
+		# 	"example_output.png",
+		# 	mode="w",
+		# 	driver="PNG",
+		# 	dtype=uint8,
+		# 	count=1,
+		# 	width=file.width,
+		# 	height=file.height,
+		# ) as output_file:
+		# 	output_file.write(output_image, indexes=1)
+
+	@staticmethod
+	def vector_to_bounding_boxes(polygons: [[[(float, float)]]]) -> [((int, int), (int, int))]:
 		bounding_boxes = []
 		for polygon in polygons:
 			for coords_group in polygon:
@@ -35,25 +56,4 @@ class RasterVectorConverter:
 					left = min(image_coord[1], left)
 					right = max(image_coord[1], right)
 				bounding_boxes.append(((top, left), (bottom, right)))
-
-		output_image = rasterize(
-			[({"coordinates": [[
-			bounding_box[0],
-			(bounding_box[1][0], bounding_box[0][1]),
-			bounding_box[1],
-			(bounding_box[0][0], bounding_box[1][1]),
-			]], "type": "Polygon"}, 255) for bounding_box in bounding_boxes],
-			out_shape=file.shape,
-		)  # yapf: disable
-
-		with open(
-			"example_output.png",
-			mode="w",
-			driver="PNG",
-			dtype=uint8,
-			count=1,
-			width=file.width,
-			height=file.height,
-		) as output_file:
-			output_file.write(output_image, indexes=1)
-		return polygons
+		return bounding_boxes

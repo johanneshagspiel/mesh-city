@@ -13,14 +13,10 @@ class ImageUtil:
 	Collection of functions related to assembling map tile images.
 	"""
 
-	# def __init__(self, application):
-	# 	self.application = application
-	# 	self.file_handler = self.application.file_handler
-
 	temp_path = Path(__file__).parents[1]
-	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
+	path_to_temp = temp_path.joinpath("resources", "temp")
 
-	def concat_images_tile(self, image_list):
+	def concat_images_tile(self, image_list) -> Image:
 		"""
 		Method to concatenate images from a list into one tile
 		:param image_list: the list with the paths of all the images to be concatenated
@@ -123,11 +119,11 @@ class ImageUtil:
 			center_right,
 			down_left,
 			down_center,
-			down_right
+			down_right,
 		]
 		result = self.concat_image_grid(3, 3, images)
 		temp_name = "request_" + str(request) + "_tile_" + tile_number
-		result.save(Path.joinpath(new_folder_path, "concat_image_" + temp_name + ".png"))
+		result.save(new_folder_path.joinpath("concat_image_" + temp_name + ".png"))
 
 	# pylint: disable=E1120
 	def concat_image_grid(self, width, height, images):
@@ -145,19 +141,20 @@ class ImageUtil:
 			)
 		result = images[0]
 		for x_coord in range(1, width):
-			result = ImageUtil.get_concat_horizontally(
-				self, image_1=result, image_2=images[x_coord]
+			result = self.get_concat_horizontally(
+				image_1=result, image_2=images[x_coord]
 			)
 		for y_coord in range(1, height):
 			new_layer = images[y_coord * width]
 			for x_coord in range(1, width):
-				new_layer = ImageUtil.get_concat_horizontally(
-					self, image_1=new_layer, image_2=images[y_coord * width + x_coord]
+				new_layer = self.get_concat_horizontally(
+					image_1=new_layer, image_2=images[y_coord * width + x_coord]
 				)
-			result = ImageUtil.get_concat_vertically(self, image_1=result, image_2=new_layer)
+			result = self.get_concat_vertically(image_1=result, image_2=new_layer)
 		return result
 
-	def get_concat_horizontally(self, image_1, image_2):
+	@staticmethod
+	def get_concat_horizontally(image_1, image_2) -> Image:
 		"""
 		Combines two tile images horizontally.
 		:param image_1: The left image.
@@ -172,7 +169,8 @@ class ImageUtil:
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
 
-	def get_concat_vertically(self, image_1, image_2):
+	@staticmethod
+	def get_concat_vertically(image_1, image_2) -> Image:
 		"""
 		Combines two tile images vertically.
 		:param image_1: The top image.
@@ -189,10 +187,10 @@ class ImageUtil:
 		return temp
 
 	@staticmethod
-	def greyscale_matrix_to_image(matrix):
+	def greyscale_matrix_to_image(matrix) -> Image:
 		"""
 		Converts a given matrix with values 0-255 to a grayscale image.
 		:param matrix: The input matrix
 		:return: A greyscale PIL image corresponding to the matrix
 		"""
-		return Image.fromarray(np.array(object=matrix, dtype=np.uint8), 'L')
+		return Image.fromarray(np.array(object=matrix, dtype=np.uint8), "L")

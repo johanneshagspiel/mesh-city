@@ -1,6 +1,8 @@
 """
 Module containing the deep_forest tree detection algorithm
 """
+from pathlib import Path
+
 from deepforest import deepforest
 
 
@@ -14,10 +16,10 @@ class DeepForest:
 		self.model = deepforest.deepforest()
 		self.model.use_release()
 
-	def detect(self, image_path):
+	def detect(self, image_path: Path):
 		"""
 		Method used to detect trees from images
 		:param image_path: path where the image is stored from which to detect trees
 		:return: numpy array with bounding box over where threes are
 		"""
-		return self.model.predict_image(image_path=image_path, return_plot=False)
+		return self.model.predict_image(image_path=str(image_path), return_plot=False)

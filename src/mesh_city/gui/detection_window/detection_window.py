@@ -26,7 +26,7 @@ class DetectionWindow:
 		self.top = Toplevel(master)
 
 		# TODO update with new detection options
-		self.list_detection_options = ["Trees"]
+		self.list_detection_options = ["Trees", "Buildings"]
 
 		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)

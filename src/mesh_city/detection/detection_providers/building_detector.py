@@ -1,6 +1,7 @@
 """
 Module containing the deep_forest tree detection algorithm
 """
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -25,13 +26,13 @@ class BuildingDetector:
 			joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
 		)
 		self.model.load_state_dict(checkpoint)
-		self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-		if self.device == 'cuda':
+		self.device = "cuda" if torch.cuda.is_available() else "cpu"
+		if self.device == "cuda":
 			self.model.cuda()
 		self.image_size = 512
 		self.loader = transforms.Compose([transforms.Scale(self.image_size), transforms.ToTensor()])
 
-	def image_loader(self, image_name):
+	def _image_loader(self, image_name):
 		"""load image, returns cuda tensor"""
 		large_image = Image.open(image_name)
 		# Scales the image to the range [-6,6], which is currently a heuristic.
@@ -45,7 +46,7 @@ class BuildingDetector:
 		return image  # assumes that you're using GPU
 
 	@staticmethod
-	def threshold(x_value):
+	def _threshold(x_value):
 		"""
 		Placeholder for more sophisticated filtering function. Is applied to each pixel to turn a
 		greyscale image returned from the network into a binary classification with white pixels
@@ -56,13 +57,13 @@ class BuildingDetector:
 			return 255
 		return 0
 
-	def detect(self, image_path):
+	def detect(self, image_path: Path) -> Image:
 		"""
 		Method used to detect buildings on images
 		:param image_path: path where the image is stored from which to detect buildings
 		:return: binary image indicating where buildings were detected.
 		"""
-		image = self.image_loader(image_path)
+		image = self._image_loader(image_path)
 		result = self.model(image)
 		reshaped_result = result.reshape([512, 512])
 		# a 512x512 numpy representation of the neural network output
@@ -71,9 +72,9 @@ class BuildingDetector:
 		clipped_result = np.clip(
 			255 * (unclipped_result - np.min(unclipped_result)) / np.ptp(unclipped_result).astype(int),
 			0,
-			255
+			255,
 		)
-		vec_thres = np.vectorize(BuildingDetector.threshold)
+		vec_thres = np.vectorize(BuildingDetector._threshold)
 		# creates a binary classification numpy matrix by applying vectorized threshold function
 		filtered_result = vec_thres(clipped_result)
 		# returns the corresponding PIL image
