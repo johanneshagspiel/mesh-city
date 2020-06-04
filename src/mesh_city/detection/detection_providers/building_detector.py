@@ -4,9 +4,8 @@ Module containing the deep_forest tree detection algorithm
 
 import numpy as np
 import torch
-from PIL import Image
 from torch.autograd import Variable
-from torchvision import transforms
+from torchvision.transforms import transforms
 
 from mesh_city.detection.detection_providers.xdxd_sn4 import XDXD_SpaceNet4_UNetVGG16
 from mesh_city.util.image_util import ImageUtil
@@ -29,20 +28,17 @@ class BuildingDetector:
 		if self.device == 'cuda':
 			self.model.cuda()
 		self.image_size = 512
-		self.loader = transforms.Compose([transforms.Scale(self.image_size), transforms.ToTensor()])
+		self.loader = transforms.Compose([transforms.ToTensor()])
 
-	def image_loader(self, image_name):
-		"""load image, returns cuda tensor"""
-		large_image = Image.open(image_name)
+	def preprocess_datum(self, datum):
+		"""Turns numpy into cuda tensor"""
 		# Scales the image to the range [-6,6], which is currently a heuristic.
-		image = (
-			self.loader(large_image.resize((self.image_size, self.image_size))
-					).float().to(self.device) * 2 - 1
+		datum_tensor = (
+			self.loader(datum).to(self.device) * 2 - 1
 		) * 6
-		large_image.close()
-		image = Variable(image, requires_grad=False)
-		image = image.unsqueeze(0)  # this is for VGG, may not be needed for ResNet
-		return image  # assumes that you're using GPU
+		datum_tensor = Variable(datum_tensor, requires_grad=False)
+		datum_tensor = datum_tensor.unsqueeze(0)  # this is for VGG, may not be needed for ResNet
+		return datum_tensor
 
 	@staticmethod
 	def threshold(x_value):
@@ -56,14 +52,14 @@ class BuildingDetector:
 			return 255
 		return 0
 
-	def detect(self, image_path):
+	def detect(self, image):
 		"""
 		Method used to detect buildings on images
-		:param image_path: path where the image is stored from which to detect buildings
+		:param image: numpy representation of the image to be processed.
 		:return: binary image indicating where buildings were detected.
 		"""
-		image = self.image_loader(image_path)
-		result = self.model(image)
+		image_tensor = self.preprocess_datum(image)
+		result = self.model(image_tensor)
 		reshaped_result = result.reshape([512, 512])
 		# a 512x512 numpy representation of the neural network output
 		unclipped_result = reshaped_result.detach().cpu().numpy()
@@ -77,4 +73,4 @@ class BuildingDetector:
 		# creates a binary classification numpy matrix by applying vectorized threshold function
 		filtered_result = vec_thres(clipped_result)
 		# returns the corresponding PIL image
-		return ImageUtil.greyscale_matrix_to_image(filtered_result)
+		return filtered_result
