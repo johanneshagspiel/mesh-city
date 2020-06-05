@@ -96,8 +96,12 @@ class ExportWindow:
 		temp_list_detected_layers = []
 		for key in self.temp_building_instructions_request.instructions.keys():
 			for sub_layer in self.temp_building_instructions_request.instructions[key]:
-				temp_name = key + " " + sub_layer
-				temp_list_detected_layers.append(temp_name)
+				if sub_layer != "Coordinates":
+					if sub_layer == "Paths":
+						temp_name = key + " Images"
+					else:
+						temp_name = key + " " + sub_layer
+					temp_list_detected_layers.append(temp_name)
 
 		counter = 1
 		self.check_box_list = []
@@ -155,15 +159,13 @@ class ExportWindow:
 				temp_split = element.split(" ")
 				temp_to_move = None
 
-				if temp_split[0] == "Google" and temp_split[2] == "Paths":
-					temp_to_move = ("Google Maps", "Paths")
-				if temp_split[0] == "Google" and temp_split[2] == "World":
-					temp_to_move = ("Google Maps", "World Files")
-				if temp_split[0] == "Google" and temp_split[2] == "Coordinates":
-					pass
+				if temp_split[0] == "Google":
+					if temp_split[2] == "Images":
+						temp_to_move = ("Google Maps", "Paths")
+					if temp_split[2] == "World":
+						temp_to_move = ("Google Maps", "World Files")
 				else:
 					temp_to_move = (temp_split[0], temp_split[1])
-				print(temp_to_move)
 
 				temp_request_creator.follow_move_instructions(
 					temp_to_move, temp_building_instructions, temp_path
