@@ -35,17 +35,19 @@ class PreviewWindow:
 		self.top_label = Label(top, text="Which image provider do you want to use?")
 		self.top_label.grid(row=0, columnspan=2)
 
-		self.count = 1
+		self.count = 2
+		self.provider_number = 0
+
 		self.temp_list = []
 		self.temp_list_size = -1
 
-		self.provider_number = 0
+		self.chosen_list =[]
 
 		for key, value in self.application.user_entity.image_providers.items():
 			self.provider_number += 1
 			self.temp_list.append(
 				Button(
-				self.top, text=key, command=lambda value=value: self.check_usage(key, value), bg="white"
+				self.top, text=key, command=lambda value=value: self.calculate_locations(key, value), bg="white"
 				)
 			)
 			self.temp_list_size += 1
@@ -59,6 +61,7 @@ class PreviewWindow:
 
 		self.additional_provider_button = Button(
 			self.top, text="Add new image provider", command=self.add_another_provider, bg="white")
+		self.temp_list.append(self.additional_provider_button)
 		self.additional_provider_button.grid(row=self.count, columnspan=2)
 
 	def add_another_provider(self):
@@ -69,25 +72,42 @@ class PreviewWindow:
 		self.provider_number += 1
 		self.temp_name_label = Label(self.top, text=temp_name)
 		self.temp_name_label.grid(row=self.count, column=0)
+		self.temp_list.append(self.temp_name_label)
 		self.count += 1
 
 		self.api_key = Label(self.top, text="API Key")
 		self.api_key.grid(row=self.count, column=0)
+		self.temp_list.append(self.api_key)
 
 		self.api_key_entry = Entry(self.top)
 		self.api_key_entry.grid(row=self.count, column=1, columnspan=2)
+		self.temp_list.append(self.api_key_entry)
 		self.count += 1
 
 		self.quota = Label(self.top, text="Monthly Quota")
 		self.quota.grid(row=self.count, column=0)
+		self.temp_list.append(self.quota)
 
 		self.quota_entry = Entry(self.top)
 		self.quota_entry.grid(row=self.count, column=1, columnspan=2)
+		self.temp_list.append(self.quota_entry)
 		self.count += 1
 
 		self.confirm_button = Button(self.top, text="Confirm", command=None)
 		self.confirm_button.grid(row=self.count, column=1)
+		self.temp_list.append(self.confirm_button)
+
 		self.additional_provider_button.grid_forget()
+
+	def calculate_locations(self, image_provider_entity_name, image_provider_entity):
+		self.application.request_manager.image_provider = image_provider_entity
+		self.application.request_manager.top_down_provider = image_provider_entity.top_down_provider
+		self.locations = self.application.request_manager.calculate_locations(
+			coordinates=self.coordinates
+		)
+		self.locations = self.application.request_manager.check_coordinates(self.locations)
+		self.number_requests = self.locations.pop(0)
+		self.check_usage(image_provider_entity_name, image_provider_entity)
 
 	def check_usage(self, image_provider_entity_name, image_provider_entity):
 		"""
@@ -95,64 +115,78 @@ class PreviewWindow:
 		:param image_provider_entity: the image provider entity used for the request
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
-		self.application.request_manager.image_provider = image_provider_entity
-		self.application.request_manager.top_down_provider = image_provider_entity.top_down_provider
-		self.locations = self.application.request_manager.calculate_locations(
-			coordinates=self.coordinates
-		)
-		self.locations = self.application.request_manager.check_coordinates(self.locations)
-		number_requests = self.locations.pop(0)
+		print(image_provider_entity_name)
+		self.chosen_list.append(image_provider_entity_name)
 
 		for widget in self.temp_list:
 			widget.grid_forget()
 
-		self.top_label.configure(text="Are you sure you want to proceed?")
-
-		number_requests_label_text = "Images to download: " + str(number_requests)
-		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
-		self.number_requests_label.grid(row=1, column=0)
 		temp_cost = PriceTableUtil.calculate_action_price(
 			image_provider_entity.type,
 			"static_map",
-			number_requests,
+			self.number_requests,
 			image_provider_entity.quota)
 
 		if temp_cost[0] != -1:
-			cost_request_label_text = "Cost: " + str(temp_cost)
-			self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
-			self.cost_request_label.grid(row=2, column=0)
-
-			usage_left_label_text = "Usage left: " + str(image_provider_entity.quota - temp_cost)
-			self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
-			self.usage_left_label.grid(row=3, column=0)
-
-			self.confirm_button = Button(
-				self.top, text="Confirm", command=lambda: self.cleanup(self.locations), bg="white"
-			)
-			self.confirm_button.grid(row=4)
+			self.confirm_download()
 		else:
-			providers_selected = [image_provider_entity_name]
-			images_remaining = temp_cost[2]
-			enough = False
+			self.number_requests -= temp_cost[3]
+			self.select_additional_providers(temp_cost[2])
 
-			for key, value in self.application.user_entity.image_providers.items():
-				if key not in providers_selected:
-					temp_cost_2 = PriceTableUtil.calculate_action_price(
-						value.type,
-						"static_map",
-						images_remaining,
-						value.quota)
-					providers_selected.append(key)
-					if temp_cost_2[0] != -1:
-						enough = True
-						pass
+	def select_additional_providers(self, images_to_download):
 
-			if enough:
-				return None
-			else:
-				AdditionalProviderError(self.master, self.application, images_remaining, providers_selected)
-				self.top.destroy()
+		for widget in self.temp_list:
+			widget.grid_forget()
 
+		self.top_label.configure(text="Using only this image provider would exceed its quota.")
+
+		number_requests_label_text = "Images still to be downloaded: " + str(images_to_download)
+		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
+		self.number_requests_label.grid(row=1, column=0)
+
+		self.count = 2
+
+		for key, value in self.application.user_entity.image_providers.items():
+			if key not in self.chosen_list:
+				self.provider_number += 1
+				self.temp_button = Button(
+						self.top, text=key,
+						command=lambda value=value, key=key: self.check_usage(key, value), bg="white"
+					)
+				self.temp_button.grid(row=self.count, column=0)
+				self.temp_list.append(self.temp_button)
+
+				temp_text = "Usage left: " + str(value.quota - value.usage["total"])
+				self.temp_label = Label(self.top, text=temp_text)
+				self.temp_label.grid(row=self.count, column=1)
+				self.temp_list.append(self.temp_label)
+				self.count += 1
+
+		self.additional_provider_button = Button(
+			self.top, text="Add new image provider", command=self.add_another_provider,
+			bg="white")
+		self.temp_list.append(self.additional_provider_button)
+		self.additional_provider_button.grid(row=self.count, column=0, columnspan=2)
+
+	def confirm_download(self):
+		self.top_label.configure(text="Are you sure you want to proceed?")
+
+		number_requests_label_text = "Images to download: " + str(self.number_requests)
+		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
+		self.number_requests_label.grid(row=1, column=0)
+
+		cost_request_label_text = "Cost: " + str(temp_cost[0])
+		self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
+		self.cost_request_label.grid(row=2, column=0)
+
+		usage_left_label_text = "Usage left: " + str(image_provider_entity.quota - temp_cost[0])
+		self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
+		self.usage_left_label.grid(row=3, column=0)
+
+		self.confirm_button = Button(
+			self.top, text="Confirm", command=lambda: self.cleanup(self.locations), bg="white"
+		)
+		self.confirm_button.grid(row=4)
 
 	def cleanup(self, locations):
 		"""

@@ -55,20 +55,18 @@ class PriceTableUtil:
 		previous_result = []
 
 		for number in range(0, additional_usage):
-			print(previous_result)
-			print(additional_usage)
 			if api_name not in PriceTableUtil.price_table_dic:
 				raise ValueError("The pricing for this API is not defined")
 			if service_type not in PriceTableUtil.price_table_dic[api_name]:
 				raise ValueError("The pricing for this API service is not defined")
 			temp_result = PriceTableUtil.price_table_dic[api_name][service_type].get(number, -1)
 			if temp_result == -1:
-				return [-1, previous_result[0], previous_result[1]]
+				return [-1, previous_result[0], previous_result[1], previous_result[1]]
 			cost += temp_result
 			if cost >= monthly_quota and number != additional_usage:
-				return [-1, previous_result[0], previous_result[1]]
+				return [-1, previous_result[0], previous_result[1], previous_result[1]]
 
-			previous_result = [cost, additional_usage - number]
+			previous_result = [cost, additional_usage - number, number]
 
 		if (additional_usage) == 0:
 			return [0]
