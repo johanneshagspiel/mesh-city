@@ -108,7 +108,7 @@ class GeoLocationUtil:
 			)
 		lat_rad = math.radians(latitude)
 		total_number_of_tiles = 2.0**(zoom - 1)
-		# number of tiles in t he world tile grid: -1 as the downloaded images
+		# number of tiles in the world tile grid: -1 as the downloaded images
 		# have twice the resolution of the grid tiles of Google Maps, Bing Maps, and OpenStreetMap.
 		x_cor_tile = int((longitude + 180.0) / 360.0 * total_number_of_tiles)
 		y_cor_tile = int(
