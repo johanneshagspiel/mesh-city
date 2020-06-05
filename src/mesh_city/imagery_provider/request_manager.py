@@ -92,7 +92,7 @@ class RequestManager:
 		temp_list_coordinates = []
 
 		overall_list_path = []
-		temp_list_path = []
+		block_list_path = []
 
 		to_download = []
 		to_download_positions = []
@@ -105,8 +105,8 @@ class RequestManager:
 				overall_list_coordinates.append(temp_list_coordinates)
 				temp_list_coordinates = []
 
-				overall_list_path.append(temp_list_path)
-				temp_list_path = []
+				overall_list_path.append(block_list_path)
+				block_list_path = []
 
 				position_counter = 1
 				round_counter += 1
@@ -116,15 +116,15 @@ class RequestManager:
 				temp_list_coordinates.append(location[0])
 				to_download.append((location[0], position_counter))
 				to_download_positions.append((round_counter, position_counter - 1))
-				temp_list_path.append(None)
+				block_list_path.append(None)
 			else:
 				# getting longitude and latitude
 				temp_list_coordinates.append(location[0])
-				temp_list_path.append(location[1])
+				block_list_path.append(location[1])
 			position_counter += 1
 
 		overall_list_coordinates.append(temp_list_coordinates)
-		overall_list_path.append(temp_list_path)
+		overall_list_path.append(block_list_path)
 
 		# pylint: disable=W0108
 		downloaded_images = list(map(lambda x: self.download_image(x), to_download))
@@ -133,6 +133,15 @@ class RequestManager:
 		for (round_counter, position_counter) in to_download_positions:
 			overall_list_path[round_counter][position_counter] = downloaded_images[temp_counter]
 			temp_counter += 1
+
+		overall_list_of_world_files = list()
+		block_list_of_world_files = list()
+		for block in overall_list_path:
+			for path in block:
+				world_file_path = str(path)[:-4] + ".pgw"
+				block_list_of_world_files.append(world_file_path)
+			overall_list_of_world_files.append(block_list_of_world_files)
+			block_list_of_world_files = list()
 
 		# TODO see if everything below can become its own method
 		self.file_handler.folder_overview["active_tile_path"] = self.new_folder_path
@@ -144,6 +153,9 @@ class RequestManager:
 
 		overall_list_coordinates.insert(0, max_tile_right)
 		self.normal_building_instructions["Coordinates"] = overall_list_coordinates
+
+		overall_list_of_world_files.insert(0, max_tile_right)
+		self.normal_building_instructions["World Files"] = overall_list_of_world_files
 
 		temp_path_request = Path.joinpath(
 			self.new_folder_path.parents[0],
