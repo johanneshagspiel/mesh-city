@@ -66,7 +66,7 @@ class PriceTableUtil:
 			if cost >= monthly_quota and number != additional_usage:
 				return [-1, previous_result[0], previous_result[1], previous_result[1]]
 
-			previous_result = [cost, additional_usage - number, number]
+			previous_result = [cost, additional_usage - number, number, monthly_quota - additional_usage]
 
 		if (additional_usage) == 0:
 			return [0]

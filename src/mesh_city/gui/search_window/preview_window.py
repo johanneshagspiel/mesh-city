@@ -42,6 +42,7 @@ class PreviewWindow:
 		self.temp_list_size = -1
 
 		self.chosen_list =[]
+		self.list_providers = []
 
 		for key, value in self.application.user_entity.image_providers.items():
 			self.provider_number += 1
@@ -115,7 +116,6 @@ class PreviewWindow:
 		:param image_provider_entity: the image provider entity used for the request
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
-		print(image_provider_entity_name)
 		self.chosen_list.append(image_provider_entity_name)
 
 		for widget in self.temp_list:
@@ -129,9 +129,11 @@ class PreviewWindow:
 
 		if temp_cost[0] != -1:
 			self.confirm_download()
+			self.list_providers.append((image_provider_entity_name, 0))
 		else:
 			self.number_requests -= temp_cost[3]
 			self.select_additional_providers(temp_cost[2])
+			self.list_providers.append((image_provider_entity_name, 0))
 
 	def select_additional_providers(self, images_to_download):
 
