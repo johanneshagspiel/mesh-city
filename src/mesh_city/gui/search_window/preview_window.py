@@ -129,11 +129,11 @@ class PreviewWindow:
 
 		if temp_cost[0] != -1:
 			self.confirm_download()
-			self.list_providers.append((image_provider_entity_name, 0))
+			self.list_providers.append((image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2]))
 		else:
-			self.number_requests -= temp_cost[3]
+			self.number_requests -= temp_cost[2]
 			self.select_additional_providers(temp_cost[2])
-			self.list_providers.append((image_provider_entity_name, 0))
+			self.list_providers.append((image_provider_entity_name,  temp_cost[1], temp_cost[2], temp_cost[3]))
 
 	def select_additional_providers(self, images_to_download):
 
@@ -173,22 +173,33 @@ class PreviewWindow:
 	def confirm_download(self):
 		self.top_label.configure(text="Are you sure you want to proceed?")
 
-		number_requests_label_text = "Images to download: " + str(self.number_requests)
-		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
-		self.number_requests_label.grid(row=1, column=0)
+		for widget in self.temp_list:
+			widget.grid_forget()
 
-		cost_request_label_text = "Cost: " + str(temp_cost[0])
-		self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
-		self.cost_request_label.grid(row=2, column=0)
+		counter = 2
+		for provider in self.list_providers:
 
-		usage_left_label_text = "Usage left: " + str(image_provider_entity.quota - temp_cost[0])
-		self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
-		self.usage_left_label.grid(row=3, column=0)
+			self.provider_name = Label(self.top, text=str(provider[0]))
+			self.provider_name.grid(row=counter, column=0)
+			counter += 1
+
+			cost_request_label_text = "Cost: " + str(provider[1])
+			self.cost_request_label = Label(self.top, text=str(cost_request_label_text))
+			self.cost_request_label.grid(row=counter, column=0)
+
+			number_requests_label_text = "Images downloaded: " + str(provider[2])
+			self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
+			self.number_requests_label.grid(row=counter, column=1)
+
+			usage_left_label_text = "Usage left: " + str(provider[3])
+			self.usage_left_label = Label(self.top, text=str(usage_left_label_text))
+			self.usage_left_label.grid(row=counter, column=2)
+			counter += 1
 
 		self.confirm_button = Button(
 			self.top, text="Confirm", command=lambda: self.cleanup(self.locations), bg="white"
 		)
-		self.confirm_button.grid(row=4)
+		self.confirm_button.grid(row=counter, column=1)
 
 	def cleanup(self, locations):
 		"""
