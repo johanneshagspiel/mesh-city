@@ -27,7 +27,7 @@ def compute_image_similarity(image1, image2):
 	return 1 - (dif / 255.0) / ncomponents
 
 
-class BuildingDetectorRasterTest(unittest.TestCase):
+class TestBuildingDetectorRaster(unittest.TestCase):
 
 	def test_construct_building_detector(self):
 		"""

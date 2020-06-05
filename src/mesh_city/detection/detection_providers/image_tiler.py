@@ -6,7 +6,7 @@ import numpy as np
 
 class ImageTiler:
 	"""
-	A class for deconstructing a larger image into tiles and constructing larger images from tiles
+	A class for deconstructing a larger image into tiles (subsections of a fixed size) and constructing larger images from tiles
 	of a certain width and height.
 	"""
 
@@ -18,7 +18,7 @@ class ImageTiler:
 		"""
 		Builds a tile dictionary for an image.
 		:param image: a numpy representation of an image
-		:return:
+		:return: a dictionary of tiles covering the entire image (some might overlap)
 		"""
 		image_width = image.shape[0]
 		image_height = image.shape[1]
@@ -38,7 +38,7 @@ class ImageTiler:
 		Constructs an image from tiles.
 		Image size is inferred from the known tile dimensions and the coordinates.
 		:param tile_dictionary: a dictionary of numpy images indexed by (x,y) coordinate tuples
-		:return:
+		:return: numpy array of image reconstructed from tile dictionary.
 		"""
 		image_width = 0
 		image_height = 0

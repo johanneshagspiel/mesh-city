@@ -7,7 +7,7 @@ import numpy as np
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 
 
-class ImageTilerTest(unittest.TestCase):
+class TestImageTiler(unittest.TestCase):
 
 	def test_dict(self):
 		image_tiler = ImageTiler(2, 2)
