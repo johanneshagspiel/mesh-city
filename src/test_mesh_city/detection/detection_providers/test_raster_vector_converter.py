@@ -17,5 +17,7 @@ class RasterVectorConverterTest(unittest.TestCase):
 		Fails if something goes wrong running a simple detection
 		"""
 
-		polygons = RasterVectorConverter.mask_to_vector(Path(__file__).parents[0].joinpath("test-images/groundtruth1.png"))
-		self.assertEqual(len(polygons),22)
+		polygons = RasterVectorConverter.mask_to_vector(
+			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
+		)
+		self.assertEqual(len(polygons), 22)

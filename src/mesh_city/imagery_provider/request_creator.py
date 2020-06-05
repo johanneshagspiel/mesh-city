@@ -58,7 +58,7 @@ class RequestCreator:
 
 			result_image.save(fp=path_to_store, format="png")
 
-		if to_make[0] == "Trees":
+		elif to_make[0] in ["Trees", "Buildings"]:
 			temp_to_build = building_instructions_request.instructions[to_make[0]][to_make[1]]
 			iteration_amount = temp_to_build[0]
 
@@ -72,6 +72,9 @@ class RequestCreator:
 				)
 
 			result_image.save(fp=path_to_store, format="png")
+
+		else:
+			assert False  # Should not be reached
 
 	def follow_move_instructions(self, to_move, building_instructions_request, path_to_move):
 		"""
@@ -131,7 +134,6 @@ class RequestCreator:
 		)
 
 	# pylint: disable= E0602
-
 	def create_map_image(self, building_instructions_request, overlays):
 		"""
 		Creates a map image based on the previously created map overlays
@@ -166,5 +168,3 @@ class RequestCreator:
 		self.application.file_handler.change(
 			"active_image_path", self.application.file_handler.folder_overview["temp_map_path"]
 		)
-
-		# pylint: disable= E0602

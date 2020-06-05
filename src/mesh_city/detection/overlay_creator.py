@@ -30,7 +30,7 @@ class OverlayCreator:
 		:return: nothing (adds the overlay to the overlay dictionary and updates main screen
 		"""
 
-		if detection_algorithm == "Trees":
+		if detection_algorithm in ["Trees", "Buildings"]:
 			# TODO change image size depending on image size used for prediction
 			tree_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_overlay)
@@ -49,7 +49,7 @@ class OverlayCreator:
 			temp_name = "overlay_tile_" + str(number) + ".png"
 			temp_path = Path.joinpath(
 				self.application.file_handler.folder_overview["active_request_path"],
-				"trees",
+				detection_algorithm.lower(),
 				"overlay",
 				temp_name
 			)
@@ -68,7 +68,7 @@ class OverlayCreator:
 		:return: nothing (an image is added to the overlay dictionary)
 		"""
 
-		if detection_algorithm == "Trees":
+		if detection_algorithm in ["Trees", "Buildings"]:
 			# TODO change image size depending on image size used for prediction
 			tree_map_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_map_overlay)
@@ -88,7 +88,7 @@ class OverlayCreator:
 			temp_name = "map_tile_" + str(number) + ".png"
 			temp_path = Path.joinpath(
 				self.application.file_handler.folder_overview["active_request_path"],
-				"trees",
+				detection_algorithm.lower(),
 				"map",
 				temp_name
 			)

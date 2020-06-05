@@ -6,7 +6,6 @@ import csv
 from pathlib import Path
 
 from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
-from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
 class MetaDataCreator:
@@ -36,7 +35,7 @@ class MetaDataCreator:
 		to_store = DetectionMetaData(path_to_store=temp_to_store)
 		to_store.information = {"Amount": 0, "Objects": {}}
 
-		if detection_algorithm == "Trees":
+		if detection_algorithm in ["Trees", "Buildings"]:
 
 			with open(path, newline='') as csvfile:
 				spamreader = csv.reader(csvfile, delimiter=',')
@@ -78,8 +77,6 @@ class MetaDataCreator:
 			self.building_instructions.instructions[detection_algorithm]["Meta"][1].append(
 				str(temp_to_store)
 			)
-
-			#total_area_covered = image_size[0] * image_size[1] * GeoLocationUtil.calc_meters_per_px()
 
 	def combine_information(self, detection_algorithm):
 		"""

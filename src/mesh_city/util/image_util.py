@@ -141,9 +141,7 @@ class ImageUtil:
 			)
 		result = images[0]
 		for x_coord in range(1, width):
-			result = self.get_concat_horizontally(
-				image_1=result, image_2=images[x_coord]
-			)
+			result = self.get_concat_horizontally(image_1=result, image_2=images[x_coord])
 		for y_coord in range(1, height):
 			new_layer = images[y_coord * width]
 			for x_coord in range(1, width):

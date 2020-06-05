@@ -2,6 +2,7 @@
 This module provides a GUI interface that can be used to select different layers to appear over the
 main_screen image such as an indication where all the trees are
 """
+
 from pathlib import Path
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
@@ -92,7 +93,7 @@ class LayersWindow:
 				self.application.file_handler.folder_overview["temp_image_path"],
 				"concat_image_normal.png"
 			)
-			# TODO change when using other satillte image providers
+			# TODO change when using other satellite image providers
 			temp_request_creator.follow_create_instructions(
 				["Google Maps", "Paths"], self.building_instructions, temp_path
 			)

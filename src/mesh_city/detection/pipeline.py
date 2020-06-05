@@ -52,23 +52,30 @@ class Pipeline:
 			if element == "Trees":
 				deep_forest = DeepForest()
 
-				self.temp_path = self.application.file_handler.folder_overview["active_request_path"].joinpath("trees")
+				self.temp_path = self.application.file_handler.folder_overview["active_request_path"
+																				].joinpath("trees")
 				os.makedirs(self.temp_path)
 
 				req_raw_data_path = self.temp_path.joinpath("raw_data")
 				os.makedirs(req_raw_data_path)
 				self.application.file_handler.change("active_raw_data_path", req_raw_data_path)
 
-				for tile_number in range(1, len(self.building_instructions.instructions["Google Maps"]["Paths"])):
+				for tile_number in range(
+					1, len(self.building_instructions.instructions["Google Maps"]["Paths"])
+				):
 					combined_image = self.image_util.concat_images_tile(
-						image_list=self.building_instructions.instructions["Google Maps"]["Paths"][tile_number]
+						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
+						[tile_number]
 					)
-					combined_image_path = self.application.file_handler.folder_overview["temp_detection_path"].joinpath("temp_image.png")
-					combined_image.resize((600, 600), Image.ANTIALIAS).save(fp=combined_image_path, format="png")
+					combined_image_path = self.application.file_handler.folder_overview[
+						"temp_detection_path"].joinpath("temp_image.png")
+					combined_image.resize((600, 600),
+						Image.ANTIALIAS).save(fp=combined_image_path, format="png")
 					result = deep_forest.detect(image_path=combined_image_path)
 
 					raw_data_csv_filename = "raw_data_tile_" + str(tile_number) + ".csv"
-					raw_data_csv_path = self.application.file_handler.folder_overview["active_raw_data_path"].joinpath(raw_data_csv_filename)
+					raw_data_csv_path = self.application.file_handler.folder_overview[
+						"active_raw_data_path"].joinpath(raw_data_csv_filename)
 
 					with open(raw_data_csv_path, "w") as to_store:
 						result.to_csv(to_store)
@@ -80,13 +87,21 @@ class Pipeline:
 				if self.building_detector is None:
 					self.building_detector = BuildingDetector(self.application.file_handler)
 
-				self.temp_path = self.application.file_handler.folder_overview["active_request_path"].joinpath("buildings")
+				self.temp_path = self.application.file_handler.folder_overview[
+					"active_request_path"].joinpath("buildings")
 				self.temp_path.mkdir()
 
+				req_raw_data_path = self.temp_path.joinpath("raw_data")
+				req_raw_data_path.mkdir()
+				self.application.file_handler.change("active_raw_data_path", req_raw_data_path)
+
 				combined_image = self.image_util.concat_images_tile(
-					image_list=self.building_instructions.instructions["Google Maps"]["Paths"][1])
-				combined_image_path = self.application.file_handler.folder_overview["temp_detection_path"].joinpath("temp_image.png")
-				combined_image.resize((512, 512), Image.ANTIALIAS).save(fp=combined_image_path, format="png")
+					image_list=self.building_instructions.instructions["Google Maps"]["Paths"][1]
+				)
+				combined_image_path = self.application.file_handler.folder_overview[
+					"temp_detection_path"].joinpath("temp_image.png")
+				combined_image.resize((512, 512),
+					Image.ANTIALIAS).save(fp=combined_image_path, format="png")
 
 				result = self.building_detector.detect(image_path=combined_image_path)
 
@@ -97,12 +112,15 @@ class Pipeline:
 				polygons = r2v.mask_to_vector(detection_mask=result_path)
 				bounding_boxes = r2v.vector_to_bounding_boxes(polygons=polygons)
 
-				raw_data_csv_path = self.temp_path.joinpath("raw_data_tile_0.csv")
+				raw_data_csv_path = req_raw_data_path.joinpath("raw_data_tile_0.csv")
 
 				with open(raw_data_csv_path, "w") as csv_file:
-					csv_file.write("number,xmin,ymin,xmax,ymax\n")
+					csv_file.write("number,xmin,ymin,xmax,ymax,score,label\n")
 					for index, ((y_min, x_min), (y_max, x_max)) in enumerate(bounding_boxes):
-						csv_file.write("%d,%f,%f,%f,%f\n" % (index, x_min, y_min, x_max, y_max))
+						csv_file.write(
+							"%d,%f,%f,%f,%f,%f,%s\n" %
+							(index, x_min, y_min, x_max, y_max, 1.0, "Building")
+						)
 
 				self.push_backward(image_size=(512, 512), detection_type=element)
 
