@@ -31,6 +31,7 @@ class DetectionWindow:
 		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)
 
+		print(self.application.file_handler.folder_overview["active_request_path"])
 		temp_path = next(
 			self.application.file_handler.folder_overview["active_request_path"].
 			glob('building_instructions_request_*')
@@ -88,13 +89,6 @@ class DetectionWindow:
 				temp_sum += 1
 			temp_counter += 1
 
-		if temp_sum == 0:
-			self.top.destroy()
-
-		else:
-			Pipeline(self.application, self.main_screen, to_detect,
-				self.building_instructions).push_forward()
-			self.main_screen.active_layers = to_detect
-			self.main_screen.update_image()
-			self.main_screen.update_text()
-			self.top.destroy()
+		if temp_sum != 0:
+			self.application.run_detection(building_instructions=self.building_instructions,to_detect=to_detect)
+		self.top.destroy()

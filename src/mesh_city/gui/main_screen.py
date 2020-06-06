@@ -123,6 +123,7 @@ class MainScreen:
 		self.master.rowconfigure(1, weight=1)
 		self.master.rowconfigure(2, weight=1)
 
+	def run(self):
 		mainloop()
 
 	def export_window(self):
