@@ -9,11 +9,13 @@ from pathlib import Path
 
 from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
+from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.request import Request
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
 
-class RequestManager:
+class RequestMaker:
 	"""
 	A class that is responsible for handling requests to different map providers. Based on
 	tile_information of the user it calculates all the locations that need to be downloaded, downloads them
@@ -69,21 +71,7 @@ class RequestManager:
 			self.zoom = self.top_down_provider.max_zoom
 
 		request_number = self.log_manager.get_request_number()
-		request_number_string = str(request_number)
-
-		# a new folder is created for the request if it goes ahead
-		new_folder_path_request = Path.joinpath(
-			self.file_handler.folder_overview["image_path"], "request_" + request_number_string
-		)
-		os.makedirs(new_folder_path_request)
-
-		# a new folder is created to store all the images in
-		self.new_folder_path = Path.joinpath(new_folder_path_request, "google_maps")
-		os.makedirs(self.new_folder_path)
-
-		number_requests = len(coordinates)
-		print("Requestnumber: " + str(self.request_number))
-		print("Total Images to download: " + str(number_requests))
+		new_request = Request(request_id=request_number)
 
 		overall_list_coordinates = []
 		temp_list_coordinates = []
@@ -129,41 +117,12 @@ class RequestManager:
 			overall_list_path[round_counter][position_counter] = downloaded_images[temp_counter]
 			temp_counter += 1
 
-		self.file_handler.folder_overview["active_tile_path"] = self.new_folder_path
-		self.file_handler.folder_overview["active_image_path"] = self.new_folder_path
-		self.file_handler.folder_overview["active_request_path"] = self.new_folder_path.parents[0]
-
 		overall_list_path.insert(0, max_tile_right)
 		final_paths = overall_list_path
-
 		overall_list_coordinates.insert(0, max_tile_right)
 		final_coordinates = overall_list_coordinates
-
-		temp_path_request = Path.joinpath(
-			self.new_folder_path.parents[0],
-			"building_instructions_request_" + str(request_number) + ".json"
-		)
-		building_instructions = BuildingInstructionsRequest(temp_path_request)
-		# puts the paths and coordinates in the instructions of the buildings instructions object
-		building_instructions.instructions[self.top_down_provider.name
-														] = {"Paths":final_paths,"Coordinates":final_coordinates}
-		self.log_manager.create_log(building_instructions)
-
-		self.log_manager.write_log(self.file_handler.coordinate_overview)
-
-		temp_request_creator = RequestCreator(application=self.application)
-
-		temp_path = Path.joinpath(
-			self.file_handler.folder_overview["temp_image_path"], "concat_image_normal.png"
-		)
-		temp_request_creator.follow_create_instructions(
-			[self.top_down_provider.name, "Paths"], building_instructions, temp_path
-		)
-		self.file_handler.change(
-			"active_image_path", self.file_handler.folder_overview["temp_image_path"]
-		)
-
-		return self.new_folder_path
+		new_request.add_layer(GoogleLayer(paths=final_paths,coordinates=final_coordinates))
+		return new_request
 
 	def download_image(self, location):
 		"""
