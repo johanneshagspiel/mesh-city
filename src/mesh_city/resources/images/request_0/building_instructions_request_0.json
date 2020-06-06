@@ -55,5 +55,25 @@
                 ]
             ]
         ]
+    },
+    "Trees": {
+        "Overlay": [
+            0,
+            [
+                "C:\\Users\\thomw\\source\\repos\\mesh-city\\src\\mesh_city\\resources\\images\\request_0\\trees\\overlay\\overlay_tile_1.png"
+            ]
+        ],
+        "Map": [
+            0,
+            [
+                "C:\\Users\\thomw\\source\\repos\\mesh-city\\src\\mesh_city\\resources\\images\\request_0\\trees\\map\\map_tile_1.png"
+            ]
+        ],
+        "Meta": [
+            0,
+            [
+                "C:\\Users\\thomw\\source\\repos\\mesh-city\\src\\mesh_city\\resources\\images\\request_0\\trees\\meta\\meta_tile_1.json"
+            ]
+        ]
     }
 }

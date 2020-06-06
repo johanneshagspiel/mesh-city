@@ -36,7 +36,6 @@ class RequestManager:
 
 		self.request_number = self.log_manager.get_request_number()
 
-		self.normal_building_instructions = None
 		self.temp_list = None
 		self.zoom = None
 		self.new_folder_path = None
@@ -50,21 +49,19 @@ class RequestManager:
 		:return: nothing
 		"""
 		max_tile_right = 0
-
-		self.normal_building_instructions = {}
-		self.normal_building_instructions["Paths"] = []
-		self.normal_building_instructions["Coordinates"] = []
+		final_paths = []
+		final_coordinates = []
 
 		if len(coordinates) == 9:
-			self.normal_building_instructions["Paths"].append(0)
-			self.normal_building_instructions["Coordinates"].append(0)
+			final_paths.append(0)
+			final_coordinates.append(0)
 
 		if len(coordinates) > 9:
 			temp = coordinates.pop(0)
 			max_tile_right = int(temp[1])
 
-			self.normal_building_instructions["Paths"].append(int(temp[1]))
-			self.normal_building_instructions["Coordinates"].append(int(temp[1]))
+			final_paths.append(int(temp[1]))
+			final_coordinates.append(int(temp[1]))
 
 		self.zoom = zoom
 
@@ -137,19 +134,20 @@ class RequestManager:
 		self.file_handler.folder_overview["active_request_path"] = self.new_folder_path.parents[0]
 
 		overall_list_path.insert(0, max_tile_right)
-		self.normal_building_instructions["Paths"] = overall_list_path
+		final_paths = overall_list_path
 
 		overall_list_coordinates.insert(0, max_tile_right)
-		self.normal_building_instructions["Coordinates"] = overall_list_coordinates
+		final_coordinates = overall_list_coordinates
 
 		temp_path_request = Path.joinpath(
 			self.new_folder_path.parents[0],
 			"building_instructions_request_" + str(request_number) + ".json"
 		)
-		temp_building_instructions_request = BuildingInstructionsRequest(temp_path_request)
-		temp_building_instructions_request.instructions[self.top_down_provider.name
-														] = self.normal_building_instructions
-		self.log_manager.create_log(temp_building_instructions_request)
+		building_instructions = BuildingInstructionsRequest(temp_path_request)
+		# puts the paths and coordinates in the instructions of the buildings instructions object
+		building_instructions.instructions[self.top_down_provider.name
+														] = {"Paths":final_paths,"Coordinates":final_coordinates}
+		self.log_manager.create_log(building_instructions)
 
 		self.log_manager.write_log(self.file_handler.coordinate_overview)
 
@@ -159,7 +157,7 @@ class RequestManager:
 			self.file_handler.folder_overview["temp_image_path"], "concat_image_normal.png"
 		)
 		temp_request_creator.follow_create_instructions(
-			[self.top_down_provider.name, "Paths"], temp_building_instructions_request, temp_path
+			[self.top_down_provider.name, "Paths"], building_instructions, temp_path
 		)
 		self.file_handler.change(
 			"active_image_path", self.file_handler.folder_overview["temp_image_path"]
