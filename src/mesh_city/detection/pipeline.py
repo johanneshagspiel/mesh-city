@@ -21,7 +21,7 @@ class Pipeline:
 	routing the results to the appropriate classes to create useful information.
 	"""
 
-	def __init__(self, application, main_screen, type_of_detection, building_instructions):
+	def __init__(self, application, type_of_detection, building_instructions):
 		"""
 		The initialization method.
 		:param application: the global application context
@@ -30,7 +30,6 @@ class Pipeline:
 		"""
 		self.application = application
 		self.type_of_detection = type_of_detection
-		self.main_screen = main_screen
 		self.building_instructions = building_instructions
 
 		self.image_util = ImageUtil()

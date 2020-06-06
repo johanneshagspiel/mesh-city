@@ -11,7 +11,7 @@ class DetectionWindow:
 	The detection screen where one can select what to detect i.e. trees. The main_screen then will be
 	updated automatically
 	"""
-
+	DETECTION_OPTIONS = set("Trees")
 	def __init__(self, master, application, main_screen):
 		"""
 		The initialization method
@@ -25,9 +25,6 @@ class DetectionWindow:
 		self.application = application
 		self.top = Toplevel(master)
 
-		# TODO update with new detection options
-		self.list_detection_options = ["Trees"]
-
 		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)
 
@@ -40,36 +37,38 @@ class DetectionWindow:
 			temp_path, "building_instructions_request"
 		)
 
-		temp_list_detected_layers = []
-		for key in self.building_instructions.instructions.keys():
-			# TODO change if we ever add another image provider
-			if key != "Google Maps":
-				temp_list_detected_layers.append(key)
-
-		to_detect = list(
-			set(self.list_detection_options).symmetric_difference(temp_list_detected_layers)
-		)
+		to_detect = self.get_undetected_features(self.building_instructions)
 
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"
 
 		else:
 			self.check_box_list = []
-			self.temp_int_var_list = []
+			self.checkbox_int_variables = []
 			temp_counter = 0
 
 			for counter, element in enumerate(to_detect, 1):
-				self.temp_int_var_list.append(IntVar())
+				self.checkbox_int_variables.append(IntVar())
 				self.check_box_list.append(
-					Checkbutton(self.top, text=element, variable=self.temp_int_var_list[counter - 1])
+					Checkbutton(self.top, text=element, variable=self.checkbox_int_variables[counter - 1])
 				)
 				self.check_box_list[counter - 1].grid(row=counter)
 				temp_counter = counter
-
 			self.confirm_button = Button(
 				self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions)
 			)
 			self.confirm_button.grid(row=temp_counter + 1)
+
+	def get_undetected_features(self,building_instructions):
+		temp_list_detected_layers = []
+		for key in building_instructions.instructions.keys():
+			# TODO change if we ever add another image provider
+			if key != "Google Maps":
+				temp_list_detected_layers.append(key)
+		to_detect = list(
+			DetectionWindow.DETECTION_OPTIONS.symmetric_difference(temp_list_detected_layers)
+		)
+		return to_detect
 
 	# pylint: disable= W0613
 	def cleanup(self, building_instructions):
@@ -83,12 +82,12 @@ class DetectionWindow:
 		temp_counter = 0
 		temp_sum = 0
 
-		for element in self.temp_int_var_list:
+		for element in self.checkbox_int_variables:
 			if element.get() == 1:
 				to_detect.append(self.check_box_list[temp_counter].cget("text"))
 				temp_sum += 1
 			temp_counter += 1
 
 		if temp_sum != 0:
-			self.application.run_detection(building_instructions=self.building_instructions,to_detect=to_detect)
+			self.application.run_detection(building_instructions=building_instructions,to_detect=to_detect)
 		self.top.destroy()

@@ -29,8 +29,7 @@ class Application:
 		self.request_manager = RequestManager(user_entity=self.user_entity, application=self)
 
 	def run_detection(self,building_instructions,to_detect):
-		Pipeline(self, self.
-			main_screen, to_detect,
+		Pipeline(self, to_detect,
 			building_instructions).push_forward()
 		self.main_screen.active_layers = to_detect
 		self.main_screen.update_image()
