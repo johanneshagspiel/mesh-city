@@ -69,7 +69,7 @@ class RequestMaker:
 			zoom = self.top_down_provider.max_zoom
 		return zoom
 
-	def make_mock_request(self, id,x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
+	def make_single_request(self, id, x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
 		"""
 		Not even for real testing, only developing (should be removed!)
 		:param image_id:
@@ -94,31 +94,6 @@ class RequestMaker:
 				new_folder_path=folder_path
 			).relative_to(Path.joinpath(self.file_handler.folder_overview["image_path"]))
 		return Tile(path=result_path,x_coord=x_cor_current_tile,y_coord=y_cor_current_tile)
-
-	def faux_get_store(self, id,latitude, longitude, zoom, filename, new_folder_path):
-		array = np.zeros([512, 512, 3], dtype=np.uint8)
-		array.fill(30*id)
-		image = Image.fromarray(array)
-		path = Path(new_folder_path).joinpath(filename)
-		image.save(path)
-		return path
-
-	# def make_single_request(self, image_id, latitude, longitude, folder_path, zoom):
-	#
-	# 	if self.request_manager.is_in_grid(latitude, longitude):
-	# 		return self.request_manager.get_path_from_grid(latitude, longitude)
-	# 	file_name = str(image_id + "_" + x_cor_current_tile + "_" + y_cor_current_tile + ".png")
-	#
-	# 	latitude,longitude = self.geo_location_util.tile_value_to_degree(
-	# 		x_cor_current_tile, y_cor_current_tile, zoom
-	# 	)
-	# 	result_file_path = self.top_down_provider.get_and_store_location(
-	# 			latitude=latitude,
-	# 			longitude=longitude,
-	# 			zoom=zoom,
-	# 			filename=file_name,
-	# 			new_folder_path=folder_path
-	# 	return Tile(path=result_file_path,)
 
 	def make_location_request(self, latitude, longitude, zoom=None):
 		zoom = self.check_zoom(zoom)
@@ -148,7 +123,7 @@ class RequestMaker:
 				min_y=y_cor_tile
 			min_x = min(min_x,x_cor_tile)
 			min_y = min(min_y,y_cor_tile)
-			request_result = self.make_mock_request(index,x_cor_tile, y_cor_tile, folder, zoom)
+			request_result = self.make_single_request(index, x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
 		request = Request(x_coord=min_x,y_coord=min_y,request_id=self.request_manager.get_new_request_id(), width=width, height=height)
 		request.add_layer(GoogleLayer(tiles=tiles))
