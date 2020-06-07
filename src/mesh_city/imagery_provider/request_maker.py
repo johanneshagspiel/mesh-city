@@ -3,7 +3,6 @@ Module which contains code to interact with the top_down providers, organising t
 their APIs such that data for larger geographical areas can be made and the results of these
 requests are stored on disk.
 """
-import os
 from pathlib import Path
 
 import numpy as np
@@ -70,7 +69,7 @@ class RequestMaker:
 			zoom = self.top_down_provider.max_zoom
 		return zoom
 
-	def make_mock_request(self, x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
+	def make_mock_request(self, id,x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
 		"""
 		Not even for real testing, only developing (should be removed!)
 		:param image_id:
@@ -87,6 +86,7 @@ class RequestMaker:
 			x_cor_current_tile, y_cor_current_tile, zoom
 		)
 		result_path = self.faux_get_store(
+				id=id,
 				latitude=latitude,
 				longitude=longitude,
 				zoom=zoom,
@@ -95,9 +95,9 @@ class RequestMaker:
 			).relative_to(Path.joinpath(self.file_handler.folder_overview["image_path"]))
 		return Tile(path=result_path,x_coord=x_cor_current_tile,y_coord=y_cor_current_tile)
 
-	def faux_get_store(self, latitude, longitude, zoom, file_name, folder_path):
+	def faux_get_store(self, id,latitude, longitude, zoom, file_name, folder_path):
 		array = np.zeros([512, 512, 3], dtype=np.uint8)
-		array.fill(255)
+		array.fill(30*id)
 		image = Image.fromarray(array)
 		path = Path(folder_path).joinpath(file_name)
 		image.save(path)
@@ -141,7 +141,7 @@ class RequestMaker:
 		                       "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
 		for (index, (x_cor_tile, y_cor_tile)) in enumerate(coordinates):
-			request_result = self.make_mock_request(x_cor_tile, y_cor_tile, folder, zoom)
+			request_result = self.make_mock_request(index,x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
 		request = Request(request_id=42, width=width, height=height)
 		request.add_layer(GoogleLayer(tiles=tiles))

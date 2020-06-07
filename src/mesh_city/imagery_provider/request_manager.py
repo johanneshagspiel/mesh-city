@@ -1,4 +1,8 @@
+import os
+from pathlib import Path
+
 from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.tile import Tile
 
 
 class RequestManager:
@@ -10,6 +14,17 @@ class RequestManager:
 		self.grid = {}
 		for request in self.requests:
 			self.update_grid(request)
+
+	def discover_old_imagery(self):
+		google_folder = self.images_root.joinpath("google_maps")
+		if google_folder.exists():
+			file_paths = sorted(google_folder.glob('*.png'))
+			for path in file_paths:
+				rel_path = Path(path).relative_to(google_folder)
+				path_no_ex = os.path.splitext(rel_path)[0]
+				print(path_no_ex)
+				numbers = [int(s) for s in path_no_ex.split('_')]
+				self.add_path_to_grid(numbers[0],numbers[1],Tile(path=Path("google_maps").joinpath(rel_path),x_coord=numbers[0],y_coord=numbers[1]))
 
 	def add_request(self, request):
 		self.requests.append(request)
