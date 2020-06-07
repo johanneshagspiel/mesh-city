@@ -3,14 +3,11 @@ Module which contains code to interact with the top_down providers, organising t
 their APIs such that data for larger geographical areas can be made and the results of these
 requests are stored on disk.
 """
-
 import os
 from pathlib import Path
 
-from mesh_city.imagery_provider.request_creator import RequestCreator
-from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
+from PIL import Image
+import numpy as np
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
@@ -25,8 +22,9 @@ class RequestMaker:
 	:param quota_manager: quota manager associated with the user
 	"""
 
-	def __init__(self, user_entity, application, top_down_provider=None):
+	def __init__(self, user_entity, application, request_manager, top_down_provider=None):
 		self.user_entity = user_entity
+		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
 		self.application = application
 
@@ -42,139 +40,120 @@ class RequestMaker:
 		self.zoom = None
 		self.new_folder_path = None
 
-	def make_request_for_block(self, coordinates, zoom=None):
-		"""
-		Make a request in such a way, that the images are stored in the tile system, are logged in
-		the log manager and they can be displayed on the map
-		:param centre_coordinates: the location where the image should be downloaded
-		:param zoom: the zoom level at which the image should be downloaded
-		:return: nothing
-		"""
-		max_tile_right = 0
-		final_paths = []
-		final_coordinates = []
+	def compute_3x3_area(self, latitude, longitude, zoom):
+		# normalise coordinate input before adding it to coordinate list
+		latitude, longitude = self.geo_location_util.normalise_coordinates(
+			latitude=latitude, longitude=longitude, zoom=zoom
+		)
+		bottom = self.geo_location_util.calc_next_location_latitude(
+			latitude=latitude, longitude=longitude, zoom=zoom, direction=False
+		)
+		top = self.geo_location_util.calc_next_location_latitude(
+			latitude=latitude, longitude=longitude, zoom=zoom, direction=True
+		)
+		right = self.geo_location_util.calc_next_location_longitude(
+			latitude=latitude, longitude=longitude, zoom=zoom, direction=True
+		)
+		left = self.geo_location_util.calc_next_location_longitude(
+			latitude=latitude, longitude=longitude, zoom=zoom, direction=False
+		)
+		return bottom, left, top, right
 
-		if len(coordinates) == 9:
-			final_paths.append(0)
-			final_coordinates.append(0)
-
-		if len(coordinates) > 9:
-			temp = coordinates.pop(0)
-			max_tile_right = int(temp[1])
-
-			final_paths.append(int(temp[1]))
-			final_coordinates.append(int(temp[1]))
-
-		self.zoom = zoom
-
+	def check_zoom(self, zoom):
 		if zoom is None:
-			self.zoom = self.top_down_provider.max_zoom
+			zoom = self.top_down_provider.max_zoom
+		if zoom < 1:
+			zoom = 1
+		if zoom > self.top_down_provider.max_zoom:
+			zoom = self.top_down_provider.max_zoom
+		return zoom
 
-		request_number = self.log_manager.get_request_number()
-		new_request = Request(request_id=request_number)
-
-		overall_list_coordinates = []
-		temp_list_coordinates = []
-
-		overall_list_path = []
-		temp_list_path = []
-
-		to_download = []
-		to_download_positions = []
-
-		round_counter = 0
-		position_counter = 1
-
-		for location in coordinates:
-			if position_counter == 10:
-				overall_list_coordinates.append(temp_list_coordinates)
-				temp_list_coordinates = []
-
-				overall_list_path.append(temp_list_path)
-				temp_list_path = []
-
-				position_counter = 1
-				round_counter += 1
-
-			if location[1] is None:
-				temp_list_coordinates.append(location[0])
-				to_download.append((location[0], position_counter))
-				to_download_positions.append((round_counter, position_counter - 1))
-				temp_list_path.append(None)
-			else:
-				temp_list_coordinates.append(location[0])
-				temp_list_path.append(location[1])
-			position_counter += 1
-
-		overall_list_coordinates.append(temp_list_coordinates)
-		overall_list_path.append(temp_list_path)
-
-		# pylint: disable=W0108
-		downloaded_images = list(map(lambda x: self.download_image(x), to_download))
-
-		temp_counter = 0
-		for (round_counter, position_counter) in to_download_positions:
-			overall_list_path[round_counter][position_counter] = downloaded_images[temp_counter]
-			temp_counter += 1
-
-		overall_list_path.insert(0, max_tile_right)
-		final_paths = overall_list_path
-		overall_list_coordinates.insert(0, max_tile_right)
-		final_coordinates = overall_list_coordinates
-		new_request.add_layer(GoogleLayer(paths=final_paths,coordinates=final_coordinates))
-		return new_request
-
-	def download_image(self, location):
+	def make_mock_request(self, image_id, latitude, longitude, folder_path, zoom):
 		"""
-		Method to download an image, add its path to the overall coordinate dictionary and return
-		the path so that it can be added to the building dictionary
-		:param location: the location where to download the image from
-		:return: the path where the image is stored
+		Not even for real testing, only developing (should be removed!)
+		:param image_id:
+		:param latitude:
+		:param longitude:
+		:param folder_path:
+		:param zoom:
+		:return:
 		"""
-		number = str(location[1])
-		latitude = str(location[0][0])
-		longitude = str(location[0][1])
-		temp_name = str(number + "_" + longitude + "_" + latitude + ".png")
-		temp_location_stored = str(
-			self.top_down_provider.get_and_store_location(
-			location[0][0], location[0][1], self.zoom, temp_name, self.new_folder_path
+		if self.request_manager.is_in_grid(latitude, longitude):
+			return self.request_manager.get_path_from_grid(latitude, longitude)
+		file_name = str(str(image_id) + "_" + str(longitude) + "_" + str(latitude) + ".png")
+
+		result_file_path = str(
+			self.faux_get_store(
+			latitude=latitude,
+			longitude=longitude,
+			zoom=zoom,
+			file_name=file_name,
+			folder_path=folder_path
 			)
 		)
+		return result_file_path
 
-		if latitude in self.file_handler.coordinate_overview.grid:
-			new_to_store = self.file_handler.coordinate_overview.grid[latitude]
-			new_to_store[longitude] = {self.top_down_provider.name: temp_location_stored}
-			self.file_handler.coordinate_overview.grid[latitude] = new_to_store
-		else:
-			self.file_handler.coordinate_overview.grid[latitude] = {
-				longitude: {
-				self.top_down_provider.name: temp_location_stored
-				}
-			}
+	def faux_get_store(self,latitude,longitude,zoom,file_name,folder_path):
+		array = np.zeros([512, 512, 3], dtype=np.uint8)
+		array.fill(255)
+		image = Image.fromarray(array)
+		path = Path(folder_path).joinpath(file_name)
+		image.save(path)
+		return path
 
-		return temp_location_stored
+	def make_single_request(self, image_id, latitude, longitude, folder_path, zoom):
+		if self.request_manager.is_in_grid(latitude, longitude):
+			return self.request_manager.get_path_from_grid(latitude, longitude)
+		file_name = str(image_id + "_" + longitude + "_" + latitude + ".png")
 
-	def calculate_centre_coordinates_two_coordinate_input_block(
-		self, first_coordinate, second_coordinate, zoom
+		result_file_path = str(
+			self.top_down_provider.get_and_store_location(
+			latitude=latitude,
+			longitude=longitude,
+			zoom=zoom,
+			filename=file_name,
+			new_folder_path=folder_path
+			)
+		)
+		return result_file_path
+
+	def make_location_request(self, latitude, longitude, zoom=None):
+		zoom = self.check_zoom(zoom)
+		bottom, left, top, right = self.compute_3x3_area(latitude, longitude, zoom)
+		return self.make_area_request(bottom, left, top, right, zoom)
+
+	def make_area_request(
+		self, bottom_latitude, left_longitude, top_latitude, right_longitude, zoom=None
 	):
-		"""
-		CREATES BLOCKS
+		zoom = self.check_zoom(zoom=zoom)
+		coordinates, width, height = self.calculate_coordinates_for_rectangle(
+			bottom_lat=bottom_latitude,
+			left_long=left_longitude,
+			top_lat=top_latitude,
+			right_long=right_longitude,
+			zoom=zoom
+		)
+		paths = []
+		current_request = "request_42"
+		folder = Path.joinpath(self.file_handler.folder_overview["image_path"],current_request,"google_maps")
+		os.makedirs(str(folder))
+		for (index, (latitude,longitude)) in enumerate(coordinates):
+			paths.append(self.make_mock_request(index,latitude,longitude,folder,zoom))
 
-		Method which calculates and retrieves the number of images that are necessary have a
-		complete imagery set of a certain geographical area. This area is defined by a bounding box.
-		The function checks whether the first coordinate inputted is "smaller" than the second
-		inputted coordinate.
-		:param bottom_left: the bottom left coordinate of the bounding box.
-		:param top_right: the bottom left coordinate of the bounding box.
-		:param zoom: the level of zoom (meters per pixel) the returned images will be.
-		:return: a list of coordinates, first entry indicates the number of steps between blocks.
-		"""
 
+	def calculate_coordinates_for_location(self, latitude, longitude, zoom=None):
+		zoom = self.check_zoom(zoom)
+		bottom, left, top, right = self.compute_3x3_area(latitude, longitude, zoom)
+		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
+
+	def calculate_coordinates_for_rectangle(
+		self, bottom_lat, left_long, top_lat, right_long, zoom=None
+	):
+		zoom = self.check_zoom(zoom)
 		(bottom_lat, left_long), (top_lat,
 			right_long) = self.geo_location_util.get_bottom_left_top_right_coordinates(
-			first_coordinate, second_coordinate
+			(bottom_lat, left_long), (top_lat, right_long)
 			)
-
 		# normalise coordinate input before adding it to coordinate list
 		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(
 			bottom_lat, left_long, zoom)
@@ -183,164 +162,25 @@ class RequestMaker:
 		coordinates_list = []
 		num_of_images_horizontal = 0
 		num_of_images_vertical = 0
-
 		# iterate from left to right, bottom to top
-		# to support the tile system, the total number of images to download needs to be divisible by
-		# 9 as one tile is 9 images
-		while current_latitude <= top_lat or (num_of_images_vertical % 3) != 0:
+		while current_latitude <= top_lat or current_latitude == 0:
 			num_of_images_horizontal = 0
-			while current_longitude <= right_long or (num_of_images_horizontal % 3) != 0:
-				x_cor_current_tile, y_cor_current_tile = self.geo_location_util.degree_to_tile_value(
-					current_latitude, current_longitude, zoom
-				)
-				coordinates_list.append(
-					((current_latitude, current_longitude), (x_cor_current_tile, y_cor_current_tile))
-				)
+			while current_longitude <= right_long or current_longitude == 0:
+				coordinates_list.append((current_latitude, current_longitude))
 				current_longitude = self.geo_location_util.calc_next_location_longitude(
 					current_latitude, current_longitude, zoom, True
 				)
 				num_of_images_horizontal += 1
-
 			current_longitude = longitude_first_image
 			current_latitude = self.geo_location_util.calc_next_location_latitude(
 				current_latitude, current_longitude, zoom, True
 			)
 			num_of_images_vertical += 1
+		return coordinates_list, num_of_images_horizontal, num_of_images_vertical
 
-		num_of_images_total = num_of_images_horizontal * num_of_images_vertical
-
-		temp_result = (num_of_images_total, num_of_images_horizontal,
-			num_of_images_vertical), coordinates_list
-
-		# here, the results need to be rearranged so that the order of coordinates returned corresponds
-		# to one tile after the other. Currently the output is : 0,0 - 1,0 - 2,0 - 3,0 -4,0
-		# for the tile system, the output needs to be : 0,0 - 1,0 - 2,0 - 0,1 -1,1 - 1,2 etc.
-		result = temp_result[1]
-		max_entry = temp_result[0][0]
-		max_latitude = temp_result[0][1]
-		max_longitude = temp_result[0][1]
-
+	def count_uncached_tiles(self, coordinates):
 		counter = 0
-		pointer = 0
-		level = 0
-		ordered_result = [(max_latitude / 3, max_longitude / 3)]
-		run = True
-
-		while run:
-			ordered_result.append(result[pointer][0])
-			pointer += 1
-
-			# if we moved 3 points to the right, we are at the end of one tile
-			if (pointer % 3) == 0:
-				# if we are two levels up, we are at the top right end of a tile
-				if level == 2:
-					# in case this is also at the right hand end of the area we are interested in,
-					# so now we want to go further up
-					if (pointer % max_latitude) == 0:
-						level = 0
-					# here we are not at the very right hand of the area we are interested in, so we
-					# again have to move down and then to the right
-					else:
-						pointer -= (2 * max_latitude)
-						level -= 2
-				# else this means we are on either level zero or one and thus we can go up one more level
-				else:
-					pointer = pointer - 3 + max_latitude
-					level += 1
-
-			counter += 1
-			if counter == max_entry:
-				run = False
-
-		return ordered_result
-
-	def calculate_locations(self, coordinates, zoom=None):
-		"""
-		This method calculates all the locations to be downloaded for one request
-		:param coordinates: the central tile_information around which the other image
-		:param zoom:
-		:return: a list of coordinates.
-		"""
-		if zoom is None:
-			zoom = self.top_down_provider.max_zoom
-		if zoom < 1:
-			zoom = 1
-		if zoom > self.top_down_provider.max_zoom:
-			zoom = self.top_down_provider.max_zoom
-
-		# if the request made is for one location
-		if len(coordinates) == 2:
-			latitude = coordinates[0]
-			longitude = coordinates[1]
-			# normalise coordinate input before adding it to coordinate list
-			latitude, longitude = self.geo_location_util.normalise_coordinates(
-				latitude=latitude, longitude=longitude, zoom=zoom
-			)
-
-			bottom = self.geo_location_util.calc_next_location_latitude(
-				latitude=latitude, longitude=longitude, zoom=zoom, direction=False
-			)
-			top = self.geo_location_util.calc_next_location_latitude(
-				latitude=latitude, longitude=longitude, zoom=zoom, direction=True
-			)
-			right = self.geo_location_util.calc_next_location_longitude(
-				latitude=latitude, longitude=longitude, zoom=zoom, direction=True
-			)
-			left = self.geo_location_util.calc_next_location_longitude(
-				latitude=latitude, longitude=longitude, zoom=zoom, direction=False
-			)
-
-			coordinates_list = [
-				(bottom, left), (bottom, longitude), (bottom, right), (latitude, left),
-				(latitude, longitude), (latitude, right), (top, left), (top, longitude), (top, right),
-			]  # pylint: disable=invalid-name
-
-			return coordinates_list
-
-		# if the request concerns a two coordinate input for an area
-		if len(coordinates) == 4:
-			return self.calculate_centre_coordinates_two_coordinate_input_block(
-				(coordinates[0], coordinates[1]), (coordinates[2], coordinates[3]), zoom
-			)
-
-		raise Exception(
-			"Something went wrong with the input, as it doesn't return something "
-			"when it should have "
-		)
-
-	def check_coordinates(self, coordinates):
-		"""
-		Method to check whether or not the coordinates are already downloaded
-		:param coordinates: the coordinates to check
-		:return: a list indicating whether the coordinates are already downloaded or not
-		"""
-		temp_list = []
-		counter = 0
-		first_round = len(coordinates) > 9
-
-		for location in coordinates:
-			if first_round:
-				temp_list.append(location)
-				first_round = False
-			else:
-				latitude = str(location[0])
-				longitude = str(location[1])
-
-				if latitude in self.file_handler.coordinate_overview.grid:
-					if longitude in self.file_handler.coordinate_overview.grid[latitude]:
-						temp_list.append(
-							(
-							(latitude, longitude),
-							self.file_handler.coordinate_overview.grid[latitude][longitude][
-							self.top_down_provider.name]
-							)
-						)
-					else:
-						temp_list.append(((latitude, longitude), None))
-						counter += 1
-				else:
-					temp_list.append(((latitude, longitude), None))
-					counter += 1
-
-		temp_list.insert(0, counter)
-		return temp_list
+		for (latitude, longitude) in coordinates:
+			if not self.request_manager.is_in_grid(latitude, longitude):
+				counter += 1
+		return counter
