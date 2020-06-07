@@ -7,7 +7,7 @@ class Request:
 		self.height = height
 		self.layers = []
 
-	def add_layer(self, layer):
+	def add_layer(self, layer: object) -> object:
 		self.layers.append(layer)
 
 	def has_layer_of_type(self, layer_type):

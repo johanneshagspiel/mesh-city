@@ -6,8 +6,12 @@ requests are stored on disk.
 import os
 from pathlib import Path
 
-from PIL import Image
 import numpy as np
+from PIL import Image
+
+from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.request import Request
+from mesh_city.request.tile import Tile
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.image_util import ImageUtil
 
@@ -33,8 +37,6 @@ class RequestMaker:
 
 		self.image_util = ImageUtil()
 		self.geo_location_util = GeoLocationUtil()
-
-		self.request_number = self.log_manager.get_request_number()
 
 		self.temp_list = None
 		self.zoom = None
@@ -68,7 +70,7 @@ class RequestMaker:
 			zoom = self.top_down_provider.max_zoom
 		return zoom
 
-	def make_mock_request(self, image_id, latitude, longitude, folder_path, zoom):
+	def make_mock_request(self, x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
 		"""
 		Not even for real testing, only developing (should be removed!)
 		:param image_id:
@@ -78,22 +80,22 @@ class RequestMaker:
 		:param zoom:
 		:return:
 		"""
-		if self.request_manager.is_in_grid(latitude, longitude):
-			return self.request_manager.get_path_from_grid(latitude, longitude)
-		file_name = str(str(image_id) + "_" + str(longitude) + "_" + str(latitude) + ".png")
-
-		result_file_path = str(
-			self.faux_get_store(
-			latitude=latitude,
-			longitude=longitude,
-			zoom=zoom,
-			file_name=file_name,
-			folder_path=folder_path
-			)
+		if self.request_manager.is_in_grid(x_cor_current_tile, y_cor_current_tile):
+			return self.request_manager.get_path_from_grid(x_cor_current_tile, y_cor_current_tile)
+		file_name = str(str(x_cor_current_tile) + "_" + str(y_cor_current_tile) + ".png")
+		latitude,longitude = self.geo_location_util.tile_value_to_degree(
+			x_cor_current_tile, y_cor_current_tile, zoom
 		)
-		return result_file_path
+		result_path = self.faux_get_store(
+				latitude=latitude,
+				longitude=longitude,
+				zoom=zoom,
+				file_name=file_name,
+				folder_path=folder_path
+			).relative_to(Path.joinpath(self.file_handler.folder_overview["image_path"]))
+		return Tile(path=result_path,x_coord=x_cor_current_tile,y_coord=y_cor_current_tile)
 
-	def faux_get_store(self,latitude,longitude,zoom,file_name,folder_path):
+	def faux_get_store(self, latitude, longitude, zoom, file_name, folder_path):
 		array = np.zeros([512, 512, 3], dtype=np.uint8)
 		array.fill(255)
 		image = Image.fromarray(array)
@@ -101,21 +103,22 @@ class RequestMaker:
 		image.save(path)
 		return path
 
-	def make_single_request(self, image_id, latitude, longitude, folder_path, zoom):
-		if self.request_manager.is_in_grid(latitude, longitude):
-			return self.request_manager.get_path_from_grid(latitude, longitude)
-		file_name = str(image_id + "_" + longitude + "_" + latitude + ".png")
-
-		result_file_path = str(
-			self.top_down_provider.get_and_store_location(
-			latitude=latitude,
-			longitude=longitude,
-			zoom=zoom,
-			filename=file_name,
-			new_folder_path=folder_path
-			)
-		)
-		return result_file_path
+	# def make_single_request(self, image_id, latitude, longitude, folder_path, zoom):
+	#
+	# 	if self.request_manager.is_in_grid(latitude, longitude):
+	# 		return self.request_manager.get_path_from_grid(latitude, longitude)
+	# 	file_name = str(image_id + "_" + x_cor_current_tile + "_" + y_cor_current_tile + ".png")
+	#
+	# 	latitude,longitude = self.geo_location_util.tile_value_to_degree(
+	# 		x_cor_current_tile, y_cor_current_tile, zoom
+	# 	)
+	# 	result_file_path = self.top_down_provider.get_and_store_location(
+	# 			latitude=latitude,
+	# 			longitude=longitude,
+	# 			zoom=zoom,
+	# 			filename=file_name,
+	# 			new_folder_path=folder_path
+	# 	return Tile(path=result_file_path,)
 
 	def make_location_request(self, latitude, longitude, zoom=None):
 		zoom = self.check_zoom(zoom)
@@ -133,13 +136,16 @@ class RequestMaker:
 			right_long=right_longitude,
 			zoom=zoom
 		)
-		paths = []
-		current_request = "request_42"
-		folder = Path.joinpath(self.file_handler.folder_overview["image_path"],current_request,"google_maps")
-		os.makedirs(str(folder))
-		for (index, (latitude,longitude)) in enumerate(coordinates):
-			paths.append(self.make_mock_request(index,latitude,longitude,folder,zoom))
-
+		tiles = []
+		folder = Path.joinpath(self.file_handler.folder_overview["image_path"],
+		                       "google_maps")
+		folder.mkdir(parents=True, exist_ok=True)
+		for (index, (x_cor_tile, y_cor_tile)) in enumerate(coordinates):
+			request_result = self.make_mock_request(x_cor_tile, y_cor_tile, folder, zoom)
+			tiles.append(request_result)
+		request = Request(request_id=42, width=width, height=height)
+		request.add_layer(GoogleLayer(tiles=tiles))
+		return request
 
 	def calculate_coordinates_for_location(self, latitude, longitude, zoom=None):
 		zoom = self.check_zoom(zoom)
@@ -151,9 +157,9 @@ class RequestMaker:
 	):
 		zoom = self.check_zoom(zoom)
 		(bottom_lat, left_long), (top_lat,
-			right_long) = self.geo_location_util.get_bottom_left_top_right_coordinates(
+		                          right_long) = self.geo_location_util.get_bottom_left_top_right_coordinates(
 			(bottom_lat, left_long), (top_lat, right_long)
-			)
+		)
 		# normalise coordinate input before adding it to coordinate list
 		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(
 			bottom_lat, left_long, zoom)
@@ -166,7 +172,10 @@ class RequestMaker:
 		while current_latitude <= top_lat or current_latitude == 0:
 			num_of_images_horizontal = 0
 			while current_longitude <= right_long or current_longitude == 0:
-				coordinates_list.append((current_latitude, current_longitude))
+				x_cor_current_tile, y_cor_current_tile = self.geo_location_util.degree_to_tile_value(
+					current_latitude, current_longitude, zoom
+				)
+				coordinates_list.append((x_cor_current_tile, y_cor_current_tile))
 				current_longitude = self.geo_location_util.calc_next_location_longitude(
 					current_latitude, current_longitude, zoom, True
 				)

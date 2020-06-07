@@ -1,7 +1,7 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, END, Label, Toplevel
+from tkinter import Button, Label, Toplevel
 
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
@@ -56,14 +56,25 @@ class PreviewWindow:
 		:return: nothing (updates the gui to show how much the request would cost)
 		"""
 		top_down_factory = TopDownProviderFactory()
-		self.application.request_manager.top_down_provider = top_down_factory.get_top_down_provider(
+		self.application.request_maker.top_down_provider = top_down_factory.get_top_down_provider(
 			image_provider_entity
 		)
-		self.locations = self.application.request_manager.calculate_locations(
-			coordinates=self.coordinates
-		)
-		self.locations = self.application.request_manager.check_coordinates(self.locations)
-		number_requests = self.locations.pop(0)
+		# this is a location request
+		locations = []
+		if len(self.coordinates) == 2:
+			locations, _, _ = self.application.request_maker.calculate_coordinates_for_location(
+				latitude=self.coordinates[0], longitude=self.coordinates[1])
+		elif len(self.coordinates) == 4:
+			# makes sure that points are always at least a little bit apart
+			self.coordinates[2] += 0.0005
+			self.coordinates[3] += 0.0005
+			locations, _, _ = self.application.request_maker.calculate_coordinates_for_rectangle(
+				bottom_lat=self.coordinates[0], left_long=self.coordinates[1],
+				top_lat=self.coordinates[2], right_long=self.coordinates[3])
+		else:
+			raise ValueError("The number of coordinate values does not check out")
+		print(locations)
+		number_requests = self.application.request_maker.count_uncached_tiles(locations)
 
 		for widget in self.temp_list:
 			widget.grid_forget()
@@ -97,24 +108,30 @@ class PreviewWindow:
 			self.usage_left_label.grid(row=3, column=0)
 
 			self.confirm_button = Button(
-				self.top, text="Confirm", command=lambda: self.cleanup(self.locations)
+				self.top, text="Confirm", command=lambda: self.cleanup(self.coordinates)
 			)
 			self.confirm_button.grid(row=4)
 
-	def cleanup(self, locations):
+	def cleanup(self, coordinates):
 		"""
 		Method called when the user clicks on the confirm button. Loads all the images associated
 		with the locations and the updates the main screen
 		:param locations: the locations to download
 		:return: nothing (but updates the main screen with the downloaded image)
 		"""
-
-		self.application.request_manager.make_request_for_block(locations)
-		self.main_screen.update_image()
-
-		self.main_screen.information_general.configure(state='normal')
-		self.main_screen.information_general.delete('1.0', END)
-		self.main_screen.information_general.insert(END, "General")
-		self.main_screen.information_general.configure(state='disabled')
+		# this is a location request
+		if len(coordinates) == 2:
+			self.application.make_location_request(
+				latitude=coordinates[0], longitude=coordinates[1]
+			)
+		elif len(coordinates) == 4:
+			self.application.make_area_request(
+				bottom_latitude=coordinates[0],
+				left_longitude=coordinates[1],
+				top_latitude=coordinates[2],
+				right_longitude=coordinates[3]
+			)
+		else:
+			raise ValueError("The number of coordinate values does not check out")
 
 		self.top.destroy()

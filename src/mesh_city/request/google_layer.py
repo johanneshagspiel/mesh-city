@@ -1,5 +1,3 @@
 class GoogleLayer:
-
-	def __init__(self, paths, coordinates):
-		self.paths = paths
-		self.coordinates = coordinates
+	def __init__(self, tiles):
+		self.tiles = tiles

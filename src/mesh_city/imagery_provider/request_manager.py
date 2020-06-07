@@ -4,8 +4,9 @@ from mesh_city.request.google_layer import GoogleLayer
 class RequestManager:
 	"""A class for storing previous requests and reusing their imagery"""
 
-	def __init__(self, requests=[]):
+	def __init__(self, image_root,requests=[]):
 		self.requests = requests
+		self.images_root = image_root
 		self.grid = {}
 		for request in self.requests:
 			self.update_grid(request)
@@ -20,12 +21,15 @@ class RequestManager:
 				return request
 		raise ValueError("No request with this id exists")
 
+	def get_image_root(self):
+		return self.images_root
+
 	def update_grid(self, request):
 		if request.has_layer_of_type(GoogleLayer):
 			google_layer = request.get_layer_of_type(GoogleLayer)
-			for ((latitude, longitude), path) in zip(google_layer.coordinates, google_layer.paths):
-				if not self.is_in_grid(latitude, longitude):
-					self.add_path_to_grid(latitude, longitude, path)
+			for tile in google_layer.tiles:
+				if not self.is_in_grid(tile.x_coord, tile.y_coord):
+					self.add_path_to_grid(tile.x_coord, tile.y_coord, tile)
 
 	def is_in_grid(self, latitude, longitude):
 		return latitude in self.grid and longitude in self.grid[latitude]
