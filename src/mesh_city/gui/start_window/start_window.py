@@ -66,7 +66,7 @@ class StartWindow:
 		self.application.late_init(user)
 
 		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
-		self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
+		# self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
 
 		self.top.destroy()
 

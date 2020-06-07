@@ -3,28 +3,26 @@ A module containing the detection screen
 """
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
-from mesh_city.detection.pipeline import Pipeline
-
 
 class DetectionWindow:
 	"""
 	The detection screen where one can select what to detect i.e. trees. The main_screen then will be
 	updated automatically
 	"""
-	DETECTION_OPTIONS = set("Trees")
-	def __init__(self, master, application, main_screen):
+	DETECTION_OPTIONS = {"Trees"}
+
+	def __init__(self, master, application):
 		"""
 		The initialization method
 		:param master: the master tkinter object
 		:param application: the global application context
 		:param main_screen: the main_screen of the application
 		"""
-		self.main_screen = main_screen
 		self.master = master
-		self.value = ""
 		self.application = application
 		self.top = Toplevel(master)
 
+		# TODO update with new detection options
 		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)
 
@@ -50,7 +48,9 @@ class DetectionWindow:
 			for counter, element in enumerate(to_detect, 1):
 				self.checkbox_int_variables.append(IntVar())
 				self.check_box_list.append(
-					Checkbutton(self.top, text=element, variable=self.checkbox_int_variables[counter - 1])
+					Checkbutton(
+					self.top, text=element, variable=self.checkbox_int_variables[counter - 1]
+					)
 				)
 				self.check_box_list[counter - 1].grid(row=counter)
 				temp_counter = counter
@@ -59,7 +59,7 @@ class DetectionWindow:
 			)
 			self.confirm_button.grid(row=temp_counter + 1)
 
-	def get_undetected_features(self,building_instructions):
+	def get_undetected_features(self, building_instructions):
 		temp_list_detected_layers = []
 		for key in building_instructions.instructions.keys():
 			# TODO change if we ever add another image provider
@@ -70,24 +70,18 @@ class DetectionWindow:
 		)
 		return to_detect
 
-	# pylint: disable= W0613
 	def cleanup(self, building_instructions):
 		"""
 		Method called on button press: runs the appropriate detection algorithm, updates the image
 		on the main_screen and then closes itself
 		:return:
 		"""
-
-		to_detect = []
-		temp_counter = 0
-		temp_sum = 0
-
-		for element in self.checkbox_int_variables:
+		selected_detections = []
+		for (index, element) in enumerate(self.checkbox_int_variables):
 			if element.get() == 1:
-				to_detect.append(self.check_box_list[temp_counter].cget("text"))
-				temp_sum += 1
-			temp_counter += 1
-
-		if temp_sum != 0:
-			self.application.run_detection(building_instructions=building_instructions,to_detect=to_detect)
+				selected_detections.append(self.check_box_list[index].cget("text"))
+		if len(selected_detections) > 0:
+			self.application.run_detection(
+				building_instructions=building_instructions, to_detect=selected_detections
+			)
 		self.top.destroy()

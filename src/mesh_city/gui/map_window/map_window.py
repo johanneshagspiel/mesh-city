@@ -65,5 +65,5 @@ class MapWindow:
 
 		self.request_creator.create_map_image(building_instructions, self.temp_list_detected_layers)
 
-		self.main_screen.update_image()
+		self.main_screen.set_canvas_image()
 		self.top.destroy()

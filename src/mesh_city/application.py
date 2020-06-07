@@ -5,6 +5,7 @@ from tkinter import END
 
 from mesh_city.detection.pipeline import Pipeline
 from mesh_city.gui.main_screen import MainScreen
+from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.imagery_provider.request_maker import RequestMaker
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
@@ -27,7 +28,10 @@ class Application:
 		self.request_manager = self.get_request_manager()
 
 	def get_request_manager(self):
-		return RequestManager(self.file_handler)
+		request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
+		request_manager.discover_old_imagery()
+		request_manager.deserialize_requests()
+		return request_manager
 
 	def late_init(self, user_entity):
 		"""
@@ -70,15 +74,22 @@ class Application:
 			google_layer = request.get_layer_of_type(GoogleLayer)
 			for (index,tile) in enumerate(google_layer.tiles):
 				print(str(index)+": "+str(tile.path))
-	def process_finished_request(self,request):
 
+	def load_request_onscreen(self, request):
+		request_creator = RequestCreator(application=self)
+		canvas_image = request_creator.create_canvas_image_layer(width=request.width,height=request.height,layer=request.get_layer_of_type(GoogleLayer))
+		self.main_screen.set_canvas_image(canvas_image)
+		self.main_screen.information_general.configure(state='normal')
+		self.main_screen.information_general.delete('1.0', END)
+		self.main_screen.information_general.insert(END, "General")
+		self.main_screen.information_general.configure(state='disabled')
+
+	def process_finished_request(self,request):
 		self.request_manager.add_request(request)
+		self.request_manager.serialize_requests()
 		self.print_request_info(request)
-		# self.main_screen.set_canvas_image()
-		# self.main_screen.information_general.configure(state='normal')
-		# self.main_screen.information_general.delete('1.0', END)
-		# self.main_screen.information_general.insert(END, "General")
-		# self.main_screen.information_general.configure(state='disabled')
+		self.load_request_onscreen(request)
+
 	def start(self):
 		"""
 		Creates a mainscreen UI element and passes self as application context.

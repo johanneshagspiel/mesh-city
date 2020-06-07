@@ -4,6 +4,9 @@ See :class:`.MainScreen`
 
 from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD
 
+import numpy as np
+from PIL import Image
+
 from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
@@ -89,12 +92,7 @@ class MainScreen:
 		)
 		self.user_button.grid(row=7, column=0)
 
-		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
-		)
-		self.canvas_image = CanvasImage(self.master, temp_image_path)
-		self.new_canvas_image = None
-		self.canvas_image.grid(row=0, column=1, sticky='nsew')
+		self.set_canvas_image(self.create_placeholder_image())
 
 		self.right_frame = Frame(self.master, width=185, background="white")
 		self.right_frame.grid(row=0, column=2, sticky='nsew')
@@ -125,6 +123,15 @@ class MainScreen:
 
 	def run(self):
 		mainloop()
+
+	def create_placeholder_image(self):
+		"""
+		Creates a plane white placeholder image of 512x512 pixels
+		:return:
+		"""
+		array = np.zeros([512, 512, 3], dtype=np.uint8)
+		array.fill(255)
+		return Image.fromarray(array)
 
 	def export_window(self):
 		"""
@@ -159,7 +166,7 @@ class MainScreen:
 		Creates a detect window object
 		:return:
 		"""
-		DetectionWindow(self.master, self.application, self)
+		DetectionWindow(self.master, self.application)
 
 	def map_window(self):
 		"""
@@ -168,16 +175,12 @@ class MainScreen:
 		"""
 		MapWindow(self.master, self.application, self)
 
-	def update_image(self):
+	def set_canvas_image(self, image):
 		"""
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
-		)
-
-		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
+		self.new_canvas_image = CanvasImage(self.master, image)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
 	def delete_text(self):

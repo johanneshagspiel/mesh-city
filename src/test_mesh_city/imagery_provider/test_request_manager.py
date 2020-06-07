@@ -34,7 +34,7 @@ class TestRequestManager(unittest.TestCase):
 		self.application = Application()
 		self.application.late_init(self.user_entity)
 
-		self.request_manager = self.application.request_manager
+		self.request_manager = self.application.request_maker
 		self.request_manager.top_down_provider = GoogleMapsProvider(
 			image_provider_entity=self.provider1
 		)
@@ -92,7 +92,7 @@ class TestRequestManager(unittest.TestCase):
 	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):
 		map_entity = Mock(spec=GoogleMapsProvider, wraps=Mock())
 		map_entity.max_side_resolution_image = 640
-		request_manager = self.application.request_manager
+		request_manager = self.application.request_maker
 
 		list_of_coordinates = request_manager.calculate_locations(
 			[
@@ -108,13 +108,13 @@ class TestRequestManager(unittest.TestCase):
 			self.assertAlmostEqual(correct_answer[1], coordinate[1], places=6)
 
 	def test_calculate_number_of_requested_images_two_coordinate_input(self):
-		number_of_images = self.application.request_manager.calculate_locations(
+		number_of_images = self.application.request_maker.calculate_locations(
 			self.two_coordinate_input
 		)
 		self.assertEqual(37, len(number_of_images))
 
 	def test_calculate_centre_coordinates_two_coordinate_input_latitude_turned_around(self):
-		number_of_images = self.application.request_manager.calculate_locations(
+		number_of_images = self.application.request_maker.calculate_locations(
 			[
 			self.two_coordinate_input[2],
 			self.two_coordinate_input[1],
@@ -125,7 +125,7 @@ class TestRequestManager(unittest.TestCase):
 		self.assertEqual(37, len(number_of_images))
 
 	def test_calculate_number_of_requested_images_two_coordinate_longitude_turned_around(self):
-		number_of_images = self.application.request_manager.calculate_locations(
+		number_of_images = self.application.request_maker.calculate_locations(
 			[
 			self.two_coordinate_input[0],
 			self.two_coordinate_input[3],
@@ -137,7 +137,7 @@ class TestRequestManager(unittest.TestCase):
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_same_latitude(self):
 		with self.assertRaises(Exception):
-			self.application.request_manager.calculate_locations(
+			self.application.request_maker.calculate_locations(
 				[
 				self.two_coordinate_input[0],
 				self.two_coordinate_input[1],
@@ -148,7 +148,7 @@ class TestRequestManager(unittest.TestCase):
 
 	def test_calculate_number_of_requested_images_two_coordinate_input_same_longitude(self):
 		with self.assertRaises(Exception):
-			self.application.request_manager.calculate_locations(
+			self.application.request_maker.calculate_locations(
 				[
 				self.two_coordinate_input[0],
 				self.two_coordinate_input[1],

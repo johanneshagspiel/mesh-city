@@ -70,7 +70,7 @@ class ImageUtil:
 		:param width: The width of the grid
 		:param height: The height of the grid
 		:param images: The images to concatenate. There should be width*height images to fill the grid,
-	    and images should be a flattened matrix from left to right, top to bottom.
+	    and images should be a flattened matrix from left to right, bottom to top.
 		:return: Nothing
 		"""
 		if len(images) != width * height:

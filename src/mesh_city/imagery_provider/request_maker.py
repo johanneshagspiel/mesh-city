@@ -80,26 +80,26 @@ class RequestMaker:
 		:return:
 		"""
 		if self.request_manager.is_in_grid(x_cor_current_tile, y_cor_current_tile):
-			return self.request_manager.get_path_from_grid(x_cor_current_tile, y_cor_current_tile)
+			return self.request_manager.get_tile_from_grid(x_cor_current_tile, y_cor_current_tile)
 		file_name = str(str(x_cor_current_tile) + "_" + str(y_cor_current_tile) + ".png")
 		latitude,longitude = self.geo_location_util.tile_value_to_degree(
 			x_cor_current_tile, y_cor_current_tile, zoom
 		)
-		result_path = self.faux_get_store(
-				id=id,
+		result_path = self.top_down_provider.get_and_store_location(
+				# id=id,
 				latitude=latitude,
 				longitude=longitude,
 				zoom=zoom,
-				file_name=file_name,
-				folder_path=folder_path
+				filename=file_name,
+				new_folder_path=folder_path
 			).relative_to(Path.joinpath(self.file_handler.folder_overview["image_path"]))
 		return Tile(path=result_path,x_coord=x_cor_current_tile,y_coord=y_cor_current_tile)
 
-	def faux_get_store(self, id,latitude, longitude, zoom, file_name, folder_path):
+	def faux_get_store(self, id,latitude, longitude, zoom, filename, new_folder_path):
 		array = np.zeros([512, 512, 3], dtype=np.uint8)
 		array.fill(30*id)
 		image = Image.fromarray(array)
-		path = Path(folder_path).joinpath(file_name)
+		path = Path(new_folder_path).joinpath(filename)
 		image.save(path)
 		return path
 
@@ -140,10 +140,17 @@ class RequestMaker:
 		folder = Path.joinpath(self.file_handler.folder_overview["image_path"],
 		                       "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
+		min_x = None
+		min_y = None
 		for (index, (x_cor_tile, y_cor_tile)) in enumerate(coordinates):
+			if min_x is None:
+				min_x=x_cor_tile
+				min_y=y_cor_tile
+			min_x = min(min_x,x_cor_tile)
+			min_y = min(min_y,y_cor_tile)
 			request_result = self.make_mock_request(index,x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
-		request = Request(request_id=42, width=width, height=height)
+		request = Request(x_coord=min_x,y_coord=min_y,request_id=self.request_manager.get_new_request_id(), width=width, height=height)
 		request.add_layer(GoogleLayer(tiles=tiles))
 		return request
 
@@ -185,6 +192,7 @@ class RequestMaker:
 				current_latitude, current_longitude, zoom, True
 			)
 			num_of_images_vertical += 1
+		coordinates_list = sorted(coordinates_list, key=lambda coordinate: coordinate[1])
 		return coordinates_list, num_of_images_horizontal, num_of_images_vertical
 
 	def count_uncached_tiles(self, coordinates):
