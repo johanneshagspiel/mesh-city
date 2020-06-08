@@ -25,12 +25,12 @@ class Application:
 		self.request_maker = None
 		self.user_entity = None
 		self.main_screen = None
+		self.current_request = None
 		self.request_manager = self.get_request_manager()
 
 	def get_request_manager(self):
 		request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
-		request_manager.discover_old_imagery()
-		request_manager.deserialize_requests()
+		request_manager.load_data()
 		return request_manager
 
 	def late_init(self, user_entity):
@@ -42,7 +42,7 @@ class Application:
 			user_entity=self.user_entity, application=self, request_manager=self.request_manager
 		)
 
-	def run_detection(self, building_instructions, to_detect):
+	def run_detection(self, request, to_detect):
 		"""
 		Runs a detection based on the current request information and the layers that have to be
 		detected.
@@ -50,10 +50,10 @@ class Application:
 		:param to_detect:
 		:return:
 		"""
-		Pipeline(self, to_detect, building_instructions).push_forward()
-		self.main_screen.active_layers = to_detect
-		self.main_screen.set_canvas_image()
-		self.main_screen.update_text()
+		pipeline = Pipeline(self.request_manager, to_detect)
+		new_layers = pipeline.process(request)
+		for new_layer in new_layers:
+			self.current_request.add_layer(new_layer)
 
 	def make_location_request(self, latitude, longitude):
 		finished_request = self.request_maker.make_location_request(latitude=latitude, longitude=longitude)
@@ -75,9 +75,13 @@ class Application:
 			for (index,tile) in enumerate(google_layer.tiles):
 				print(str(index)+": "+str(tile.path))
 
+	def set_current_request(self,request):
+		self.current_request = request
+		self.load_request_onscreen(request)
+
 	def load_request_onscreen(self, request):
 		request_creator = RequestCreator(application=self)
-		canvas_image = request_creator.create_canvas_image_layer(width=request.width,height=request.height,layer=request.get_layer_of_type(GoogleLayer))
+		canvas_image = request_creator.concatenate_images_from_layer(width=request.width, height=request.height, layer=request.get_layer_of_type(GoogleLayer))
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)
@@ -87,8 +91,8 @@ class Application:
 	def process_finished_request(self,request):
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
-		self.print_request_info(request)
-		self.load_request_onscreen(request)
+		self.print_request_info(request=request)
+		self.set_current_request(request=request)
 
 	def start(self):
 		"""

@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 
 from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
 from mesh_city.request.tile import Tile
+from mesh_city.request.request import Request
 
 
 class RequestManager:
@@ -16,6 +16,10 @@ class RequestManager:
 		self.grid = {}
 		for request in self.requests:
 			self.update_grid(request)
+
+	def load_data(self):
+		self.discover_old_imagery()
+		self.deserialize_requests()
 
 	def discover_old_imagery(self):
 		google_folder = self.images_root.joinpath("google_maps")
@@ -77,6 +81,9 @@ class RequestManager:
 			for tile in google_layer.tiles:
 				if not self.is_in_grid(tile.x_coord, tile.y_coord):
 					self.add_tile_to_grid(tile.x_coord, tile.y_coord, tile)
+
+	def finalize_path(self, path):
+		return self.images_root.joinpath(path)
 
 	def is_in_grid(self, latitude, longitude):
 		return latitude in self.grid and longitude in self.grid[latitude]

@@ -46,7 +46,7 @@ class LoadWindow:
 		:param name_directory: the directory where the request to be loaded is stored
 		:return: nothing
 		"""
-		self.application.load_request_onscreen(request=request)
+		self.application.set_current_request(request=request)
 		self.main_screen.delete_text()
 
 		self.top.destroy()

@@ -3,6 +3,8 @@ A module containing the detection screen
 """
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
+from mesh_city.request.trees_layer import TreesLayer
+
 
 class DetectionWindow:
 	"""
@@ -26,20 +28,12 @@ class DetectionWindow:
 		self.top_label = Label(self.top, text="What do you want to detect?")
 		self.top_label.grid(row=0)
 
-		print(self.application.file_handler.folder_overview["active_request_path"])
-		temp_path = next(
-			self.application.file_handler.folder_overview["active_request_path"].
-			glob('building_instructions_request_*')
-		)
-		self.building_instructions = self.application.log_manager.read_log(
-			temp_path, "building_instructions_request"
-		)
-
-		to_detect = self.get_undetected_features(self.building_instructions)
+		to_detect = []
+		if not self.application.current_request.has_layer_of_type(TreesLayer):
+			to_detect.append("Trees")
 
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"
-
 		else:
 			self.check_box_list = []
 			self.checkbox_int_variables = []
@@ -55,22 +49,11 @@ class DetectionWindow:
 				self.check_box_list[counter - 1].grid(row=counter)
 				temp_counter = counter
 			self.confirm_button = Button(
-				self.top, text="Confirm", command=lambda: self.cleanup(self.building_instructions)
+				self.top, text="Confirm", command=lambda: self.cleanup()
 			)
 			self.confirm_button.grid(row=temp_counter + 1)
 
-	def get_undetected_features(self, building_instructions):
-		temp_list_detected_layers = []
-		for key in building_instructions.instructions.keys():
-			# TODO change if we ever add another image provider
-			if key != "Google Maps":
-				temp_list_detected_layers.append(key)
-		to_detect = list(
-			DetectionWindow.DETECTION_OPTIONS.symmetric_difference(temp_list_detected_layers)
-		)
-		return to_detect
-
-	def cleanup(self, building_instructions):
+	def cleanup(self):
 		"""
 		Method called on button press: runs the appropriate detection algorithm, updates the image
 		on the main_screen and then closes itself
@@ -82,6 +65,6 @@ class DetectionWindow:
 				selected_detections.append(self.check_box_list[index].cget("text"))
 		if len(selected_detections) > 0:
 			self.application.run_detection(
-				building_instructions=building_instructions, to_detect=selected_detections
+				request=self.application.current_request, to_detect=selected_detections
 			)
 		self.top.destroy()

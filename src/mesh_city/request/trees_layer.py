@@ -1,4 +1,3 @@
 class TreesLayer:
-
-	def __init__(self, detections):
-		self.detections = detections
+	def __init__(self, tiles):
+		self.tiles = tiles

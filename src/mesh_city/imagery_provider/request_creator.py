@@ -20,11 +20,9 @@ class RequestCreator:
 		The initialization method
 		:param application: The global application context
 		"""
-		self.application = application
-		self.image_util = ImageUtil()
 		self.file_handler = application.file_handler
 
-	def create_canvas_image_layer(self,width,height,layer):
+	def concatenate_images_from_layer(self, width, height, layer):
 		if isinstance(layer,GoogleLayer):
 			tiles = layer.tiles
 			images = []
