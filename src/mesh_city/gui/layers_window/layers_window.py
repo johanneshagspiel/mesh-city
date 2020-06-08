@@ -30,9 +30,9 @@ class LayersWindow:
 
 		detected_layers = []
 		for layer in self.application.current_request.layers:
-			if isinstance(layer,GoogleLayer):
+			if isinstance(layer, GoogleLayer):
 				detected_layers.append("Google Maps")
-			if isinstance(layer,TreesLayer):
+			if isinstance(layer, TreesLayer):
 				detected_layers.append("Trees")
 
 		if len(detected_layers) == 0:
@@ -68,7 +68,9 @@ class LayersWindow:
 		"""
 		layer_mask = []
 		for (index, element) in enumerate(self.temp_int_var_list):
-			layer_mask.append(0)
+			layer_mask.append(False)
 			if element.get() == 1:
-				layer_mask[index] = 1
-		self.application.load_request_specific_layers(request=self.application.current_request,layer_mask=layer_mask)
+				layer_mask[index] = True
+		self.application.load_request_specific_layers(
+			request=self.application.current_request, layer_mask=layer_mask
+		)

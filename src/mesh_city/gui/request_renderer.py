@@ -1,8 +1,7 @@
 import csv
 
 import numpy as np
-from PIL import Image
-from PIL import ImageDraw
+from PIL import Image, ImageDraw
 
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.trees_layer import TreesLayer
@@ -20,12 +19,16 @@ class RequestRenderer:
 
 	@staticmethod
 	def render_request(request, layer_mask):
-		base_image = Image.new('RGBA', (request.width * 1024, request.height * 1024),
-		                       (255, 255, 255, 0))
+		base_image = Image.new(
+			'RGBA', (request.width * 1024, request.height * 1024), (255, 255, 255, 0)
+		)
 		result_image = base_image
 		for (index, mask) in enumerate(layer_mask):
 			if mask:
-				result_image = Image.alpha_composite(im1=result_image,im2=RequestRenderer.create_image_from_layer(request=request, index=index))
+				result_image = Image.alpha_composite(
+					im1=result_image,
+					im2=RequestRenderer.create_image_from_layer(request=request, index=index)
+				)
 		return result_image
 
 	@staticmethod
@@ -40,7 +43,9 @@ class RequestRenderer:
 		if isinstance(layer, TreesLayer):
 			# TODO change image size depending on image size used for prediction
 			overlays = []
-			tree_overlay = Image.new('RGBA', (request.width*1024, request.height*1024), (255, 255, 255, 0))
+			tree_overlay = Image.new(
+				'RGBA', (request.width * 1024, request.height * 1024), (255, 255, 255, 0)
+			)
 			draw = ImageDraw.Draw(tree_overlay)
 			with open(layer.detections_path, newline='') as csvfile:
 				csv_reader = csv.reader(csvfile, delimiter=',')
@@ -57,7 +62,8 @@ class RequestRenderer:
 			images = []
 			for tile in tiles:
 				images.append(Image.open(tile.path))
-			concat_image = ImageUtil.concat_image_grid(width=request.width, height=request.height,
-			                                           images=images).convert("RGBA")
+			concat_image = ImageUtil.concat_image_grid(
+				width=request.width, height=request.height, images=images
+			).convert("RGBA")
 			return concat_image
 		raise ValueError("The overlay could not be created")

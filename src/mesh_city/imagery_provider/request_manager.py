@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 
 from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.tile import Tile
 from mesh_city.request.request import Request
+from mesh_city.request.tile import Tile
 from mesh_city.request.trees_layer import TreesLayer
 
 
@@ -30,16 +30,23 @@ class RequestManager:
 				rel_path = Path(path).relative_to(google_folder)
 				path_no_ex = os.path.splitext(rel_path)[0]
 				numbers = [int(s) for s in path_no_ex.split('_')]
-				self.add_tile_to_grid(numbers[0], numbers[1],
-				                      Tile(path=path,
-				                           x_coord=numbers[0], y_coord=numbers[1]))
+				self.add_tile_to_grid(
+					numbers[0], numbers[1], Tile(path=path, x_coord=numbers[0], y_coord=numbers[1])
+				)
 
 	def serialize_requests(self):
 		request_list = []
 		for request in self.requests:
-			request_list.append({"request_id": request.request_id, "x_coord": request.x_coord,
-			                     "y_coord": request.y_coord, "width": request.width,
-			                     "height": request.height})
+			request_list.append(
+				{
+				"request_id": request.request_id,
+				"x_coord": request.x_coord,
+				"y_coord": request.y_coord,
+				"width": request.width,
+				"height": request.height,
+				"zoom": request.zoom
+				}
+			)
 		with open(self.images_root.joinpath("requests.json"), 'w') as fout:
 			json.dump(request_list, fout)
 
@@ -54,11 +61,11 @@ class RequestManager:
 						for x_offset in range(request.width):
 							tile_x = request.x_coord + x_offset
 							tile_y = request.y_coord + y_offset
-							tiles.append(self.get_tile_from_grid(
-								tile_x,
-								tile_y))
+							tiles.append(self.get_tile_from_grid(tile_x, tile_y))
 					request.add_layer(GoogleLayer(tiles=tiles))
-					tree_detections_path = self.images_root.joinpath("trees","detections_"+str(request.request_id)+".csv")
+					tree_detections_path = self.images_root.joinpath(
+						"trees", "detections_" + str(request.request_id) + ".csv"
+					)
 					if tree_detections_path.exists():
 						request.add_layer(TreesLayer(detections_path=tree_detections_path))
 					self.add_request(request=request)

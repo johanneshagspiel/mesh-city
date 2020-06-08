@@ -32,13 +32,13 @@ class LoadWindow:
 		for (index, request) in enumerate(self.application.request_manager.requests):
 			self.temp_name = Button(
 				self.top,
-				text="Request "+str(request.request_id),
+				text="Request " + str(request.request_id),
 				width=20,
 				height=3,
 				command=lambda button_request=request: self.load_request(button_request),
 				bg="grey"
 			)
-			self.temp_name.grid(row=index+1, column=1)
+			self.temp_name.grid(row=index + 1, column=1)
 
 	def load_request(self, request):
 		"""

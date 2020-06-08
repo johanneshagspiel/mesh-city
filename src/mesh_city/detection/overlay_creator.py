@@ -26,8 +26,6 @@ class OverlayCreator:
 		self.application = application
 		self.building_instructions = building_instructions
 
-
-
 	def create_map_overlay(self, detection_algorithm, image_size, number, path):
 		"""
 		Creates an overlay for a map based on the results of an detection_algorithm

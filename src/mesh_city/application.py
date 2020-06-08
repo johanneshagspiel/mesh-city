@@ -5,12 +5,12 @@ from tkinter import END
 
 from mesh_city.detection.pipeline import Pipeline
 from mesh_city.gui.main_screen import MainScreen
-
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.imagery_provider.request_maker import RequestMaker
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -51,15 +51,16 @@ class Application:
 		:param to_detect:
 		:return:
 		"""
-		pipeline = Pipeline(self.request_manager,to_detect)
+		pipeline = Pipeline(self.request_manager, to_detect)
 		new_layers = pipeline.process(request)
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 
 	def make_location_request(self, latitude, longitude):
-		finished_request = self.request_maker.make_location_request(latitude=latitude, longitude=longitude)
+		finished_request = self.request_maker.make_location_request(
+			latitude=latitude, longitude=longitude
+		)
 		self.process_finished_request(request=finished_request)
-
 
 	def make_area_request(self, bottom_latitude, left_longitude, top_latitude, right_longitude):
 		finished_request = self.request_maker.make_area_request(
@@ -70,33 +71,38 @@ class Application:
 		)
 		self.process_finished_request(request=finished_request)
 
-	def print_request_info(self,request):
+	def print_request_info(self, request):
 		if request.has_layer_of_type(GoogleLayer):
 			google_layer = request.get_layer_of_type(GoogleLayer)
-			for (index,tile) in enumerate(google_layer.tiles):
-				print(str(index)+": "+str(tile.path))
+			for (index, tile) in enumerate(google_layer.tiles):
+				print(str(index) + ": " + str(tile.path))
 
-	def set_current_request(self,request):
+	def set_current_request(self, request):
 		self.current_request = request
 		self.load_request_onscreen(request)
 
-	def load_request_specific_layers(self,request,layer_mask):
-		canvas_image = RequestRenderer.render_request(request=request,layer_mask=layer_mask)
+	def load_request_specific_layers(self, request, layer_mask):
+		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)
 		self.main_screen.information_general.insert(END, "General")
 		self.main_screen.information_general.configure(state='disabled')
+
+	def export_request_layers(self, request, layer_mask, export_directory):
+		request_exporter = RequestExporter(request_manager=self.request_manager)
+		request_exporter.export_request(request=request, layer_mask=layer_mask,
+		                                export_directory=export_directory)
 
 	def load_request_onscreen(self, request):
-		canvas_image = RequestRenderer.create_image_from_layer(request=request,index=0)
+		canvas_image = RequestRenderer.create_image_from_layer(request=request, index=0)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)
 		self.main_screen.information_general.insert(END, "General")
 		self.main_screen.information_general.configure(state='disabled')
 
-	def process_finished_request(self,request):
+	def process_finished_request(self, request):
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
 		self.print_request_info(request=request)

@@ -69,13 +69,10 @@ class RequestMaker:
 			zoom = self.top_down_provider.max_zoom
 		return zoom
 
-
-	def make_single_request(self, id, x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
+	def make_single_request(self, x_cor_current_tile, y_cor_current_tile, folder_path, zoom):
 		"""
-		Not even for real testing, only developing (should be removed!)
-		:param image_id:
-		:param latitude:
-		:param longitude:
+		:param x_cor_current_tile:
+		:param y_cor_current_tile:
 		:param folder_path:
 		:param zoom:
 		:return:
@@ -87,13 +84,12 @@ class RequestMaker:
 			x_cor_current_tile, y_cor_current_tile, zoom
 		)
 		result_path = self.top_down_provider.get_and_store_location(
-				# id=id,
-				latitude=latitude,
-				longitude=longitude,
-				zoom=zoom,
-				filename=file_name,
-				new_folder_path=folder_path
-			)
+			latitude=latitude,
+			longitude=longitude,
+			zoom=zoom,
+			filename=file_name,
+			new_folder_path=folder_path
+		)
 		return Tile(path=result_path, x_coord=x_cor_current_tile, y_coord=y_cor_current_tile)
 
 	def make_location_request(self, latitude, longitude, zoom=None):
@@ -113,20 +109,26 @@ class RequestMaker:
 			zoom=zoom
 		)
 		tiles = []
-		folder = Path.joinpath(self.file_handler.folder_overview["image_path"],
-		                       "google_maps")
+		folder = Path.joinpath(self.file_handler.folder_overview["image_path"], "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
 		for (index, (x_cor_tile, y_cor_tile)) in enumerate(coordinates):
 			if min_x is None:
-				min_x=x_cor_tile
-				min_y=y_cor_tile
-			min_x = min(min_x,x_cor_tile)
-			min_y = min(min_y,y_cor_tile)
-			request_result = self.make_single_request(index, x_cor_tile, y_cor_tile, folder, zoom)
+				min_x = x_cor_tile
+				min_y = y_cor_tile
+			min_x = min(min_x, x_cor_tile)
+			min_y = min(min_y, y_cor_tile)
+			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
-		request = Request(x_coord=min_x,y_coord=min_y,request_id=self.request_manager.get_new_request_id(), width=width, height=height)
+		request = Request(
+			x_coord=min_x,
+			y_coord=min_y,
+			request_id=self.request_manager.get_new_request_id(),
+			width=width,
+			height=height,
+			zoom=zoom
+		)
 		request.add_layer(GoogleLayer(tiles=tiles))
 		return request
 
@@ -140,9 +142,9 @@ class RequestMaker:
 	):
 		zoom = self.check_zoom(zoom)
 		(bottom_lat, left_long), (top_lat,
-		                          right_long) = self.geo_location_util.get_bottom_left_top_right_coordinates(
+			right_long) = self.geo_location_util.get_bottom_left_top_right_coordinates(
 			(bottom_lat, left_long), (top_lat, right_long)
-		)
+			)
 		# normalise coordinate input before adding it to coordinate list
 		latitude_first_image, longitude_first_image = self.geo_location_util.normalise_coordinates(
 			bottom_lat, left_long, zoom)

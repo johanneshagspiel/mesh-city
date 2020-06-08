@@ -1,12 +1,13 @@
 class Request:
 	"""Stores all relevant data of a request"""
 
-	def __init__(self, request_id,width,height,x_coord,y_coord):
+	def __init__(self, request_id, width, height, x_coord, y_coord,zoom):
 		self.request_id = request_id
 		self.x_coord = x_coord
 		self.y_coord = y_coord
 		self.width = width
 		self.height = height
+		self.zoom = zoom
 		self.layers = []
 
 	def add_layer(self, layer):

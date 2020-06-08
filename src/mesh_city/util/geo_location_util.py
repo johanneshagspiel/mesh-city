@@ -21,7 +21,8 @@ class GeoLocationUtil:
 	circumference_earth = 40075016.69  # in meters. calculated as: 2 pi * radius_earth
 	standard_base_meters_per_px = 156543.03392  # calculated as: circumference_earth / 256
 
-	def calc_meters_per_px(self, latitude, zoom, image_resolution=256):
+	@staticmethod
+	def calc_meters_per_px(latitude, zoom, image_resolution=256):
 		"""
 		Method which calculates the number of meters one pixel at this specific latitude and zoom level
 		represents.
@@ -32,9 +33,10 @@ class GeoLocationUtil:
 		:return: the number of meters one pixel represents in an image.
 		"""
 		map_width = math.pow(2, zoom) * image_resolution
-		return self.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
+		return GeoLocationUtil.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
 
-	def calc_next_location_latitude(self, latitude, longitude, zoom, direction):
+	@staticmethod
+	def calc_next_location_latitude(latitude, longitude, zoom, direction):
 		"""
 		Calculates the latitude of the next adjacent tile.
 		:param latitude: The current latitude.
@@ -43,8 +45,8 @@ class GeoLocationUtil:
 		:param direction: If true gives the next higher latitude, if false the next lower.
 		:return: The next latitude.
 		"""
-		latitude, longitude = self.normalise_coordinates(latitude, longitude, zoom)
-		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
+		latitude, longitude = GeoLocationUtil.normalise_coordinates(latitude, longitude, zoom)
+		x_cor_tile, y_cor_tile = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
 			new_y_cor = y_cor_tile - 0.99
 		else:
@@ -56,13 +58,14 @@ class GeoLocationUtil:
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
-		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, new_y_cor, zoom)
-		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
+		new_latitude, new_longitude = GeoLocationUtil.tile_value_to_degree(x_cor_tile, new_y_cor, zoom)
+		test_x, test_y = GeoLocationUtil.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
 		if test_y in (y_cor_tile + 1, y_cor_tile - 1):
 			return new_latitude
 		raise ValueError("New y tile coordinate is incorrect")
 
-	def calc_next_location_longitude(self, latitude, longitude, zoom, direction):
+	@staticmethod
+	def calc_next_location_longitude(latitude, longitude, zoom, direction):
 		"""
 		Calculates the longitude of the next adjacent tile.
 		:param latitude: The current latitude.
@@ -71,8 +74,8 @@ class GeoLocationUtil:
 		:param direction: If true gives the next higher longitude, if false the next lower.
 		:return: The next longitude.
 		"""
-		latitude, longitude = self.normalise_coordinates(latitude, longitude, zoom)
-		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
+		latitude, longitude = GeoLocationUtil.normalise_coordinates(latitude, longitude, zoom)
+		x_cor_tile, y_cor_tile = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
 			new_x_cor = x_cor_tile + 1.01
 		else:
@@ -84,13 +87,14 @@ class GeoLocationUtil:
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
-		new_latitude, new_longitude = self.tile_value_to_degree(new_x_cor, y_cor_tile, zoom)
-		test_x, test_y = self.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
+		new_latitude, new_longitude = GeoLocationUtil.tile_value_to_degree(new_x_cor, y_cor_tile, zoom)
+		test_x, test_y = GeoLocationUtil.degree_to_tile_value(new_latitude, new_longitude, zoom)  # pylint: disable=unused-variable
 		if test_x in (x_cor_tile + 1, x_cor_tile - 1):
 			return new_longitude
 		raise ValueError("New x tile coordinate is incorrect")
-
-	def degree_to_tile_value(self, latitude, longitude, zoom):
+	
+	@staticmethod
+	def degree_to_tile_value(latitude, longitude, zoom):
 		"""
 		Based on a geographical coordinate it returns the number coordinates of the closest tile in
 		the world-grid of a certain zoom level.
@@ -116,7 +120,8 @@ class GeoLocationUtil:
 		)
 		return x_cor_tile, y_cor_tile
 
-	def tile_value_to_degree(self, x_cor_tile, y_cor_tile, zoom, get_centre=True):
+	@staticmethod
+	def tile_value_to_degree(x_cor_tile, y_cor_tile, zoom, get_centre=True):
 		"""
 		Based on the x and y coordinates of a certain tile in the world grid of a certain zoom level
 		it returns the geographical coordinates of that point. The world grid start in the top left
@@ -143,7 +148,8 @@ class GeoLocationUtil:
 		latitude = math.degrees(lat_rad)
 		return latitude, longitude
 
-	def normalise_coordinates(self, latitude, longitude, zoom):
+	@staticmethod
+	def normalise_coordinates(latitude, longitude, zoom):
 		"""
 		Method that normalises any geographical coordinates input to the most nearby geographical
 		coordinates of a point on the world tile grid of that zoom level.
@@ -157,11 +163,12 @@ class GeoLocationUtil:
 			raise ValueError(
 				"The latitude, longitude input cannot exceed the boundaries of the map"
 			)
-		x_cor_tile, y_cor_tile = self.degree_to_tile_value(latitude, longitude, zoom)
-		new_latitude, new_longitude = self.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
+		x_cor_tile, y_cor_tile = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
+		new_latitude, new_longitude = GeoLocationUtil.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
 		return new_latitude, new_longitude
-
-	def get_top_left_bottom_right_coordinates(self, first_coordinate, second_coordinate):
+	
+	@staticmethod
+	def get_top_left_bottom_right_coordinates(first_coordinate, second_coordinate):
 		"""
 		Helper method to normalise any two coordinate input into a box defined by its top left
 		coordinate and bottom right coordinate.
@@ -189,8 +196,9 @@ class GeoLocationUtil:
 				"smaller than the right longitude"
 			)
 		return (top_lat, left_long), (bottom_lat, right_long)
-
-	def get_bottom_left_top_right_coordinates(self, first_coordinate, second_coordinate):
+	
+	@staticmethod
+	def get_bottom_left_top_right_coordinates(first_coordinate, second_coordinate):
 		"""
 		Helper method to normalise any two coordinate input into a box defined by its bottom left
 		coordinate and top right coordinate.
@@ -198,12 +206,13 @@ class GeoLocationUtil:
 		:param second_coordinate:
 		:return: a tuple with the two normalised coordinates
 		"""
-		(top_lat, left_long), (bottom_lat, right_long) = self.get_top_left_bottom_right_coordinates(
+		(top_lat, left_long), (bottom_lat, right_long) = GeoLocationUtil.get_top_left_bottom_right_coordinates(
 			first_coordinate, second_coordinate
 		)
 		return (bottom_lat, left_long), (top_lat, right_long)
-
-	def transform_coordinates_to_mercator(self, latitude, longitude):
+	
+	@staticmethod
+	def transform_coordinates_to_mercator(latitude, longitude):
 		"""
 		Transforms standard longitude and latitude coordinates from the WGS 84 (EPSG 4326) to
 		Easting and Northing values in the Web Mercator projection (EPSG 3857). Sample input/output:
@@ -215,8 +224,9 @@ class GeoLocationUtil:
 		transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
 		m_east_of_0, m_north_of_0 = transformer.transform(latitude, longitude)
 		return m_east_of_0, m_north_of_0
-
-	def calc_map_units_per_px_cor(self, latitude, longitude, image_width, image_height, zoom):
+	
+	@staticmethod
+	def calc_map_units_per_px_cor(latitude, longitude, image_width, image_height, zoom):
 		"""
 		Given the input in geographical coordinates, calculates number of map units per pixel for
 		the Web Mercator projection (EPSG 3857).
@@ -227,12 +237,13 @@ class GeoLocationUtil:
 		:param zoom: the zoom level
 		:return: a tuple with number of map units per pixel in x direction and y direction
 		"""
-		x_cor_grid, y_cor_grid = self.degree_to_tile_value(latitude, longitude, zoom)
-		return self.calc_map_units_per_px_grid(
+		x_cor_grid, y_cor_grid = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
+		return GeoLocationUtil.calc_map_units_per_px_grid(
 			x_cor_grid, y_cor_grid, image_width, image_height, zoom
 		)
-
-	def calc_map_units_per_px_grid(self, x_cor_grid, y_cor_grid, image_width, image_height, zoom):
+	
+	@staticmethod
+	def calc_map_units_per_px_grid(x_cor_grid, y_cor_grid, image_width, image_height, zoom):
 		"""
 		Given the input in grid coordinates, calculates number of map units per pixel for
 		the Web Mercator projection (EPSG 3857).
@@ -247,13 +258,13 @@ class GeoLocationUtil:
 		ne_x, ne_y = nw_x + 1, nw_y
 		sw_x, sw_y = nw_x, nw_y + 1
 
-		nw_geo_x, nw_geo_y = self.tile_value_to_degree(nw_x, nw_y, zoom, get_centre=False)
-		ne_geo_x, ne_geo_y = self.tile_value_to_degree(ne_x, ne_y, zoom, get_centre=False)
-		sw_geo_x, sw_geo_y = self.tile_value_to_degree(sw_x, sw_y, zoom, get_centre=False)
+		nw_geo_x, nw_geo_y = GeoLocationUtil.tile_value_to_degree(nw_x, nw_y, zoom, get_centre=False)
+		ne_geo_x, ne_geo_y = GeoLocationUtil.tile_value_to_degree(ne_x, ne_y, zoom, get_centre=False)
+		sw_geo_x, sw_geo_y = GeoLocationUtil.tile_value_to_degree(sw_x, sw_y, zoom, get_centre=False)
 
-		nw_geo_x, nw_geo_y = self.transform_coordinates_to_mercator(nw_geo_x, nw_geo_y)
-		ne_geo_x, ne_geo_y = self.transform_coordinates_to_mercator(ne_geo_x, ne_geo_y)
-		sw_geo_x, sw_geo_y = self.transform_coordinates_to_mercator(sw_geo_x, sw_geo_x)
+		nw_geo_x, nw_geo_y = GeoLocationUtil.transform_coordinates_to_mercator(nw_geo_x, nw_geo_y)
+		ne_geo_x, ne_geo_y = GeoLocationUtil.transform_coordinates_to_mercator(ne_geo_x, ne_geo_y)
+		sw_geo_x, sw_geo_y = GeoLocationUtil.transform_coordinates_to_mercator(sw_geo_x, sw_geo_x)
 
 		pixels_per_unit_x_direction = (ne_geo_x - nw_geo_x) / image_width
 		pixels_per_unit_y_direction = (sw_geo_y - nw_geo_y) / image_height
