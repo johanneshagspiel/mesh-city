@@ -127,13 +127,13 @@ class PreviewWindow:
 			image_provider_entity.quota,
 			image_provider_entity.usage["total"])
 
-		print(temp_cost)
+		print(self.number_requests)
 		if temp_cost[0] != -1:
 			self.list_providers.append((image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2]))
 			self.confirm_download()
 		else:
-			self.number_requests -= temp_cost[1]
-			self.list_providers.append((image_provider_entity_name,  temp_cost[2], temp_cost[3], temp_cost[4]))
+			self.number_requests -= temp_cost[2]
+			self.list_providers.append((image_provider_entity_name,  temp_cost[1], temp_cost[2], temp_cost[3]))
 			self.select_additional_providers()
 
 	def select_additional_providers(self):
