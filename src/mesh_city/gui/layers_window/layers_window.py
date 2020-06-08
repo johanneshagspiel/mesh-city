@@ -46,7 +46,7 @@ class LayersWindow:
 		self.building_instructions = self.application.log_manager.read_log(
 			temp_path, "building_instructions_request"
 		)
-
+		print(self.main_screen.seen_on_screen)
 		if self.main_screen.seen_on_screen == ["Generated"]:
 			self.top_label["text"] = "Do you want to load satellite imagery?"
 			self.confirm_button.grid(row=1)
@@ -59,10 +59,10 @@ class LayersWindow:
 						temp_list_detected_layers.append(key)
 
 			if len(temp_list_detected_layers) == 0:
-				self.top_label["text"] = "Do you want to load satellite imagery?"
+				self.top_label["text"] = "There is nothing to load - You have to detect something first."
 
 			else:
-				self.top_label["text"] = "Do you want to load satellite imagery?"
+				self.top_label["text"] = "What do you want to load?"
 
 				counter = 1
 

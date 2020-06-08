@@ -3,7 +3,6 @@ A module containing the preview window
 """
 from tkinter import Button, END, Label, Toplevel, Entry
 
-from mesh_city.gui.error_windows.additional_provider_error import AdditionalProviderError
 from mesh_city.util.price_table_util import PriceTableUtil
 
 
@@ -125,8 +124,10 @@ class PreviewWindow:
 			image_provider_entity.type,
 			"static_map",
 			self.number_requests,
-			image_provider_entity.quota)
+			image_provider_entity.quota,
+			image_provider_entity.usage["total"])
 
+		print(temp_cost)
 		if temp_cost[0] != -1:
 			self.confirm_download()
 			self.list_providers.append((image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2]))
