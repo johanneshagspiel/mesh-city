@@ -93,7 +93,7 @@ class RequestMaker:
 				zoom=zoom,
 				filename=file_name,
 				new_folder_path=folder_path
-			).relative_to(Path.joinpath(self.file_handler.folder_overview["image_path"]))
+			)
 		return Tile(path=result_path, x_coord=x_cor_current_tile, y_coord=y_cor_current_tile)
 
 	def make_location_request(self, latitude, longitude, zoom=None):

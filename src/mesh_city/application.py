@@ -5,7 +5,8 @@ from tkinter import END
 
 from mesh_city.detection.pipeline import Pipeline
 from mesh_city.gui.main_screen import MainScreen
-from mesh_city.imagery_provider.request_creator import RequestCreator
+
+from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.imagery_provider.request_maker import RequestMaker
 from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
@@ -50,7 +51,7 @@ class Application:
 		:param to_detect:
 		:return:
 		"""
-		pipeline = Pipeline(self.request_manager, to_detect)
+		pipeline = Pipeline(self.request_manager,to_detect)
 		new_layers = pipeline.process(request)
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
@@ -79,9 +80,16 @@ class Application:
 		self.current_request = request
 		self.load_request_onscreen(request)
 
+	def load_request_specific_layers(self,request,layer_mask):
+		canvas_image = RequestRenderer.render_request(request=request,layer_mask=layer_mask)
+		self.main_screen.set_canvas_image(canvas_image)
+		self.main_screen.information_general.configure(state='normal')
+		self.main_screen.information_general.delete('1.0', END)
+		self.main_screen.information_general.insert(END, "General")
+		self.main_screen.information_general.configure(state='disabled')
+
 	def load_request_onscreen(self, request):
-		request_creator = RequestCreator(application=self)
-		canvas_image = request_creator.concatenate_images_from_layer(width=request.width, height=request.height, layer=request.get_layer_of_type(GoogleLayer))
+		canvas_image = RequestRenderer.create_image_from_layer(request=request,index=0)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)

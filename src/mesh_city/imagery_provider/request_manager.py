@@ -30,7 +30,7 @@ class RequestManager:
 				path_no_ex = os.path.splitext(rel_path)[0]
 				numbers = [int(s) for s in path_no_ex.split('_')]
 				self.add_tile_to_grid(numbers[0], numbers[1],
-				                      Tile(path=Path("google_maps").joinpath(rel_path),
+				                      Tile(path=path,
 				                           x_coord=numbers[0], y_coord=numbers[1]))
 
 	def serialize_requests(self):
@@ -81,9 +81,6 @@ class RequestManager:
 			for tile in google_layer.tiles:
 				if not self.is_in_grid(tile.x_coord, tile.y_coord):
 					self.add_tile_to_grid(tile.x_coord, tile.y_coord, tile)
-
-	def finalize_path(self, path):
-		return self.images_root.joinpath(path)
 
 	def is_in_grid(self, latitude, longitude):
 		return latitude in self.grid and longitude in self.grid[latitude]

@@ -8,7 +8,6 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
-from mesh_city.imagery_provider.request_creator import RequestCreator
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.tile import Tile
 from mesh_city.request.trees_layer import TreesLayer
@@ -44,16 +43,14 @@ class Pipeline:
 				tree_detections_path.mkdir(parents=True, exist_ok=True)
 				tree_tiles = []
 				for tile in tiles:
-					image = Image.open(self.request_manager.finalize_path(tile.path)).convert("RGB")
+					image = Image.open(tile.path).convert("RGB")
 					np_image = np.array(image)
 					result = deep_forest.detect(np_image)
-					file_name = str(tile.x_coord)+"_"+str(tile.y_coord)+".csv"
-
-					with open(tree_detections_path.joinpath(file_name), "w") as to_store:
+					path = tree_detections_path.joinpath(str(tile.x_coord)+"_"+str(tile.y_coord)+".csv")
+					with open(tree_detections_path.joinpath(path), "w") as to_store:
 						result.to_csv(to_store)
 						to_store.close()
-					relative_path = tree_detections_path.joinpath(file_name).relative_to(self.request_manager.images_root)
-					tree_tiles.append(Tile(path=relative_path,x_coord=tile.x_coord,y_coord=tile.y_coord))
+					tree_tiles.append(Tile(path=path,x_coord=tile.x_coord,y_coord=tile.y_coord))
 				new_layers.append(TreesLayer(tiles=tree_tiles))
 		return new_layers
 

@@ -6,6 +6,10 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.util.image_util import ImageUtil
+
 
 class OverlayCreator:
 	"""
@@ -22,43 +26,7 @@ class OverlayCreator:
 		self.application = application
 		self.building_instructions = building_instructions
 
-	def create_overlay(self, detection_algorithm, image_size, number, path):
-		"""
-		Creates one overlay from the results of a detection algorithm
-		:param detection_algorithm: what kind of detection algorithm created the result
-		:param image_size: the size of the image used by the detection algorithm
-		:return: nothing (adds the overlay to the overlay dictionary and updates main screen
-		"""
 
-		if detection_algorithm == "Trees":
-			# TODO change image size depending on image size used for prediction
-			tree_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
-			draw = ImageDraw.Draw(tree_overlay)
-
-			with open(path, newline='') as csvfile:
-				spamreader = csv.reader(csvfile, delimiter=',')
-				temp_counter = 0
-				for row in spamreader:
-					if len(row) > 0 and temp_counter > 0:
-						draw.rectangle(
-							xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
-							outline="red"
-						)
-					temp_counter += 1
-
-			temp_name = "overlay_tile_" + str(number) + ".png"
-			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_request_path"],
-				"trees",
-				"overlay",
-				temp_name
-			)
-
-			tree_overlay.save(temp_path, format="png")
-
-			self.building_instructions.instructions[detection_algorithm]["Overlay"][1].append(
-				str(temp_path)
-			)
 
 	def create_map_overlay(self, detection_algorithm, image_size, number, path):
 		"""

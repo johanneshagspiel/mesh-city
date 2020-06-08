@@ -6,8 +6,6 @@ import os
 from pathlib import Path
 from tkinter import Button, Checkbutton, filedialog, IntVar, Label, Toplevel
 
-from mesh_city.imagery_provider.request_creator import RequestCreator
-
 
 class ExportWindow:
 	"""

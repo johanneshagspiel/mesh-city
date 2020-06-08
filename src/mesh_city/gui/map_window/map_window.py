@@ -3,8 +3,6 @@ Module containing the generate screen class
 """
 from tkinter import Button, Label, Toplevel
 
-from mesh_city.imagery_provider.request_creator import RequestCreator
-
 
 class MapWindow:
 	"""
