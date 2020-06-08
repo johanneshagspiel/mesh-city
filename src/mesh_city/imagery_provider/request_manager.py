@@ -5,6 +5,7 @@ from pathlib import Path
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.tile import Tile
 from mesh_city.request.request import Request
+from mesh_city.request.trees_layer import TreesLayer
 
 
 class RequestManager:
@@ -56,7 +57,10 @@ class RequestManager:
 							tiles.append(self.get_tile_from_grid(
 								tile_x,
 								tile_y))
-						request.add_layer(GoogleLayer(tiles=tiles))
+					request.add_layer(GoogleLayer(tiles=tiles))
+					tree_detections_path = self.images_root.joinpath("trees","detections_"+str(request.request_id)+".csv")
+					if tree_detections_path.exists():
+						request.add_layer(TreesLayer(detections_path=tree_detections_path))
 					self.add_request(request=request)
 
 	def add_request(self, request):

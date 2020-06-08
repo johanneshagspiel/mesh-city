@@ -26,80 +26,51 @@ class ExportWindow:
 
 		self.top_label = Label(self.top, text="Which request do you want to export?")
 		self.top_label.grid(row=0)
-
-		self.temp_list = []
-		name_active_request = self.application.file_handler.folder_overview["active_request_path"
-																			].name
-		temp_text = "Active Request: " + name_active_request
-		self.temp_name = Button(
+		active_request_id = self.application.current_request.request_id
+		temp_text = "Active Request: Request " + str(active_request_id)
+		self.current_request_button = Button(
 			self.top,
 			text=temp_text,
 			width=20,
 			height=3,
-			command=lambda name_active_request=name_active_request: self.
-			load_request(name_active_request),
+			command=lambda: self.load_request(self.application.current_request),
 			bg="grey"
 		)
-		self.temp_name.grid(row=1, column=0)
-		self.temp_list.append(self.temp_name)
+		self.current_request_button.grid(row=1, column=0)
+		for (index, request) in enumerate(self.application.request_manager.requests):
+			if request.request_id != active_request_id:
+				self.request_button = Button(
+					self.top,
+					text="Request "+str(request.request_id),
+					width=20,
+					height=3,
+					command=lambda: self.
+						load_request(request),
+					bg="grey"
+				)
+				self.request_button.grid(row=index+2, column=0)
 
-		counter = 2
-		for temp in self.image_path.glob('*'):
-			if temp.is_file() is False:
-				name_directory = temp.name
-				if name_directory != name_active_request:
-					self.temp_name = Button(
-						self.top,
-						text=name_directory,
-						width=20,
-						height=3,
-						command=lambda name_directory=name_directory: self.
-						load_request(name_directory),
-						bg="grey"
-					)
-					self.temp_name.grid(row=counter, column=0)
-					counter += 1
-					self.temp_list.append(self.temp_name)
 
-	def load_request(self, name_directory):
+	def load_request(self, request):
 		"""
 		Loads the request. Then asks the user which features of this request to export
 		:param name_directory: the directory where the request is stored
 		:return: nothing (the window is updated to now show which features to export)
 		"""
-
-		self.name_directory = name_directory
-
-		self.old_path = self.application.file_handler.folder_overview["active_request_path"]
-
-		self.application.file_handler.change(
-			"active_request_path",
-			Path.joinpath(self.application.file_handler.folder_overview["image_path"], name_directory)
-		)
-
-		temp_path = next(
-			self.application.file_handler.folder_overview["active_request_path"].
-			glob("building_instructions_*")
-		)
-
-		self.temp_building_instructions_request = self.application.log_manager.read_log(
-			path=temp_path, type_document="building_instructions_request"
-		)
+		self.application.set_current_request(request=request)
 
 		self.top_label.configure(text="What do you want to export?")
 
-		for temp_button in self.temp_list:
-			temp_button.grid_forget()
+		for layer in self.application.current_request.layers:
 
-		temp_list_detected_layers = []
-		for key in self.temp_building_instructions_request.instructions.keys():
-			for sub_layer in self.temp_building_instructions_request.instructions[key]:
-				if sub_layer != "Coordinates":
-					if sub_layer == "Paths":
-						temp_name = key + " Images"
-					else:
-						temp_name = key + " " + sub_layer
-					temp_list_detected_layers.append(temp_name)
+			for key in self.temp_building_instructions_request.instructions.keys():
+				for sub_layer in self.temp_building_instructions_request.instructions[key]:
+					if sub_layer != "Coordinates":
+						if sub_layer == "Paths":
+							temp_name = key + " Images"
+						else:
+							temp_name = key + " " + sub_layer
+						temp_list_detected_layers.append(temp_name)
 
 		counter = 1
 		self.check_box_list = []

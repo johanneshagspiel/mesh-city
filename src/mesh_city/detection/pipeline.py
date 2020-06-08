@@ -3,10 +3,12 @@ A module containing the pipeline class which is responsible for moving images to
 detection algorithm in a form and frequency that they require and then moving the results to the
 appropriate classes to create useful information in the form of overlays.
 """
-from pathlib import Path
+import csv
 
-from PIL import Image
 import numpy as np
+from PIL import Image
+import pandas as pd
+
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.tile import Tile
@@ -41,16 +43,22 @@ class Pipeline:
 				deep_forest = DeepForest()
 				tree_detections_path = self.request_manager.images_root.joinpath("trees")
 				tree_detections_path.mkdir(parents=True, exist_ok=True)
-				tree_tiles = []
+				detections_path = tree_detections_path.joinpath(
+					"detections_"+str(request.request_id) + ".csv"
+				)
+				frames = []
 				for tile in tiles:
+					x_offset = (tile.x_coord-request.x_coord)*1024
+					y_offset = (tile.y_coord-request.y_coord)*1024
 					image = Image.open(tile.path).convert("RGB")
 					np_image = np.array(image)
 					result = deep_forest.detect(np_image)
-					path = tree_detections_path.joinpath(str(tile.x_coord)+"_"+str(tile.y_coord)+".csv")
-					with open(tree_detections_path.joinpath(path), "w") as to_store:
-						result.to_csv(to_store)
-						to_store.close()
-					tree_tiles.append(Tile(path=path,x_coord=tile.x_coord,y_coord=tile.y_coord))
-				new_layers.append(TreesLayer(tiles=tree_tiles))
+					result["xmin"]+=x_offset
+					result["ymin"]+=y_offset
+					result["xmax"]+=x_offset
+					result["ymax"]+=y_offset
+					frames.append(result)
+				concat_result = pd.concat(frames).reset_index(drop=True)
+				concat_result.to_csv(detections_path)
+				new_layers.append(TreesLayer(detections_path=detections_path))
 		return new_layers
-

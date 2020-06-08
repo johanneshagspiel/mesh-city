@@ -40,21 +40,18 @@ class RequestRenderer:
 		if isinstance(layer, TreesLayer):
 			# TODO change image size depending on image size used for prediction
 			overlays = []
-			for tile in layer.tiles:
-				tree_overlay = Image.new('RGBA', (1024, 1024), (255, 255, 255, 0))
-				draw = ImageDraw.Draw(tree_overlay)
-				with open(tile.path, newline='') as csvfile:
-					spamreader = csv.reader(csvfile, delimiter=',')
-					for (index, row) in enumerate(spamreader):
-						if len(row) > 0 and index > 0:
-							draw.rectangle(
-								xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
-								outline="red"
-							)
+			tree_overlay = Image.new('RGBA', (request.width*1024, request.height*1024), (255, 255, 255, 0))
+			draw = ImageDraw.Draw(tree_overlay)
+			with open(layer.detections_path, newline='') as csvfile:
+				csv_reader = csv.reader(csvfile, delimiter=',')
+				for (index, row) in enumerate(csv_reader):
+					if len(row) > 0 and index > 0:
+						draw.rectangle(
+							xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
+							outline="red"
+						)
 				overlays.append(tree_overlay)
-			concat_image = ImageUtil.concat_image_grid(width=request.width, height=request.height,
-			                                           images=overlays)
-			return concat_image
+			return tree_overlay
 		elif isinstance(layer, GoogleLayer):
 			tiles = layer.tiles
 			images = []
