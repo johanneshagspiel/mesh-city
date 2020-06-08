@@ -129,21 +129,21 @@ class PreviewWindow:
 
 		print(temp_cost)
 		if temp_cost[0] != -1:
-			self.confirm_download()
 			self.list_providers.append((image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2]))
+			self.confirm_download()
 		else:
-			self.number_requests -= temp_cost[2]
-			self.select_additional_providers(temp_cost[2])
-			self.list_providers.append((image_provider_entity_name,  temp_cost[1], temp_cost[2], temp_cost[3]))
+			self.number_requests -= temp_cost[1]
+			self.list_providers.append((image_provider_entity_name,  temp_cost[2], temp_cost[3], temp_cost[4]))
+			self.select_additional_providers()
 
-	def select_additional_providers(self, images_to_download):
+	def select_additional_providers(self):
 
 		for widget in self.temp_list:
 			widget.grid_forget()
 
 		self.top_label.configure(text="Using only this image provider would exceed its quota.")
 
-		number_requests_label_text = "Images still to be downloaded: " + str(images_to_download)
+		number_requests_label_text = "Images still to be downloaded: " + str(self.number_requests)
 		self.number_requests_label = Label(self.top, text=str(number_requests_label_text))
 		self.number_requests_label.grid(row=1, column=0)
 
@@ -173,6 +173,7 @@ class PreviewWindow:
 
 	def confirm_download(self):
 		self.top_label.configure(text="Are you sure you want to proceed?")
+		self.top_label.grid(row=0, column=1)
 
 		for widget in self.temp_list:
 			widget.grid_forget()
