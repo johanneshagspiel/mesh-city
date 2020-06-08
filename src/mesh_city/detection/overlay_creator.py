@@ -1,8 +1,8 @@
 """
 A module containing the overlay creator
 """
+
 import csv
-from pathlib import Path
 
 from PIL import Image, ImageDraw
 
@@ -31,28 +31,22 @@ class OverlayCreator:
 		"""
 
 		if detection_algorithm in ["Trees", "Buildings"]:
-			# TODO change image size depending on image size used for prediction
-			tree_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
+			tree_overlay = Image.new("RGBA", (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_overlay)
 
-			with open(path, newline='') as csvfile:
-				spamreader = csv.reader(csvfile, delimiter=',')
-				temp_counter = 0
-				for row in spamreader:
-					if len(row) > 0 and temp_counter > 0:
+			with open(path, newline="") as csv_file:
+				reader = csv.reader(csv_file, delimiter=",")
+				next(reader)  # Skip first line
+				for row in reader:
+					if len(row) > 0:
 						draw.rectangle(
 							xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
-							outline="red"
+							outline="red",
 						)
-					temp_counter += 1
 
-			temp_name = "overlay_tile_" + str(number) + ".png"
-			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_request_path"],
-				detection_algorithm.lower(),
-				"overlay",
-				temp_name
-			)
+			temp_name = "overlay_tile_%d.png" % number
+			temp_path = self.application.file_handler.folder_overview[
+				"active_request_path"].joinpath(detection_algorithm.lower(), "overlay", temp_name)
 
 			tree_overlay.save(temp_path, format="png")
 
@@ -69,29 +63,23 @@ class OverlayCreator:
 		"""
 
 		if detection_algorithm in ["Trees", "Buildings"]:
-			# TODO change image size depending on image size used for prediction
-			tree_map_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
+			tree_map_overlay = Image.new("RGBA", (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_map_overlay)
 
-			with open(path, newline='') as csvfile:
-				spamreader = csv.reader(csvfile, delimiter=',')
-				temp_counter = 0
-				for row in spamreader:
-					if len(row) > 0 and temp_counter > 0:
+			with open(path, newline="") as csv_file:
+				reader = csv.reader(csv_file, delimiter=",")
+				next(reader)  # Skip first line
+				for row in reader:
+					if len(row) > 0:
 						draw.rectangle(
 							xy=((float(row[1]), float(row[2])), (float(row[3]), float(row[4]))),
 							outline="green",
-							fill="green"
+							fill="green",
 						)
-					temp_counter += 1
 
-			temp_name = "map_tile_" + str(number) + ".png"
-			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["active_request_path"],
-				detection_algorithm.lower(),
-				"map",
-				temp_name
-			)
+			temp_name = "map_tile_%d.png" % number
+			temp_path = self.application.file_handler.folder_overview[
+				"active_request_path"].joinpath(detection_algorithm.lower(), "map", temp_name)
 
 			tree_map_overlay.save(temp_path, format="png")
 

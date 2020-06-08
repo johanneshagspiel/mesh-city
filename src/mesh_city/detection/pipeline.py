@@ -95,32 +95,38 @@ class Pipeline:
 				req_raw_data_path.mkdir()
 				self.application.file_handler.change("active_raw_data_path", req_raw_data_path)
 
-				combined_image = self.image_util.concat_images_tile(
-					image_list=self.building_instructions.instructions["Google Maps"]["Paths"][1]
-				)
-				combined_image_path = self.application.file_handler.folder_overview[
-					"temp_detection_path"].joinpath("temp_image.png")
-				combined_image.resize((512, 512),
-					Image.ANTIALIAS).save(fp=combined_image_path, format="png")
+				for tile_number in range(
+					1, len(self.building_instructions.instructions["Google Maps"]["Paths"])
+				):
+					combined_image = self.image_util.concat_images_tile(
+						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
+						[tile_number]
+					)
+					combined_image_path = self.application.file_handler.folder_overview[
+						"temp_detection_path"].joinpath("temp_image.png")
+					combined_image.resize((512, 512),
+						Image.ANTIALIAS).save(fp=combined_image_path, format="png")
 
-				result = self.building_detector.detect(image_path=combined_image_path)
+					result = self.building_detector.detect(image_path=combined_image_path)
 
-				result_path = self.temp_path.joinpath("raster_mask.png")
-				result.save(result_path)
+					result_path = self.temp_path.joinpath("raster_mask.png")
+					result.save(result_path)
 
-				r2v = RasterVectorConverter()
-				polygons = r2v.mask_to_vector(detection_mask=result_path)
-				bounding_boxes = r2v.vector_to_bounding_boxes(polygons=polygons)
+					r2v = RasterVectorConverter()
+					polygons = r2v.mask_to_vector(detection_mask=result_path)
+					bounding_boxes = r2v.vector_to_bounding_boxes(polygons=polygons)
 
-				raw_data_csv_path = req_raw_data_path.joinpath("raw_data_tile_0.csv")
+					raw_data_csv_path = req_raw_data_path.joinpath(
+						"raw_data_tile_%d.csv" % tile_number
+					)
 
-				with open(raw_data_csv_path, "w") as csv_file:
-					csv_file.write("number,xmin,ymin,xmax,ymax,score,label\n")
-					for index, ((y_min, x_min), (y_max, x_max)) in enumerate(bounding_boxes):
-						csv_file.write(
-							"%d,%f,%f,%f,%f,%f,%s\n" %
-							(index, x_min, y_min, x_max, y_max, 1.0, "Building")
-						)
+					with open(raw_data_csv_path, "w") as csv_file:
+						csv_file.write("number,xmin,ymin,xmax,ymax,score,label\n")
+						for index, ((y_min, x_min), (y_max, x_max)) in enumerate(bounding_boxes):
+							csv_file.write(
+								"%d,%f,%f,%f,%f,%f,%s\n" %
+								(index, x_min, y_min, x_max, y_max, 1.0, "Building")
+							)
 
 				self.push_backward(image_size=(512, 512), detection_type=element)
 

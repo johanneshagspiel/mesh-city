@@ -32,9 +32,9 @@ class BuildingDetector:
 		self.image_size = 512
 		self.loader = transforms.Compose([transforms.Scale(self.image_size), transforms.ToTensor()])
 
-	def _image_loader(self, image_name):
+	def _image_loader(self, image_path: Path):
 		"""load image, returns cuda tensor"""
-		large_image = Image.open(image_name)
+		large_image = Image.open(image_path)
 		# Scales the image to the range [-6,6], which is currently a heuristic.
 		image = (
 			self.loader(large_image.resize((self.image_size, self.image_size))
@@ -46,7 +46,7 @@ class BuildingDetector:
 		return image  # assumes that you're using GPU
 
 	@staticmethod
-	def _threshold(x_value):
+	def _threshold(x_value: int):
 		"""
 		Placeholder for more sophisticated filtering function. Is applied to each pixel to turn a
 		greyscale image returned from the network into a binary classification with white pixels

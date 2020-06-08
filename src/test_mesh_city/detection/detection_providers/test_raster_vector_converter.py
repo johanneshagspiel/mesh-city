@@ -3,11 +3,7 @@
 import unittest
 from pathlib import Path
 
-from PIL import Image
-
-from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
-from mesh_city.util.file_handler import FileHandler
 
 
 class RasterVectorConverterTest(unittest.TestCase):

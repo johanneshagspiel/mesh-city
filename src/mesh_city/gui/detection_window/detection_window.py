@@ -19,6 +19,7 @@ class DetectionWindow:
 		:param application: the global application context
 		:param main_screen: the main_screen of the application
 		"""
+
 		self.main_screen = main_screen
 		self.master = master
 		self.value = ""
