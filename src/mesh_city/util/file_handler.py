@@ -62,6 +62,7 @@ class FileHandler:
 			"selected_layer_path":
 			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
 		}
+		# initiated with a CoordinateOverview, coordinate_overview.grid is a json file
 		self.coordinate_overview = None
 
 	def change(self, path_of_interest, new_location):

@@ -95,13 +95,12 @@ class ExportWindow:
 
 		temp_list_detected_layers = []
 		for key in self.temp_building_instructions_request.instructions.keys():
-
-			if key == "Google Maps":
-				temp_name = key + " Images"
-				temp_list_detected_layers.append(temp_name)
-			else:
-				for sub_layer in self.temp_building_instructions_request.instructions[key]:
-					temp_name = key + " " + sub_layer
+			for sub_layer in self.temp_building_instructions_request.instructions[key]:
+				if sub_layer != "Coordinates":
+					if sub_layer == "Paths":
+						temp_name = key + " Images"
+					else:
+						temp_name = key + " " + sub_layer
 					temp_list_detected_layers.append(temp_name)
 
 		counter = 1
@@ -161,7 +160,10 @@ class ExportWindow:
 				temp_to_move = None
 
 				if temp_split[0] == "Google":
-					temp_to_move = ("Google Maps", "Paths")
+					if temp_split[2] == "Images":
+						temp_to_move = ("Google Maps", "Paths")
+					if temp_split[2] == "World":
+						temp_to_move = ("Google Maps", "World Files")
 				else:
 					temp_to_move = (temp_split[0], temp_split[1])
 

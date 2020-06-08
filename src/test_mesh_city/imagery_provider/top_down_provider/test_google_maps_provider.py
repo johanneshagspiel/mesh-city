@@ -20,9 +20,9 @@ class GoogleMapsProviderTest(unittest.TestCase):
 		)
 
 		self.google_maps_prov = GoogleMapsProvider(self.provider)
-		self.longitude = (11.999212921106265, 11.999195337295573)
-		self.latitude = (12.000787078893735, 12.000804662704427)
-		self.zoom = 2
+		self.longitude = 5
+		self.latitude = 50
+		self.zoom = 20
 		self.file_path = Path.joinpath(Path(__file__).parents[2], "resource_images")
 
 	def mock_response(self):
