@@ -13,7 +13,7 @@ class LoadWindow:
 	A window to select an old request to load onto the map
 	"""
 
-	def __init__(self, master, application, mainscreen):
+	def __init__(self, master, application, main_screen):
 		"""
 		The initialization method. Creates a button for each old request
 		:param master: the root tkinter instance
@@ -21,7 +21,7 @@ class LoadWindow:
 		:param mainscreen: the screen from which loadwindow is called
 		"""
 
-		self.mainscreen = mainscreen
+		self.main_screen = main_screen
 		self.master = master
 		self.value = ""
 		self.application = application
@@ -65,21 +65,30 @@ class LoadWindow:
 			"active_request_path"] = self.application.file_handler.folder_overview["active_tile_path"
 																				].parents[0]
 
-		if name_directory != "request_0":
-			temp_path = next(
-				self.application.file_handler.folder_overview["active_request_path"].
-				glob("building_instructions_*")
-			)
+		temp_path = next(
+			self.application.file_handler.folder_overview["active_request_path"].
+			glob("building_instructions_*")
+		)
 
-			temp_building_instructions_request = self.application.log_manager.read_log(
-				path=temp_path, type_document="building_instructions_request"
-			)
+		temp_building_instructions_request = self.application.log_manager.read_log(
+			path=temp_path, type_document="building_instructions_request"
+		)
 
-			temp_request_creator = RequestCreator(application=self.application)
-			temp_request_creator.follow_create_instructions(
-				"normal", temp_building_instructions_request
-			)
+		temp_request_creator = RequestCreator(application=self.application)
+		temp_path = Path.joinpath(
+			self.application.file_handler.folder_overview["temp_image_path"],
+			"concat_image_normal.png"
+		)
+		# TODO change when using other satillte image providers
+		temp_request_creator.follow_create_instructions(
+			["Google Maps", "Paths"], temp_building_instructions_request, temp_path
+		)
+		self.application.file_handler.change(
+			"active_image_path", self.application.file_handler.folder_overview["temp_image_path"]
+		)
 
-		self.mainscreen.update_image()
-		self.mainscreen.layer_active = "normal"
+		self.main_screen.update_image()
+		self.main_screen.layer_active = "Google Maps"
+		self.main_screen.delete_text()
+
 		self.top.destroy()

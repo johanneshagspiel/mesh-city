@@ -12,7 +12,8 @@ class CoordinateOverview(LogEntity):
 
 	def __init__(self, path_to_store, json=None):
 		"""
-		Either loads the log from a json file or creates a new, empty one
+		Either loads the log from a json file or creates a new, empty one. The log of all the
+		previously downloaded images is dictionary named 'grid'.
 		:param path_to_store: where to store the log
 		:param json: the json file from which to load the instructions from
 		"""

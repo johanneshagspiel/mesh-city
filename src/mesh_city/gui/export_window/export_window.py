@@ -47,7 +47,7 @@ class ExportWindow:
 
 		counter = 2
 		for temp in self.image_path.glob('*'):
-			if not temp.is_file():
+			if temp.is_file() is False:
 				name_directory = temp.name
 				if name_directory != name_active_request:
 					self.temp_name = Button(
@@ -84,7 +84,7 @@ class ExportWindow:
 			glob("building_instructions_*")
 		)
 
-		temp_building_instructions_request = self.application.log_manager.read_log(
+		self.temp_building_instructions_request = self.application.log_manager.read_log(
 			path=temp_path, type_document="building_instructions_request"
 		)
 
@@ -93,14 +93,23 @@ class ExportWindow:
 		for temp_button in self.temp_list:
 			temp_button.grid_forget()
 
+		temp_list_detected_layers = []
+		for key in self.temp_building_instructions_request.instructions.keys():
+			for sub_layer in self.temp_building_instructions_request.instructions[key]:
+				if sub_layer != "Coordinates":
+					if sub_layer == "Paths":
+						temp_name = key + " Images"
+					else:
+						temp_name = key + " " + sub_layer
+					temp_list_detected_layers.append(temp_name)
+
 		counter = 1
 		self.check_box_list = []
 		self.temp_int_var_list = []
-
-		for key in temp_building_instructions_request.instructions.keys():
+		for layer in temp_list_detected_layers:
 			self.temp_int_var_list.append(IntVar())
 			self.check_box_list.append(
-				Checkbutton(self.top, text=key, variable=self.temp_int_var_list[counter - 1])
+				Checkbutton(self.top, text=layer, variable=self.temp_int_var_list[counter - 1])
 			)
 			self.check_box_list[counter - 1].grid(row=counter)
 			counter += 1
@@ -146,8 +155,20 @@ class ExportWindow:
 			for element in to_export:
 				temp_path = Path.joinpath(temp_new_path, element)
 				os.makedirs(temp_path)
+
+				temp_split = element.split(" ")
+				temp_to_move = None
+
+				if temp_split[0] == "Google":
+					if temp_split[2] == "Images":
+						temp_to_move = ("Google Maps", "Paths")
+					if temp_split[2] == "World":
+						temp_to_move = ("Google Maps", "World Files")
+				else:
+					temp_to_move = (temp_split[0], temp_split[1])
+
 				temp_request_creator.follow_move_instructions(
-					element, temp_building_instructions, temp_path
+					temp_to_move, temp_building_instructions, temp_path
 				)
 
 			self.application.file_handler.change("active_request_path", self.old_path)

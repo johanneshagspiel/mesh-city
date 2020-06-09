@@ -13,14 +13,14 @@ class ImageProviderEntityTest(unittest.TestCase):
 	def setUp(self):
 		self.provider1 = ImageProviderEntity(
 			FileHandler(),
-			type_map_provider="google_maps",
+			type_map_provider="Google Maps",
 			api_key="test",
 			quota=100,
 			date_reset=datetime(2019, 2, 28)
 		)
 		self.provider2 = ImageProviderEntity(
 			FileHandler(),
-			type_map_provider="ahn",
+			type_map_provider="Mapbox",
 			api_key="test",
 			quota=100,
 			date_reset=datetime(2019, 2, 28)
@@ -34,9 +34,9 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'ahn1':
 			{
 			'api_key': 'test',
-			'date_reset': '2020-05-31',
+			'date_reset': '2020-06-30',
 			'quota': 100,
-			'type_map_provider': 'google_maps',
+			'type_map_provider': 'Google Maps',
 			'usage': {
 			'geocoding': 0, 'static_map': 0, 'total': 0
 			}
@@ -44,9 +44,9 @@ class ImageProviderEntityTest(unittest.TestCase):
 			'ahn2':
 			{
 			'api_key': 'test',
-			'date_reset': '2020-05-31',
+			'date_reset': '2020-06-30',
 			'quota': 100,
-			'type_map_provider': 'ahn',
+			'type_map_provider': 'Mapbox',
 			'usage': {
 			'geocoding': 0, 'static_map': 0, 'total': 0
 			}

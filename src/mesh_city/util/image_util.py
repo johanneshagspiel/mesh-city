@@ -4,6 +4,7 @@ See :class:`.ImageUtil`
 
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 
@@ -19,7 +20,7 @@ class ImageUtil:
 	temp_path = Path(__file__).parents[1]
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
-	def concat_images_list(self, image_list):
+	def concat_images_tile(self, image_list):
 		"""
 		Method to concatenate images from a list into one tile
 		:param image_list: the list with the paths of all the images to be concatenated
@@ -163,7 +164,10 @@ class ImageUtil:
 		:param image_2: The right image.
 		:return: The combined image.
 		"""
+
 		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
+		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
+			temp = Image.new("RGBA", (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
@@ -175,7 +179,20 @@ class ImageUtil:
 		:param image_2: The bottom image.
 		:return: Nothing.
 		"""
+		# TODO change in the future potentially
+
 		temp = Image.new("RGB", (image_1.width, image_1.height + image_2.height))
+		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
+			temp = Image.new("RGBA", (image_1.width, image_1.height + image_2.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
+
+	@staticmethod
+	def greyscale_matrix_to_image(matrix):
+		"""
+		Converts a given matrix with values 0-255 to a grayscale image.
+		:param matrix: The input matrix
+		:return: A greyscale PIL image corresponding to the matrix
+		"""
+		return Image.fromarray(np.array(object=matrix, dtype=np.uint8), 'L')

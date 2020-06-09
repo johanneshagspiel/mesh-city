@@ -61,7 +61,7 @@ class ImageProviderEntityTest(unittest.TestCase):
 		self.assertEqual(
 			{
 			'api_key': 'test',
-			'date_reset': '2020-05-31',
+			'date_reset': '2020-06-30',
 			'quota': 100,
 			'type_map_provider': 'test',
 			'usage': {

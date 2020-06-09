@@ -4,6 +4,8 @@ See :class:`.GeoLocationUtil`
 
 import math
 
+from pyproj import Transformer
+
 
 class GeoLocationUtil:
 	"""
@@ -200,3 +202,60 @@ class GeoLocationUtil:
 			first_coordinate, second_coordinate
 		)
 		return (bottom_lat, left_long), (top_lat, right_long)
+
+	def transform_coordinates_to_mercator(self, latitude, longitude):
+		"""
+		Transforms standard longitude and latitude coordinates from the WGS 84 (EPSG 4326) to
+		Easting and Northing values in the Web Mercator projection (EPSG 3857). Sample input/output:
+		(51.50809, -0.1285907) -> (-14314.651244750548, 6711665.883938471).
+		:param latitude: The current latitude.
+		:param longitude: The current longitude.
+		:return: meters east of 0, meters north of 0
+		"""
+		transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
+		m_east_of_0, m_north_of_0 = transformer.transform(latitude, longitude)
+		return m_east_of_0, m_north_of_0
+
+	def calc_map_units_per_px_cor(self, latitude, longitude, image_width, image_height, zoom):
+		"""
+		Given the input in geographical coordinates, calculates number of map units per pixel for
+		the Web Mercator projection (EPSG 3857).
+		:param latitude: the centre latitude of the tile
+		:param longitude: the centre longitude of the tile
+		:param image_width: image width
+		:param image_height: image height
+		:param zoom: the zoom level
+		:return: a tuple with number of map units per pixel in x direction and y direction
+		"""
+		x_cor_grid, y_cor_grid = self.degree_to_tile_value(latitude, longitude, zoom)
+		return self.calc_map_units_per_px_grid(
+			x_cor_grid, y_cor_grid, image_width, image_height, zoom
+		)
+
+	def calc_map_units_per_px_grid(self, x_cor_grid, y_cor_grid, image_width, image_height, zoom):
+		"""
+		Given the input in grid coordinates, calculates number of map units per pixel for
+		the Web Mercator projection (EPSG 3857).
+		:param x_cor_grid: the x coordinate of the tile in the world grid
+		:param y_cor_grid: the y coordinate of the tile in the world grid
+		:param image_width: image width
+		:param image_height: image height
+		:param zoom: the zoom level
+		:return: a tuple with number of map units per pixel in x direction and y direction
+		"""
+		nw_x, nw_y = x_cor_grid, y_cor_grid
+		ne_x, ne_y = nw_x + 1, nw_y
+		sw_x, sw_y = nw_x, nw_y + 1
+
+		nw_geo_x, nw_geo_y = self.tile_value_to_degree(nw_x, nw_y, zoom, get_centre=False)
+		ne_geo_x, ne_geo_y = self.tile_value_to_degree(ne_x, ne_y, zoom, get_centre=False)
+		sw_geo_x, sw_geo_y = self.tile_value_to_degree(sw_x, sw_y, zoom, get_centre=False)
+
+		nw_geo_x, nw_geo_y = self.transform_coordinates_to_mercator(nw_geo_x, nw_geo_y)
+		ne_geo_x, ne_geo_y = self.transform_coordinates_to_mercator(ne_geo_x, ne_geo_y)
+		sw_geo_x, sw_geo_y = self.transform_coordinates_to_mercator(sw_geo_x, sw_geo_x)
+
+		pixels_per_unit_x_direction = (ne_geo_x - nw_geo_x) / image_width
+		pixels_per_unit_y_direction = (sw_geo_y - nw_geo_y) / image_height
+
+		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
