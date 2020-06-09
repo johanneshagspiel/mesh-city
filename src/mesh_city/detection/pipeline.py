@@ -102,15 +102,12 @@ class Pipeline:
 						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
 						[tile_number]
 					)
-					combined_image_path = self.application.file_handler.folder_overview[
-						"temp_detection_path"].joinpath("temp_image.png")
-					combined_image.resize((512, 512),
-						Image.ANTIALIAS).save(fp=combined_image_path, format="png")
+					input_image = combined_image.resize((512, 512),Image.ANTIALIAS)
 
-					result = self.building_detector.detect(image_path=combined_image_path)
+					result = self.building_detector.detect(image=input_image)
 
 					result_path = self.temp_path.joinpath("raster_mask.png")
-					result.save(result_path)
+					Image.fromarray(result).save(result_path)
 
 					r2v = RasterVectorConverter()
 					polygons = r2v.mask_to_vector(detection_mask=result_path)

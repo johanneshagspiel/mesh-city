@@ -1,12 +1,15 @@
-# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+# pylint: disable=C0114,E1141,R0201,W0621,missing-class-docstring,missing-function-docstring
 
 import unittest
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
+from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 from mesh_city.util.file_handler import FileHandler
+from mesh_city.util.image_util import ImageUtil
 
 
 def compute_image_similarity(image1, image2):
@@ -24,7 +27,7 @@ def compute_image_similarity(image1, image2):
 	return 1 - (dif / 255.0) / ncomponents
 
 
-class BuildingDetectorRasterTest(unittest.TestCase):
+class TestBuildingDetectorRaster(unittest.TestCase):
 
 	def test_construct_building_detector(self):
 		"""
@@ -38,11 +41,34 @@ class BuildingDetectorRasterTest(unittest.TestCase):
 		"""
 		building_detector = BuildingDetector(FileHandler())
 		# TODO: Set up some type of test resource in the project structure to avoid things like this.
-		result_image = building_detector.detect(
-			Path(__file__).parents[0].joinpath("test-images/test1.png")
+		result_image = Image.fromarray(
+			building_detector.detect(
+			np.asarray(
+			Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize((512, 512))
+			)
+			),
+			'L'
 		)
 		ground_truth = Image.open(
 			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
 		).convert('L')
 		print()
 		self.assertGreaterEqual(compute_image_similarity(result_image, ground_truth), 0.9)
+
+	def test_tiled_building_detection(self):
+		image_tiler = ImageTiler(512, 512)
+		image = Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize(
+			(1024, 1024)
+		)
+		array = np.asarray(image)
+		tile_dict = image_tiler.create_tile_dictionary(array)
+
+		building_detector = BuildingDetector(FileHandler())
+		for (x_coord, y_coord) in tile_dict:
+			tile_dict[(x_coord, y_coord)] = building_detector.detect(tile_dict[(x_coord, y_coord)])
+		result = image_tiler.construct_image_from_tiles(tile_dict)
+		final_image = ImageUtil.greyscale_matrix_to_image(result).resize((512, 512))
+		ground_truth = Image.open(
+			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
+		).convert('L')
+		self.assertGreaterEqual(compute_image_similarity(final_image, ground_truth), 0.85)
