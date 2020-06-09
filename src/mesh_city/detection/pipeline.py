@@ -102,7 +102,7 @@ class Pipeline:
 						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
 						[tile_number]
 					)
-					input_image = combined_image.resize((512, 512),Image.ANTIALIAS)
+					input_image = combined_image.resize((512, 512), Image.ANTIALIAS)
 
 					result = self.building_detector.detect(image=input_image)
 
