@@ -1,0 +1,93 @@
+{
+    "Google Maps": {
+        "Paths": [
+            0,
+            [
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\1_4.449813079834001_51.91568099879002.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\2_4.450492858886719_51.91568099879002.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\3_4.451186370849626_51.91568099879002.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\4_4.449813079834001_51.91610876913391.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\5_4.450492858886719_51.91610876913391.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\6_4.451186370849626_51.91610876913391.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\7_4.449813079834001_51.91652806482273.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\8_4.450492858886719_51.91652806482273.png",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\9_4.451186370849626_51.91652806482273.png"
+            ]
+        ],
+        "Coordinates": [
+            0,
+            [
+                [
+                    "51.91568099879002",
+                    "4.449813079834001"
+                ],
+                [
+                    "51.91568099879002",
+                    "4.450492858886719"
+                ],
+                [
+                    "51.91568099879002",
+                    "4.451186370849626"
+                ],
+                [
+                    "51.91610876913391",
+                    "4.449813079834001"
+                ],
+                [
+                    "51.91610876913391",
+                    "4.450492858886719"
+                ],
+                [
+                    "51.91610876913391",
+                    "4.451186370849626"
+                ],
+                [
+                    "51.91652806482273",
+                    "4.449813079834001"
+                ],
+                [
+                    "51.91652806482273",
+                    "4.450492858886719"
+                ],
+                [
+                    "51.91652806482273",
+                    "4.451186370849626"
+                ]
+            ]
+        ],
+        "World Files": [
+            0,
+            [
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\1_4.449813079834001_51.91568099879002.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\2_4.450492858886719_51.91568099879002.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\3_4.451186370849626_51.91568099879002.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\4_4.449813079834001_51.91610876913391.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\5_4.450492858886719_51.91610876913391.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\6_4.451186370849626_51.91610876913391.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\7_4.449813079834001_51.91652806482273.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\8_4.450492858886719_51.91652806482273.pgw",
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\google_maps\\9_4.451186370849626_51.91652806482273.pgw"
+            ]
+        ]
+    },
+    "Trees": {
+        "Overlay": [
+            0,
+            [
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\trees\\overlay\\overlay_tile_1.png"
+            ]
+        ],
+        "Map": [
+            0,
+            [
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\trees\\map\\map_tile_1.png"
+            ]
+        ],
+        "Meta": [
+            0,
+            [
+                "C:\\Users\\lion\\Documents\\mesh-city\\src\\mesh_city\\resources\\images\\request_4\\trees\\meta\\meta_tile_1.json"
+            ]
+        ]
+    }
+}
