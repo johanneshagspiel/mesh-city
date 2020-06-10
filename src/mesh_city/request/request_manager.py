@@ -62,12 +62,12 @@ class RequestManager:
 							tile_x = request.x_coord + x_offset
 							tile_y = request.y_coord + y_offset
 							tiles.append(self.get_tile_from_grid(tile_x, tile_y))
-					request.add_layer(GoogleLayer(tiles=tiles))
+					request.add_layer(GoogleLayer(width=request.width,height=request.height,tiles=tiles))
 					tree_detections_path = self.images_root.joinpath(
 						"trees", "detections_" + str(request.request_id) + ".csv"
 					)
 					if tree_detections_path.exists():
-						request.add_layer(TreesLayer(detections_path=tree_detections_path))
+						request.add_layer(TreesLayer(width=request.width,height=request.height,detections_path=tree_detections_path))
 					self.add_request(request=request)
 
 	def add_request(self, request):

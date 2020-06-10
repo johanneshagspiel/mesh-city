@@ -6,11 +6,11 @@ from tkinter import END
 from mesh_city.detection.pipeline import Pipeline
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
-from mesh_city.imagery_provider.request_maker import RequestMaker
-from mesh_city.imagery_provider.request_manager import RequestManager
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request_exporter import RequestExporter
+from mesh_city.request.request_maker import RequestMaker
+from mesh_city.request.request_manager import RequestManager
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -34,14 +34,12 @@ class Application:
 		request_manager.load_data()
 		return request_manager
 
-	def late_init(self, user_entity):
+	def set_user_entity(self, user_entity):
 		"""
 		Initialises the fields that need the user information.
 		"""
 		self.user_entity = user_entity
-		self.request_maker = RequestMaker(
-			user_entity=self.user_entity, application=self, request_manager=self.request_manager
-		)
+		self.request_maker = RequestMaker(request_manager=self.request_manager)
 
 	def run_detection(self, request, to_detect):
 		"""
@@ -91,8 +89,9 @@ class Application:
 
 	def export_request_layers(self, request, layer_mask, export_directory):
 		request_exporter = RequestExporter(request_manager=self.request_manager)
-		request_exporter.export_request(request=request, layer_mask=layer_mask,
-		                                export_directory=export_directory)
+		request_exporter.export_request(
+			request=request, layer_mask=layer_mask, export_directory=export_directory
+		)
 
 	def load_request_onscreen(self, request):
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, index=0)
