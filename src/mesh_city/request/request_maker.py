@@ -99,7 +99,7 @@ class RequestMaker:
 			zoom=zoom
 		)
 		tiles = []
-		folder = Path.joinpath(self.request_manager.__images_root, "google_maps")
+		folder = Path.joinpath(self.request_manager.get_image_root(), "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
