@@ -51,7 +51,9 @@ class DetectionWindow:
 				self.checkbox_int_variables.append(IntVar())
 				self.check_box_list.append(
 					Checkbutton(
-						self.top, text=self.detection_type_to_text(element), variable=self.checkbox_int_variables[counter - 1]
+					self.top,
+					text=self.detection_type_to_text(element),
+					variable=self.checkbox_int_variables[counter - 1]
 					)
 				)
 				self.check_box_list[counter - 1].grid(row=counter)
@@ -68,7 +70,9 @@ class DetectionWindow:
 		selected_detections = []
 		for (index, element) in enumerate(self.checkbox_int_variables):
 			if element.get() == 1:
-				selected_detections.append(self.text_to_detection_type(self.check_box_list[index].cget("text")))
+				selected_detections.append(
+					self.text_to_detection_type(self.check_box_list[index].cget("text"))
+				)
 		if len(selected_detections) > 0:
 
 			self.application.run_detection(

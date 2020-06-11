@@ -66,7 +66,7 @@ class Pipeline:
 				concat_result.to_csv(detections_path)
 				new_layers.append(
 					TreesLayer(
-						width=request.width, height=request.height, detections_path=detections_path
+					width=request.width, height=request.height, detections_path=detections_path
 					)
 				)
 		return new_layers

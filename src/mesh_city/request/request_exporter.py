@@ -20,8 +20,9 @@ class RequestExporter:
 	def __init__(self, request_manager: RequestManager):
 		self.request_manager = request_manager
 
-	def export_request(self, request: Request, layer_mask: List[bool],
-	                   export_directory: Path) -> None:
+	def export_request(
+		self, request: Request, layer_mask: List[bool], export_directory: Path
+	) -> None:
 		"""
 		Exports a selection of layers from a request
 		:param request: The request that is to be exported
@@ -72,7 +73,9 @@ class RequestExporter:
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			copyfile(origin_path, export_directory.joinpath(rel_path))
 
-	def create_world_file(self, path: Path, latitude: float, longitude: float, zoom: int, width: int, height: int):
+	def create_world_file(
+		self, path: Path, latitude: float, longitude: float, zoom: int, width: int, height: int
+	):
 		"""
 		Method that creates a world file for an image. World files have the same name as the image,
 		but with a different extension (.pgw). World files contain the information necessary to
@@ -106,11 +109,11 @@ class RequestExporter:
 		with open(path, "w") as world_file:
 			world_file.writelines(
 				[
-					str(pixels_per_unit_x_direction) + "\n",
-					"0" + "\n",
-					"0" + "\n",
-					str(pixels_per_unit_y_direction) + "\n",
-					str(m_east_of_0) + "\n",
-					str(m_north_of_0)
+				str(pixels_per_unit_x_direction) + "\n",
+				"0" + "\n",
+				"0" + "\n",
+				str(pixels_per_unit_y_direction) + "\n",
+				str(m_east_of_0) + "\n",
+				str(m_north_of_0)
 				]
 			)

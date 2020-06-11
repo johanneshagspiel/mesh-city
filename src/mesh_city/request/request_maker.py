@@ -73,8 +73,7 @@ class RequestMaker:
 			zoom = self.top_down_provider.max_zoom
 		return zoom
 
-	def make_single_request(self, tile_x: int, tile_y: int,
-	                        folder_path: Path, zoom: int) -> Tile:
+	def make_single_request(self, tile_x: int, tile_y: int, folder_path: Path, zoom: int) -> Tile:
 		"""
 		Makes a single request using the TopDownProvider that is set for a certain tile, and returns
 		a corresponding tile with a reference to the imagery downloaded by the provider.
@@ -87,9 +86,7 @@ class RequestMaker:
 		if self.request_manager.is_in_grid(tile_x, tile_y):
 			return self.request_manager.get_tile_from_grid(tile_x, tile_y)
 		file_name = str(str(tile_x) + "_" + str(tile_y) + ".png")
-		latitude, longitude = GeoLocationUtil.tile_value_to_degree(
-			tile_x, tile_y, zoom
-		)
+		latitude, longitude = GeoLocationUtil.tile_value_to_degree(tile_x, tile_y, zoom)
 		result_path = self.top_down_provider.get_and_store_location(
 			latitude=latitude,
 			longitude=longitude,
@@ -100,8 +97,12 @@ class RequestMaker:
 		return Tile(path=result_path, x_coord=tile_x, y_coord=tile_y)
 
 	def make_area_request(
-		self, bottom_latitude: float, left_longitude: float, top_latitude: float,
-		right_longitude: float, zoom: Any = None
+		self,
+		bottom_latitude: float,
+		left_longitude: float,
+		top_latitude: float,
+		right_longitude: float,
+		zoom: Any = None
 	) -> Request:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider.
@@ -146,9 +147,12 @@ class RequestMaker:
 		request.add_layer(GoogleLayer(width=request.width, height=request.height, tiles=tiles))
 		return request
 
-	def calculate_coordinates_for_location(self, latitude: float, longitude: float,
-	                                       zoom: Any = None) -> Tuple[
-		List[Tuple[int, int]], int, int]:
+	def calculate_coordinates_for_location(
+		self,
+		latitude: float,
+		longitude: float,
+		zoom: Any = None
+	) -> Tuple[List[Tuple[int, int]], int, int]:
 		"""
 		Calculates a 3x3 section of tiles around a given point defined by a latitude and longitude.
 		:param latitude: The latitude value the 3x3 section is centred at
@@ -161,16 +165,19 @@ class RequestMaker:
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
 
-	def make_location_request(self, latitude: float, longitude: float,
-	                          zoom: Any = None) -> Request:
+	def make_location_request(self, latitude: float, longitude: float, zoom: Any = None) -> Request:
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.make_area_request(bottom, left, top, right, zoom)
 
 	def calculate_coordinates_for_rectangle(
-		self, bottom_latitude: float, left_longitude: float, top_latitude: float,
+		self,
+		bottom_latitude: float,
+		left_longitude: float,
+		top_latitude: float,
 		right_longitude: float,
-		zoom: Any = None) -> Tuple[List[Tuple[int, int]], int, int]:
+		zoom: Any = None
+	) -> Tuple[List[Tuple[int, int]], int, int]:
 		"""
 		Calculates the grid coordinates corresponding to a rectangle defined by two latitude, longitude pairs.
 		:param bottom_latitude: The bottom-most latitude value
@@ -182,9 +189,9 @@ class RequestMaker:
 		"""
 		zoom = self.check_zoom(zoom)
 		(bottom_latitude, left_longitude), (top_latitude,
-		                                    right_longitude) = GeoLocationUtil.get_bottom_left_top_right_coordinates(
+			right_longitude) = GeoLocationUtil.get_bottom_left_top_right_coordinates(
 			(bottom_latitude, left_longitude), (top_latitude, right_longitude)
-		)
+			)
 		# normalise coordinate input before adding it to coordinate list
 		latitude_first_image, longitude_first_image = GeoLocationUtil.normalise_coordinates(
 			bottom_latitude, left_longitude, zoom)
