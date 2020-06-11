@@ -55,7 +55,7 @@ class ExportWindow:
 					)
 				)
 		for (index, request_button) in enumerate(self.request_buttons):
-			request_button.__grid(row=index + 1, column=0)
+			request_button.grid(row=index + 1, column=0)
 
 	def load_request(self, request):
 		"""

@@ -80,15 +80,6 @@ class GoogleMapsProvider(TopDownProvider):
 
 		to_store = Path.joinpath(new_folder_path, filename)
 
-		self.create_world_file(
-			image_name=to_store,
-			latitude=float(latitude),
-			longitude=float(longitude),
-			zoom=zoom,
-			width=(width - self.padding) * scale,
-			height=(height - self.padding) * scale
-		)
-
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 

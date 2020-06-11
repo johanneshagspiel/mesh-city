@@ -21,7 +21,7 @@ class RequestExporter:
 		if isinstance(layer, GoogleLayer):
 			for tile in layer.tiles:
 				origin_path = tile.path
-				rel_path = origin_path.relative_to(self.request_manager.__images_root)
+				rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 				export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 				copyfile(origin_path, export_directory.joinpath(rel_path))
 				filename_no_extension = origin_path.stem
@@ -43,7 +43,7 @@ class RequestExporter:
 				)
 		if isinstance(layer, TreesLayer):
 			origin_path = layer.detections_path
-			rel_path = origin_path.relative_to(self.request_manager.__images_root)
+			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			copyfile(origin_path, export_directory.joinpath(rel_path))
 
