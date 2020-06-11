@@ -18,9 +18,9 @@ from mesh_city.request.trees_layer import TreesLayer
 
 
 class DetectionType(Enum):
-	Trees = 0
-	Buildings = 1
-	Cars = 2
+	TREES = 0
+	BUILDINGS = 1
+	CARS = 2
 
 
 class Pipeline:
@@ -42,7 +42,7 @@ class Pipeline:
 	def process(self, request: Request) -> List[Layer]:
 		new_layers = []
 		for feature in self.detections_to_run:
-			if feature == DetectionType.Trees:
+			if feature == DetectionType.TREES:
 				tiles = request.get_layer_of_type(GoogleLayer).tiles
 				deep_forest = DeepForest()
 				tree_detections_path = self.request_manager.get_image_root().joinpath("trees")

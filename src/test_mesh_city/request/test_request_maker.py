@@ -2,7 +2,6 @@
 
 import unittest
 from pathlib import Path
-from shutil import rmtree
 from unittest.mock import Mock
 
 from mesh_city.request.google_layer import GoogleLayer

@@ -12,7 +12,14 @@ class DetectionWindow:
 	The detection screen where one can select what to detect i.e. trees. The main_screen then will be
 	updated automatically
 	"""
-	DETECTION_OPTIONS = {"Trees"}
+
+	def detection_type_to_text(self, detection_type: DetectionType) -> str:
+		if detection_type == DetectionType.TREES:
+			return "Trees"
+
+	def text_to_detection_type(self, text: str) -> DetectionType:
+		if text == "Trees":
+			return DetectionType.TREES
 
 	def __init__(self, master, application):
 		"""
@@ -31,7 +38,7 @@ class DetectionWindow:
 
 		to_detect = []
 		if not self.application.current_request.has_layer_of_type(TreesLayer):
-			to_detect.append(DetectionType.Trees)
+			to_detect.append(DetectionType.TREES)
 
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"
@@ -44,7 +51,7 @@ class DetectionWindow:
 				self.checkbox_int_variables.append(IntVar())
 				self.check_box_list.append(
 					Checkbutton(
-					self.top, text=element, variable=self.checkbox_int_variables[counter - 1]
+						self.top, text=self.detection_type_to_text(element), variable=self.checkbox_int_variables[counter - 1]
 					)
 				)
 				self.check_box_list[counter - 1].grid(row=counter)
@@ -61,8 +68,9 @@ class DetectionWindow:
 		selected_detections = []
 		for (index, element) in enumerate(self.checkbox_int_variables):
 			if element.get() == 1:
-				selected_detections.append(self.check_box_list[index].cget("text"))
+				selected_detections.append(self.text_to_detection_type(self.check_box_list[index].cget("text")))
 		if len(selected_detections) > 0:
+
 			self.application.run_detection(
 				request=self.application.current_request, to_detect=selected_detections
 			)

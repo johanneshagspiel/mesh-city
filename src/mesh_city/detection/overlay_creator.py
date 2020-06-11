@@ -35,7 +35,7 @@ class OverlayCreator:
 		:return: nothing (an image is added to the overlay dictionary)
 		"""
 
-		if detection_algorithm == DetectionType.Trees:
+		if detection_algorithm == DetectionType.TREES:
 			# TODO change image size depending on image size used for prediction
 			tree_map_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_map_overlay)

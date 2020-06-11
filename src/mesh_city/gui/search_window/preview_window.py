@@ -69,8 +69,8 @@ class PreviewWindow:
 			self.coordinates[2] += 0.0005
 			self.coordinates[3] += 0.0005
 			locations, _, _ = self.application.request_maker.calculate_coordinates_for_rectangle(
-				bottom_lat=self.coordinates[0], left_long=self.coordinates[1],
-				top_lat=self.coordinates[2], right_long=self.coordinates[3])
+				bottom_latitude=self.coordinates[0], left_longitude=self.coordinates[1],
+				top_latitude=self.coordinates[2], right_longitude=self.coordinates[3])
 		else:
 			raise ValueError("The number of coordinate values does not check out")
 		print(locations)
