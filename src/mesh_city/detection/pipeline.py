@@ -45,7 +45,7 @@ class Pipeline:
 			if feature == DetectionType.Trees:
 				tiles = request.get_layer_of_type(GoogleLayer).tiles
 				deep_forest = DeepForest()
-				tree_detections_path = self.request_manager.__images_root.joinpath("trees")
+				tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
 				tree_detections_path.mkdir(parents=True, exist_ok=True)
 				detections_path = tree_detections_path.joinpath(
 					"detections_" + str(request.request_id) + ".csv"

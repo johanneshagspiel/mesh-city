@@ -83,7 +83,9 @@ class RequestManager:
 		self.update_grid(request)
 
 	def get_new_request_id(self):
-		return max(request.request_id for request in self.requests) + 1
+		if self.requests:
+			return max(request.request_id for request in self.requests) + 1
+		return 0
 
 	def get_request_by_id(self, id):
 		for request in self.requests:
