@@ -22,7 +22,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.request_maker.set_top_down_provider(imagery_provider)
 		self.location_input = (-22.824637, -43.242729)
 		self.two_coordinate_input = (-22.824637, -43.242729, -22.821384, -43.238813)
-		self.correct_answer = [
+		self.coordinate_list = [
 				(199167, 296295),
 				(199168, 296295),
 				(199169, 296295),
@@ -60,12 +60,6 @@ class TestRequestMaker(unittest.TestCase):
 				(199171, 296300),
 				(199172, 296300),]
 
-	def tearDown(self):
-		for item in Path(__file__).parents[1].joinpath("resources").glob("*"):
-			if item.is_dir():
-				rmtree(item)
-			else:
-				item.unlink()
 	def test_make_location_request(self):
 		request = self.request_maker.make_location_request(
 			self.two_coordinate_input[0],
@@ -74,7 +68,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.assertTrue(request.has_layer_of_type(GoogleLayer))
 
 	def test_count_uncached_tiles(self):
-		self.assertEqual(len(self.correct_answer),self.request_maker.count_uncached_tiles(self.correct_answer))
+		self.assertEqual(len(self.coordinate_list), self.request_maker.count_uncached_tiles(self.coordinate_list))
 
 
 	def test_make_area_request(self):
@@ -93,7 +87,7 @@ class TestRequestMaker(unittest.TestCase):
 			self.two_coordinate_input[2],
 			self.two_coordinate_input[3]
 		)
-		for (correct_answer, coordinate) in zip(self.correct_answer, list_of_coordinates):
+		for (correct_answer, coordinate) in zip(self.coordinate_list, list_of_coordinates):
 			self.assertEqual(correct_answer[0], coordinate[0])
 			self.assertEqual(correct_answer[1], coordinate[1])
 
