@@ -2,7 +2,7 @@
 See :class:`.Layer`
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class Layer(ABC):

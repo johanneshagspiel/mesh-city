@@ -1,8 +1,8 @@
+# pylint: disable=W0640
 """
 A module containing the export window class
 """
 
-import os
 from pathlib import Path
 from tkinter import Button, Checkbutton, filedialog, IntVar, Label, Toplevel
 
@@ -90,7 +90,7 @@ class ExportWindow:
 		"""
 		layer_mask = []
 		has_export = False
-		for (layer, element) in zip(request.layers, self.int_variable_list):
+		for element in self.int_variable_list:
 			if element.get() == 1:
 				has_export = True
 			layer_mask.append(element.get() == 1)

@@ -64,10 +64,6 @@ class StartWindow:
 		in the global application context)
 		"""
 		self.application.set_user_entity(user)
-
-		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
-		# self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
-
 		self.top.destroy()
 
 	# pylint: disable=W0201

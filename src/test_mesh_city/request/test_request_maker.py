@@ -10,7 +10,6 @@ from mesh_city.request.request_manager import RequestManager
 
 
 class TestRequestMaker(unittest.TestCase):
-
 	resource_path = Path(__file__).parents[1].joinpath("resources")
 
 	def setUp(self):
@@ -54,7 +53,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.assertTrue(request.has_layer_of_type(GoogleLayer))
 
 	def test_calculate_coordinates_for_rectangle(self):
-		list_of_coordinates, width, height = self.request_maker.calculate_coordinates_for_rectangle(
+		list_of_coordinates, _, _= self.request_maker.calculate_coordinates_for_rectangle(
 			self.two_coordinate_input[0],
 			self.two_coordinate_input[1],
 			self.two_coordinate_input[2],
@@ -65,13 +64,13 @@ class TestRequestMaker(unittest.TestCase):
 			self.assertEqual(correct_answer[1], coordinate[1])
 
 	def test_calculate_coordinates_for_location(self):
-		coordinates, width, height = self.request_maker.calculate_coordinates_for_location(
-			self.location_input[0],self.location_input[1]
+		coordinates, _, _ = self.request_maker.calculate_coordinates_for_location(
+			self.location_input[0], self.location_input[1]
 		)
 		self.assertEqual(9, len(coordinates))
 
 	def test_calculate_coordinates_for_rectangle_latitude_flipped(self):
-		number_of_images, width, height = self.request_maker.calculate_coordinates_for_rectangle(
+		number_of_images, _, _ = self.request_maker.calculate_coordinates_for_rectangle(
 			self.two_coordinate_input[2],
 			self.two_coordinate_input[1],
 			self.two_coordinate_input[0],
@@ -80,7 +79,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.assertEqual(36, len(number_of_images))
 
 	def test_calculate_coordinates_for_rectangle_longitude_flipped(self):
-		number_of_images, width, height = self.request_maker.calculate_coordinates_for_rectangle(
+		number_of_images, _, _ = self.request_maker.calculate_coordinates_for_rectangle(
 			self.two_coordinate_input[0],
 			self.two_coordinate_input[3],
 			self.two_coordinate_input[2],

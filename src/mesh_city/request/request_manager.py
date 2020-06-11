@@ -113,14 +113,14 @@ class RequestManager:
 			return max(request.request_id for request in self.requests) + 1
 		return 0
 
-	def get_request_by_id(self, id: int) -> Request:
+	def get_request_by_id(self, index: int) -> Request:
 		"""
 		Gets a request by id.
-		:param id: The id to look for.
+		:param index: The id to look for.
 		:return: A Request if one with this id exists, else raises a ValueError
 		"""
 		for request in self.requests:
-			if request.request_id is id:
+			if request.request_id is index:
 				return request
 		raise ValueError("No request with this id exists")
 

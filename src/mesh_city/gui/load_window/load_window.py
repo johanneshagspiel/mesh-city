@@ -1,8 +1,6 @@
 """
 A module that contains the loading old request window
 """
-import pickle
-from pathlib import Path
 from tkinter import Button, Label, Toplevel
 
 

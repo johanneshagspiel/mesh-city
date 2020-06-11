@@ -12,7 +12,6 @@ from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
-from mesh_city.gui.map_window.map_window import MapWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 
@@ -72,25 +71,20 @@ class MainScreen:
 		)
 		self.layers_button.grid(row=3, column=0)
 
-		self.map_button = Button(
-			self.left_bar, text="Map", width=6, height=3, command=self.map_window, bg="grey"
-		)
-		self.map_button.grid(row=4, column=0)
-
 		self.eco_button = Button(
 			self.left_bar, text="Eco", width=6, height=3, command=None, bg="grey"
 		)
-		self.eco_button.grid(row=5, column=0)
+		self.eco_button.grid(row=4, column=0)
 
 		self.export_button = Button(
 			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
 		)
-		self.export_button.grid(row=6, column=0)
+		self.export_button.grid(row=5, column=0)
 
 		self.user_button = Button(
 			self.left_bar, text="User", width=6, height=3, command=None, bg="grey"
 		)
-		self.user_button.grid(row=7, column=0)
+		self.user_button.grid(row=6, column=0)
 
 		self.set_canvas_image(self.create_placeholder_image())
 
@@ -122,6 +116,10 @@ class MainScreen:
 		self.master.rowconfigure(2, weight=1)
 
 	def run(self):
+		"""
+		Runs the main loop that updates the GUI and processes user input.
+		:return: None
+		"""
 		mainloop()
 
 	def create_placeholder_image(self):
@@ -167,13 +165,6 @@ class MainScreen:
 		:return:
 		"""
 		DetectionWindow(self.master, self.application)
-
-	def map_window(self):
-		"""
-		Creates a generate window object
-		:return:
-		"""
-		MapWindow(self.master, self.application, self)
 
 	def set_canvas_image(self, image):
 		"""

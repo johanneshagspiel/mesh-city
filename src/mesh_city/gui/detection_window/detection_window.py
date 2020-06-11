@@ -14,12 +14,24 @@ class DetectionWindow:
 	"""
 
 	def detection_type_to_text(self, detection_type: DetectionType) -> str:
+		"""
+		Converts a DetectionType instance to text for the GUI
+		:param detection_type: The DetectionType to convert
+		:return: A corresponding text representation
+		"""
 		if detection_type == DetectionType.TREES:
 			return "Trees"
+		raise ValueError("No known text exists for this DetectionType")
 
 	def text_to_detection_type(self, text: str) -> DetectionType:
+		"""
+		Converts text in the GUI to a detection type
+		:param text: The text to convert
+		:return: A corresponding DetectionType
+		"""
 		if text == "Trees":
 			return DetectionType.TREES
+		raise ValueError("No known DetectionType exists for this text")
 
 	def __init__(self, master, application):
 		"""
@@ -58,7 +70,7 @@ class DetectionWindow:
 				)
 				self.check_box_list[counter - 1].grid(row=counter)
 				temp_counter = counter
-			self.confirm_button = Button(self.top, text="Confirm", command=lambda: self.cleanup())
+			self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
 			self.confirm_button.grid(row=temp_counter + 1)
 
 	def cleanup(self):

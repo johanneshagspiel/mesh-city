@@ -1,24 +1,30 @@
+"""
+See :class:`.RequestRenderer`
+"""
 import csv
+from typing import List
 
-import numpy as np
 from PIL import Image, ImageDraw
 
 from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.request import Request
 from mesh_city.request.trees_layer import TreesLayer
 from mesh_city.util.image_util import ImageUtil
 
 
 class RequestRenderer:
 	"""
-	A class responsible for moving data to the detection algorithm in a way they like and then
-	routing the results to the appropriate classes to create useful information.
+	A class that renders requests to Pillow images.
 	"""
 
-	def __init__(self):
-		pass
-
 	@staticmethod
-	def render_request(request, layer_mask):
+	def render_request(request: Request, layer_mask: List[bool]) -> Image:
+		"""
+		Composites a rendering of a selected number of layers of a request.
+		:param request: The request to create an image for
+		:param layer_mask: A boolean mask that specifies which layers to compose
+		:return: An image representation of the layer.
+		"""
 		base_image = Image.new(
 			'RGBA', (request.width * 1024, request.height * 1024), (255, 255, 255, 0)
 		)
@@ -27,19 +33,19 @@ class RequestRenderer:
 			if mask:
 				result_image = Image.alpha_composite(
 					im1=result_image,
-					im2=RequestRenderer.create_image_from_layer(request=request, index=index)
+					im2=RequestRenderer.create_image_from_layer(request=request, layer_index=index)
 				)
 		return result_image
 
 	@staticmethod
-	def create_image_from_layer(request, index):
+	def create_image_from_layer(request: Request, layer_index: int) -> Image:
 		"""
-		Creates one overlay from the results of a detection algorithm
-		:param detection_algorithm: what kind of detection algorithm created the result
-		:param image_size: the size of the image used by the detection algorithm
-		:return: nothing (adds the overlay to the overlay dictionary and updates main screen
+		Creates an image from a specific layer of a request.
+		:param request: The request to create an image for
+		:param layer_index: The index of the layer to create an image for
+		:return: An image representation of the layer.
 		"""
-		layer = request.layers[index]
+		layer = request.layers[layer_index]
 		if isinstance(layer, TreesLayer):
 			# TODO change image size depending on image size used for prediction
 			overlays = []
@@ -57,7 +63,7 @@ class RequestRenderer:
 						)
 				overlays.append(tree_overlay)
 			return tree_overlay
-		elif isinstance(layer, GoogleLayer):
+		if isinstance(layer, GoogleLayer):
 			tiles = layer.tiles
 			images = []
 			for tile in tiles:

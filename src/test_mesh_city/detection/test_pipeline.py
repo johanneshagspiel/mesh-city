@@ -13,6 +13,6 @@ class TestPipeline(unittest.TestCase):
 		file_handler = FileHandler()
 		request_manager = RequestManager(file_handler.folder_overview["image_path"])
 		request_manager.load_data()
-		pipeline = Pipeline(request_manager, type_of_detection=[DetectionType.TREES])
+		pipeline = Pipeline(request_manager, detections_to_run=[DetectionType.TREES])
 		request = request_manager.get_request_by_id(0)
 		pipeline.process(request)

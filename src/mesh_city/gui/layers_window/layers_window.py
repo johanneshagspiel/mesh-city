@@ -2,7 +2,6 @@
 This module provides a GUI interface that can be used to select different layers to appear over the
 main_screen image such as an indication where all the trees are
 """
-from pathlib import Path
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
 from mesh_city.request.google_layer import GoogleLayer

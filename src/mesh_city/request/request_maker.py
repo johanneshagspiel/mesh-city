@@ -1,3 +1,4 @@
+# pylint: disable=E1101,R0201,missing-class-docstring,missing-function-docstring
 """
 See :class:`.RequestMaker`
 """
@@ -128,7 +129,7 @@ class RequestMaker:
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
-		for (index, (x_cor_tile, y_cor_tile)) in enumerate(coordinates):
+		for (x_cor_tile, y_cor_tile) in coordinates:
 			if min_x is None:
 				min_x = x_cor_tile
 				min_y = y_cor_tile
@@ -166,6 +167,14 @@ class RequestMaker:
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
 
 	def make_location_request(self, latitude: float, longitude: float, zoom: Any = None) -> Request:
+		"""
+		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider by first
+		calculating a 3x3 section of tiles around a given point defined by a latitude and longitude.
+		:param latitude: The latitude value the 3x3 section is centred at
+		:param longitude: The longitude value the 3x3 section is centred at
+		:param zoom: The zoom level, can be None
+		:return: The request object with a populated GoogleLayer
+		"""
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.make_area_request(bottom, left, top, right, zoom)

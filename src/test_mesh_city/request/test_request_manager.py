@@ -23,12 +23,10 @@ class TestRequestManager(unittest.TestCase):
 		self.assertTrue(request_manager.is_in_grid(x_coord=0, y_coord=0))
 
 	def test_add_to_grid_no_layer(self):
-
-		def test_add_to_grid(self):
-			request_manager = RequestManager(image_root=Path(""))
-			request = Request(request_id=42, x_coord=0, y_coord=0, width=1, height=1, zoom=20)
-			request_manager.add_request(request=request)
-			self.assertFalse(request_manager.is_in_grid(x_coord=0, y_coord=0))
+		request_manager = RequestManager(image_root=Path(""))
+		request = Request(request_id=42, x_coord=0, y_coord=0, width=1, height=1, zoom=20)
+		request_manager.add_request(request=request)
+		self.assertFalse(request_manager.is_in_grid(x_coord=0, y_coord=0))
 
 	def test_not_in_grid(self):
 		request_manager = RequestManager(image_root=Path(""))

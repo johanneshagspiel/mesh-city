@@ -14,10 +14,14 @@ from mesh_city.detection.detection_providers.deep_forest import DeepForest
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.layer import Layer
 from mesh_city.request.request import Request
+from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.trees_layer import TreesLayer
 
 
 class DetectionType(Enum):
+	"""
+	An enum defining the types of features that can be detected.
+	"""
 	TREES = 0
 	BUILDINGS = 1
 	CARS = 2
@@ -29,17 +33,25 @@ class Pipeline:
 	routing the results to the appropriate classes to create useful information.
 	"""
 
-	def __init__(self, request_manager, type_of_detection):
+	def __init__(self, request_manager: RequestManager, detections_to_run: List[DetectionType]):
 		"""
 		The initialization method.
 		:param application: the global application context
-		:param type_of_detection: where to send the images to i.e. to detect trees
+		:param detections_to_run: where to send the images to i.e. to detect trees
 		:param main_screen: the main screen of the application
 		"""
-		self.detections_to_run = type_of_detection
+		self.detections_to_run = detections_to_run
 		self.request_manager = request_manager
 
 	def process(self, request: Request) -> List[Layer]:
+		"""
+		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
+		returns a list of detection layers corresponding to the detections_to_run variable.
+		:param request: The request to process. Must have a GoogleLayer
+		:return:
+		"""
+		if not request.has_layer_of_type(GoogleLayer):
+			raise ValueError("The request to process should have imagery to detect features from")
 		new_layers = []
 		for feature in self.detections_to_run:
 			if feature == DetectionType.TREES:
