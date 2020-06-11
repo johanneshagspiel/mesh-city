@@ -65,7 +65,7 @@ class CreateNewUserWindow:
 
 		self.map_providers.append(Entry(self.top))
 		self.map_providers_size += 1
-		self.map_providers[self.map_providers_size].__grid(row=self.end, column=1, columnspan=2)
+		self.map_providers[self.map_providers_size].grid(row=self.end, column=1, columnspan=2)
 		self.end += 1
 
 		self.quota = Label(self.top, text="Monthly Quota")
@@ -73,7 +73,7 @@ class CreateNewUserWindow:
 
 		self.map_providers.append(Entry(self.top))
 		self.map_providers_size += 1
-		self.map_providers[self.map_providers_size].__grid(row=self.end, column=1, columnspan=2)
+		self.map_providers[self.map_providers_size].grid(row=self.end, column=1, columnspan=2)
 		self.end += 1
 
 		self.select_image_provider.grid(row=self.end, columnspan=3)
@@ -116,10 +116,5 @@ class CreateNewUserWindow:
 		self.application.log_manager.write_log(new_user)
 
 		self.application.set_user_entity(new_user)
-
-		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
-		temp_json = self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
-		temp_overview = CoordinateOverview(path_to_store=temp_path, json=temp_json)
-		self.application.file_handler.coordinate_overview = temp_overview
 
 		self.top.destroy()
