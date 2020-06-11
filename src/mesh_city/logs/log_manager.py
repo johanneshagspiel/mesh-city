@@ -6,7 +6,6 @@ import json
 import os
 
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
 from mesh_city.user.entities.user_entity import UserEntity
 
@@ -109,12 +108,6 @@ class LogManager:
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
-
-		if type_document == "coordinate_overview.json":
-			temp_coordinate_overview = CoordinateOverview(
-				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs
-			)
-			self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		if type_document == "information":
 			return DetectionMetaData(path_to_store=path, json=logs)

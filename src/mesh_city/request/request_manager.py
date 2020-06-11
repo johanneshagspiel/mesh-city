@@ -11,20 +11,20 @@ from mesh_city.request.trees_layer import TreesLayer
 class RequestManager:
 	"""A class for storing previous requests and reusing their imagery"""
 
-	def __init__(self, image_root, requests=None):
+	def __init__(self, image_root):
 		self.__images_root = image_root
 		self.__grid = {}
-		self.requests = requests
-		if self.requests is None:
-			self.requests = []
-		for request in self.requests:
-			self.update_grid(request)
+		self.requests = []
 
-	def load_data(self):
+	def load_data(self) -> None:
+		"""
+		Builds up grid of references to imagery discovered on disk and deserializes stored requests.
+		:return: None
+		"""
 		self.discover_old_imagery()
 		self.deserialize_requests()
 
-	def discover_old_imagery(self):
+	def discover_old_imagery(self) -> None:
 		google_folder = self.__images_root.joinpath("google_maps")
 		if google_folder.exists():
 			file_paths = sorted(google_folder.glob('*.png'))
@@ -36,23 +36,23 @@ class RequestManager:
 					numbers[0], numbers[1], Tile(path=path, x_coord=numbers[0], y_coord=numbers[1])
 				)
 
-	def serialize_requests(self):
+	def serialize_requests(self) -> None:
 		request_list = []
 		for request in self.requests:
 			request_list.append(
 				{
-				"request_id": request.request_id,
-				"x_coord": request.x_coord,
-				"y_coord": request.y_coord,
-				"width": request.width,
-				"height": request.height,
-				"zoom": request.zoom
+					"request_id": request.request_id,
+					"x_coord": request.x_coord,
+					"y_coord": request.y_coord,
+					"width": request.width,
+					"height": request.height,
+					"zoom": request.zoom
 				}
 			)
 		with open(self.__images_root.joinpath("requests.json"), 'w') as fout:
 			json.dump(request_list, fout)
 
-	def deserialize_requests(self):
+	def deserialize_requests(self) -> None:
 		if self.__images_root.joinpath("requests.json").exists():
 			with open(self.__images_root.joinpath("requests.json"), "r") as read_file:
 				data = json.load(read_file)
@@ -73,9 +73,9 @@ class RequestManager:
 					if tree_detections_path.exists():
 						request.add_layer(
 							TreesLayer(
-							width=request.width,
-							height=request.height,
-							detections_path=tree_detections_path
+								width=request.width,
+								height=request.height,
+								detections_path=tree_detections_path
 							)
 						)
 					self.add_request(request=request)
@@ -105,13 +105,15 @@ class RequestManager:
 				if not self.is_in_grid(tile.x_coord, tile.y_coord):
 					self.add_tile_to_grid(tile.x_coord, tile.y_coord, tile)
 
-	def is_in_grid(self, latitude, longitude):
-		return latitude in self.__grid and longitude in self.__grid[latitude]
+	def is_in_grid(self, x_coord, y_coord):
+		return x_coord in self.__grid and y_coord in self.__grid[x_coord]
 
-	def add_tile_to_grid(self, latitude, longitude, tile):
-		if not latitude in self.__grid:
-			self.__grid[latitude] = {}
-		self.__grid[latitude][longitude] = tile
+	def add_tile_to_grid(self, x_coord, y_coord, tile):
+		if not x_coord in self.__grid:
+			self.__grid[x_coord] = {}
+		self.__grid[x_coord][y_coord] = tile
 
-	def get_tile_from_grid(self, latitude, longitude):
-		return self.__grid[latitude][longitude]
+	def get_tile_from_grid(self, x_coord, y_coord):
+		if not self.is_in_grid(x_coord=x_coord,y_coord=y_coord):
+			raise ValueError("There is no tile in the grid with these coordinates")
+		return self.__grid[x_coord][y_coord]
