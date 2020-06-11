@@ -6,6 +6,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from mesh_city.detection.pipeline import DetectionType
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.trees_layer import TreesLayer
 from mesh_city.util.image_util import ImageUtil
@@ -34,7 +35,7 @@ class OverlayCreator:
 		:return: nothing (an image is added to the overlay dictionary)
 		"""
 
-		if detection_algorithm == "Trees":
+		if detection_algorithm == DetectionType.Trees:
 			# TODO change image size depending on image size used for prediction
 			tree_map_overlay = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255, 0))
 			draw = ImageDraw.Draw(tree_map_overlay)

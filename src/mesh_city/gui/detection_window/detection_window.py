@@ -3,6 +3,7 @@ A module containing the detection screen
 """
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
+from mesh_city.detection.pipeline import DetectionType
 from mesh_city.request.trees_layer import TreesLayer
 
 
@@ -30,7 +31,7 @@ class DetectionWindow:
 
 		to_detect = []
 		if not self.application.current_request.has_layer_of_type(TreesLayer):
-			to_detect.append("Trees")
+			to_detect.append(DetectionType.Trees)
 
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"

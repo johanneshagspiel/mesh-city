@@ -32,26 +32,30 @@ class ExportWindow:
 		active_request_id = self.application.current_request.request_id
 		temp_text = "Active Request: Request " + str(active_request_id)
 		self.request_buttons = []
-		self.request_buttons.append(Button(
+		self.request_buttons.append(
+			Button(
 			self.top,
 			text=temp_text,
 			width=20,
 			height=3,
 			command=lambda: self.load_request(self.application.current_request),
 			bg="grey"
-		))
+			)
+		)
 		for (index, request) in enumerate(self.application.request_manager.requests):
 			if request.request_id != active_request_id:
-				self.request_buttons.append(Button(
+				self.request_buttons.append(
+					Button(
 					self.top,
 					text="Request " + str(request.request_id),
 					width=20,
 					height=3,
 					command=lambda: self.load_request(request),
 					bg="grey"
-				))
+					)
+				)
 		for (index, request_button) in enumerate(self.request_buttons):
-			request_button.grid(row=index + 1, column=0)
+			request_button.__grid(row=index + 1, column=0)
 
 	def load_request(self, request):
 		"""
@@ -74,24 +78,26 @@ class ExportWindow:
 			elif isinstance(layer, TreesLayer):
 				text = "Tree detections CSV"
 			Checkbutton(self.top, text=text,
-			            variable=self.int_variable_list[index]).grid(row=index + 1)
+				variable=self.int_variable_list[index]).grid(row=index + 1)
 
 		Button(self.top, text="Confirm",
-		       command=lambda: self.cleanup(request)).grid(row=len(request.layers) + 1)
+			command=lambda: self.cleanup(request)).grid(row=len(request.layers) + 1)
 
-	def cleanup(self,request):
+	def cleanup(self, request):
 		"""
 		Asks the user to select a folder to export to. Then copies all the files into this folder
 		:return: nothing (the desired images are exported to a folder)
 		"""
 		layer_mask = []
 		has_export = False
-		for (layer,element) in zip(request.layers,self.int_variable_list):
+		for (layer, element) in zip(request.layers, self.int_variable_list):
 			if element.get() == 1:
 				has_export = True
 			layer_mask.append(element.get() == 1)
 
 		if has_export:
 			export_directory = Path(filedialog.askdirectory())
-			self.application.export_request_layers(request=request,layer_mask=layer_mask,export_directory=export_directory)
+			self.application.export_request_layers(
+				request=request, layer_mask=layer_mask, export_directory=export_directory
+			)
 		self.top.destroy()

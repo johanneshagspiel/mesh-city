@@ -92,7 +92,7 @@ class GeoLocationUtil:
 		if test_x in (x_cor_tile + 1, x_cor_tile - 1):
 			return new_longitude
 		raise ValueError("New x tile coordinate is incorrect")
-	
+
 	@staticmethod
 	def degree_to_tile_value(latitude, longitude, zoom):
 		"""
@@ -166,7 +166,7 @@ class GeoLocationUtil:
 		x_cor_tile, y_cor_tile = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
 		new_latitude, new_longitude = GeoLocationUtil.tile_value_to_degree(x_cor_tile, y_cor_tile, zoom)
 		return new_latitude, new_longitude
-	
+
 	@staticmethod
 	def get_top_left_bottom_right_coordinates(first_coordinate, second_coordinate):
 		"""
@@ -196,7 +196,7 @@ class GeoLocationUtil:
 				"smaller than the right longitude"
 			)
 		return (top_lat, left_long), (bottom_lat, right_long)
-	
+
 	@staticmethod
 	def get_bottom_left_top_right_coordinates(first_coordinate, second_coordinate):
 		"""
@@ -206,11 +206,12 @@ class GeoLocationUtil:
 		:param second_coordinate:
 		:return: a tuple with the two normalised coordinates
 		"""
-		(top_lat, left_long), (bottom_lat, right_long) = GeoLocationUtil.get_top_left_bottom_right_coordinates(
+		(top_lat, left_long), (bottom_lat,
+			right_long) = GeoLocationUtil.get_top_left_bottom_right_coordinates(
 			first_coordinate, second_coordinate
-		)
+			)
 		return (bottom_lat, left_long), (top_lat, right_long)
-	
+
 	@staticmethod
 	def transform_coordinates_to_mercator(latitude, longitude):
 		"""
@@ -224,7 +225,7 @@ class GeoLocationUtil:
 		transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
 		m_east_of_0, m_north_of_0 = transformer.transform(latitude, longitude)
 		return m_east_of_0, m_north_of_0
-	
+
 	@staticmethod
 	def calc_map_units_per_px_cor(latitude, longitude, image_width, image_height, zoom):
 		"""
@@ -241,7 +242,7 @@ class GeoLocationUtil:
 		return GeoLocationUtil.calc_map_units_per_px_grid(
 			x_cor_grid, y_cor_grid, image_width, image_height, zoom
 		)
-	
+
 	@staticmethod
 	def calc_map_units_per_px_grid(x_cor_grid, y_cor_grid, image_width, image_height, zoom):
 		"""

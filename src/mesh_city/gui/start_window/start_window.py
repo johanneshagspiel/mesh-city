@@ -63,7 +63,7 @@ class StartWindow:
 		:return: nothing (changes to main screen and initializes the missing user information
 		in the global application context)
 		"""
-		self.application.late_init(user)
+		self.application.set_user_entity(user)
 
 		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
 		# self.application.log_manager.read_log(temp_path, "coordinate_overview.json")

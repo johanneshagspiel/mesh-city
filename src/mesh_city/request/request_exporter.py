@@ -6,6 +6,7 @@ from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
 class RequestExporter:
+
 	def __init__(self, request_manager):
 		self.request_manager = request_manager
 
@@ -20,7 +21,7 @@ class RequestExporter:
 		if isinstance(layer, GoogleLayer):
 			for tile in layer.tiles:
 				origin_path = tile.path
-				rel_path = origin_path.relative_to(self.request_manager.images_root)
+				rel_path = origin_path.relative_to(self.request_manager.__images_root)
 				export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 				copyfile(origin_path, export_directory.joinpath(rel_path))
 				filename_no_extension = origin_path.stem
@@ -34,10 +35,15 @@ class RequestExporter:
 				world_file_name = filename_no_extension + ".pgw"
 				self.create_world_file(
 					path=export_directory.joinpath(rel_path.parent, world_file_name),
-					latitude=nw_latitude, longitude=nw_longitude,zoom=request.zoom,width=1024,height=1024)
-		if isinstance(layer,TreesLayer):
+					latitude=nw_latitude,
+					longitude=nw_longitude,
+					zoom=request.zoom,
+					width=1024,
+					height=1024
+				)
+		if isinstance(layer, TreesLayer):
 			origin_path = layer.detections_path
-			rel_path = origin_path.relative_to(self.request_manager.images_root)
+			rel_path = origin_path.relative_to(self.request_manager.__images_root)
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			copyfile(origin_path, export_directory.joinpath(rel_path))
 
@@ -75,11 +81,11 @@ class RequestExporter:
 		with open(path, "w") as world_file:
 			world_file.writelines(
 				[
-					str(pixels_per_unit_x_direction) + "\n",
-					"0" + "\n",
-					"0" + "\n",
-					str(pixels_per_unit_y_direction) + "\n",
-					str(m_east_of_0) + "\n",
-					str(m_north_of_0)
+				str(pixels_per_unit_x_direction) + "\n",
+				"0" + "\n",
+				"0" + "\n",
+				str(pixels_per_unit_y_direction) + "\n",
+				str(m_east_of_0) + "\n",
+				str(m_north_of_0)
 				]
 			)

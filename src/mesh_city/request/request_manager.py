@@ -13,8 +13,8 @@ class RequestManager:
 
 	def __init__(self, image_root, requests=[]):
 		self.requests = requests
-		self.images_root = image_root
-		self.grid = {}
+		self.__images_root = image_root
+		self.__grid = {}
 		for request in self.requests:
 			self.update_grid(request)
 
@@ -23,7 +23,7 @@ class RequestManager:
 		self.deserialize_requests()
 
 	def discover_old_imagery(self):
-		google_folder = self.images_root.joinpath("google_maps")
+		google_folder = self.__images_root.joinpath("google_maps")
 		if google_folder.exists():
 			file_paths = sorted(google_folder.glob('*.png'))
 			for path in file_paths:
@@ -47,12 +47,12 @@ class RequestManager:
 				"zoom": request.zoom
 				}
 			)
-		with open(self.images_root.joinpath("requests.json"), 'w') as fout:
+		with open(self.__images_root.joinpath("requests.json"), 'w') as fout:
 			json.dump(request_list, fout)
 
 	def deserialize_requests(self):
-		if self.images_root.joinpath("requests.json").exists():
-			with open(self.images_root.joinpath("requests.json"), "r") as read_file:
+		if self.__images_root.joinpath("requests.json").exists():
+			with open(self.__images_root.joinpath("requests.json"), "r") as read_file:
 				data = json.load(read_file)
 				for request_json in data:
 					request = Request(**request_json)
@@ -62,12 +62,20 @@ class RequestManager:
 							tile_x = request.x_coord + x_offset
 							tile_y = request.y_coord + y_offset
 							tiles.append(self.get_tile_from_grid(tile_x, tile_y))
-					request.add_layer(GoogleLayer(width=request.width,height=request.height,tiles=tiles))
-					tree_detections_path = self.images_root.joinpath(
+					request.add_layer(
+						GoogleLayer(width=request.width, height=request.height, tiles=tiles)
+					)
+					tree_detections_path = self.__images_root.joinpath(
 						"trees", "detections_" + str(request.request_id) + ".csv"
 					)
 					if tree_detections_path.exists():
-						request.add_layer(TreesLayer(width=request.width,height=request.height,detections_path=tree_detections_path))
+						request.add_layer(
+							TreesLayer(
+							width=request.width,
+							height=request.height,
+							detections_path=tree_detections_path
+							)
+						)
 					self.add_request(request=request)
 
 	def add_request(self, request):
@@ -84,7 +92,7 @@ class RequestManager:
 		raise ValueError("No request with this id exists")
 
 	def get_image_root(self):
-		return self.images_root
+		return self.__images_root
 
 	def update_grid(self, request):
 		if request.has_layer_of_type(GoogleLayer):
@@ -94,12 +102,12 @@ class RequestManager:
 					self.add_tile_to_grid(tile.x_coord, tile.y_coord, tile)
 
 	def is_in_grid(self, latitude, longitude):
-		return latitude in self.grid and longitude in self.grid[latitude]
+		return latitude in self.__grid and longitude in self.__grid[latitude]
 
 	def add_tile_to_grid(self, latitude, longitude, tile):
-		if not latitude in self.grid:
-			self.grid[latitude] = {}
-		self.grid[latitude][longitude] = tile
+		if not latitude in self.__grid:
+			self.__grid[latitude] = {}
+		self.__grid[latitude][longitude] = tile
 
 	def get_tile_from_grid(self, latitude, longitude):
-		return self.grid[latitude][longitude]
+		return self.__grid[latitude][longitude]
