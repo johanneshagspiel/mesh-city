@@ -5,21 +5,20 @@ from pathlib import Path
 from shutil import rmtree
 from unittest.mock import Mock
 
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
+from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.util.file_handler import FileHandler
-
 
 class TestRequestMaker(unittest.TestCase):
 
 	resource_path = Path(__file__).parents[1].joinpath("resources")
 
 	def setUp(self):
-		self.request_manager = RequestManager
-		imagery_provider = Mock(spec=GoogleMapsProvider)
+		self.request_manager = RequestManager(image_root=self.resource_path)
+		imagery_provider = Mock()
 		imagery_provider.max_zoom = 20
-		self.request_maker = RequestMaker(FileHandler())
+		imagery_provider.get_and_store_location.return_value = "test_path"
+		self.request_maker = RequestMaker(request_manager=self.request_manager)
 		self.request_maker.set_top_down_provider(imagery_provider)
 		self.location_input = (-22.824637, -43.242729)
 		self.two_coordinate_input = (-22.824637, -43.242729, -22.821384, -43.238813)
@@ -67,12 +66,28 @@ class TestRequestMaker(unittest.TestCase):
 				rmtree(item)
 			else:
 				item.unlink()
+	def test_make_location_request(self):
+		request = self.request_maker.make_location_request(
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[1],
+		)
+		self.assertTrue(request.has_layer_of_type(GoogleLayer))
 
-	def test_calculate_centre_coordinates_two_coordinate_input_correct(self):
-		map_entity = Mock(spec=GoogleMapsProvider, wraps=Mock())
-		map_entity.max_side_resolution_image = 640
-		request_manager = self.request_maker
-		list_of_coordinates, width, height = request_manager.calculate_coordinates_for_rectangle(
+	def test_count_uncached_tiles(self):
+		self.assertEqual(len(self.correct_answer),self.request_maker.count_uncached_tiles(self.correct_answer))
+
+
+	def test_make_area_request(self):
+		request = self.request_maker.make_area_request(
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[1],
+			self.two_coordinate_input[2],
+			self.two_coordinate_input[3]
+		)
+		self.assertTrue(request.has_layer_of_type(GoogleLayer))
+
+	def test_calculate_coordinates_for_rectangle(self):
+		list_of_coordinates, width, height = self.request_maker.calculate_coordinates_for_rectangle(
 			self.two_coordinate_input[0],
 			self.two_coordinate_input[1],
 			self.two_coordinate_input[2],
@@ -82,8 +97,26 @@ class TestRequestMaker(unittest.TestCase):
 			self.assertEqual(correct_answer[0], coordinate[0])
 			self.assertEqual(correct_answer[1], coordinate[1])
 
-	def test_calculate_number_of_requested_images_two_coordinate_input(self):
+	def test_calculate_coordinates_for_location(self):
 		coordinates, width, height = self.request_maker.calculate_coordinates_for_location(
 			self.location_input[0],self.location_input[1]
 		)
 		self.assertEqual(9, len(coordinates))
+
+	def test_calculate_coordinates_for_rectangle_latitude_flipped(self):
+		number_of_images, width, height = self.request_maker.calculate_coordinates_for_rectangle(
+			self.two_coordinate_input[2],
+			self.two_coordinate_input[1],
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[3]
+		)
+		self.assertEqual(36, len(number_of_images))
+
+	def test_calculate_coordinates_for_rectangle_longitude_flipped(self):
+		number_of_images, width, height = self.request_maker.calculate_coordinates_for_rectangle(
+			self.two_coordinate_input[0],
+			self.two_coordinate_input[3],
+			self.two_coordinate_input[2],
+			self.two_coordinate_input[1]
+		)
+		self.assertEqual(36, len(number_of_images))

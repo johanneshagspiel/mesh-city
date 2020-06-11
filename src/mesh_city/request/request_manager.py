@@ -11,10 +11,12 @@ from mesh_city.request.trees_layer import TreesLayer
 class RequestManager:
 	"""A class for storing previous requests and reusing their imagery"""
 
-	def __init__(self, image_root, requests=[]):
-		self.requests = requests
+	def __init__(self, image_root, requests=None):
 		self.__images_root = image_root
 		self.__grid = {}
+		self.requests = requests
+		if self.requests is None:
+			self.requests = []
 		for request in self.requests:
 			self.update_grid(request)
 
