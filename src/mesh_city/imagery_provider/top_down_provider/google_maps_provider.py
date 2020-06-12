@@ -12,7 +12,6 @@ from requests import get, Response
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
-
 # TODO add documentation explaining the mathematics of this class
 
 

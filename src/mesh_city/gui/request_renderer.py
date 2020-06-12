@@ -26,7 +26,8 @@ class RequestRenderer:
 		:return: An image representation of the layer.
 		"""
 		base_image = Image.new(
-			'RGBA', (request.width * 1024, request.height * 1024), (255, 255, 255, 0)
+			'RGBA', (request.num_of_horizontal_images * 1024, request.num_of_vertical_images * 1024),
+			(255, 255, 255, 0)
 		)
 		result_image = base_image
 		for (index, mask) in enumerate(layer_mask):
@@ -50,7 +51,9 @@ class RequestRenderer:
 			# TODO change image size depending on image size used for prediction
 			overlays = []
 			tree_overlay = Image.new(
-				'RGBA', (request.width * 1024, request.height * 1024), (255, 255, 255, 0)
+				'RGBA',
+				(request.num_of_horizontal_images * 1024, request.num_of_vertical_images * 1024),
+				(255, 255, 255, 0)
 			)
 			draw = ImageDraw.Draw(tree_overlay)
 			with open(layer.detections_path, newline='') as csvfile:
@@ -69,7 +72,9 @@ class RequestRenderer:
 			for tile in tiles:
 				images.append(Image.open(tile.path))
 			concat_image = ImageUtil.concat_image_grid(
-				width=request.width, height=request.height, images=images
+				width=request.num_of_horizontal_images,
+				height=request.num_of_vertical_images,
+				images=images
 			).convert("RGBA")
 			return concat_image
 		raise ValueError("The overlay could not be created")

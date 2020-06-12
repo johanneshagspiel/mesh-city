@@ -109,7 +109,7 @@ class RequestMaker:
 			filename=file_name,
 			new_folder_path=folder_path,
 		)
-		return Tile(path=result_path, x_coord=tile_x, y_coord=tile_y)
+		return Tile(path=result_path, x_grid_coord=tile_x, y_grid_coord=tile_y)
 
 	def make_area_request(
 		self,
@@ -154,14 +154,20 @@ class RequestMaker:
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
 		request = Request(
-			x_coord=min_x,
-			y_coord=min_y,
+			x_grid_coord=min_x,
+			y_grid_coord=min_y,
 			request_id=self.request_manager.get_new_request_id(),
-			width=width,
-			height=height,
+			num_of_horizontal_images=width,
+			num_of_vertical_images=height,
 			zoom=zoom
 		)
-		request.add_layer(GoogleLayer(width=request.width, height=request.height, tiles=tiles))
+		request.add_layer(
+			GoogleLayer(
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			tiles=tiles
+			)
+		)
 		return request
 
 	def calculate_coordinates_for_location(

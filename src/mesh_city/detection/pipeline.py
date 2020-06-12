@@ -70,8 +70,8 @@ class Pipeline:
 				)
 				frames = []
 				for tile in tiles:
-					x_offset = (tile.x_coord - request.x_coord) * 1024
-					y_offset = (tile.y_coord - request.y_coord) * 1024
+					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
+					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
 					image = Image.open(tile.path).convert("RGB")
 					np_image = np.array(image)
 					result = deep_forest.detect(np_image)
@@ -84,7 +84,9 @@ class Pipeline:
 				concat_result.to_csv(detections_path)
 				new_layers.append(
 					TreesLayer(
-					width=request.width, height=request.height, detections_path=detections_path
+					width=request.num_of_horizontal_images,
+					height=request.num_of_vertical_images,
+					detections_path=detections_path
 					)
 				)
 		return new_layers

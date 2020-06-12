@@ -45,7 +45,9 @@ class RequestManager:
 				path_no_ex = os.path.splitext(rel_path)[0]
 				numbers = [int(s) for s in path_no_ex.split('_')]
 				self.add_tile_to_grid(
-					numbers[0], numbers[1], Tile(path=path, x_coord=numbers[0], y_coord=numbers[1])
+					numbers[0],
+					numbers[1],
+					Tile(path=path, x_grid_coord=numbers[0], y_grid_coord=numbers[1])
 				)
 
 	def serialize_requests(self) -> None:
@@ -60,10 +62,10 @@ class RequestManager:
 			request_list.append(
 				{
 				"request_id": request.request_id,
-				"x_coord": request.x_coord,
-				"y_coord": request.y_coord,
-				"width": request.width,
-				"height": request.height,
+				"x_grid_coord": request.x_grid_coord,
+				"y_grid_coord": request.y_grid_coord,
+				"num_of_horizontal_images": request.num_of_horizontal_images,
+				"num_of_vertical_images": request.num_of_vertical_images,
 				"zoom": request.zoom
 				}
 			)
@@ -83,13 +85,17 @@ class RequestManager:
 				for request_json in data:
 					request = Request(**request_json)
 					tiles = []
-					for y_offset in range(request.height):
-						for x_offset in range(request.width):
-							tile_x = request.x_coord + x_offset
-							tile_y = request.y_coord + y_offset
+					for y_offset in range(request.num_of_vertical_images):
+						for x_offset in range(request.num_of_horizontal_images):
+							tile_x = request.x_grid_coord + x_offset
+							tile_y = request.y_grid_coord + y_offset
 							tiles.append(self.get_tile_from_grid(tile_x, tile_y))
 					request.add_layer(
-						GoogleLayer(width=request.width, height=request.height, tiles=tiles)
+						GoogleLayer(
+						width=request.num_of_horizontal_images,
+						height=request.num_of_vertical_images,
+						tiles=tiles
+						)
 					)
 					tree_detections_path = self.__images_root.joinpath(
 						"trees", "detections_" + str(request.request_id) + ".csv"
@@ -97,8 +103,8 @@ class RequestManager:
 					if tree_detections_path.exists():
 						request.add_layer(
 							TreesLayer(
-							width=request.width,
-							height=request.height,
+							width=request.num_of_horizontal_images,
+							height=request.num_of_vertical_images,
 							detections_path=tree_detections_path
 							)
 						)
@@ -159,8 +165,8 @@ class RequestManager:
 		if request.has_layer_of_type(GoogleLayer):
 			google_layer = request.get_layer_of_type(GoogleLayer)
 			for tile in google_layer.tiles:
-				if not self.is_in_grid(tile.x_coord, tile.y_coord):
-					self.add_tile_to_grid(tile.x_coord, tile.y_coord, tile)
+				if not self.is_in_grid(tile.x_grid_coord, tile.y_grid_coord):
+					self.add_tile_to_grid(tile.x_grid_coord, tile.y_grid_coord, tile)
 
 	def is_in_grid(self, x_coord: int, y_coord: int) -> bool:
 		"""

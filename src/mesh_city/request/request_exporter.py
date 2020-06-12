@@ -58,8 +58,8 @@ class RequestExporter:
 				filename_no_extension = origin_path.stem
 
 				nw_latitude, nw_longitude = GeoLocationUtil.tile_value_to_degree(
-					x_cor_tile=tile.x_coord + 0.5,
-					y_cor_tile=tile.y_coord + 0.5,
+					x_cor_tile=tile.x_grid_coord + 0.5,
+					y_cor_tile=tile.y_grid_coord + 0.5,
 					zoom=request.zoom,
 					get_centre=False
 				)

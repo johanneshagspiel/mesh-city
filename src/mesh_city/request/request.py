@@ -10,12 +10,21 @@ from mesh_city.request.layer import Layer
 class Request:
 	"""Stores all relevant data of a request"""
 
-	def __init__(self, request_id, width, height, x_coord, y_coord, zoom, layers=None) -> None:
+	def __init__(
+		self,
+		request_id,
+		num_of_horizontal_images,
+		num_of_vertical_images,
+		x_grid_coord,
+		y_grid_coord,
+		zoom,
+		layers=None
+	) -> None:
 		self.request_id = request_id
-		self.x_coord = x_coord
-		self.y_coord = y_coord
-		self.width = width
-		self.height = height
+		self.x_grid_coord = x_grid_coord
+		self.y_grid_coord = y_grid_coord
+		self.num_of_horizontal_images = num_of_horizontal_images
+		self.num_of_vertical_images = num_of_vertical_images
 		self.zoom = zoom
 		self.layers = [] if layers is None else layers
 

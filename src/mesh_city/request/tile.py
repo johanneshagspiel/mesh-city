@@ -10,7 +10,7 @@ class Tile:
 	A class representing an image from the image grid maintained by RequestManager.
 	"""
 
-	def __init__(self, path: Path, x_coord: int, y_coord: int) -> None:
+	def __init__(self, path: Path, x_grid_coord: int, y_grid_coord: int) -> None:
 		self.path = path
-		self.x_coord = x_coord
-		self.y_coord = y_coord
+		self.x_grid_coord = x_grid_coord
+		self.y_grid_coord = y_grid_coord
