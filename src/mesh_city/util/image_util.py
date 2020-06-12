@@ -13,16 +13,13 @@ class ImageUtil:
 	Collection of functions related to assembling map tile images.
 	"""
 
-	# def __init__(self, application):
-	# 	self.application = application
-	# 	self.file_handler = self.application.file_handler
-
 	temp_path = Path(__file__).parents[1]
 	path_to_temp = Path.joinpath(temp_path, "resources", "temp")
 
 	def concat_images_tile(self, image_list):
 		"""
-		Method to concatenate images from a list into one tile
+		Method to concatenate images from a list into one tile.
+
 		:param image_list: the list with the paths of all the images to be concatenated
 		:return: a concatenated tile
 		"""
@@ -46,7 +43,7 @@ class ImageUtil:
 			center_right,
 			down_left,
 			down_center,
-			down_right
+			down_right,
 		]
 		return self.concat_image_grid(3, 3, images)
 
@@ -54,11 +51,13 @@ class ImageUtil:
 	@staticmethod
 	def combine_images_list(image_list, iteration_amount):
 		"""
-		The method to concatenate all the images from a list
+		The method to concatenate all the images from a list.
+
 		:param image_list: the list with all the images to be concatenated
 		:param iteration_amount: how many images are in one row of the concatenated image
 		:return: the concatenated image
 		"""
+
 		return ImageUtil.concat_image_grid(
 			iteration_amount, int(len(image_list) / iteration_amount), image_list
 		)
@@ -68,12 +67,14 @@ class ImageUtil:
 	def concat_image_grid(width, height, images):
 		"""
 		Combines a given array of images into a concatenated grid of images.
+
 		:param width: The width of the grid
 		:param height: The height of the grid
 		:param images: The images to concatenate. There should be width*height images to fill the grid,
 	    and images should be a flattened matrix from left to right, bottom to top.
 		:return: Nothing
 		"""
+
 		if len(images) != width * height:
 			raise ValueError(
 				"Not enough images were supplied to concatenate an image grid of the specified size"
@@ -94,6 +95,7 @@ class ImageUtil:
 	def get_concat_horizontally(image_1, image_2):
 		"""
 		Combines two tile images horizontally.
+
 		:param image_1: The left image.
 		:param image_2: The right image.
 		:return: The combined image.
@@ -110,11 +112,11 @@ class ImageUtil:
 	def get_concat_vertically(image_1, image_2):
 		"""
 		Combines two tile images vertically.
+
 		:param image_1: The top image.
 		:param image_2: The bottom image.
 		:return: Nothing.
 		"""
-		# TODO change in the future potentially
 
 		temp = Image.new("RGB", (image_1.width, image_1.height + image_2.height))
 		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
@@ -127,7 +129,8 @@ class ImageUtil:
 	def greyscale_matrix_to_image(matrix):
 		"""
 		Converts a given matrix with values 0-255 to a grayscale image.
+
 		:param matrix: The input matrix
 		:return: A greyscale PIL image corresponding to the matrix
 		"""
-		return Image.fromarray(np.array(object=matrix, dtype=np.uint8), 'L')
+		return Image.fromarray(np.array(object=matrix, dtype=np.uint8), "L")

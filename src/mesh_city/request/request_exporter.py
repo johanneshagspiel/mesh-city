@@ -1,6 +1,7 @@
 """
 See :class:`.RequestExporter`
 """
+
 from pathlib import Path
 from shutil import copyfile
 from typing import List
@@ -24,12 +25,14 @@ class RequestExporter:
 		self, request: Request, layer_mask: List[bool], export_directory: Path
 	) -> None:
 		"""
-		Exports a selection of layers from a request
+		Exports a selection of layers from a request.
+
 		:param request: The request that is to be exported
 		:param layer_mask: A list of booleans denoting which layers are to be exported
 		:param export_directory: The root of the directory layers should be exported to.
 		:return: None
 		"""
+
 		export_directory.mkdir(parents=True, exist_ok=True)
 		for (index, flag) in enumerate(layer_mask):
 			if flag:
@@ -38,11 +41,13 @@ class RequestExporter:
 	def export_layer(self, request: Request, index: int, export_directory: Path) -> None:
 		"""
 		Exports a single layer from a request using methods specific to the type of the layer.
+
 		:param request: The request that contains the layer to be exported
 		:param index: The index of the layer that is to be exported.
 		:param export_directory:  The root of the directory layers should be exported to.
 		:return: None
 		"""
+
 		layer = request.layers[index]
 		if isinstance(layer, GoogleLayer):
 			for tile in layer.tiles:
@@ -80,6 +85,7 @@ class RequestExporter:
 		Method that creates a world file for an image. World files have the same name as the image,
 		but with a different extension (.pgw). World files contain the information necessary to
 		export the image to GIS software such as QGIS.
+
 		:param path: path of the file that is to be created
 		:param latitude: the centre latitude of the tile
 		:param longitude: the centre longitude of the tile
@@ -88,6 +94,7 @@ class RequestExporter:
 		:param height: image height
 		:return:
 		"""
+
 		x_tile, y_tile = GeoLocationUtil.degree_to_tile_value(
 			latitude=latitude,
 			longitude=longitude,

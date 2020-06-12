@@ -4,7 +4,7 @@ See :class:`.RequestMaker`
 """
 
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.google_layer import GoogleLayer
@@ -29,12 +29,14 @@ class RequestMaker:
 		float, float, float, float]:
 		"""
 		This computes the bottom and top latitude, and left and right longitude that define the 3x3 tile
-		grid around the point (normalized to the grid)
+		grid around the point (normalized to the grid).
+
 		:param latitude: the latitude of the coordinate
 		:param longitude: the longitude of the coordinate
 		:param zoom: the zoom level that defines the dimension of the tiles
 		:return: The bottom and top latitude and left and right longitude defining the 3x3 tile grid.
 		"""
+
 		latitude, longitude = GeoLocationUtil.normalise_coordinates(
 			latitude=latitude, longitude=longitude, zoom=zoom
 		)
@@ -55,45 +57,57 @@ class RequestMaker:
 	def set_top_down_provider(self, top_down_provider: TopDownProvider) -> None:
 		"""
 		Sets the top down provider. This is required before any requests can be made.
+
 		:param top_down_provider: the top_down_provider that should be used when making requests
 		:return:
 		"""
 		self.top_down_provider = top_down_provider
 
-	def check_zoom(self, zoom: Any) -> int:
+	def check_zoom(self, zoom: Optional[int]) -> int:
 		"""
 		Checks if the zoom value is a legal value and corrects it if it is not.
+
 		:param zoom: the zoom value that has to be checked and clamped
 		:return: a legal zoom value
 		"""
+
+		assert self.top_down_provider is not None
+
+		result_zoom: int
 		if zoom is None:
-			zoom = self.top_down_provider.max_zoom
-		if zoom < 1:
-			zoom = 1
-		if zoom > self.top_down_provider.max_zoom:
-			zoom = self.top_down_provider.max_zoom
-		return zoom
+			result_zoom = self.top_down_provider.max_zoom
+		elif zoom < 1:
+			result_zoom = 1
+		elif zoom > self.top_down_provider.max_zoom:
+			result_zoom = self.top_down_provider.max_zoom
+		else:
+			result_zoom = zoom
+		return result_zoom
 
 	def make_single_request(self, tile_x: int, tile_y: int, folder_path: Path, zoom: int) -> Tile:
 		"""
 		Makes a single request using the TopDownProvider that is set for a certain tile, and returns
 		a corresponding tile with a reference to the imagery downloaded by the provider.
+
 		:param tile_x: The x coordinate on the tile grid
 		:param tile_y: The y coordinate on the tile grid
 		:param folder_path: The folder path where the tile should be saved
 		:param zoom: The zoom level
 		:return: A tile with a Path to the stored image.
 		"""
+
+		assert self.top_down_provider is not None
+
 		if self.request_manager.is_in_grid(tile_x, tile_y):
 			return self.request_manager.get_tile_from_grid(tile_x, tile_y)
-		file_name = str(str(tile_x) + "_" + str(tile_y) + ".png")
+		file_name = str(tile_x) + "_" + str(tile_y) + ".png"
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(tile_x, tile_y, zoom)
 		result_path = self.top_down_provider.get_and_store_location(
 			latitude=latitude,
 			longitude=longitude,
 			zoom=zoom,
 			filename=file_name,
-			new_folder_path=folder_path
+			new_folder_path=folder_path,
 		)
 		return Tile(path=result_path, x_coord=tile_x, y_coord=tile_y)
 
@@ -107,6 +121,7 @@ class RequestMaker:
 	) -> Request:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider.
+
 		:param bottom_latitude: The bottom-most latitude value
 		:param left_longitude: The leftmost longitude value
 		:param top_latitude: The top-most latitude value
@@ -114,6 +129,7 @@ class RequestMaker:
 		:param zoom: The zoom level, can be None
 		:return: The request object with a populated GoogleLayer
 		"""
+
 		if self.top_down_provider is None:
 			raise Exception("The top down provider has not been set, no request could be made")
 		zoom = self.check_zoom(zoom=zoom)
@@ -156,12 +172,14 @@ class RequestMaker:
 	) -> Tuple[List[Tuple[int, int]], int, int]:
 		"""
 		Calculates a 3x3 section of tiles around a given point defined by a latitude and longitude.
+
 		:param latitude: The latitude value the 3x3 section is centred at
 		:param longitude: The longitude value the 3x3 section is centred at
 		:param zoom: The zoom value
 		:return: A list of tuples defining grid-coordinates defining the 3x3 section together with the width and height of the section,
 		so always 3, 3.
 		"""
+
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
@@ -170,11 +188,13 @@ class RequestMaker:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider by first
 		calculating a 3x3 section of tiles around a given point defined by a latitude and longitude.
+
 		:param latitude: The latitude value the 3x3 section is centred at
 		:param longitude: The longitude value the 3x3 section is centred at
 		:param zoom: The zoom level, can be None
 		:return: The request object with a populated GoogleLayer
 		"""
+
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.make_area_request(bottom, left, top, right, zoom)
@@ -189,6 +209,7 @@ class RequestMaker:
 	) -> Tuple[List[Tuple[int, int]], int, int]:
 		"""
 		Calculates the grid coordinates corresponding to a rectangle defined by two latitude, longitude pairs.
+
 		:param bottom_latitude: The bottom-most latitude value
 		:param left_longitude: The leftmost longitude value
 		:param top_latitude: The top-most latitude value
@@ -196,6 +217,7 @@ class RequestMaker:
 		:param zoom: The zoom value
 		:return: A list of grid-coordinate tuples together with the width and height of the tile grid these coordinates make up.
 		"""
+
 		zoom = self.check_zoom(zoom)
 		(bottom_latitude, left_longitude), (top_latitude,
 			right_longitude) = GeoLocationUtil.get_bottom_left_top_right_coordinates(
@@ -232,9 +254,11 @@ class RequestMaker:
 	def count_uncached_tiles(self, coordinates: List[Tuple[int, int]]) -> int:
 		"""
 		Computes how many new tiles will have to be downloaded from the provider.
+
 		:param coordinates: The list of coordinate tuples to check.
 		:return: How many images are to be downloaded
 		"""
+
 		counter = 0
 		for (latitude, longitude) in coordinates:
 			if not self.request_manager.is_in_grid(latitude, longitude):

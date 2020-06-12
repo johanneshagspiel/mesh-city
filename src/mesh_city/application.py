@@ -1,6 +1,7 @@
 """
 See :class:`.Application`
 """
+
 from pathlib import Path
 from tkinter import END
 from typing import List
@@ -35,8 +36,10 @@ class Application:
 		"""
 		Creates a RequestManager instance and makes it load both previous requests and references to downloaded
 		imagery.
+
 		:return: The RequestManager instance.
 		"""
+
 		request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
 		request_manager.load_data()
 		return request_manager
@@ -45,6 +48,7 @@ class Application:
 		"""
 		Initialises the fields that need the user information.
 		"""
+
 		self.user_entity = user_entity
 		self.request_maker = RequestMaker(request_manager=self.request_manager)
 
@@ -52,10 +56,12 @@ class Application:
 		"""
 		Runs a detection based on the current request information and the layers that have to be
 		detected.
+
 		:param building_instructions:
 		:param to_detect:
 		:return:
 		"""
+
 		pipeline = Pipeline(self.request_manager, to_detect)
 		new_layers = pipeline.process(request)
 		for new_layer in new_layers:
@@ -63,11 +69,13 @@ class Application:
 
 	def make_location_request(self, latitude: float, longitude: float) -> None:
 		"""
-		Makes a location request and updates the application correspondingly
+		Makes a location request and updates the application correspondingly.
+
 		:param latitude: The latitude of the request
 		:param longitude: The longitude of the request
 		:return: None
 		"""
+
 		finished_request = self.request_maker.make_location_request(
 			latitude=latitude, longitude=longitude
 		)
@@ -81,13 +89,15 @@ class Application:
 		right_longitude: float
 	) -> None:
 		"""
-		Makes an area request and updates the application correspondingly
+		Makes an area request and updates the application correspondingly.
+
 		:param bottom_latitude: The bottom-most latitude value
 		:param left_longitude: The leftmost longitude value
 		:param top_latitude: The top-most latitude value
 		:param right_longitude: The rightmost longitude value
 		:return: None
 		"""
+
 		finished_request = self.request_maker.make_area_request(
 			bottom_latitude=bottom_latitude,
 			left_longitude=left_longitude,
@@ -99,36 +109,42 @@ class Application:
 	def set_current_request(self, request: Request) -> None:
 		"""
 		Sets the current request to a new Request and updates the view accordingly.
+
 		:param request:
 		:return:
 		"""
+
 		self.current_request = request
 		self.load_request_onscreen(request)
 
 	def load_request_specific_layers(self, request: Request, layer_mask: List[bool]) -> None:
 		"""
 		Loads specific layers of a request onto the screen.
+
 		:param request: The request to load
 		:param layer_mask: A boolean mask representing which layers to render.
 		:return: None
 		"""
+
 		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask)
 		self.main_screen.set_canvas_image(canvas_image)
-		self.main_screen.information_general.configure(state='normal')
-		self.main_screen.information_general.delete('1.0', END)
+		self.main_screen.information_general.configure(state="normal")
+		self.main_screen.information_general.delete("1.0", END)
 		self.main_screen.information_general.insert(END, "General")
-		self.main_screen.information_general.configure(state='disabled')
+		self.main_screen.information_general.configure(state="disabled")
 
 	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
 	) -> None:
 		"""
-		Export a set of layers from a Request
+		Export a set of layers from a Request.
+
 		:param request: The request to export
 		:param layer_mask: A boolean mask representing which layers to export.
 		:param export_directory: A path to the root of where the layers should be exported to.
 		:return: None
 		"""
+
 		request_exporter = RequestExporter(request_manager=self.request_manager)
 		request_exporter.export_request(
 			request=request, layer_mask=layer_mask, export_directory=export_directory
@@ -137,9 +153,11 @@ class Application:
 	def load_request_onscreen(self, request: Request) -> None:
 		"""
 		Loads a request on screen.
+
 		:param request: The request to load on screen.
 		:return: None
 		"""
+
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
@@ -151,9 +169,11 @@ class Application:
 		"""
 		Adds a made request to the RequestManager of the Application sets the state of the Application
 		accordingly with the made request becoming the current request.
+
 		:param request: The request that was made
 		:return: None
 		"""
+
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
@@ -161,7 +181,9 @@ class Application:
 	def start(self):
 		"""
 		Creates a mainscreen UI element and passes self as application context.
+
 		:return: None
 		"""
+
 		self.main_screen = MainScreen(application=self)
 		self.main_screen.run()

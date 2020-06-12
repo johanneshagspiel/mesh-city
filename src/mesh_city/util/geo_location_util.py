@@ -26,12 +26,14 @@ class GeoLocationUtil:
 		"""
 		Method which calculates the number of meters one pixel at this specific latitude and zoom level
 		represents.
+
 		:param latitude: respective latitude.
 		:param zoom: respective zoom level, accepts a value between 1 and 21. Urban areas have higher
 		zoom levels, whilst Antarctica has a max zoom level of 16.
 		:param image_resolution: the height and width in pixels of the tiles/images.
 		:return: the number of meters one pixel represents in an image.
 		"""
+
 		map_width = math.pow(2, zoom) * image_resolution
 		return GeoLocationUtil.circumference_earth * math.cos(latitude * math.pi / 180) / map_width
 
@@ -39,12 +41,14 @@ class GeoLocationUtil:
 	def calc_next_location_latitude(latitude, longitude, zoom, direction):
 		"""
 		Calculates the latitude of the next adjacent tile.
+
 		:param latitude: The current latitude.
 		:param longitude: The current longitude.
 		:param zoom: The zoom level.
 		:param direction: If true gives the next higher latitude, if false the next lower.
 		:return: The next latitude.
 		"""
+
 		latitude, longitude = GeoLocationUtil.normalise_coordinates(latitude, longitude, zoom)
 		x_cor_tile, y_cor_tile = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
@@ -53,8 +57,12 @@ class GeoLocationUtil:
 			new_y_cor = y_cor_tile + 1.01
 		# offset values by slightly more than 1, such that there is no rounding error ambiguity
 		# about which tile the next coordinates belong to. Boundary values cause problems.
-		if x_cor_tile < 0 or new_y_cor < 0 or x_cor_tile > 2.0**(zoom -
-			1) or new_y_cor > 2.0**(zoom - 1):
+		if (
+			x_cor_tile < 0 or
+			new_y_cor < 0 or
+			x_cor_tile > 2.0**(zoom - 1) or
+			new_y_cor > 2.0**(zoom - 1)
+		):  # yapf: disable
 			raise ValueError(
 				"The x and y input cannot exceed the boundaries of the world tile grid"
 			)
@@ -68,12 +76,14 @@ class GeoLocationUtil:
 	def calc_next_location_longitude(latitude, longitude, zoom, direction):
 		"""
 		Calculates the longitude of the next adjacent tile.
+
 		:param latitude: The current latitude.
 		:param longitude: The current longitude.
 		:param zoom: The zoom level.
 		:param direction: If true gives the next higher longitude, if false the next lower.
 		:return: The next longitude.
 		"""
+
 		latitude, longitude = GeoLocationUtil.normalise_coordinates(latitude, longitude, zoom)
 		x_cor_tile, y_cor_tile = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
 		if direction:
@@ -98,6 +108,7 @@ class GeoLocationUtil:
 		"""
 		Based on a geographical coordinate it returns the number coordinates of the closest tile in
 		the world-grid of a certain zoom level.
+
 		:param latitude: The current latitude.
 		:param longitude: The current longitude.
 		:param zoom: The zoom level.
@@ -106,6 +117,7 @@ class GeoLocationUtil:
 		y_tile + 1 to get the other corners. With x_tile + 0.5 & y_tile + 0.5 it will return the
 		center of the tile.
 		"""
+
 		if latitude < -85 or longitude < -180 or latitude > 85 or longitude > 180:
 			raise ValueError(
 				"The latitude, longitude input cannot exceed the boundaries of the map"
@@ -126,7 +138,8 @@ class GeoLocationUtil:
 		Based on the x and y coordinates of a certain tile in the world grid of a certain zoom level
 		it returns the geographical coordinates of that point. The world grid start in the top left
 		corner with coordinates (0, 0) and end in the bottom right corner with (2^zoom − 1,
-		2^zoom − 1)
+		2^zoom − 1).
+
 		:param x_cor_tile: The point's x coordinate on the world tile grid.
 		:param y_cor_tile: The point's y coordinate on the world tile grid.
 		:param zoom: The zoom level.
@@ -135,6 +148,7 @@ class GeoLocationUtil:
 		With x_tile + 0.5 & y_tile + 0.5 it will return the center of the tile.
 		:return: the geographical coordinates of the input point.
 		"""
+
 		if get_centre:
 			x_cor_tile += 0.5
 			y_cor_tile += 0.5
@@ -153,12 +167,14 @@ class GeoLocationUtil:
 		"""
 		Method that normalises any geographical coordinates input to the most nearby geographical
 		coordinates of a point on the world tile grid of that zoom level.
+
 		:param latitude: The current latitude.
 		:param longitude: The current longitude.
 		:param zoom: The zoom level.
 		:return: x and y coordinates of the nearest tile in the world grid of the specified zoom
 		level.
 		"""
+
 		if latitude < -85 or longitude < -180 or latitude > 85 or longitude > 180:
 			raise ValueError(
 				"The latitude, longitude input cannot exceed the boundaries of the map"
@@ -172,10 +188,12 @@ class GeoLocationUtil:
 		"""
 		Helper method to normalise any two coordinate input into a box defined by its top left
 		coordinate and bottom right coordinate.
+
 		:param first_coordinate:
 		:param second_coordinate:
 		:return: a tuple with the two normalised coordinates
 		"""
+
 		if first_coordinate[0] < second_coordinate[0]:
 			bottom_lat = first_coordinate[0]
 			top_lat = second_coordinate[0]
@@ -202,10 +220,12 @@ class GeoLocationUtil:
 		"""
 		Helper method to normalise any two coordinate input into a box defined by its bottom left
 		coordinate and top right coordinate.
+
 		:param first_coordinate:
 		:param second_coordinate:
 		:return: a tuple with the two normalised coordinates
 		"""
+
 		(top_lat, left_long), (bottom_lat,
 			right_long) = GeoLocationUtil.get_top_left_bottom_right_coordinates(
 			first_coordinate, second_coordinate
@@ -218,10 +238,12 @@ class GeoLocationUtil:
 		Transforms standard longitude and latitude coordinates from the WGS 84 (EPSG 4326) to
 		Easting and Northing values in the Web Mercator projection (EPSG 3857). Sample input/output:
 		(51.50809, -0.1285907) -> (-14314.651244750548, 6711665.883938471).
+
 		:param latitude: The current latitude.
 		:param longitude: The current longitude.
 		:return: meters east of 0, meters north of 0
 		"""
+
 		transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
 		m_east_of_0, m_north_of_0 = transformer.transform(latitude, longitude)
 		return m_east_of_0, m_north_of_0
@@ -231,6 +253,7 @@ class GeoLocationUtil:
 		"""
 		Given the input in geographical coordinates, calculates number of map units per pixel for
 		the Web Mercator projection (EPSG 3857).
+
 		:param latitude: the centre latitude of the tile
 		:param longitude: the centre longitude of the tile
 		:param image_width: image width
@@ -238,6 +261,7 @@ class GeoLocationUtil:
 		:param zoom: the zoom level
 		:return: a tuple with number of map units per pixel in x direction and y direction
 		"""
+
 		x_cor_grid, y_cor_grid = GeoLocationUtil.degree_to_tile_value(latitude, longitude, zoom)
 		return GeoLocationUtil.calc_map_units_per_px_grid(
 			x_cor_grid, y_cor_grid, image_width, image_height, zoom
@@ -248,6 +272,7 @@ class GeoLocationUtil:
 		"""
 		Given the input in grid coordinates, calculates number of map units per pixel for
 		the Web Mercator projection (EPSG 3857).
+
 		:param x_cor_grid: the x coordinate of the tile in the world grid
 		:param y_cor_grid: the y coordinate of the tile in the world grid
 		:param image_width: image width
@@ -255,6 +280,7 @@ class GeoLocationUtil:
 		:param zoom: the zoom level
 		:return: a tuple with number of map units per pixel in x direction and y direction
 		"""
+
 		nw_x, nw_y = x_cor_grid, y_cor_grid
 		ne_x, ne_y = nw_x + 1, nw_y
 		sw_x, sw_y = nw_x, nw_y + 1

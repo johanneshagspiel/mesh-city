@@ -3,8 +3,9 @@ A module containing the pipeline class which is responsible for moving images to
 detection algorithm in a form and frequency that they require and then moving the results to the
 appropriate classes to create useful information in the form of overlays.
 """
+
 from enum import Enum
-from typing import List
+from typing import List, Sequence
 
 import numpy as np
 import pandas as pd
@@ -36,22 +37,27 @@ class Pipeline:
 	def __init__(self, request_manager: RequestManager, detections_to_run: List[DetectionType]):
 		"""
 		The initialization method.
+
 		:param application: the global application context
 		:param detections_to_run: where to send the images to i.e. to detect trees
 		:param main_screen: the main screen of the application
 		"""
+
 		self.detections_to_run = detections_to_run
 		self.request_manager = request_manager
 
-	def process(self, request: Request) -> List[Layer]:
+	def process(self, request: Request) -> Sequence[Layer]:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
 		returns a list of detection layers corresponding to the detections_to_run variable.
+
 		:param request: The request to process. Must have a GoogleLayer
 		:return:
 		"""
+
 		if not request.has_layer_of_type(GoogleLayer):
 			raise ValueError("The request to process should have imagery to detect features from")
+
 		new_layers = []
 		for feature in self.detections_to_run:
 			if feature == DetectionType.TREES:

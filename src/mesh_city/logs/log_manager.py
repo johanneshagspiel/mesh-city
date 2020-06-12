@@ -22,7 +22,8 @@ class LogManager:
 	def get_request_number(self):
 		"""
 		This method is needed because request manager needs to know the number of the next request
-		to name the folder appropriately
+		to name the folder appropriately.
+
 		:return: the number of the next request
 		"""
 
@@ -64,7 +65,8 @@ class LogManager:
 
 	def write_log(self, log_entry):
 		"""
-		A method to write one log entry entity to the associated correct location
+		A method to write one log entry entity to the associated correct location.
+
 		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
@@ -90,10 +92,12 @@ class LogManager:
 
 	def read_log(self, path, type_document):
 		"""
-		Method to read what is at the path and then build it appropriately
+		Method to read what is at the path and then build it appropriately.
+
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
+
 		with open(path, "r") as json_log:
 			data = json_log.read()
 		logs = json.loads(data)

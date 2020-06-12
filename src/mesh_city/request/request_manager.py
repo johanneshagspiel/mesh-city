@@ -1,6 +1,7 @@
 """
 See :class:`.RequestManager`
 """
+
 import json
 import os
 from pathlib import Path
@@ -22,16 +23,20 @@ class RequestManager:
 	def load_data(self) -> None:
 		"""
 		Builds up grid of references to imagery discovered on disk and deserializes stored requests.
+
 		:return: None
 		"""
+
 		self.discover_old_imagery()
 		self.deserialize_requests()
 
 	def discover_old_imagery(self) -> None:
 		"""
 		Checks if the image root already contains downloaded images and loads these into the grid if so.
+
 		:return: None
 		"""
+
 		google_folder = self.__images_root.joinpath("google_maps")
 		if google_folder.exists():
 			file_paths = sorted(google_folder.glob('*.png'))
@@ -46,8 +51,10 @@ class RequestManager:
 	def serialize_requests(self) -> None:
 		"""
 		Serializes the requests to a JSON file.
+
 		:return: None
 		"""
+
 		request_list = []
 		for request in self.requests:
 			request_list.append(
@@ -66,8 +73,10 @@ class RequestManager:
 	def deserialize_requests(self) -> None:
 		"""
 		Deserializes requests from a set JSON file.
+
 		:return: None
 		"""
+
 		if self.__images_root.joinpath("requests.json").exists():
 			with open(self.__images_root.joinpath("requests.json"), "r") as read_file:
 				data = json.load(read_file)
@@ -98,17 +107,21 @@ class RequestManager:
 	def add_request(self, request: Request) -> None:
 		"""
 		Adds a new request to this manager and updates the grid accordingly.
+
 		:param request: The request that is to be added to the manager.
 		:return: None
 		"""
+
 		self.requests.append(request)
 		self.update_grid(request)
 
 	def get_new_request_id(self) -> int:
 		"""
 		Gets a new unused request id.
+
 		:return: An unused request id.
 		"""
+
 		if self.requests:
 			return max(request.request_id for request in self.requests) + 1
 		return 0
@@ -116,9 +129,11 @@ class RequestManager:
 	def get_request_by_id(self, index: int) -> Request:
 		"""
 		Gets a request by id.
+
 		:param index: The id to look for.
 		:return: A Request if one with this id exists, else raises a ValueError
 		"""
+
 		for request in self.requests:
 			if request.request_id is index:
 				return request
@@ -127,6 +142,7 @@ class RequestManager:
 	def get_image_root(self) -> Path:
 		"""
 		Returns the root of the filesystem this request manager maintains and reads from.
+
 		:return: The root
 		"""
 		return self.__images_root
@@ -135,9 +151,11 @@ class RequestManager:
 		"""
 		Updates a grid by adding any tiles from the GoogleLayer of a Request that are not in the grid
 		yet.
+
 		:param request: The request to extract tiles from.
 		:return: None
 		"""
+
 		if request.has_layer_of_type(GoogleLayer):
 			google_layer = request.get_layer_of_type(GoogleLayer)
 			for tile in google_layer.tiles:
@@ -147,6 +165,7 @@ class RequestManager:
 	def is_in_grid(self, x_coord: int, y_coord: int) -> bool:
 		"""
 		Checks if a tile with these coordinates exists in the grid.
+
 		:param x_coord: The x coordinate
 		:param y_coord: The y coordinate
 		:return: True if such a tile exists, False otherwise.
@@ -156,11 +175,13 @@ class RequestManager:
 	def add_tile_to_grid(self, x_coord: int, y_coord: int, tile: Tile) -> None:
 		"""
 		Adds a tile to the grid and updates the internal grid dictionary accordingly.
+
 		:param x_coord: The x coordinate
 		:param y_coord: The y coordinate
 		:param tile: The Tile object to add.
 		:return: None
 		"""
+
 		if not x_coord in self.__grid:
 			self.__grid[x_coord] = {}
 		self.__grid[x_coord][y_coord] = tile
@@ -168,10 +189,12 @@ class RequestManager:
 	def get_tile_from_grid(self, x_coord: int, y_coord: int) -> Tile:
 		"""
 		Gets a Tile from the grid if it exists at these coordinates
+
 		:param x_coord: The x coordinate
 		:param y_coord: The y coordinate
 		:return: A tile if it is found, a ValueError otherwise.
 		"""
+
 		if not self.is_in_grid(x_coord=x_coord, y_coord=y_coord):
 			raise ValueError("There is no tile in the grid with these coordinates")
 		return self.__grid[x_coord][y_coord]

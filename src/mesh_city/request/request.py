@@ -1,6 +1,9 @@
 """
 See :class:`.Request`
 """
+
+from typing import Any
+
 from mesh_city.request.layer import Layer
 
 
@@ -14,14 +17,12 @@ class Request:
 		self.width = width
 		self.height = height
 		self.zoom = zoom
-		if layers is None:
-			self.layers = []
-		else:
-			self.layers = layers
+		self.layers = [] if layers is None else layers
 
 	def add_layer(self, layer: Layer) -> None:
 		"""
-		Adds a layer to this request
+		Adds a layer to this request.
+
 		:param layer: the layer that is to be added
 		:return: None
 		"""
@@ -30,6 +31,7 @@ class Request:
 	def has_layer_of_type(self, layer_type: type) -> bool:
 		"""
 		Returns whether this request has a layer of the given type or not.
+
 		:param layer_type: The type of layer to check for
 		:return: None
 		"""
@@ -38,11 +40,13 @@ class Request:
 				return True
 		return False
 
-	def get_layer_of_type(self, layer_type: type) -> Layer:
+	def get_layer_of_type(self, layer_type: type) -> Any:
 		"""
 		Tries to get a layer of the specified type.
+
 		:param layer_type: The type of layer to get an instance of
-		:return: An instance of this layer type if the class has one, else errors.
+		:return: An instance of this layer type if the class has one, else errors. Typed as Any
+		         because of type system limitations.
 		"""
 		for layer in self.layers:
 			if isinstance(layer, layer_type):
