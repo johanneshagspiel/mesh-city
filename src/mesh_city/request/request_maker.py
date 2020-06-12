@@ -159,8 +159,8 @@ class RequestMaker:
 		:param latitude: The latitude value the 3x3 section is centred at
 		:param longitude: The longitude value the 3x3 section is centred at
 		:param zoom: The zoom value
-		:return: A list of tuples defining grid-coordinates defining the 3x3 section together with the width and height of the section,
-		so always 3, 3.
+		:return: A list of tuples defining grid-coordinates defining the 3x3 section together with
+		the width and height of the section, so always 3, 3.
 		"""
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
@@ -168,8 +168,9 @@ class RequestMaker:
 
 	def make_location_request(self, latitude: float, longitude: float, zoom: Any = None) -> Request:
 		"""
-		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider by first
-		calculating a 3x3 section of tiles around a given point defined by a latitude and longitude.
+		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider
+		by first calculating a 3x3 section of tiles around a given point defined by a latitude and
+		longitude.
 		:param latitude: The latitude value the 3x3 section is centred at
 		:param longitude: The longitude value the 3x3 section is centred at
 		:param zoom: The zoom level, can be None
@@ -188,13 +189,15 @@ class RequestMaker:
 		zoom: Any = None
 	) -> Tuple[List[Tuple[int, int]], int, int]:
 		"""
-		Calculates the grid coordinates corresponding to a rectangle defined by two latitude, longitude pairs.
+		Calculates the grid coordinates corresponding to a rectangle defined by two latitude,
+		longitude pairs.
 		:param bottom_latitude: The bottom-most latitude value
 		:param left_longitude: The leftmost longitude value
 		:param top_latitude: The top-most latitude value
 		:param right_longitude: The rightmost longitude value
 		:param zoom: The zoom value
-		:return: A list of grid-coordinate tuples together with the width and height of the tile grid these coordinates make up.
+		:return: A list of grid-coordinate tuples together with the width and height of the tile grid
+		these coordinates make up.
 		"""
 		zoom = self.check_zoom(zoom)
 		(bottom_latitude, left_longitude), (top_latitude,
