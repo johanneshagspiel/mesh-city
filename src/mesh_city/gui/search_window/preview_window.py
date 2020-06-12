@@ -3,6 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, END, Label, Toplevel, Entry
 
+from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
 
@@ -26,6 +27,7 @@ class PreviewWindow:
 		self.master = master
 		self.coordinates = coordinates
 		self.application = application
+		self.user_entity = self.application.user_entity
 		top = self.top = Toplevel(master)
 
 		self.top.config(padx=4)
@@ -65,6 +67,9 @@ class PreviewWindow:
 		self.additional_provider_button.grid(row=self.count, columnspan=2)
 
 	def add_another_provider(self):
+
+		self.addition_provider_gui_list = []
+
 		self.provider_number += 1
 		self.count += 1
 
@@ -72,30 +77,30 @@ class PreviewWindow:
 		self.provider_number += 1
 		self.temp_name_label = Label(self.top, text=temp_name)
 		self.temp_name_label.grid(row=self.count, column=0)
-		self.temp_list.append(self.temp_name_label)
+		self.addition_provider_gui_list.append(self.temp_name_label)
 		self.count += 1
 
 		self.api_key = Label(self.top, text="API Key")
 		self.api_key.grid(row=self.count, column=0)
-		self.temp_list.append(self.api_key)
+		self.addition_provider_gui_list.append(self.api_key)
 
 		self.api_key_entry = Entry(self.top)
 		self.api_key_entry.grid(row=self.count, column=1, columnspan=2)
-		self.temp_list.append(self.api_key_entry)
+		self.addition_provider_gui_list.append(self.api_key_entry)
 		self.count += 1
 
 		self.quota = Label(self.top, text="Monthly Quota")
 		self.quota.grid(row=self.count, column=0)
-		self.temp_list.append(self.quota)
+		self.addition_provider_gui_list.append(self.quota)
 
 		self.quota_entry = Entry(self.top)
 		self.quota_entry.grid(row=self.count, column=1, columnspan=2)
-		self.temp_list.append(self.quota_entry)
+		self.addition_provider_gui_list.append(self.quota_entry)
 		self.count += 1
 
-		self.confirm_button = Button(self.top, text="Confirm", command=None)
+		self.confirm_button = Button(self.top, text="Confirm", command=self.confirm_additional_provider)
 		self.confirm_button.grid(row=self.count, column=1)
-		self.temp_list.append(self.confirm_button)
+		self.addition_provider_gui_list.append(self.confirm_button)
 
 		self.additional_provider_button.grid_forget()
 
@@ -127,7 +132,6 @@ class PreviewWindow:
 			image_provider_entity.quota,
 			image_provider_entity.usage["total"])
 
-		print(self.number_requests)
 		if temp_cost[0] != -1:
 			self.list_providers.append((image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2]))
 			self.confirm_download()
@@ -170,6 +174,26 @@ class PreviewWindow:
 			bg="white")
 		self.temp_list.append(self.additional_provider_button)
 		self.additional_provider_button.grid(row=self.count, column=0, columnspan=2)
+
+	def confirm_additional_provider(self):
+
+		temp_api_key = self.api_key_entry.get()
+		temp_quota = self.quota_entry.get()
+		temp_name = self.temp_name_label.cget("text")
+
+		temp_image_provider = ImageProviderEntity(
+			file_handler=self.application.file_handler,
+			type_map_provider="Google Maps",
+			api_key=temp_api_key,
+			quota=temp_quota
+		)
+
+		self.user_entity.image_providers[temp_name] = temp_image_provider
+		self.application.log_manager.write_log(self.user_entity)
+
+		PreviewWindow(self.master, self.application, self.main_screen, self.coordinates)
+		self.top.destroy()
+
 
 	def confirm_download(self):
 		self.top_label.configure(text="Are you sure you want to proceed?")

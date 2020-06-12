@@ -40,19 +40,8 @@ class SearchWindowLocation:
 		self.long_entry = Entry(top, width=20)
 		self.long_entry.grid(row=2, column=3)
 
-		self.address_info_1 = Label(self.top, text="Please enter the address in this form:")
-		self.address_info_1.grid(row=3, column=4)
-		self.address_info_2 = Label(
-			self.top, text="{house number} {street} {postcode} {city} {country}"
-		)
-		self.address_info_2.grid(row=4, column=4)
-
 		self.search_button = Button(top, text="Search", command=self.cleanup, bg="white")
 		self.search_button.grid(row=3, column=3)
-		self.type_button = Button(
-			top, text="Address", command=lambda: self.change_search_type(True), bg="white"
-		)
-		self.type_button.grid(row=1, column=4)
 
 	def change_search_type(self, first_time):
 		"""
