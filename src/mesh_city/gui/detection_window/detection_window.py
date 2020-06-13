@@ -4,6 +4,7 @@ A module containing the detection screen
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
 from mesh_city.detection.pipeline import DetectionType
+from mesh_city.request.buildings_layer import BuildingsLayer
 from mesh_city.request.trees_layer import TreesLayer
 
 
@@ -21,6 +22,8 @@ class DetectionWindow:
 		"""
 		if detection_type == DetectionType.TREES:
 			return "Trees"
+		if detection_type == DetectionType.BUILDINGS:
+			return "Buildings"
 		raise ValueError("No known text exists for this DetectionType")
 
 	def text_to_detection_type(self, text: str) -> DetectionType:
@@ -31,6 +34,8 @@ class DetectionWindow:
 		"""
 		if text == "Trees":
 			return DetectionType.TREES
+		if text == "Buildings":
+			return DetectionType.BUILDINGS
 		raise ValueError("No known DetectionType exists for this text")
 
 	def __init__(self, master, application):
@@ -51,7 +56,8 @@ class DetectionWindow:
 		to_detect = []
 		if not self.application.current_request.has_layer_of_type(TreesLayer):
 			to_detect.append(DetectionType.TREES)
-
+		if not self.application.current_request.has_layer_of_type(BuildingsLayer):
+			to_detect.append(DetectionType.BUILDINGS)
 		if len(to_detect) == 0:
 			self.top_label["text"] = "You have already detected everything"
 		else:

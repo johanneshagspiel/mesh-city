@@ -2,10 +2,12 @@
 See :class:`.RequestRenderer`
 """
 import csv
+import geopandas as gpd
 from typing import List
 
 from PIL import Image, ImageDraw
 
+from mesh_city.request.buildings_layer import BuildingsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.trees_layer import TreesLayer
@@ -70,11 +72,24 @@ class RequestRenderer:
 			tiles = layer.tiles
 			images = []
 			for tile in tiles:
-				images.append(Image.open(tile.path))
+				images.append(Image.open(tile.path).convert("RGBA"))
 			concat_image = ImageUtil.concat_image_grid(
 				width=request.num_of_horizontal_images,
 				height=request.num_of_vertical_images,
 				images=images
 			).convert("RGBA")
 			return concat_image
+
+		if isinstance(layer, BuildingsLayer):
+
+			building_dataframe = gpd.read_file(layer.detections_path)
+			building_overlay = Image.new(
+				'RGBA',
+				(request.num_of_horizontal_images * 1024, request.num_of_vertical_images * 1024),
+				(255, 255, 255, 0)
+			)
+			draw = ImageDraw.Draw(building_overlay)
+			for polygon in building_dataframe["geometry"]:
+				draw.polygon(xy=list(zip(*polygon.exterior.coords.xy)),outline="red")
+			return building_overlay
 		raise ValueError("The overlay could not be created")

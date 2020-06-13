@@ -69,8 +69,7 @@ class BuildingDetector:
 			0,
 			255
 		))
-		rgb_result = cv2.cvtColor(clipped_result, cv2.COLOR_GRAY2BGR)
-		denoised_result =  cv2.cvtColor(cv2.fastNlMeansDenoisingColored(rgb_result, None, 10, 10, 7, 21), cv2.COLOR_BGR2GRAY)
+		denoised_result =  cv2.fastNlMeansDenoising(clipped_result, None, 11, 11, 7)
 		vec_thres = np.vectorize(BuildingDetector.threshold)
 		# Creates a binary classification numpy matrix by applying vectorized threshold function
 		filtered_result = vec_thres(denoised_result)

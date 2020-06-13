@@ -100,8 +100,7 @@ class ImageUtil:
 		:param image_2: The right image.
 		:return: The combined image.
 		"""
-		image_mode = "RGBA" if image_1.mode == "RGBA" or image_2.mode == "RGBA" else "RGB"
-		temp = Image.new(image_mode, (image_1.width + image_2.width, image_1.height))
+		temp = Image.new(image_1.mode, (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
@@ -115,8 +114,7 @@ class ImageUtil:
 		:param image_2: The bottom image.
 		:return: Nothing.
 		"""
-		image_mode =  "RGBA" if image_1.mode == "RGBA" or image_2.mode == "RGBA" else "RGB"
-		temp = Image.new(image_mode, (image_1.width, image_1.height + image_2.height))
+		temp = Image.new(image_1.mode, (image_1.width, image_1.height + image_2.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
