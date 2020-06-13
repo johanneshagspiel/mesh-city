@@ -7,7 +7,7 @@ appropriate classes to create useful information in the form of overlays.
 from enum import Enum
 from typing import List, Sequence
 
-import geopandas
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -15,12 +15,14 @@ from PIL import Image
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
+from mesh_city.request.buildings_layer import BuildingsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.layer import Layer
 from mesh_city.request.request import Request
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.trees_layer import TreesLayer
 from mesh_city.util.file_handler import FileHandler
+from mesh_city.util.image_util import ImageUtil
 
 
 class DetectionType(Enum):
@@ -108,32 +110,31 @@ class Pipeline:
 				).joinpath("buildings")
 				building_detections_path.mkdir(parents=True, exist_ok=True)
 				detection_file_path = building_detections_path.joinpath(
-					"detections_" + str(request.request_id) + ".csv"
+					"detections_" + str(request.request_id) + ".geojson"
 				)
-
+				mask_images = []
 				for tile in tiles:
 					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
 					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-					image = Image.open(tile.path).convert("RGB").resize((512,512))
+					image = Image.open(tile.path).convert("RGB").resize((512, 512))
 					np_image = np.array(image)
-					raster_detections = building_detector.detect(image=np_image)
-					r2v = RasterVectorConverter()
-					polygons = r2v.mask_to_vector(image=raster_detections)
-					gpd.GeoDataFrame(geometry=gpd.GeoSeries(env))
-					# result = pd.DataFrame(columns = ["xmin","ymin","xmax","ymax","score","label"])
-					# result["xmin"] += x_offset
-					# result["ymin"] += y_offset
-					# result["xmax"] += x_offset
-					# result["ymax"] += y_offset
-					# frames.append(result)
-				# concat_result = pd.concat(frames).reset_index(drop=True)
-				# concat_result.to_csv(detection_file_path)
-				# new_layers.append(
-				# 	TreesLayer(
-				# 	width=request.num_of_horizontal_images,
-				# 	height=request.num_of_vertical_images,
-				# 	detections_path=detection_file_path
-				# 	)
-				# )
-
+					mask_images.append(
+						ImageUtil.greyscale_matrix_to_image(building_detector.detect(image=np_image))
+					)
+				# note: not sure how this will perform for large scale analysis!
+				result_mask = ImageUtil.concat_image_grid(
+					request.num_of_horizontal_images, request.num_of_vertical_images, mask_images
+				)
+				np_result = np.asarray(result_mask)
+				r2v = RasterVectorConverter()
+				polygons = r2v.mask_to_vector(image=np_result)
+				dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
+				dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
+				new_layers.append(
+					BuildingsLayer(
+					width=request.num_of_horizontal_images,
+					height=request.num_of_vertical_images,
+					detections_path=detection_file_path
+					)
+				)
 		return new_layers

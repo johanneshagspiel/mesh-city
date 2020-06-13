@@ -15,17 +15,24 @@ class TestRasterVectorConverter(TestCase):
 
 	def setUp(self):
 		self.rvc = RasterVectorConverter()
-		self.resource_path = Path("src/test_mesh_city/resource_images")
+
+		self.resource_path = Path(__file__).parents[1].joinpath("resource_images")
 
 	def test_convert_building_detections_rectangle(self):
-		reference_polygons = [
-			Polygon([(89.0, 162.0), (89.0, 324.0), (428.0, 324.0), (428.0, 162.0),
-			         (89.0, 162.0)])]
+		reference_polygon = Polygon(
+			[(89.0, 162.0), (89.0, 324.0), (428.0, 324.0), (428.0, 162.0), (89.0, 162.0)]
+		)
 		image = np.asarray(
-			Image.open(self.resource_path.joinpath("building_mask_rectangle.png")).convert("L"))
+			Image.open(self.resource_path.joinpath("building_mask_rectangle.png")).convert("L")
+		)
 		polygons = self.rvc.mask_to_vector(image)
-
-		self.assertEqual(polygons, reference_polygons)
+		self.assertEqual(len(polygons), 1)
+		# testing coordinate lists for equality is not easy...
+		np.testing.assert_array_almost_equal(
+			list(zip(*polygons[0].exterior.coords.xy)),
+			list(zip(*reference_polygon.exterior.coords.xy)),
+			decimal=1
+		)
 
 	def test_vector_to_bounding_boxes_already_box(self):
 		polygons = [Polygon([
