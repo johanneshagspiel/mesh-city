@@ -27,9 +27,11 @@ class TestImageUtil(unittest.TestCase):
 			self.matrix_to_image([[[255, 255, 255], [0, 0, 255]]]),
 			self.matrix_to_image([[[255, 255, 255], [0, 0, 0]]])
 		]
+		filenames = []
 		for index in range(1, 10):
 			test_images[index -
 				1].save(str(Path(__file__).parents[0]) + "/" + str(index) + "_test.png")
+			filenames.append(str(Path(__file__).parents[0]) + "/" + str(index) + "_test.png")
 
 		target_array = np.array(
 			[
@@ -45,18 +47,13 @@ class TestImageUtil(unittest.TestCase):
 			]
 		)
 
-		img_util.concat_images(
-			new_folder_path=Path(__file__).parents[0], request=0, tile_number="0_0"
-		)
-		result_path = str(Path(__file__).parents[0].joinpath("concat_image_request_0_tile_0_0.png"))
-		result_image = np.asarray(Image.open(result_path))
+		result_image = np.asarray(img_util.concat_images_tile(filenames))
 		self.assertEqual(result_image.shape, target_array.shape)
 		self.assertEqual(result_image.all(), target_array.all())
 
 		for index in range(1, 10):
 			test_images[index - 1].close()
 			os.remove(str(Path(__file__).parents[0]) + "/" + str(index) + "_test.png")
-		os.remove(result_path)
 
 	@staticmethod
 	def matrix_to_image(matrix):

@@ -5,9 +5,10 @@ A top-down provider which can gather information regarding the heights of object
 import json
 import operator
 from pathlib import Path
+from typing import Optional
 
-import requests
 from PIL import Image
+from requests import get, Response
 from scipy import spatial
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
@@ -19,12 +20,14 @@ class AhnProvider(TopDownProvider):
 	A class which implements the TopDownProvider abstract class. Provides functionality with regards
 	to requests about height information of objects in the Netherlands.
 	"""
-	temp_path = Path(__file__).parents[2]
-	json_folder_path = Path.joinpath(temp_path, 'resources', 'ahn', 'height_to_color.json')
 
-	def __init__(self, image_provider_entity):
+	temp_path = Path(__file__).parents[2]
+	json_folder_path = Path.joinpath(temp_path, "resources", "ahn", "height_to_color.json")
+
+	def __init__(self, image_provider_entity) -> None:
 		"""
-		The initialization method
+		The initialization method.
+
 		:param image_provider_entity: the user_info class associated with this image provider
 		"""
 		super().__init__(image_provider_entity=image_provider_entity)
@@ -37,6 +40,7 @@ class AhnProvider(TopDownProvider):
 	def load_from_json(self):
 		"""
 		Loads the height associated to a color from a json file.
+
 		:return: a dictionary of the type_of_detection color : height
 		"""
 
@@ -77,9 +81,11 @@ class AhnProvider(TopDownProvider):
 
 	def store_to_json(self):
 		"""
-		Stores a new color : height entry in the dictionary and saves that as a json file
+		Stores a new color-height entry in the dictionary and saves that as a json file.
+
 		:return: nothing
 		"""
+
 		temp = self.color_to_height
 
 		to_store = {}
@@ -89,13 +95,23 @@ class AhnProvider(TopDownProvider):
 		with open(self.json_folder_path, "w") as json_log:
 			json.dump(to_store, fp=json_log)
 
-	def get_and_store_location(self, longitude, latitude, name, new_folder_path):
+	def get_and_store_location(
+		self,
+		latitude: float,
+		longitude: float,
+		zoom: int,
+		filename: str,
+		new_folder_path: Path,
+		width: int = 640,
+		height: int = 640,
+		response: Optional[Response] = None,
+	) -> Path:
 		"""
 		The standard method to get and store one image at a certain location with a certain name.
-		Ahn uses
+
 		:param longitude: the longitude of the location of interest in the EPSG:4326 coordinate system
 		:param latitude: the latitude of the location of interest in the EPSG:4326 coordinate system
-		:param name: the name to store the file under under
+		:param filename: the name to store the file under under
 		:param new_folder_path: the path where to store the file
 		"""
 
@@ -105,24 +121,24 @@ class AhnProvider(TopDownProvider):
 		ymin = str(bounding_box_coordinates[1])
 		xmax = str(bounding_box_coordinates[2])
 		ymax = str(bounding_box_coordinates[3])
-		width = str(640)
-		height = str(640)
 
-		response = requests.get(
+		response = get(
 			"https://geodata.nationaalgeoregister.nl/ahn3/wms?request=GetMap&service=wms&CRS=EPSG:4326&bbox=%s,%s,%s,%s&width=%s&height=%s&layers=ahn3_05m_dsm&styles=ahn3:ahn3_05m_detail&format=image/png&version=1.30"
 			% (xmin, ymin, xmax, ymax, width, height)
 		)
 
-		filename = name
-		to_store = Path.joinpath(new_folder_path, filename)
+		to_store = new_folder_path.joinpath(filename)
 
 		with open(to_store, "wb") as output:
 			output.write(response.content)
 
+		return to_store
+
 	def calculate_bounding_box(self, latitude, longitude, zoom):
 		"""
 		Ahn provider does not ask for the central coordinates to get an image but for the bounding
-		box encompassing the area
+		box encompassing the area.
+
 		:param latitude: latitude of the central location one is interested in getting the image from
 		:param longitude: longitude of the central location one is interested in getting the image from
 		:param zoom: the zoom level of the image one is interested in
@@ -144,10 +160,12 @@ class AhnProvider(TopDownProvider):
 
 	def check_in_netherlands(self, coordinates):
 		"""
-		Checks for a list of tuples of coordinates whether or not these location fall within the netherlands
+		Checks for a list of tuples of coordinates whether or not these location fall within The Netherlands.
+
 		:param coordinates: a list of tuples of coordinates of the from [(latitude_0,longitude_0),..]
 		:return:
 		"""
+
 		for entry in coordinates:
 			if (
 				entry[0] < 50.671799068129744 or
@@ -160,7 +178,8 @@ class AhnProvider(TopDownProvider):
 
 	def get_height_from_pixel(self, x_location, y_location):
 		"""
-		Gets the height from an image at the x and y location of the mouse click
+		Gets the height from an image at the x and y location of the mouse click.
+
 		:param x_location: the x location of the pixel
 		:param y_location: the y location of the pixel
 		:return: the height associated with this pixel
@@ -184,8 +203,8 @@ class AhnProvider(TopDownProvider):
 			return self.color_to_height[pixels]
 
 		temp_keys = self.color_to_height.keys()
-		get_cosine_cimilarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
-		temp_cosine_list = [get_cosine_cimilarity(x, pixels) for x in temp_keys]
+		get_cosine_similarity = lambda x, y: 1 - spatial.distance.cosine(x, y)
+		temp_cosine_list = [get_cosine_similarity(x, pixels) for x in temp_keys]
 
 		index, value = max(enumerate(temp_cosine_list), key=operator.itemgetter(1))
 
