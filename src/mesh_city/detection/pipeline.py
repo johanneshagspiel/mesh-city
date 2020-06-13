@@ -4,17 +4,32 @@ detection algorithm in a form and frequency that they require and then moving th
 appropriate classes to create useful information in the form of overlays.
 """
 
-import os
+from enum import Enum
+from typing import List, Sequence
 
+import geopandas
+import numpy as np
+import pandas as pd
 from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
-from mesh_city.detection.meta_data_creator import MetaDataCreator
-from mesh_city.detection.overlay_creator import OverlayCreator
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
-from mesh_city.imagery_provider.request_creator import RequestCreator
-from mesh_city.util.image_util import ImageUtil
+from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.layer import Layer
+from mesh_city.request.request import Request
+from mesh_city.request.request_manager import RequestManager
+from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.util.file_handler import FileHandler
+
+
+class DetectionType(Enum):
+	"""
+	An enum defining the types of features that can be detected.
+	"""
+	TREES = 0
+	BUILDINGS = 1
+	CARS = 2
 
 
 class Pipeline:
@@ -23,172 +38,102 @@ class Pipeline:
 	routing the results to the appropriate classes to create useful information.
 	"""
 
-	def __init__(self, application, main_screen, type_of_detection, building_instructions):
+	def __init__(
+		self,
+		file_handler: FileHandler,
+		request_manager: RequestManager,
+		detections_to_run: List[DetectionType]
+	):
 		"""
 		The initialization method.
+
 		:param application: the global application context
-		:param type_of_detection: where to send the images to i.e. to detect trees
+		:param detections_to_run: where to send the images to i.e. to detect trees
 		:param main_screen: the main screen of the application
 		"""
+		self.file_handler = file_handler
+		self.detections_to_run = detections_to_run
+		self.request_manager = request_manager
 
-		self.application = application
-		self.main_screen = main_screen
-		self.type_of_detection = type_of_detection
-		self.building_instructions = building_instructions
-
-		self.image_util = ImageUtil()
-		self.request_creator = RequestCreator(self.application)
-		self.temp_path = None
-		self.building_detector = None
-
-	# pylint: disable=E1101
-	def push_forward(self) -> None:
+	def process(self, request: Request) -> Sequence[Layer]:
 		"""
-		Moving the images to the appropriate detection algorithm in the required format
-		:return: nothing
+		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
+		returns a list of detection layers corresponding to the detections_to_run variable.
+
+		:param request: The request to process. Must have a GoogleLayer
+		:return:
 		"""
 
-		for element in self.type_of_detection:
-			if element == "Trees":
+		if not request.has_layer_of_type(GoogleLayer):
+			raise ValueError("The request to process should have imagery to detect features from")
+
+		new_layers = []
+		for feature in self.detections_to_run:
+			if feature == DetectionType.TREES:
+				tiles = request.get_layer_of_type(GoogleLayer).tiles
 				deep_forest = DeepForest()
-
-				self.temp_path = self.application.file_handler.folder_overview["active_request_path"
-																				].joinpath("trees")
-				os.makedirs(self.temp_path)
-
-				req_raw_data_path = self.temp_path.joinpath("raw_data")
-				os.makedirs(req_raw_data_path)
-				self.application.file_handler.change("active_raw_data_path", req_raw_data_path)
-
-				for tile_number in range(
-					1, len(self.building_instructions.instructions["Google Maps"]["Paths"])
-				):
-					combined_image = self.image_util.concat_images_tile(
-						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
-						[tile_number]
+				tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
+				tree_detections_path.mkdir(parents=True, exist_ok=True)
+				detection_file_path = tree_detections_path.joinpath(
+					"detections_" + str(request.request_id) + ".csv"
+				)
+				frames = []
+				for tile in tiles:
+					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
+					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
+					image = Image.open(tile.path).convert("RGB")
+					np_image = np.array(image)
+					result = deep_forest.detect(np_image)
+					result["xmin"] += x_offset
+					result["ymin"] += y_offset
+					result["xmax"] += x_offset
+					result["ymax"] += y_offset
+					frames.append(result)
+				concat_result = pd.concat(frames).reset_index(drop=True)
+				concat_result.to_csv(detection_file_path)
+				new_layers.append(
+					TreesLayer(
+					width=request.num_of_horizontal_images,
+					height=request.num_of_vertical_images,
+					detections_path=detection_file_path
 					)
-					combined_image_path = self.application.file_handler.folder_overview[
-						"temp_detection_path"].joinpath("temp_image.png")
-					combined_image.resize((600, 600),
-						Image.ANTIALIAS).save(fp=combined_image_path, format="png")
-					result = deep_forest.detect(image_path=combined_image_path)
+				)
+			if feature == DetectionType.BUILDINGS:
+				tiles = request.get_layer_of_type(GoogleLayer).tiles
+				building_detector = BuildingDetector(
+					nn_weights_path=self.file_handler.folder_overview["resource_path"].
+					joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
+				)
+				building_detections_path = self.request_manager.get_image_root(
+				).joinpath("buildings")
+				building_detections_path.mkdir(parents=True, exist_ok=True)
+				detection_file_path = building_detections_path.joinpath(
+					"detections_" + str(request.request_id) + ".csv"
+				)
 
-					raw_data_csv_filename = "raw_data_tile_" + str(tile_number) + ".csv"
-					raw_data_csv_path = self.application.file_handler.folder_overview[
-						"active_raw_data_path"].joinpath(raw_data_csv_filename)
-
-					with open(raw_data_csv_path, "w") as to_store:
-						result.to_csv(to_store)
-
-				# TODO all the request creator methods for making one large image have to change
-				self.push_backward(image_size=(600, 600), detection_type=element)
-
-			elif element == "Buildings":
-				if self.building_detector is None:
-					self.building_detector = BuildingDetector(self.application.file_handler)
-
-				self.temp_path = self.application.file_handler.folder_overview[
-					"active_request_path"].joinpath("buildings")
-				self.temp_path.mkdir()
-
-				req_raw_data_path = self.temp_path.joinpath("raw_data")
-				req_raw_data_path.mkdir()
-				self.application.file_handler.change("active_raw_data_path", req_raw_data_path)
-
-				for tile_number in range(
-					1, len(self.building_instructions.instructions["Google Maps"]["Paths"])
-				):
-					combined_image = self.image_util.concat_images_tile(
-						image_list=self.building_instructions.instructions["Google Maps"]["Paths"]
-						[tile_number]
-					)
-					input_image = combined_image.resize((512, 512), Image.ANTIALIAS)
-
-					result = self.building_detector.detect(image=input_image)
-
-					result_path = self.temp_path.joinpath("raster_mask.png")
-					Image.fromarray(result).save(result_path)
-
+				for tile in tiles:
+					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
+					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
+					image = Image.open(tile.path).convert("RGB").resize((512,512))
+					np_image = np.array(image)
+					raster_detections = building_detector.detect(image=np_image)
 					r2v = RasterVectorConverter()
-					polygons = r2v.mask_to_vector(detection_mask=result_path)
-					bounding_boxes = r2v.vector_to_bounding_boxes(polygons=polygons)
+					polygons = r2v.mask_to_vector(image=raster_detections)
+					gpd.GeoDataFrame(geometry=gpd.GeoSeries(env))
+					# result = pd.DataFrame(columns = ["xmin","ymin","xmax","ymax","score","label"])
+					# result["xmin"] += x_offset
+					# result["ymin"] += y_offset
+					# result["xmax"] += x_offset
+					# result["ymax"] += y_offset
+					# frames.append(result)
+				# concat_result = pd.concat(frames).reset_index(drop=True)
+				# concat_result.to_csv(detection_file_path)
+				# new_layers.append(
+				# 	TreesLayer(
+				# 	width=request.num_of_horizontal_images,
+				# 	height=request.num_of_vertical_images,
+				# 	detections_path=detection_file_path
+				# 	)
+				# )
 
-					raw_data_csv_path = req_raw_data_path.joinpath(
-						"raw_data_tile_%d.csv" % tile_number
-					)
-
-					with open(raw_data_csv_path, "w") as csv_file:
-						csv_file.write("number,xmin,ymin,xmax,ymax,score,label\n")
-						for index, ((y_min, x_min), (y_max, x_max)) in enumerate(bounding_boxes):
-							csv_file.write(
-								"%d,%f,%f,%f,%f,%f,%s\n" %
-								(index, x_min, y_min, x_max, y_max, 1.0, "Building")
-							)
-
-				self.push_backward(image_size=(512, 512), detection_type=element)
-
-	def push_backward(self, image_size: (int, int), detection_type: str) -> None:
-		"""
-		Moving the results from the detection algorithm to the sink classes
-		:param image_size: the image size used by the detection algorithm
-		:return: nothing (but it updates the image on the main_screen with a composite overlay image)
-		"""
-
-		temp_overlay_path = self.temp_path.joinpath("overlay")
-		os.makedirs(temp_overlay_path)
-		self.application.file_handler.change("active_overlay_path", temp_overlay_path)
-
-		temp_map_path = self.temp_path.joinpath("map")
-		os.makedirs(temp_map_path)
-		self.application.file_handler.change("active_map_path", temp_map_path)
-
-		temp_meta_path = self.temp_path.joinpath("meta")
-		os.makedirs(temp_meta_path)
-		self.application.file_handler.change("active_meta_path", temp_meta_path)
-
-		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
-		temp_meta_data_creator = MetaDataCreator(self.application, self.building_instructions)
-
-		counter = 1
-
-		self.building_instructions.instructions[detection_type] = {"Overlay": [0, []]}
-		temp_entry = self.building_instructions.instructions[detection_type]
-		temp_entry["Map"] = [0, []]
-		temp_entry["Meta"] = [0, []]
-		self.building_instructions.instructions[detection_type] = temp_entry
-
-		for file in self.application.file_handler.folder_overview["active_raw_data_path"].glob("*"):
-			if file.is_file():
-				temp_overlay_creator.create_overlay(
-					detection_algorithm=detection_type,
-					image_size=(image_size[0], image_size[1]),
-					number=counter,
-					path=file,
-				)
-				temp_overlay_creator.create_map_overlay(
-					detection_algorithm=detection_type,
-					image_size=(image_size[0], image_size[1]),
-					number=counter,
-					path=file,
-				)
-				temp_meta_data_creator.create_information(
-					detection_algorithm=detection_type,
-					image_size=(image_size[0], image_size[1]),
-					number=counter,
-					path=file,
-				)
-				counter += 1
-
-		temp_len = len(self.building_instructions.instructions[detection_type]["Overlay"][1])
-		temp_len = temp_len / 2
-		if temp_len == 0.5:
-			temp_len = 0
-		self.building_instructions.instructions[detection_type]["Overlay"][0] = temp_len
-		self.building_instructions.instructions[detection_type]["Map"][0] = temp_len
-
-		self.application.log_manager.write_log(self.building_instructions)
-
-		self.request_creator.create_overlay_image(
-			self.building_instructions, self.type_of_detection, (600, 600)
-		)
-		temp_meta_data_creator.combine_information(self.type_of_detection)
+		return new_layers
