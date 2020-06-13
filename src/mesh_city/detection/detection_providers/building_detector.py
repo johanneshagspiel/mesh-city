@@ -1,7 +1,7 @@
 """
 Module containing the code interfacing with the Spacenet neural network for building detection.
 """
-
+import cv2
 import numpy as np
 import torch
 from torch import Tensor
@@ -64,12 +64,14 @@ class BuildingDetector:
 		# 512x512 numpy representation of the neural network output
 		unclipped_result = reshaped_result.detach().cpu().numpy()
 		# clips the output to the range 0-255 to avoid image artifacts
-		clipped_result = np.clip(
+		clipped_result = np.uint8(np.clip(
 			255 * (unclipped_result - np.min(unclipped_result)) / np.ptp(unclipped_result).astype(int),
 			0,
 			255
-		)
+		))
+		rgb_result = cv2.cvtColor(clipped_result, cv2.COLOR_GRAY2BGR)
+		denoised_result =  cv2.cvtColor(cv2.fastNlMeansDenoisingColored(rgb_result, None, 10, 10, 7, 21), cv2.COLOR_BGR2GRAY)
 		vec_thres = np.vectorize(BuildingDetector.threshold)
 		# Creates a binary classification numpy matrix by applying vectorized threshold function
-		filtered_result = vec_thres(clipped_result)
+		filtered_result = vec_thres(denoised_result)
 		return filtered_result
