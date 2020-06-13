@@ -1,0 +1,41 @@
+{
+    "Johannes": {
+        "Google Maps 1": {
+            "type_map_provider": "Google Maps",
+            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
+            "usage": {
+                "static_map": 0,
+                "geocoding": 0,
+                "total": 0
+            },
+            "quota": 200,
+            "date_reset": "2020-05-31"
+        }
+    },
+    "Thomas": {
+        "Google Maps 1": {
+            "type_map_provider": "Google Maps",
+            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
+            "usage": {
+                "static_map": 0,
+                "geocoding": 0,
+                "total": 0
+            },
+            "quota": 200,
+            "date_reset": "2020-06-30"
+        }
+    },
+    "Timaeus": {
+        "Google Maps 1": {
+            "type_map_provider": "Google Maps",
+            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
+            "usage": {
+                "static_map": 0,
+                "geocoding": 0,
+                "total": 0
+            },
+            "quota": 100,
+            "date_reset": "2020-06-30"
+        }
+    }
+}
