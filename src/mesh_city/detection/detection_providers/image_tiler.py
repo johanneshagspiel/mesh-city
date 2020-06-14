@@ -29,8 +29,9 @@ class ImageTiler:
 			for y_coord in range(ceil(image_height / self.tile_height)):
 				upper_y = min(image_height - self.tile_height, y_coord * self.tile_height)
 				left_x = min(image_width - self.tile_width, x_coord * self.tile_width)
-				tile_dictionary[(left_x, upper_y)] = image[upper_y:upper_y + self.tile_height,
-					left_x:left_x + self.tile_width]
+				tile_dictionary[(left_x, upper_y)] = image[
+					left_x:left_x + self.tile_width,upper_y:upper_y + self.tile_height]
+				print(tile_dictionary[(left_x,upper_y)].shape)
 		return tile_dictionary
 
 	def construct_image_from_tiles(self, tile_dictionary):
@@ -45,8 +46,7 @@ class ImageTiler:
 		for (x_coord, y_coord) in tile_dictionary:
 			image_width = max(image_width, x_coord + self.tile_width)
 			image_height = max(image_height, y_coord + self.tile_height)
-		array = np.empty((image_height, image_width))
+		array = np.empty((image_width,image_height))
 		for (x_coord, y_coord) in tile_dictionary:
-			array[y_coord:y_coord + self.tile_height,
-				x_coord:x_coord + self.tile_width] = tile_dictionary[(x_coord, y_coord)]
+			array[x_coord:x_coord + self.tile_width,y_coord:y_coord + self.tile_height] = tile_dictionary[(x_coord, y_coord)]
 		return array
