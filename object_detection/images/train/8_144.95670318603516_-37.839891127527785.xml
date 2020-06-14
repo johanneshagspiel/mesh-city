@@ -1,0 +1,26 @@
+<annotation>
+	<folder>google_maps</folder>
+	<filename>8_144.95670318603516_-37.839891127527785.png</filename>
+	<path>/home/zedfrigg/Projects/Software Project TU Delft/for-labeling/request_13/google_maps/8_144.95670318603516_-37.839891127527785.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>car</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>57</xmin>
+			<ymin>79</ymin>
+			<xmax>78</xmax>
+			<ymax>94</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train5</folder>
+	<filename>261622_199482.png</filename>
+	<path>C:/Users/wfvma/Desktop/Training Images/train5/261622_199482.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>car</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>219</xmin>
+			<ymin>125</ymin>
+			<xmax>238</xmax>
+			<ymax>140</ymax>
+		</bndbox>
+	</object>
+</annotation>
