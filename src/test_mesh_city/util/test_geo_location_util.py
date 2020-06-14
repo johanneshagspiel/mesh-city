@@ -3,6 +3,7 @@
 import unittest
 
 from mesh_city.util.geo_location_util import GeoLocationUtil
+import pandas as pd
 
 
 class TestGeoLocationUtil(unittest.TestCase):
@@ -139,3 +140,13 @@ class TestGeoLocationUtil(unittest.TestCase):
 			x_cor_grid=x_cor_grid, y_cor_grid=y_cor_grid, image_height=1024, image_width=1024, zoom=20
 		)
 		self.assertEqual(correct_answer, calculated_answer)
+
+	def test_dataframe_of_image_cor_to_geo(self):
+		data = [
+			[5.634448051452637, 600.099609375, 165.13844299316406, 756.9794311523438, 0.36247017979621887, 'Tree'],
+			[380.353271484375, 476.0328369140625, 551.44580078125, 639.7445678710938, 0.3541949391365051, 'Tree']
+		]
+		df = pd.DataFrame(data, columns=['xmin', 'ymin', 'xmax', 'ymax', 'score', 'Tree'])
+
+		self.geo_location_util.dataframe_of_image_cor_to_geo(df)
+

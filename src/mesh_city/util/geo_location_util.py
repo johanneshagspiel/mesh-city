@@ -5,6 +5,8 @@ See :class:`.GeoLocationUtil`
 import math
 
 from pyproj import Transformer
+import pandas as pd
+import numpy as np
 
 
 class GeoLocationUtil:
@@ -297,3 +299,24 @@ class GeoLocationUtil:
 		pixels_per_unit_y_direction = (sw_geo_y - nw_geo_y) / image_height
 
 		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
+
+	@staticmethod
+	def image_cor_to_geo(image_grid_x, image_grid_y, min_px_x, max_px_x, min_px_y, max_px_y, resolution, zoom):
+		pass
+
+
+	@staticmethod
+	def dataframe_of_image_cor_to_geo(detections, image_grid_x, image_grid_y):
+		for index, row in detections.iterrows():
+			xmin = row['xmin']
+			ymin = row['ymin']
+			xmax = row['xmax']
+			ymax = row['ymax']
+			score = row['score']
+			label = row['tree']
+
+			px_x = xmin + ((xmax - xmin) / 2)
+			px_y = ymin + ((ymax - ymin) / 2)
+
+
+

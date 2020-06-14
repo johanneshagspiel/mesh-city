@@ -70,15 +70,17 @@ class Pipeline:
 				)
 				frames = []
 				for tile in tiles:
-					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
 					image = Image.open(tile.path).convert("RGB")
 					np_image = np.array(image)
 					result = deep_forest.detect(np_image)
+
+					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
+					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
 					result["xmin"] += x_offset
 					result["ymin"] += y_offset
 					result["xmax"] += x_offset
 					result["ymax"] += y_offset
+
 					frames.append(result)
 				concat_result = pd.concat(frames).reset_index(drop=True)
 				concat_result.to_csv(detections_path)
@@ -90,3 +92,7 @@ class Pipeline:
 					)
 				)
 		return new_layers
+
+	def write_to_csv(self):
+		i
+
