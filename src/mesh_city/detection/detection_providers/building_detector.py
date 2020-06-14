@@ -4,7 +4,6 @@ Module containing the code interfacing with the Spacenet neural network for buil
 import cv2
 import numpy as np
 import torch
-from scipy.stats.mstats_basic import describe
 from torch import Tensor
 from torch.autograd import Variable
 from torchvision.transforms import transforms
@@ -25,14 +24,16 @@ class BuildingDetector:
 		self.model.to(self.device)
 		self.image_size = 512
 		self.loader = transforms.Compose([transforms.ToTensor()])
+		self.per_channel_mean = np.array([95.04581181, 98.12691267, 107.52376528])
+		self.per_channel_std = np.array([48.54627111, 43.82445517, 39.31087646])
 
 	def preprocess_datum(self, datum) -> Tensor:
 		"""
 		Turns numpy image representation into cuda tensor
 		"""
-
-		# Scales the image to the range [-6,6], which is currently a heuristic.
-		datum_tensor = (self.loader(datum).to(self.device) * 2 - 1) * 6
+		mean_centred_datum = np.subtract(datum, self.per_channel_mean)
+		scaled_datum = np.divide(mean_centred_datum.T, self.per_channel_std[:, np.newaxis, np.newaxis]).T
+		datum_tensor = self.loader(scaled_datum).to(self.device, dtype=torch.float)
 		datum_tensor = Variable(datum_tensor, requires_grad=False)
 		datum_tensor = datum_tensor.unsqueeze(0)  # Fixes tensor shape
 		return datum_tensor
@@ -47,7 +48,7 @@ class BuildingDetector:
 		:return: 255 if a building is detected at the pixel, 0 if not.
 		"""
 
-		if x_value > 0:
+		if x_value >= 1:
 			return 255
 		return 0
 
