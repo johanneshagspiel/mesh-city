@@ -49,8 +49,6 @@ class TestBuildingDetectorRaster(unittest.TestCase):
 		ground_truth = Image.open(
 			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
 		).convert('L')
-		ground_truth.show()
-		result_image.show()
 		self.assertGreaterEqual(compute_image_similarity(result_image, ground_truth), 0.9)
 
 	def test_tiled_building_detection(self):

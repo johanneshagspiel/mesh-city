@@ -81,7 +81,8 @@ class Pipeline:
 			request.num_of_horizontal_images, request.num_of_vertical_images, images
 		)
 		width, height = concat.size
-		small_concat = concat.resize((int(width / 6), int(height / 6)), Image.ANTIALIAS)
+		new_width, new_height = max(512, int(width / 6)), max(512, int(height / 6))
+		small_concat = concat.resize((new_width, new_height), Image.ANTIALIAS)
 		concat_image = np.asarray(small_concat)
 		image_tiler = ImageTiler(tile_width=512, tile_height=512)
 		patches = image_tiler.create_tile_dictionary(concat_image)
@@ -92,7 +93,12 @@ class Pipeline:
 		r2v = RasterVectorConverter()
 		polygons = r2v.mask_to_vector(image=concat_mask)
 		dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
-		dataframe.geometry = dataframe.geometry.scale(xfact=6, yfact=6, zfact=1.0, origin=(0, 0))
+		dataframe.geometry = dataframe.geometry.scale(
+			xfact=request.num_of_horizontal_images * 1024 / small_concat.width,
+			yfact=request.num_of_vertical_images * 1024 / small_concat.height,
+			zfact=1.0,
+			origin=(0, 0)
+		)
 		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
 		return BuildingsLayer(
 			width=request.num_of_horizontal_images,
