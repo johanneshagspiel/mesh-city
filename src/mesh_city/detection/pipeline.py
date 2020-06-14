@@ -62,10 +62,9 @@ class Pipeline:
 		tiles = request.get_layer_of_type(GoogleLayer).tiles
 		building_detector = BuildingDetector(
 			nn_weights_path=self.file_handler.folder_overview["resource_path"].
-				joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
+			joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
 		)
-		building_detections_path = self.request_manager.get_image_root(
-		).joinpath("buildings")
+		building_detections_path = self.request_manager.get_image_root().joinpath("buildings")
 		building_detections_path.mkdir(parents=True, exist_ok=True)
 		detection_file_path = building_detections_path.joinpath(
 			"detections_" + str(request.request_id) + ".geojson"
@@ -89,9 +88,7 @@ class Pipeline:
 		r2v = RasterVectorConverter()
 		polygons = r2v.mask_to_vector(image=concat_mask)
 		dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
-		dataframe.geometry = dataframe.geometry.scale(
-			xfact=6, yfact=6, zfact=1.0, origin=(0, 0)
-		)
+		dataframe.geometry = dataframe.geometry.scale(xfact=6, yfact=6, zfact=1.0, origin=(0, 0))
 		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
 		return BuildingsLayer(
 			width=request.num_of_horizontal_images,

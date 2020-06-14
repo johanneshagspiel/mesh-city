@@ -20,7 +20,7 @@ class RequestRenderer:
 	"""
 
 	@staticmethod
-	def render_request(request: Request, layer_mask: List[bool],scaling=16) -> Image:
+	def render_request(request: Request, layer_mask: List[bool], scaling=16) -> Image:
 		"""
 		Composites a rendering of a selected number of layers of a request.
 		:param request: The request to create an image for
@@ -28,15 +28,20 @@ class RequestRenderer:
 		:return: An image representation of the layer.
 		"""
 		base_image = Image.new(
-			'RGBA', (round(request.num_of_horizontal_images * 1024/scaling), round(request.num_of_vertical_images * 1024/scaling)),
-			(255, 255, 255, 0)
+			'RGBA',
+			(
+			round(request.num_of_horizontal_images * 1024 / scaling),
+			round(request.num_of_vertical_images * 1024 / scaling)
+			), (255, 255, 255, 0)
 		)
 		result_image = base_image
 		for (index, mask) in enumerate(layer_mask):
 			if mask:
 				result_image = Image.alpha_composite(
 					im1=result_image,
-					im2=RequestRenderer.create_image_from_layer(request=request, layer_index=index,scaling=scaling)
+					im2=RequestRenderer.create_image_from_layer(
+					request=request, layer_index=index, scaling=scaling
+					)
 				)
 		return result_image
 
@@ -54,8 +59,10 @@ class RequestRenderer:
 			overlays = []
 			tree_overlay = Image.new(
 				'RGBA',
-				(round(request.num_of_horizontal_images * 1024/scaling), round(request.num_of_vertical_images * 1024/scaling)),
-				(255, 255, 255, 0)
+				(
+				round(request.num_of_horizontal_images * 1024 / scaling),
+				round(request.num_of_vertical_images * 1024 / scaling)
+				), (255, 255, 255, 0)
 			)
 			draw = ImageDraw.Draw(tree_overlay)
 			with open(layer.detections_path, newline='') as csvfile:
@@ -63,7 +70,10 @@ class RequestRenderer:
 				for (index, row) in enumerate(csv_reader):
 					if len(row) > 0 and index > 0:
 						draw.rectangle(
-							xy=((float(row[1])/scaling, float(row[2])/scaling), (float(row[3])/scaling, float(row[4])/scaling)),
+							xy=(
+							(float(row[1]) / scaling, float(row[2]) / scaling),
+							(float(row[3]) / scaling, float(row[4]) / scaling)
+							),
 							outline="red"
 						)
 				overlays.append(tree_overlay)
@@ -74,7 +84,7 @@ class RequestRenderer:
 			for tile in tiles:
 				large_image = Image.open(tile.path).convert("RGBA")
 				width, height = large_image.size
-				images.append(large_image.resize((round(width/scaling),round(height/scaling))))
+				images.append(large_image.resize((round(width / scaling), round(height / scaling))))
 			concat_image = ImageUtil.concat_image_grid(
 				width=request.num_of_horizontal_images,
 				height=request.num_of_vertical_images,
@@ -85,12 +95,14 @@ class RequestRenderer:
 		if isinstance(layer, BuildingsLayer):
 			building_dataframe = gpd.read_file(layer.detections_path)
 			building_dataframe.geometry = building_dataframe.geometry.scale(
-				xfact=1/scaling, yfact=1/scaling, zfact=1.0, origin=(0, 0)
+				xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
 			)
 			building_overlay = Image.new(
 				'RGBA',
-				(round(request.num_of_horizontal_images * 1024/scaling), round(request.num_of_vertical_images * 1024/scaling)),
-				(255, 255, 255, 0)
+				(
+				round(request.num_of_horizontal_images * 1024 / scaling),
+				round(request.num_of_vertical_images * 1024 / scaling)
+				), (255, 255, 255, 0)
 			)
 			draw = ImageDraw.Draw(building_overlay)
 			for polygon in building_dataframe["geometry"]:

@@ -32,7 +32,9 @@ class BuildingDetector:
 		Turns numpy image representation into cuda tensor
 		"""
 		mean_centred_datum = np.subtract(datum, self.per_channel_mean)
-		scaled_datum = np.divide(mean_centred_datum.T, self.per_channel_std[:, np.newaxis, np.newaxis]).T
+		scaled_datum = np.divide(
+			mean_centred_datum.T, self.per_channel_std[:, np.newaxis, np.newaxis]
+		).T
 		datum_tensor = self.loader(scaled_datum).to(self.device, dtype=torch.float)
 		datum_tensor = Variable(datum_tensor, requires_grad=False)
 		datum_tensor = datum_tensor.unsqueeze(0)  # Fixes tensor shape
