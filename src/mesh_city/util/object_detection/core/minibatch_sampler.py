@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Base minibatch sampler module.
 
 The job of the minibatch_sampler is to subsample a minibatch based on some
@@ -28,12 +27,9 @@ Subclasses should implement the Subsample function and can make use of the
 @staticmethod SubsampleIndicator.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from abc import ABCMeta
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 
 import six
 import tensorflow.compat.v1 as tf
@@ -42,15 +38,15 @@ from object_detection.utils import ops
 
 
 class MinibatchSampler(six.with_metaclass(ABCMeta, object)):
-  """Abstract base class for subsampling minibatches."""
+	"""Abstract base class for subsampling minibatches."""
 
-  def __init__(self):
-    """Constructs a minibatch sampler."""
-    pass
+	def __init__(self):
+		"""Constructs a minibatch sampler."""
+		pass
 
-  @abstractmethod
-  def subsample(self, indicator, batch_size, **params):
-    """Returns subsample of entries in indicator.
+	@abstractmethod
+	def subsample(self, indicator, batch_size, **params):
+		"""Returns subsample of entries in indicator.
 
     Args:
       indicator: boolean tensor of shape [N] whose True entries can be sampled.
@@ -62,11 +58,11 @@ class MinibatchSampler(six.with_metaclass(ABCMeta, object)):
       sample_indicator: boolean tensor of shape [N] whose True entries have been
       sampled. If sum(indicator) >= batch_size, sum(is_sampled) = batch_size
     """
-    pass
+		pass
 
-  @staticmethod
-  def subsample_indicator(indicator, num_samples):
-    """Subsample indicator vector.
+	@staticmethod
+	def subsample_indicator(indicator, num_samples):
+		"""Subsample indicator vector.
 
     Given a boolean indicator vector with M elements set to `True`, the function
     assigns all but `num_samples` of these previously `True` elements to
@@ -81,14 +77,13 @@ class MinibatchSampler(six.with_metaclass(ABCMeta, object)):
     Returns:
       a boolean tensor with the same shape as input (indicator) tensor
     """
-    indices = tf.where(indicator)
-    indices = tf.random_shuffle(indices)
-    indices = tf.reshape(indices, [-1])
+		indices = tf.where(indicator)
+		indices = tf.random_shuffle(indices)
+		indices = tf.reshape(indices, [-1])
 
-    num_samples = tf.minimum(tf.size(indices), num_samples)
-    selected_indices = tf.slice(indices, [0], tf.reshape(num_samples, [1]))
+		num_samples = tf.minimum(tf.size(indices), num_samples)
+		selected_indices = tf.slice(indices, [0], tf.reshape(num_samples, [1]))
 
-    selected_indicator = ops.indices_to_dense_vector(selected_indices,
-                                                     tf.shape(indicator)[0])
+		selected_indicator = ops.indices_to_dense_vector(selected_indices, tf.shape(indicator)[0])
 
-    return tf.equal(selected_indicator, 1)
+		return tf.equal(selected_indicator, 1)

@@ -12,31 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Region Similarity Calculators for BoxLists.
 
 Region Similarity Calculators compare a pairwise measure of similarity
 between the boxes in two BoxLists.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from abc import ABCMeta
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 
 import six
 import tensorflow.compat.v1 as tf
 
-from object_detection.core import box_list_ops
-from object_detection.core import standard_fields as fields
+from object_detection.core import box_list_ops, standard_fields as fields
 
 
 class RegionSimilarityCalculator(six.with_metaclass(ABCMeta, object)):
-  """Abstract base class for region similarity calculator."""
+	"""Abstract base class for region similarity calculator."""
 
-  def compare(self, boxlist1, boxlist2, scope=None):
-    """Computes matrix of pairwise similarity between BoxLists.
+	def compare(self, boxlist1, boxlist2, scope=None):
+		"""Computes matrix of pairwise similarity between BoxLists.
 
     This op (to be overridden) computes a measure of pairwise similarity between
     the boxes in the given BoxLists. Higher values indicate more similarity.
@@ -52,22 +47,22 @@ class RegionSimilarityCalculator(six.with_metaclass(ABCMeta, object)):
     Returns:
       a (float32) tensor of shape [N, M] with pairwise similarity score.
     """
-    with tf.name_scope(scope, 'Compare', [boxlist1, boxlist2]) as scope:
-      return self._compare(boxlist1, boxlist2)
+		with tf.name_scope(scope, 'Compare', [boxlist1, boxlist2]) as scope:
+			return self._compare(boxlist1, boxlist2)
 
-  @abstractmethod
-  def _compare(self, boxlist1, boxlist2):
-    pass
+	@abstractmethod
+	def _compare(self, boxlist1, boxlist2):
+		pass
 
 
 class IouSimilarity(RegionSimilarityCalculator):
-  """Class to compute similarity based on Intersection over Union (IOU) metric.
+	"""Class to compute similarity based on Intersection over Union (IOU) metric.
 
   This class computes pairwise similarity between two BoxLists based on IOU.
   """
 
-  def _compare(self, boxlist1, boxlist2):
-    """Compute pairwise IOU similarity between the two BoxLists.
+	def _compare(self, boxlist1, boxlist2):
+		"""Compute pairwise IOU similarity between the two BoxLists.
 
     Args:
       boxlist1: BoxList holding N boxes.
@@ -76,18 +71,18 @@ class IouSimilarity(RegionSimilarityCalculator):
     Returns:
       A tensor with shape [N, M] representing pairwise iou scores.
     """
-    return box_list_ops.iou(boxlist1, boxlist2)
+		return box_list_ops.iou(boxlist1, boxlist2)
 
 
 class NegSqDistSimilarity(RegionSimilarityCalculator):
-  """Class to compute similarity based on the squared distance metric.
+	"""Class to compute similarity based on the squared distance metric.
 
   This class computes pairwise similarity between two BoxLists based on the
   negative squared distance metric.
   """
 
-  def _compare(self, boxlist1, boxlist2):
-    """Compute matrix of (negated) sq distances.
+	def _compare(self, boxlist1, boxlist2):
+		"""Compute matrix of (negated) sq distances.
 
     Args:
       boxlist1: BoxList holding N boxes.
@@ -96,18 +91,18 @@ class NegSqDistSimilarity(RegionSimilarityCalculator):
     Returns:
       A tensor with shape [N, M] representing negated pairwise squared distance.
     """
-    return -1 * box_list_ops.sq_dist(boxlist1, boxlist2)
+		return -1 * box_list_ops.sq_dist(boxlist1, boxlist2)
 
 
 class IoaSimilarity(RegionSimilarityCalculator):
-  """Class to compute similarity based on Intersection over Area (IOA) metric.
+	"""Class to compute similarity based on Intersection over Area (IOA) metric.
 
   This class computes pairwise similarity between two BoxLists based on their
   pairwise intersections divided by the areas of second BoxLists.
   """
 
-  def _compare(self, boxlist1, boxlist2):
-    """Compute pairwise IOA similarity between the two BoxLists.
+	def _compare(self, boxlist1, boxlist2):
+		"""Compute pairwise IOA similarity between the two BoxLists.
 
     Args:
       boxlist1: BoxList holding N boxes.
@@ -116,30 +111,30 @@ class IoaSimilarity(RegionSimilarityCalculator):
     Returns:
       A tensor with shape [N, M] representing pairwise IOA scores.
     """
-    return box_list_ops.ioa(boxlist1, boxlist2)
+		return box_list_ops.ioa(boxlist1, boxlist2)
 
 
 class ThresholdedIouSimilarity(RegionSimilarityCalculator):
-  """Class to compute similarity based on thresholded IOU and score.
+	"""Class to compute similarity based on thresholded IOU and score.
 
   This class computes pairwise similarity between two BoxLists based on IOU and
   a 'score' present in boxlist1. If IOU > threshold, then the entry in the
   output pairwise tensor will contain `score`, otherwise 0.
   """
 
-  def __init__(self, iou_threshold=0):
-    """Initialize the ThresholdedIouSimilarity.
+	def __init__(self, iou_threshold=0):
+		"""Initialize the ThresholdedIouSimilarity.
 
     Args:
       iou_threshold: For a given pair of boxes, if the IOU is > iou_threshold,
         then the comparison result will be the foreground probability of
         the first box, otherwise it will be zero.
     """
-    super(ThresholdedIouSimilarity, self).__init__()
-    self._iou_threshold = iou_threshold
+		super(ThresholdedIouSimilarity, self).__init__()
+		self._iou_threshold = iou_threshold
 
-  def _compare(self, boxlist1, boxlist2):
-    """Compute pairwise IOU similarity between the two BoxLists and score.
+	def _compare(self, boxlist1, boxlist2):
+		"""Compute pairwise IOU similarity between the two BoxLists and score.
 
     Args:
       boxlist1: BoxList holding N boxes. Must have a score field.
@@ -149,11 +144,12 @@ class ThresholdedIouSimilarity(RegionSimilarityCalculator):
       A tensor with shape [N, M] representing scores threholded by pairwise
       iou scores.
     """
-    ious = box_list_ops.iou(boxlist1, boxlist2)
-    scores = boxlist1.get_field(fields.BoxListFields.scores)
-    scores = tf.expand_dims(scores, axis=1)
-    row_replicated_scores = tf.tile(scores, [1, tf.shape(ious)[-1]])
-    thresholded_ious = tf.where(ious > self._iou_threshold,
-                                row_replicated_scores, tf.zeros_like(ious))
+		ious = box_list_ops.iou(boxlist1, boxlist2)
+		scores = boxlist1.get_field(fields.BoxListFields.scores)
+		scores = tf.expand_dims(scores, axis=1)
+		row_replicated_scores = tf.tile(scores, [1, tf.shape(ious)[-1]])
+		thresholded_ious = tf.where(
+			ious > self._iou_threshold, row_replicated_scores, tf.zeros_like(ious)
+		)
 
-    return thresholded_ious
+		return thresholded_ious

@@ -12,26 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Interface for data decoders.
 
 Data decoders decode the input data and return a dictionary of tensors keyed by
 the entries in core.reader.Fields.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from abc import ABCMeta
-from abc import abstractmethod
+from __future__ import absolute_import, division, print_function
+
+from abc import ABCMeta, abstractmethod
+
 import six
 
 
 class DataDecoder(six.with_metaclass(ABCMeta, object)):
-  """Interface for data decoders."""
+	"""Interface for data decoders."""
 
-  @abstractmethod
-  def decode(self, data):
-    """Return a single image and associated labels.
+	@abstractmethod
+	def decode(self, data):
+		"""Return a single image and associated labels.
 
     Args:
       data: a string tensor holding a serialized protocol buffer corresponding
@@ -41,4 +39,4 @@ class DataDecoder(six.with_metaclass(ABCMeta, object)):
       tensor_dict: a dictionary containing tensors. Possible keys are defined in
           reader.Fields.
     """
-    pass
+		pass

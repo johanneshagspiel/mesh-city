@@ -20,20 +20,19 @@ to numpy arrays (materialized tensors) directly, it is used to read data for
 evaluation/visualization; to parse the data during training, DataDecoder should
 be used.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from abc import ABCMeta
-from abc import abstractmethod
+from __future__ import absolute_import, division, print_function
+
+from abc import ABCMeta, abstractmethod
+
 import six
 
 
 class DataToNumpyParser(six.with_metaclass(ABCMeta, object)):
-  """Abstract interface for data parser that produces numpy arrays."""
+	"""Abstract interface for data parser that produces numpy arrays."""
 
-  @abstractmethod
-  def parse(self, input_data):
-    """Parses input and returns a numpy array or a dictionary of numpy arrays.
+	@abstractmethod
+	def parse(self, input_data):
+		"""Parses input and returns a numpy array or a dictionary of numpy arrays.
 
     Args:
       input_data: an input data
@@ -42,4 +41,4 @@ class DataToNumpyParser(six.with_metaclass(ABCMeta, object)):
       A numpy array or a dictionary of numpy arrays or None, if input
       cannot be parsed.
     """
-    pass
+		pass

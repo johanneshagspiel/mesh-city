@@ -14,15 +14,13 @@
 # ==============================================================================
 """Spatial transformation ops like RoIAlign, CropAndResize."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import tensorflow.compat.v1 as tf
 
 
 def _coordinate_vector_1d(start, end, size, align_endpoints):
-  """Generates uniformly spaced coordinate vector.
+	"""Generates uniformly spaced coordinate vector.
 
   Args:
     start: A float tensor of shape [batch, num_boxes] indicating start values.
@@ -35,23 +33,23 @@ def _coordinate_vector_1d(start, end, size, align_endpoints):
     A 3D float tensor of shape [batch, num_boxes, size] containing grid
     coordinates.
   """
-  start = tf.expand_dims(start, -1)
-  end = tf.expand_dims(end, -1)
-  length = end - start
-  if align_endpoints:
-    relative_grid_spacing = tf.linspace(0.0, 1.0, size)
-    offset = 0 if size > 1 else length / 2
-  else:
-    relative_grid_spacing = tf.linspace(0.0, 1.0, size + 1)[:-1]
-    offset = length / (2 * size)
-  relative_grid_spacing = tf.reshape(relative_grid_spacing, [1, 1, size])
-  relative_grid_spacing = tf.cast(relative_grid_spacing, dtype=start.dtype)
-  absolute_grid = start + offset + relative_grid_spacing * length
-  return absolute_grid
+	start = tf.expand_dims(start, -1)
+	end = tf.expand_dims(end, -1)
+	length = end - start
+	if align_endpoints:
+		relative_grid_spacing = tf.linspace(0.0, 1.0, size)
+		offset = 0 if size > 1 else length / 2
+	else:
+		relative_grid_spacing = tf.linspace(0.0, 1.0, size + 1)[:-1]
+		offset = length / (2 * size)
+	relative_grid_spacing = tf.reshape(relative_grid_spacing, [1, 1, size])
+	relative_grid_spacing = tf.cast(relative_grid_spacing, dtype=start.dtype)
+	absolute_grid = start + offset + relative_grid_spacing * length
+	return absolute_grid
 
 
 def box_grid_coordinate_vectors(boxes, size_y, size_x, align_corners=False):
-  """Generates coordinate vectors for a `size x size` grid in boxes.
+	"""Generates coordinate vectors for a `size x size` grid in boxes.
 
   Each box is subdivided uniformly into a grid consisting of size x size
   rectangular cells. This function returns coordinate vectors describing
@@ -77,14 +75,14 @@ def box_grid_coordinate_vectors(boxes, size_y, size_x, align_corners=False):
     box_grid_x: A float tensor of shape [batch, num_boxes, size_x] containing x
       coordinates for grid points.
   """
-  ymin, xmin, ymax, xmax = tf.unstack(boxes, axis=-1)
-  box_grid_y = _coordinate_vector_1d(ymin, ymax, size_y, align_corners)
-  box_grid_x = _coordinate_vector_1d(xmin, xmax, size_x, align_corners)
-  return box_grid_y, box_grid_x
+	ymin, xmin, ymax, xmax = tf.unstack(boxes, axis=-1)
+	box_grid_y = _coordinate_vector_1d(ymin, ymax, size_y, align_corners)
+	box_grid_x = _coordinate_vector_1d(xmin, xmax, size_x, align_corners)
+	return box_grid_y, box_grid_x
 
 
 def feature_grid_coordinate_vectors(box_grid_y, box_grid_x):
-  """Returns feature grid point coordinate vectors for bilinear interpolation.
+	"""Returns feature grid point coordinate vectors for bilinear interpolation.
 
   Box grid is specified in absolute coordinate system with origin at left top
   (0, 0). The returned coordinate vectors contain 0-based feature point indices.
@@ -111,19 +109,19 @@ def feature_grid_coordinate_vectors(box_grid_y, box_grid_x):
     feature_grid_x1: A int32 tensor of shape [batch, num_boxes, size]
       containing x coordinate vector for the right neighbors.
   """
-  feature_grid_y0 = tf.floor(box_grid_y)
-  feature_grid_x0 = tf.floor(box_grid_x)
-  feature_grid_y1 = tf.floor(box_grid_y + 1)
-  feature_grid_x1 = tf.floor(box_grid_x + 1)
-  feature_grid_y0 = tf.cast(feature_grid_y0, dtype=tf.int32)
-  feature_grid_y1 = tf.cast(feature_grid_y1, dtype=tf.int32)
-  feature_grid_x0 = tf.cast(feature_grid_x0, dtype=tf.int32)
-  feature_grid_x1 = tf.cast(feature_grid_x1, dtype=tf.int32)
-  return (feature_grid_y0, feature_grid_x0, feature_grid_y1, feature_grid_x1)
+	feature_grid_y0 = tf.floor(box_grid_y)
+	feature_grid_x0 = tf.floor(box_grid_x)
+	feature_grid_y1 = tf.floor(box_grid_y + 1)
+	feature_grid_x1 = tf.floor(box_grid_x + 1)
+	feature_grid_y0 = tf.cast(feature_grid_y0, dtype=tf.int32)
+	feature_grid_y1 = tf.cast(feature_grid_y1, dtype=tf.int32)
+	feature_grid_x0 = tf.cast(feature_grid_x0, dtype=tf.int32)
+	feature_grid_x1 = tf.cast(feature_grid_x1, dtype=tf.int32)
+	return (feature_grid_y0, feature_grid_x0, feature_grid_y1, feature_grid_x1)
 
 
 def _valid_indicator(feature_grid_y, feature_grid_x, true_feature_shapes):
-  """Computes a indicator vector for valid indices.
+	"""Computes a indicator vector for valid indices.
 
   Computes an indicator vector which is true for points on feature map and
   false for points off feature map.
@@ -140,21 +138,17 @@ def _valid_indicator(feature_grid_y, feature_grid_x, true_feature_shapes):
   Returns:
     indices: A 1D bool tensor indicating valid feature indices.
   """
-  height = tf.cast(true_feature_shapes[:, :, 0:1], dtype=feature_grid_y.dtype)
-  width = tf.cast(true_feature_shapes[:, :, 1:2], dtype=feature_grid_x.dtype)
-  valid_indicator = tf.logical_and(
-      tf.expand_dims(
-          tf.logical_and(feature_grid_y >= 0, tf.less(feature_grid_y, height)),
-          3),
-      tf.expand_dims(
-          tf.logical_and(feature_grid_x >= 0, tf.less(feature_grid_x, width)),
-          2))
-  return tf.reshape(valid_indicator, [-1])
+	height = tf.cast(true_feature_shapes[:, :, 0:1], dtype=feature_grid_y.dtype)
+	width = tf.cast(true_feature_shapes[:, :, 1:2], dtype=feature_grid_x.dtype)
+	valid_indicator = tf.logical_and(
+		tf.expand_dims(tf.logical_and(feature_grid_y >= 0, tf.less(feature_grid_y, height)), 3),
+		tf.expand_dims(tf.logical_and(feature_grid_x >= 0, tf.less(feature_grid_x, width)), 2)
+	)
+	return tf.reshape(valid_indicator, [-1])
 
 
-def ravel_indices(feature_grid_y, feature_grid_x, num_levels, height, width,
-                  box_levels):
-  """Returns grid indices in a flattened feature map of shape [-1, channels].
+def ravel_indices(feature_grid_y, feature_grid_x, num_levels, height, width, box_levels):
+	"""Returns grid indices in a flattened feature map of shape [-1, channels].
 
   The returned 1-D array can be used to gather feature grid points from a
   feature map that has been flattened from [batch, num_levels, max_height,
@@ -176,36 +170,37 @@ def ravel_indices(feature_grid_y, feature_grid_x, num_levels, height, width,
     indices: A 1D int32 tensor containing feature point indices in a flattened
       feature grid.
   """
-  num_boxes = tf.shape(feature_grid_y)[1]
-  batch_size = tf.shape(feature_grid_y)[0]
-  size_y = tf.shape(feature_grid_y)[2]
-  size_x = tf.shape(feature_grid_x)[2]
-  height_dim_offset = width
-  level_dim_offset = height * height_dim_offset
-  batch_dim_offset = num_levels * level_dim_offset
+	num_boxes = tf.shape(feature_grid_y)[1]
+	batch_size = tf.shape(feature_grid_y)[0]
+	size_y = tf.shape(feature_grid_y)[2]
+	size_x = tf.shape(feature_grid_x)[2]
+	height_dim_offset = width
+	level_dim_offset = height * height_dim_offset
+	batch_dim_offset = num_levels * level_dim_offset
 
-  batch_dim_indices = (
-      tf.reshape(
-          tf.range(batch_size) * batch_dim_offset, [batch_size, 1, 1, 1]) *
-      tf.ones([1, num_boxes, size_y, size_x], dtype=tf.int32))
-  box_level_indices = (
-      tf.reshape(box_levels * level_dim_offset, [batch_size, num_boxes, 1, 1]) *
-      tf.ones([1, 1, size_y, size_x], dtype=tf.int32))
-  height_indices = (
-      tf.reshape(feature_grid_y * height_dim_offset,
-                 [batch_size, num_boxes, size_y, 1]) *
-      tf.ones([1, 1, 1, size_x], dtype=tf.int32))
-  width_indices = (
-      tf.reshape(feature_grid_x, [batch_size, num_boxes, 1, size_x])
-      * tf.ones([1, 1, size_y, 1], dtype=tf.int32))
-  indices = (
-      batch_dim_indices + box_level_indices + height_indices + width_indices)
-  flattened_indices = tf.reshape(indices, [-1])
-  return flattened_indices
+	batch_dim_indices = (
+		tf.reshape(tf.range(batch_size) * batch_dim_offset, [batch_size, 1, 1, 1]) *
+		tf.ones([1, num_boxes, size_y, size_x], dtype=tf.int32)
+	)
+	box_level_indices = (
+		tf.reshape(box_levels * level_dim_offset, [batch_size, num_boxes, 1, 1]) *
+		tf.ones([1, 1, size_y, size_x], dtype=tf.int32)
+	)
+	height_indices = (
+		tf.reshape(feature_grid_y * height_dim_offset, [batch_size, num_boxes, size_y, 1]) *
+		tf.ones([1, 1, 1, size_x], dtype=tf.int32)
+	)
+	width_indices = (
+		tf.reshape(feature_grid_x, [batch_size, num_boxes, 1, size_x]) *
+		tf.ones([1, 1, size_y, 1], dtype=tf.int32)
+	)
+	indices = (batch_dim_indices + box_level_indices + height_indices + width_indices)
+	flattened_indices = tf.reshape(indices, [-1])
+	return flattened_indices
 
 
 def pad_to_max_size(features):
-  """Pads features to max height and max width and stacks them up.
+	"""Pads features to max height and max width and stacks them up.
 
   Args:
     features: A list of num_levels 4D float tensors of shape [batch, height_i,
@@ -217,32 +212,29 @@ def pad_to_max_size(features):
     true_feature_shapes: A 2D int32 tensor of shape [num_levels, 2] containing
       height and width of the feature maps before padding.
   """
-  if len(features) == 1:
-    return tf.expand_dims(features[0],
-                          1), tf.expand_dims(tf.shape(features[0])[1:3], 0)
+	if len(features) == 1:
+		return tf.expand_dims(features[0], 1), tf.expand_dims(tf.shape(features[0])[1:3], 0)
 
-  if all([feature.shape.is_fully_defined() for feature in features]):
-    heights = [feature.shape[1] for feature in features]
-    widths = [feature.shape[2] for feature in features]
-    max_height = max(heights)
-    max_width = max(widths)
-  else:
-    heights = [tf.shape(feature)[1] for feature in features]
-    widths = [tf.shape(feature)[2] for feature in features]
-    max_height = tf.reduce_max(heights)
-    max_width = tf.reduce_max(widths)
-  features_all = [
-      tf.image.pad_to_bounding_box(feature, 0, 0, max_height,
-                                   max_width) for feature in features
-  ]
-  features_all = tf.stack(features_all, axis=1)
-  true_feature_shapes = tf.stack([tf.shape(feature)[1:3]
-                                  for feature in features])
-  return features_all, true_feature_shapes
+	if all([feature.shape.is_fully_defined() for feature in features]):
+		heights = [feature.shape[1] for feature in features]
+		widths = [feature.shape[2] for feature in features]
+		max_height = max(heights)
+		max_width = max(widths)
+	else:
+		heights = [tf.shape(feature)[1] for feature in features]
+		widths = [tf.shape(feature)[2] for feature in features]
+		max_height = tf.reduce_max(heights)
+		max_width = tf.reduce_max(widths)
+	features_all = [
+		tf.image.pad_to_bounding_box(feature, 0, 0, max_height, max_width) for feature in features
+	]
+	features_all = tf.stack(features_all, axis=1)
+	true_feature_shapes = tf.stack([tf.shape(feature)[1:3] for feature in features])
+	return features_all, true_feature_shapes
 
 
 def _gather_valid_indices(tensor, indices, padding_value=0.0):
-  """Gather values for valid indices.
+	"""Gather values for valid indices.
 
   TODO(rathodv): We can't use ops.gather_with_padding_values due to cyclic
   dependency. Start using it after migrating all users of spatial ops to import
@@ -258,27 +250,30 @@ def _gather_valid_indices(tensor, indices, padding_value=0.0):
     A tensor sliced based on indices. For indices that are equal to -1, returns
     rows of padding value.
   """
-  padded_tensor = tf.concat(
-      [
-          padding_value *
-          tf.ones([1, tf.shape(tensor)[-1]], dtype=tensor.dtype), tensor
-      ],
-      axis=0,
-  )
-  # tf.concat gradient op uses tf.where(condition) (which is not
-  # supported on TPU) when the inputs to it are tf.IndexedSlices instead of
-  # tf.Tensor. Since gradient op for tf.gather returns tf.IndexedSlices,
-  # we add a dummy op inbetween tf.concat and tf.gather to ensure tf.concat
-  # gradient function gets tf.Tensor inputs and not tf.IndexedSlices.
-  padded_tensor *= 1.0
-  return tf.gather(padded_tensor, indices + 1)
+	padded_tensor = tf.concat(
+		[padding_value * tf.ones([1, tf.shape(tensor)[-1]], dtype=tensor.dtype), tensor], axis=0,
+	)
+	# tf.concat gradient op uses tf.where(condition) (which is not
+	# supported on TPU) when the inputs to it are tf.IndexedSlices instead of
+	# tf.Tensor. Since gradient op for tf.gather returns tf.IndexedSlices,
+	# we add a dummy op inbetween tf.concat and tf.gather to ensure tf.concat
+	# gradient function gets tf.Tensor inputs and not tf.IndexedSlices.
+	padded_tensor *= 1.0
+	return tf.gather(padded_tensor, indices + 1)
 
 
-def multilevel_roi_align(features, boxes, box_levels, output_size,
-                         num_samples_per_cell_y=1, num_samples_per_cell_x=1,
-                         align_corners=False, extrapolation_value=0.0,
-                         scope=None):
-  """Applies RoI Align op and returns feature for boxes.
+def multilevel_roi_align(
+	features,
+	boxes,
+	box_levels,
+	output_size,
+	num_samples_per_cell_y=1,
+	num_samples_per_cell_x=1,
+	align_corners=False,
+	extrapolation_value=0.0,
+	scope=None
+):
+	"""Applies RoI Align op and returns feature for boxes.
 
   Given multiple features maps indexed by different levels, and a set of boxes
   where each box is mapped to a certain level, this function selectively crops
@@ -320,120 +315,122 @@ def multilevel_roi_align(features, boxes, box_levels, output_size,
     A 5D float tensor of shape [batch_size, num_boxes, output_size[0],
     output_size[1], channels] representing the cropped features.
   """
-  with tf.name_scope(scope, 'MultiLevelRoIAlign'):
-    features, true_feature_shapes = pad_to_max_size(features)
-    batch_size = tf.shape(features)[0]
-    num_levels = features.get_shape().as_list()[1]
-    max_feature_height = tf.shape(features)[2]
-    max_feature_width = tf.shape(features)[3]
-    num_filters = features.get_shape().as_list()[4]
-    num_boxes = tf.shape(boxes)[1]
+	with tf.name_scope(scope, 'MultiLevelRoIAlign'):
+		features, true_feature_shapes = pad_to_max_size(features)
+		batch_size = tf.shape(features)[0]
+		num_levels = features.get_shape().as_list()[1]
+		max_feature_height = tf.shape(features)[2]
+		max_feature_width = tf.shape(features)[3]
+		num_filters = features.get_shape().as_list()[4]
+		num_boxes = tf.shape(boxes)[1]
 
-    # Convert boxes to absolute co-ordinates.
-    true_feature_shapes = tf.cast(true_feature_shapes, dtype=boxes.dtype)
-    true_feature_shapes = tf.gather(true_feature_shapes, box_levels)
-    boxes *= tf.concat([true_feature_shapes - 1] * 2, axis=-1)
+		# Convert boxes to absolute co-ordinates.
+		true_feature_shapes = tf.cast(true_feature_shapes, dtype=boxes.dtype)
+		true_feature_shapes = tf.gather(true_feature_shapes, box_levels)
+		boxes *= tf.concat([true_feature_shapes - 1] * 2, axis=-1)
 
-    size_y = output_size[0] * num_samples_per_cell_y
-    size_x = output_size[1] * num_samples_per_cell_x
-    box_grid_y, box_grid_x = box_grid_coordinate_vectors(
-        boxes, size_y=size_y, size_x=size_x, align_corners=align_corners)
-    (feature_grid_y0, feature_grid_x0, feature_grid_y1,
-     feature_grid_x1) = feature_grid_coordinate_vectors(box_grid_y, box_grid_x)
-    feature_grid_y = tf.reshape(
-        tf.stack([feature_grid_y0, feature_grid_y1], axis=3),
-        [batch_size, num_boxes, -1])
-    feature_grid_x = tf.reshape(
-        tf.stack([feature_grid_x0, feature_grid_x1], axis=3),
-        [batch_size, num_boxes, -1])
-    feature_coordinates = ravel_indices(feature_grid_y, feature_grid_x,
-                                        num_levels, max_feature_height,
-                                        max_feature_width, box_levels)
-    valid_indices = _valid_indicator(feature_grid_y, feature_grid_x,
-                                     true_feature_shapes)
-    feature_coordinates = tf.where(valid_indices, feature_coordinates,
-                                   -1 * tf.ones_like(feature_coordinates))
-    flattened_features = tf.reshape(features, [-1, num_filters])
-    flattened_feature_values = _gather_valid_indices(flattened_features,
-                                                     feature_coordinates,
-                                                     extrapolation_value)
-    features_per_box = tf.reshape(
-        flattened_feature_values,
-        [batch_size, num_boxes, size_y * 2, size_x * 2, num_filters])
+		size_y = output_size[0] * num_samples_per_cell_y
+		size_x = output_size[1] * num_samples_per_cell_x
+		box_grid_y, box_grid_x = box_grid_coordinate_vectors(
+			boxes, size_y=size_y, size_x=size_x, align_corners=align_corners)
+		(feature_grid_y0, feature_grid_x0, feature_grid_y1,
+			feature_grid_x1) = feature_grid_coordinate_vectors(box_grid_y, box_grid_x)
+		feature_grid_y = tf.reshape(
+			tf.stack([feature_grid_y0, feature_grid_y1], axis=3), [batch_size, num_boxes, -1]
+		)
+		feature_grid_x = tf.reshape(
+			tf.stack([feature_grid_x0, feature_grid_x1], axis=3), [batch_size, num_boxes, -1]
+		)
+		feature_coordinates = ravel_indices(
+			feature_grid_y,
+			feature_grid_x,
+			num_levels,
+			max_feature_height,
+			max_feature_width,
+			box_levels
+		)
+		valid_indices = _valid_indicator(feature_grid_y, feature_grid_x, true_feature_shapes)
+		feature_coordinates = tf.where(
+			valid_indices, feature_coordinates, -1 * tf.ones_like(feature_coordinates)
+		)
+		flattened_features = tf.reshape(features, [-1, num_filters])
+		flattened_feature_values = _gather_valid_indices(
+			flattened_features, feature_coordinates, extrapolation_value
+		)
+		features_per_box = tf.reshape(
+			flattened_feature_values, [batch_size, num_boxes, size_y * 2, size_x * 2, num_filters]
+		)
 
-    # Cast tensors into dtype of features.
-    box_grid_y = tf.cast(box_grid_y, dtype=features_per_box.dtype)
-    box_grid_x = tf.cast(box_grid_x, dtype=features_per_box.dtype)
-    feature_grid_y0 = tf.cast(feature_grid_y0, dtype=features_per_box.dtype)
-    feature_grid_x0 = tf.cast(feature_grid_x0, dtype=features_per_box.dtype)
+		# Cast tensors into dtype of features.
+		box_grid_y = tf.cast(box_grid_y, dtype=features_per_box.dtype)
+		box_grid_x = tf.cast(box_grid_x, dtype=features_per_box.dtype)
+		feature_grid_y0 = tf.cast(feature_grid_y0, dtype=features_per_box.dtype)
+		feature_grid_x0 = tf.cast(feature_grid_x0, dtype=features_per_box.dtype)
 
-    # RoI Align operation is a bilinear interpolation of four
-    # neighboring feature points f0, f1, f2, and f3 onto point y, x given by
-    # f(y, x) = [hy, ly] * [[f00, f01], * [hx, lx]^T
-    #                       [f10, f11]]
-    #
-    # Unrolling the matrix multiplies gives us:
-    # f(y, x) = (hy * hx) f00 + (hy * lx) f01 + (ly * hx) f10 + (lx * ly) f11
-    # f(y, x) = w00 * f00 + w01 * f01 + w10 * f10 + w11 * f11
-    #
-    # This can be computed by applying pointwise multiplication and sum_pool in
-    # a 2x2 window.
-    ly = box_grid_y - feature_grid_y0
-    lx = box_grid_x - feature_grid_x0
-    hy = 1.0 - ly
-    hx = 1.0 - lx
+		# RoI Align operation is a bilinear interpolation of four
+		# neighboring feature points f0, f1, f2, and f3 onto point y, x given by
+		# f(y, x) = [hy, ly] * [[f00, f01], * [hx, lx]^T
+		#                       [f10, f11]]
+		#
+		# Unrolling the matrix multiplies gives us:
+		# f(y, x) = (hy * hx) f00 + (hy * lx) f01 + (ly * hx) f10 + (lx * ly) f11
+		# f(y, x) = w00 * f00 + w01 * f01 + w10 * f10 + w11 * f11
+		#
+		# This can be computed by applying pointwise multiplication and sum_pool in
+		# a 2x2 window.
+		ly = box_grid_y - feature_grid_y0
+		lx = box_grid_x - feature_grid_x0
+		hy = 1.0 - ly
+		hx = 1.0 - lx
 
-    kernel_y = tf.reshape(
-        tf.stack([hy, ly], axis=3), [batch_size, num_boxes, size_y * 2, 1])
+		kernel_y = tf.reshape(tf.stack([hy, ly], axis=3), [batch_size, num_boxes, size_y * 2, 1])
 
-    kernel_x = tf.reshape(
-        tf.stack([hx, lx], axis=3), [batch_size, num_boxes, 1, size_x * 2])
+		kernel_x = tf.reshape(tf.stack([hx, lx], axis=3), [batch_size, num_boxes, 1, size_x * 2])
 
-    # Multiplier 4 is to make tf.nn.avg_pool behave like sum_pool.
-    interpolation_kernel = kernel_y * kernel_x * 4
+		# Multiplier 4 is to make tf.nn.avg_pool behave like sum_pool.
+		interpolation_kernel = kernel_y * kernel_x * 4
 
-    # Interpolate the gathered features with computed interpolation kernels.
-    features_per_box *= tf.expand_dims(interpolation_kernel, axis=4),
-    features_per_box = tf.reshape(
-        features_per_box,
-        [batch_size * num_boxes, size_y * 2, size_x * 2, num_filters])
+		# Interpolate the gathered features with computed interpolation kernels.
+		features_per_box *= tf.expand_dims(interpolation_kernel, axis=4),
+		features_per_box = tf.reshape(
+			features_per_box, [batch_size * num_boxes, size_y * 2, size_x * 2, num_filters]
+		)
 
-    # This combines the two pooling operations - sum_pool to perform bilinear
-    # interpolation and avg_pool to pool the values in each bin.
-    features_per_box = tf.nn.avg_pool(
-        features_per_box,
-        [1, num_samples_per_cell_y * 2, num_samples_per_cell_x * 2, 1],
-        [1, num_samples_per_cell_y * 2, num_samples_per_cell_x * 2, 1], 'VALID')
-    features_per_box = tf.reshape(
-        features_per_box,
-        [batch_size, num_boxes, output_size[0], output_size[1], num_filters])
+		# This combines the two pooling operations - sum_pool to perform bilinear
+		# interpolation and avg_pool to pool the values in each bin.
+		features_per_box = tf.nn.avg_pool(
+			features_per_box, [1, num_samples_per_cell_y * 2, num_samples_per_cell_x * 2, 1],
+			[1, num_samples_per_cell_y * 2, num_samples_per_cell_x * 2, 1],
+			'VALID'
+		)
+		features_per_box = tf.reshape(
+			features_per_box, [batch_size, num_boxes, output_size[0], output_size[1], num_filters]
+		)
 
-    return features_per_box
+		return features_per_box
 
 
 def native_crop_and_resize(image, boxes, crop_size, scope=None):
-  """Same as `matmul_crop_and_resize` but uses tf.image.crop_and_resize."""
-  def get_box_inds(proposals):
-    proposals_shape = proposals.shape.as_list()
-    if any(dim is None for dim in proposals_shape):
-      proposals_shape = tf.shape(proposals)
-    ones_mat = tf.ones(proposals_shape[:2], dtype=tf.int32)
-    multiplier = tf.expand_dims(
-        tf.range(start=0, limit=proposals_shape[0]), 1)
-    return tf.reshape(ones_mat * multiplier, [-1])
+	"""Same as `matmul_crop_and_resize` but uses tf.image.crop_and_resize."""
 
-  with tf.name_scope(scope, 'CropAndResize'):
-    cropped_regions = tf.image.crop_and_resize(
-        image, tf.reshape(boxes, [-1] + boxes.shape.as_list()[2:]),
-        get_box_inds(boxes), crop_size)
-    final_shape = tf.concat([tf.shape(boxes)[:2],
-                             tf.shape(cropped_regions)[1:]], axis=0)
-    return tf.reshape(cropped_regions, final_shape)
+	def get_box_inds(proposals):
+		proposals_shape = proposals.shape.as_list()
+		if any(dim is None for dim in proposals_shape):
+			proposals_shape = tf.shape(proposals)
+		ones_mat = tf.ones(proposals_shape[:2], dtype=tf.int32)
+		multiplier = tf.expand_dims(tf.range(start=0, limit=proposals_shape[0]), 1)
+		return tf.reshape(ones_mat * multiplier, [-1])
+
+	with tf.name_scope(scope, 'CropAndResize'):
+		cropped_regions = tf.image.crop_and_resize(
+			image, tf.reshape(boxes, [-1] + boxes.shape.as_list()[2:]), get_box_inds(boxes), crop_size
+		)
+		final_shape = tf.concat([tf.shape(boxes)[:2], tf.shape(cropped_regions)[1:]], axis=0)
+		return tf.reshape(cropped_regions, final_shape)
 
 
-def matmul_crop_and_resize(image, boxes, crop_size, extrapolation_value=0.0,
-                           scope=None):
-  """Matrix multiplication based implementation of the crop and resize op.
+def matmul_crop_and_resize(image, boxes, crop_size, extrapolation_value=0.0, scope=None):
+	"""Matrix multiplication based implementation of the crop and resize op.
 
   Extracts crops from the input image tensor and bilinearly resizes them
   (possibly with aspect ratio change) to a common output size specified by
@@ -480,11 +477,13 @@ def matmul_crop_and_resize(image, boxes, crop_size, extrapolation_value=0.0,
   Returns:
     A 5-D tensor of shape `[batch, num_boxes, crop_height, crop_width, depth]`
   """
-  with tf.name_scope(scope, 'MatMulCropAndResize'):
-    box_levels = tf.zeros(tf.shape(boxes)[:2], dtype=tf.int32)
-    return multilevel_roi_align([image],
-                                boxes,
-                                box_levels,
-                                crop_size,
-                                align_corners=True,
-                                extrapolation_value=extrapolation_value)
+	with tf.name_scope(scope, 'MatMulCropAndResize'):
+		box_levels = tf.zeros(tf.shape(boxes)[:2], dtype=tf.int32)
+		return multilevel_roi_align(
+			[image],
+			boxes,
+			box_levels,
+			crop_size,
+			align_corners=True,
+			extrapolation_value=extrapolation_value
+		)

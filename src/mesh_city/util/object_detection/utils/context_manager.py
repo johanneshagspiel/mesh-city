@@ -14,13 +14,11 @@
 # ==============================================================================
 """Python context management helper."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 
 class IdentityContextManager(object):
-  """Returns an identity context manager that does nothing.
+	"""Returns an identity context manager that does nothing.
 
   This is helpful in setting up conditional `with` statement as below:
 
@@ -29,11 +27,11 @@ class IdentityContextManager(object):
 
   """
 
-  def __enter__(self):
-    return None
+	def __enter__(self):
+		return None
 
-  def __exit__(self, exec_type, exec_value, traceback):
-    del exec_type
-    del exec_value
-    del traceback
-    return False
+	def __exit__(self, exec_type, exec_value, traceback):
+		del exec_type
+		del exec_value
+		del traceback
+		return False

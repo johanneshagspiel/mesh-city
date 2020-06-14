@@ -16,58 +16,68 @@
 
 import numpy as np
 import tensorflow.compat.v1 as tf
+
 from object_detection.utils import test_case
 
 
 class TestCaseTest(test_case.TestCase):
 
-  def test_simple(self):
-    def graph_fn(tensora, tensorb):
-      return tf.tensordot(tensora, tensorb, axes=1)
+	def test_simple(self):
 
-    tensora_np = np.ones(20)
-    tensorb_np = tensora_np * 2
-    output = self.execute(graph_fn, [tensora_np, tensorb_np])
-    self.assertAllClose(output, 40.0)
+		def graph_fn(tensora, tensorb):
+			return tf.tensordot(tensora, tensorb, axes=1)
 
-  def test_two_outputs(self):
-    def graph_fn(tensora, tensorb):
-      return tensora + tensorb, tensora - tensorb
-    tensora_np = np.ones(20)
-    tensorb_np = tensora_np * 2
-    output = self.execute(graph_fn, [tensora_np, tensorb_np])
-    self.assertAllClose(output[0], tensora_np + tensorb_np)
-    self.assertAllClose(output[1], tensora_np - tensorb_np)
+		tensora_np = np.ones(20)
+		tensorb_np = tensora_np * 2
+		output = self.execute(graph_fn, [tensora_np, tensorb_np])
+		self.assertAllClose(output, 40.0)
 
-  def test_function_with_tf_assert(self):
-    def compute_fn(image):
-      return tf.image.pad_to_bounding_box(image, 0, 0, 40, 40)
+	def test_two_outputs(self):
 
-    image_np = np.random.rand(2, 20, 30, 3)
-    output = self.execute(compute_fn, [image_np])
-    self.assertAllEqual(output.shape, [2, 40, 40, 3])
+		def graph_fn(tensora, tensorb):
+			return tensora + tensorb, tensora - tensorb
 
-  def test_tf2_only_test(self):
-    """Set up tests only to run with TF2."""
-    if self.is_tf2():
-      def graph_fn(tensora, tensorb):
-        return tensora + tensorb, tensora - tensorb
-      tensora_np = np.ones(20)
-      tensorb_np = tensora_np * 2
-      output = self.execute_tf2(graph_fn, [tensora_np, tensorb_np])
-      self.assertAllClose(output[0], tensora_np + tensorb_np)
-      self.assertAllClose(output[1], tensora_np - tensorb_np)
+		tensora_np = np.ones(20)
+		tensorb_np = tensora_np * 2
+		output = self.execute(graph_fn, [tensora_np, tensorb_np])
+		self.assertAllClose(output[0], tensora_np + tensorb_np)
+		self.assertAllClose(output[1], tensora_np - tensorb_np)
 
-  def test_tpu_only_test(self):
-    """Set up tests only to run with TPU."""
-    if self.has_tpu():
-      def graph_fn(tensora, tensorb):
-        return tensora + tensorb, tensora - tensorb
-      tensora_np = np.ones(20)
-      tensorb_np = tensora_np * 2
-      output = self.execute_tpu(graph_fn, [tensora_np, tensorb_np])
-      self.assertAllClose(output[0], tensora_np + tensorb_np)
-      self.assertAllClose(output[1], tensora_np - tensorb_np)
+	def test_function_with_tf_assert(self):
+
+		def compute_fn(image):
+			return tf.image.pad_to_bounding_box(image, 0, 0, 40, 40)
+
+		image_np = np.random.rand(2, 20, 30, 3)
+		output = self.execute(compute_fn, [image_np])
+		self.assertAllEqual(output.shape, [2, 40, 40, 3])
+
+	def test_tf2_only_test(self):
+		"""Set up tests only to run with TF2."""
+		if self.is_tf2():
+
+			def graph_fn(tensora, tensorb):
+				return tensora + tensorb, tensora - tensorb
+
+			tensora_np = np.ones(20)
+			tensorb_np = tensora_np * 2
+			output = self.execute_tf2(graph_fn, [tensora_np, tensorb_np])
+			self.assertAllClose(output[0], tensora_np + tensorb_np)
+			self.assertAllClose(output[1], tensora_np - tensorb_np)
+
+	def test_tpu_only_test(self):
+		"""Set up tests only to run with TPU."""
+		if self.has_tpu():
+
+			def graph_fn(tensora, tensorb):
+				return tensora + tensorb, tensora - tensorb
+
+			tensora_np = np.ones(20)
+			tensorb_np = tensora_np * 2
+			output = self.execute_tpu(graph_fn, [tensora_np, tensorb_np])
+			self.assertAllClose(output[0], tensora_np + tensorb_np)
+			self.assertAllClose(output[1], tensora_np - tensorb_np)
+
 
 if __name__ == '__main__':
-  tf.test.main()
+	tf.test.main()

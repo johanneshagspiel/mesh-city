@@ -54,50 +54,48 @@ By default, DetectionModels produce bounding box detections; However, we support
 a handful of auxiliary annotations associated with each bounding box, namely,
 instance masks and keypoints.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import abc
+
 import six
 import tensorflow.compat.v1 as tf
 
 from object_detection.core import standard_fields as fields
 
-
 # If using a new enough version of TensorFlow, detection models should be a
 # tf module or keras model for tracking.
 try:
-  _BaseClass = tf.keras.layers.Layer
+	_BaseClass = tf.keras.layers.Layer
 except AttributeError:
-  _BaseClass = object
+	_BaseClass = object
 
 
 class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
-  """Abstract base class for detection models.
+	"""Abstract base class for detection models.
 
   Extends tf.Module to guarantee variable tracking.
   """
 
-  def __init__(self, num_classes):
-    """Constructor.
+	def __init__(self, num_classes):
+		"""Constructor.
 
     Args:
       num_classes: number of classes.  Note that num_classes *does not* include
       background categories that might be implicitly predicted in various
       implementations.
     """
-    self._num_classes = num_classes
-    self._groundtruth_lists = {}
+		self._num_classes = num_classes
+		self._groundtruth_lists = {}
 
-    super(DetectionModel, self).__init__()
+		super(DetectionModel, self).__init__()
 
-  @property
-  def num_classes(self):
-    return self._num_classes
+	@property
+	def num_classes(self):
+		return self._num_classes
 
-  def groundtruth_lists(self, field):
-    """Access list of groundtruth tensors.
+	def groundtruth_lists(self, field):
+		"""Access list of groundtruth tensors.
 
     Args:
       field: a string key, options are
@@ -112,13 +110,12 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
     Raises:
       RuntimeError: if the field has not been provided via provide_groundtruth.
     """
-    if field not in self._groundtruth_lists:
-      raise RuntimeError('Groundtruth tensor {} has not been provided'.format(
-          field))
-    return self._groundtruth_lists[field]
+		if field not in self._groundtruth_lists:
+			raise RuntimeError('Groundtruth tensor {} has not been provided'.format(field))
+		return self._groundtruth_lists[field]
 
-  def groundtruth_has_field(self, field):
-    """Determines whether the groundtruth includes the given field.
+	def groundtruth_has_field(self, field):
+		"""Determines whether the groundtruth includes the given field.
 
     Args:
       field: a string key, options are
@@ -129,11 +126,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
     Returns:
       True if the groundtruth includes the given field, False otherwise.
     """
-    return field in self._groundtruth_lists
+		return field in self._groundtruth_lists
 
-  @staticmethod
-  def get_side_inputs(features):
-    """Get side inputs from input features.
+	@staticmethod
+	def get_side_inputs(features):
+		"""Get side inputs from input features.
 
     This placeholder method provides a way for a meta-architecture to specify
     how to grab additional side inputs from input features (in addition to the
@@ -148,11 +145,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
     Returns:
       An empty dictionary by default.
     """
-    return {}
+		return {}
 
-  @abc.abstractmethod
-  def preprocess(self, inputs):
-    """Input preprocessing.
+	@abc.abstractmethod
+	def preprocess(self, inputs):
+		"""Input preprocessing.
 
     To be overridden by implementations.
 
@@ -191,11 +188,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
         of true images in the resized images, as resized images can be padded
         with zeros.
     """
-    pass
+		pass
 
-  @abc.abstractmethod
-  def predict(self, preprocessed_inputs, true_image_shapes, **side_inputs):
-    """Predict prediction tensors from inputs tensor.
+	@abc.abstractmethod
+	def predict(self, preprocessed_inputs, true_image_shapes, **side_inputs):
+		"""Predict prediction tensors from inputs tensor.
 
     Outputs of this function can be passed to loss or postprocess functions.
 
@@ -212,11 +209,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
       prediction_dict: a dictionary holding prediction tensors to be
         passed to the Loss or Postprocess functions.
     """
-    pass
+		pass
 
-  @abc.abstractmethod
-  def postprocess(self, prediction_dict, true_image_shapes, **params):
-    """Convert predicted output tensors to final detections.
+	@abc.abstractmethod
+	def postprocess(self, prediction_dict, true_image_shapes, **params):
+		"""Convert predicted output tensors to final detections.
 
     This stage typically performs a few things such as
     * Non-Max Suppression to remove overlapping detection boxes.
@@ -266,11 +263,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
           num_classes_with_background] tensor of class score logits for
           raw detection boxes.
     """
-    pass
+		pass
 
-  @abc.abstractmethod
-  def loss(self, prediction_dict, true_image_shapes):
-    """Compute scalar loss tensors with respect to provided groundtruth.
+	@abc.abstractmethod
+	def loss(self, prediction_dict, true_image_shapes):
+		"""Compute scalar loss tensors with respect to provided groundtruth.
 
     Calling this function requires that groundtruth tensors have been
     provided via the provide_groundtruth function.
@@ -286,22 +283,24 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
       a dictionary mapping strings (loss names) to scalar tensors representing
         loss values.
     """
-    pass
+		pass
 
-  def provide_groundtruth(self,
-                          groundtruth_boxes_list,
-                          groundtruth_classes_list,
-                          groundtruth_masks_list=None,
-                          groundtruth_keypoints_list=None,
-                          groundtruth_keypoint_visibilities_list=None,
-                          groundtruth_weights_list=None,
-                          groundtruth_confidences_list=None,
-                          groundtruth_is_crowd_list=None,
-                          groundtruth_group_of_list=None,
-                          groundtruth_area_list=None,
-                          is_annotated_list=None,
-                          groundtruth_labeled_classes=None):
-    """Provide groundtruth tensors.
+	def provide_groundtruth(
+		self,
+		groundtruth_boxes_list,
+		groundtruth_classes_list,
+		groundtruth_masks_list=None,
+		groundtruth_keypoints_list=None,
+		groundtruth_keypoint_visibilities_list=None,
+		groundtruth_weights_list=None,
+		groundtruth_confidences_list=None,
+		groundtruth_is_crowd_list=None,
+		groundtruth_group_of_list=None,
+		groundtruth_area_list=None,
+		is_annotated_list=None,
+		groundtruth_labeled_classes=None
+	):
+		"""Provide groundtruth tensors.
 
     Args:
       groundtruth_boxes_list: a list of 2-D tf.float32 tensors of shape
@@ -342,45 +341,34 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
         [num_classes], containing label indices encoded as k-hot of the classes
         that are exhaustively annotated.
     """
-    self._groundtruth_lists[fields.BoxListFields.boxes] = groundtruth_boxes_list
-    self._groundtruth_lists[
-        fields.BoxListFields.classes] = groundtruth_classes_list
-    if groundtruth_weights_list:
-      self._groundtruth_lists[fields.BoxListFields.
-                              weights] = groundtruth_weights_list
-    if groundtruth_confidences_list:
-      self._groundtruth_lists[fields.BoxListFields.
-                              confidences] = groundtruth_confidences_list
-    if groundtruth_masks_list:
-      self._groundtruth_lists[
-          fields.BoxListFields.masks] = groundtruth_masks_list
-    if groundtruth_keypoints_list:
-      self._groundtruth_lists[
-          fields.BoxListFields.keypoints] = groundtruth_keypoints_list
-    if groundtruth_keypoint_visibilities_list:
-      self._groundtruth_lists[
-          fields.BoxListFields.keypoint_visibilities] = (
-              groundtruth_keypoint_visibilities_list)
-    if groundtruth_is_crowd_list:
-      self._groundtruth_lists[
-          fields.BoxListFields.is_crowd] = groundtruth_is_crowd_list
-    if groundtruth_group_of_list:
-      self._groundtruth_lists[
-          fields.BoxListFields.group_of] = groundtruth_group_of_list
-    if groundtruth_area_list:
-      self._groundtruth_lists[
-          fields.InputDataFields.groundtruth_area] = groundtruth_area_list
-    if is_annotated_list:
-      self._groundtruth_lists[
-          fields.InputDataFields.is_annotated] = is_annotated_list
-    if groundtruth_labeled_classes:
-      self._groundtruth_lists[
-          fields.InputDataFields
-          .groundtruth_labeled_classes] = groundtruth_labeled_classes
+		self._groundtruth_lists[fields.BoxListFields.boxes] = groundtruth_boxes_list
+		self._groundtruth_lists[fields.BoxListFields.classes] = groundtruth_classes_list
+		if groundtruth_weights_list:
+			self._groundtruth_lists[fields.BoxListFields.weights] = groundtruth_weights_list
+		if groundtruth_confidences_list:
+			self._groundtruth_lists[fields.BoxListFields.confidences] = groundtruth_confidences_list
+		if groundtruth_masks_list:
+			self._groundtruth_lists[fields.BoxListFields.masks] = groundtruth_masks_list
+		if groundtruth_keypoints_list:
+			self._groundtruth_lists[fields.BoxListFields.keypoints] = groundtruth_keypoints_list
+		if groundtruth_keypoint_visibilities_list:
+			self._groundtruth_lists[fields.BoxListFields.keypoint_visibilities
+									] = (groundtruth_keypoint_visibilities_list)
+		if groundtruth_is_crowd_list:
+			self._groundtruth_lists[fields.BoxListFields.is_crowd] = groundtruth_is_crowd_list
+		if groundtruth_group_of_list:
+			self._groundtruth_lists[fields.BoxListFields.group_of] = groundtruth_group_of_list
+		if groundtruth_area_list:
+			self._groundtruth_lists[fields.InputDataFields.groundtruth_area] = groundtruth_area_list
+		if is_annotated_list:
+			self._groundtruth_lists[fields.InputDataFields.is_annotated] = is_annotated_list
+		if groundtruth_labeled_classes:
+			self._groundtruth_lists[fields.InputDataFields.groundtruth_labeled_classes
+									] = groundtruth_labeled_classes
 
-  @abc.abstractmethod
-  def regularization_losses(self):
-    """Returns a list of regularization losses for this model.
+	@abc.abstractmethod
+	def regularization_losses(self):
+		"""Returns a list of regularization losses for this model.
 
     Returns a list of regularization losses for this model that the estimator
     needs to use during training/optimization.
@@ -388,11 +376,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
     Returns:
       A list of regularization loss tensors.
     """
-    pass
+		pass
 
-  @abc.abstractmethod
-  def restore_map(self, fine_tune_checkpoint_type='detection'):
-    """Returns a map of variables to load from a foreign checkpoint.
+	@abc.abstractmethod
+	def restore_map(self, fine_tune_checkpoint_type='detection'):
+		"""Returns a map of variables to load from a foreign checkpoint.
 
     Returns a map of variable names to load from a checkpoint to variables in
     the model graph. This enables the model to initialize based on weights from
@@ -412,11 +400,11 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
       A dict mapping variable names (to load from a checkpoint) to variables in
       the model graph.
     """
-    pass
+		pass
 
-  @abc.abstractmethod
-  def updates(self):
-    """Returns a list of update operators for this model.
+	@abc.abstractmethod
+	def updates(self):
+		"""Returns a list of update operators for this model.
 
     Returns a list of update operators for this model that must be executed at
     each training step. The estimator's train op needs to have a control
@@ -425,10 +413,10 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
     Returns:
       A list of update operators.
     """
-    pass
+		pass
 
-  def call(self, images):
-    """Returns detections from a batch of images.
+	def call(self, images):
+		"""Returns detections from a batch of images.
 
     This method calls the preprocess, predict and postprocess function
     sequentially and returns the output.
@@ -440,6 +428,6 @@ class DetectionModel(six.with_metaclass(abc.ABCMeta, _BaseClass)):
        detetcions: The dict of tensors returned by the postprocess function.
     """
 
-    preprocessed_images, shapes = self.preprocess(images)
-    prediction_dict = self.predict(preprocessed_images, shapes)
-    return self.postprocess(prediction_dict, shapes)
+		preprocessed_images, shapes = self.preprocess(images)
+		prediction_dict = self.predict(preprocessed_images, shapes)
+		return self.postprocess(prediction_dict, shapes)

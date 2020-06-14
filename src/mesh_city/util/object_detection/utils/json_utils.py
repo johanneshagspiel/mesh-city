@@ -22,15 +22,17 @@ import re
 
 
 def FormatFloat(json_str, float_digits):
-  pattern = re.compile(r'\d+\.\d+')
-  float_repr = '{:.' + '{}'.format(float_digits) + 'f}'
-  def MRound(match):
-    return float_repr.format(float(match.group()))
-  return re.sub(pattern, MRound, json_str)
+	pattern = re.compile(r'\d+\.\d+')
+	float_repr = '{:.' + '{}'.format(float_digits) + 'f}'
+
+	def MRound(match):
+		return float_repr.format(float(match.group()))
+
+	return re.sub(pattern, MRound, json_str)
 
 
 def Dump(obj, fid, float_digits=-1, **params):
-  """Wrapper of json.dump that allows specifying the float precision used.
+	"""Wrapper of json.dump that allows specifying the float precision used.
 
   Args:
     obj: The object to dump.
@@ -38,12 +40,12 @@ def Dump(obj, fid, float_digits=-1, **params):
     float_digits: The number of digits of precision when writing floats out.
     **params: Additional parameters to pass to json.dumps.
   """
-  json_str = Dumps(obj, float_digits, **params)
-  fid.write(json_str)
+	json_str = Dumps(obj, float_digits, **params)
+	fid.write(json_str)
 
 
 def Dumps(obj, float_digits=-1, **params):
-  """Wrapper of json.dumps that allows specifying the float precision used.
+	"""Wrapper of json.dumps that allows specifying the float precision used.
 
   Args:
     obj: The object to dump.
@@ -53,14 +55,14 @@ def Dumps(obj, float_digits=-1, **params):
   Returns:
     output: JSON string representation of obj.
   """
-  json_str = json.dumps(obj, **params)
-  if float_digits > -1:
-    json_str = FormatFloat(json_str, float_digits)
-  return json_str
+	json_str = json.dumps(obj, **params)
+	if float_digits > -1:
+		json_str = FormatFloat(json_str, float_digits)
+	return json_str
 
 
 def PrettyParams(**params):
-  """Returns parameters for use with Dump and Dumps to output pretty json.
+	"""Returns parameters for use with Dump and Dumps to output pretty json.
 
   Example usage:
     ```json_str = json_utils.Dumps(obj, **json_utils.PrettyParams())```
@@ -74,9 +76,8 @@ def PrettyParams(**params):
     params: Parameters that are compatible with json_utils.Dump and
       json_utils.Dumps.
   """
-  params['float_digits'] = 4
-  params['sort_keys'] = True
-  params['indent'] = 2
-  params['separators'] = (',', ': ')
-  return params
-
+	params['float_digits'] = 4
+	params['sort_keys'] = True
+	params['indent'] = 2
+	params['separators'] = (',', ': ')
+	return params

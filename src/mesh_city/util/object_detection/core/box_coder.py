@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Base box coder.
 
 Box coders convert between coordinate frames, namely image-centric
@@ -26,19 +25,14 @@ Users of a BoxCoder can call two methods:
 In both cases, the arguments are assumed to be in 1-1 correspondence already;
 it is not the job of a BoxCoder to perform matching.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from abc import ABCMeta
-from abc import abstractmethod
-from abc import abstractproperty
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 import six
 import tensorflow.compat.v1 as tf
 
 from object_detection.utils import shape_utils
-
 
 # Box coder types.
 FASTER_RCNN = 'faster_rcnn'
@@ -48,11 +42,11 @@ SQUARE = 'square'
 
 
 class BoxCoder(six.with_metaclass(ABCMeta, object)):
-  """Abstract base class for box coder."""
+	"""Abstract base class for box coder."""
 
-  @abstractproperty
-  def code_size(self):
-    """Return the size of each code.
+	@abstractproperty
+	def code_size(self):
+		"""Return the size of each code.
 
     This number is a constant and should agree with the output of the `encode`
     op (e.g. if rel_codes is the output of self.encode(...), then it should have
@@ -62,10 +56,10 @@ class BoxCoder(six.with_metaclass(ABCMeta, object)):
     Returns:
       an integer constant
     """
-    pass
+		pass
 
-  def encode(self, boxes, anchors):
-    """Encode a box list relative to an anchor collection.
+	def encode(self, boxes, anchors):
+		"""Encode a box list relative to an anchor collection.
 
     Args:
       boxes: BoxList holding N boxes to be encoded
@@ -74,11 +68,11 @@ class BoxCoder(six.with_metaclass(ABCMeta, object)):
     Returns:
       a tensor representing N relative-encoded boxes
     """
-    with tf.name_scope('Encode'):
-      return self._encode(boxes, anchors)
+		with tf.name_scope('Encode'):
+			return self._encode(boxes, anchors)
 
-  def decode(self, rel_codes, anchors):
-    """Decode boxes that are encoded relative to an anchor collection.
+	def decode(self, rel_codes, anchors):
+		"""Decode boxes that are encoded relative to an anchor collection.
 
     Args:
       rel_codes: a tensor representing N relative-encoded boxes
@@ -88,12 +82,12 @@ class BoxCoder(six.with_metaclass(ABCMeta, object)):
       boxlist: BoxList holding N boxes encoded in the ordinary way (i.e.,
         with corners y_min, x_min, y_max, x_max)
     """
-    with tf.name_scope('Decode'):
-      return self._decode(rel_codes, anchors)
+		with tf.name_scope('Decode'):
+			return self._decode(rel_codes, anchors)
 
-  @abstractmethod
-  def _encode(self, boxes, anchors):
-    """Method to be overriden by implementations.
+	@abstractmethod
+	def _encode(self, boxes, anchors):
+		"""Method to be overriden by implementations.
 
     Args:
       boxes: BoxList holding N boxes to be encoded
@@ -102,11 +96,11 @@ class BoxCoder(six.with_metaclass(ABCMeta, object)):
     Returns:
       a tensor representing N relative-encoded boxes
     """
-    pass
+		pass
 
-  @abstractmethod
-  def _decode(self, rel_codes, anchors):
-    """Method to be overriden by implementations.
+	@abstractmethod
+	def _decode(self, rel_codes, anchors):
+		"""Method to be overriden by implementations.
 
     Args:
       rel_codes: a tensor representing N relative-encoded boxes
@@ -116,11 +110,11 @@ class BoxCoder(six.with_metaclass(ABCMeta, object)):
       boxlist: BoxList holding N boxes encoded in the ordinary way (i.e.,
         with corners y_min, x_min, y_max, x_max)
     """
-    pass
+		pass
 
 
 def batch_decode(encoded_boxes, box_coder, anchors):
-  """Decode a batch of encoded boxes.
+	"""Decode a batch of encoded boxes.
 
   This op takes a batch of encoded bounding boxes and transforms
   them to a batch of bounding boxes specified by their corners in
@@ -142,17 +136,16 @@ def batch_decode(encoded_boxes, box_coder, anchors):
     the number of anchors inferred from encoded_boxes and anchors are
     inconsistent.
   """
-  encoded_boxes.get_shape().assert_has_rank(3)
-  if (shape_utils.get_dim_as_int(encoded_boxes.get_shape()[1])
-      != anchors.num_boxes_static()):
-    raise ValueError('The number of anchors inferred from encoded_boxes'
-                     ' and anchors are inconsistent: shape[1] of encoded_boxes'
-                     ' %s should be equal to the number of anchors: %s.' %
-                     (shape_utils.get_dim_as_int(encoded_boxes.get_shape()[1]),
-                      anchors.num_boxes_static()))
+	encoded_boxes.get_shape().assert_has_rank(3)
+	if (shape_utils.get_dim_as_int(encoded_boxes.get_shape()[1]) != anchors.num_boxes_static()):
+		raise ValueError(
+			'The number of anchors inferred from encoded_boxes'
+			' and anchors are inconsistent: shape[1] of encoded_boxes'
+			' %s should be equal to the number of anchors: %s.' %
+			(shape_utils.get_dim_as_int(encoded_boxes.get_shape()[1]), anchors.num_boxes_static())
+		)
 
-  decoded_boxes = tf.stack([
-      box_coder.decode(boxes, anchors).get()
-      for boxes in tf.unstack(encoded_boxes)
-  ])
-  return decoded_boxes
+	decoded_boxes = tf.stack(
+		[box_coder.decode(boxes, anchors).get() for boxes in tf.unstack(encoded_boxes)]
+	)
+	return decoded_boxes

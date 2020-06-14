@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Tests for model API."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import tensorflow.compat.v1 as tf
 
@@ -26,73 +23,70 @@ from object_detection.utils import test_case
 
 class FakeModel(model.DetectionModel):
 
-  def __init__(self):
+	def __init__(self):
 
-    # sub-networks containing weights of different shapes.
-    self._network1 = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(8, 1)
-    ])
+		# sub-networks containing weights of different shapes.
+		self._network1 = tf.keras.Sequential([tf.keras.layers.Conv2D(8, 1)])
 
-    self._network2 = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(16, 1)
-    ])
+		self._network2 = tf.keras.Sequential([tf.keras.layers.Conv2D(16, 1)])
 
-    super(FakeModel, self).__init__(num_classes=0)
+		super(FakeModel, self).__init__(num_classes=0)
 
-  def preprocess(self, images):
-    return images, tf.shape(images)
+	def preprocess(self, images):
+		return images, tf.shape(images)
 
-  def predict(self, images, shapes):
-    return {'prediction': self._network2(self._network1(images))}
+	def predict(self, images, shapes):
+		return {'prediction': self._network2(self._network1(images))}
 
-  def postprocess(self, prediction_dict, shapes):
-    return prediction_dict
+	def postprocess(self, prediction_dict, shapes):
+		return prediction_dict
 
-  def loss(self):
-    return tf.constant(0.0)
+	def loss(self):
+		return tf.constant(0.0)
 
-  def updates(self):
-    return []
+	def updates(self):
+		return []
 
-  def restore_map(self):
-    return {}
+	def restore_map(self):
+		return {}
 
-  def regularization_losses(self):
-    return []
+	def regularization_losses(self):
+		return []
 
 
 class ModelTest(test_case.TestCase):
 
-  def test_model_call(self):
+	def test_model_call(self):
 
-    detection_model = FakeModel()
+		detection_model = FakeModel()
 
-    def graph_fn():
-      return detection_model(tf.zeros((1, 128, 128, 3)))
+		def graph_fn():
+			return detection_model(tf.zeros((1, 128, 128, 3)))
 
-    result = self.execute(graph_fn, [])
-    self.assertEqual(result['prediction'].shape,
-                     (1, 128, 128, 16))
+		result = self.execute(graph_fn, [])
+		self.assertEqual(result['prediction'].shape, (1, 128, 128, 16))
 
-  def test_freeze(self):
+	def test_freeze(self):
 
-    detection_model = FakeModel()
-    detection_model(tf.zeros((1, 128, 128, 3)))
+		detection_model = FakeModel()
+		detection_model(tf.zeros((1, 128, 128, 3)))
 
-    net1_var_shapes = [tuple(var.get_shape().as_list()) for var in
-                       detection_model._network1.trainable_variables]
+		net1_var_shapes = [
+			tuple(var.get_shape().as_list()) for var in detection_model._network1.trainable_variables
+		]
 
-    del detection_model
+		del detection_model
 
-    detection_model = FakeModel()
-    detection_model._network2.trainable = False
-    detection_model(tf.zeros((1, 128, 128, 3)))
+		detection_model = FakeModel()
+		detection_model._network2.trainable = False
+		detection_model(tf.zeros((1, 128, 128, 3)))
 
-    var_shapes = [tuple(var.get_shape().as_list()) for var in
-                  detection_model._network1.trainable_variables]
+		var_shapes = [
+			tuple(var.get_shape().as_list()) for var in detection_model._network1.trainable_variables
+		]
 
-    self.assertEqual(set(net1_var_shapes), set(var_shapes))
+		self.assertEqual(set(net1_var_shapes), set(var_shapes))
 
 
 if __name__ == '__main__':
-  tf.test.main()
+	tf.test.main()

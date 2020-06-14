@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """A freezable batch norm layer that uses Keras batch normalization."""
 import tensorflow.compat.v1 as tf
 
 
 class FreezableBatchNorm(tf.keras.layers.BatchNormalization):
-  """Batch normalization layer (Ioffe and Szegedy, 2014).
+	"""Batch normalization layer (Ioffe and Szegedy, 2014).
 
   This is a `freezable` batch norm layer that supports setting the `training`
   parameter in the __init__ method rather than having to set it either via
@@ -57,12 +56,12 @@ class FreezableBatchNorm(tf.keras.layers.BatchNormalization):
         Internal Covariate Shift](https://arxiv.org/abs/1502.03167)
   """
 
-  def __init__(self, training=None, **kwargs):
-    super(FreezableBatchNorm, self).__init__(**kwargs)
-    self._training = training
+	def __init__(self, training=None, **kwargs):
+		super(FreezableBatchNorm, self).__init__(**kwargs)
+		self._training = training
 
-  def call(self, inputs, training=None):
-    # Override the call arg only if the batchnorm is frozen. (Ignore None)
-    if self._training is False:  # pylint: disable=g-bool-id-comparison
-      training = self._training
-    return super(FreezableBatchNorm, self).call(inputs, training=training)
+	def call(self, inputs, training=None):
+		# Override the call arg only if the batchnorm is frozen. (Ignore None)
+		if self._training is False:  # pylint: disable=g-bool-id-comparison
+			training = self._training
+		return super(FreezableBatchNorm, self).call(inputs, training=training)
