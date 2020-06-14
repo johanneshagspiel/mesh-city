@@ -9,7 +9,6 @@ from typing import List, Sequence
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
 from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
@@ -58,7 +57,12 @@ class Pipeline:
 		self.detections_to_run = detections_to_run
 		self.request_manager = request_manager
 
-	def detect_buildings(self, request: Request) -> Layer:
+	def detect_buildings(self, request: Request) -> BuildingsLayer:
+		"""
+		Detects buildings from a request's imagery.
+		:param request: The request to detect buildings for.
+		:return: A BuildingsLayer
+		"""
 		tiles = request.get_layer_of_type(GoogleLayer).tiles
 		building_detector = BuildingDetector(
 			nn_weights_path=self.file_handler.folder_overview["resource_path"].
@@ -71,13 +75,13 @@ class Pipeline:
 		)
 		images = []
 		for tile in tiles:
-			images.append(Image.open(tile.path).convert("RGB").resize((512, 512)))
+			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
 		# note: not sure how this will perform for large scale analysis!
 		concat = ImageUtil.concat_image_grid(
 			request.num_of_horizontal_images, request.num_of_vertical_images, images
 		)
 		width, height = concat.size
-		small_concat = concat.resize((int(width / 3), int(height / 3)))
+		small_concat = concat.resize((int(width / 6), int(height / 6)), Image.ANTIALIAS)
 		concat_image = np.asarray(small_concat)
 		image_tiler = ImageTiler(tile_width=512, tile_height=512)
 		patches = image_tiler.create_tile_dictionary(concat_image)
@@ -96,7 +100,12 @@ class Pipeline:
 			detections_path=detection_file_path
 		)
 
-	def detect_trees(self, request: Request) -> Layer:
+	def detect_trees(self, request: Request) -> TreesLayer:
+		"""
+		Detects trees from a request's imagery.
+		:param request: The request to detect trees for.
+		:return: A TreesLayer
+		"""
 		tiles = request.get_layer_of_type(GoogleLayer).tiles
 		deep_forest = DeepForest()
 		tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
@@ -104,20 +113,27 @@ class Pipeline:
 		detection_file_path = tree_detections_path.joinpath(
 			"detections_" + str(request.request_id) + ".csv"
 		)
-		frames = []
+		images = []
 		for tile in tiles:
-			x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-			y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-			image = Image.open(tile.path).convert("RGB")
-			np_image = np.array(image)
-			result = deep_forest.detect(np_image)
-			result["xmin"] += x_offset
-			result["ymin"] += y_offset
-			result["xmax"] += x_offset
-			result["ymax"] += y_offset
-			frames.append(result)
-		concat_result = pd.concat(frames).reset_index(drop=True)
-		concat_result.to_csv(detection_file_path)
+			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
+		# note: not sure how this will perform for large scale analysis!
+		concat = ImageUtil.concat_image_grid(
+			request.num_of_horizontal_images, request.num_of_vertical_images, images
+		)
+		width, height = concat.size
+		small_concat = concat.resize((int(width / 3), int(height / 3)), Image.ANTIALIAS)
+		concat_scratch_path = tree_detections_path.joinpath(
+			"temp_" + str(request.request_id) + ".png"
+		)
+		small_concat.save(concat_scratch_path)
+		result = deep_forest.detect(path=concat_scratch_path)
+		concat_scratch_path.unlink()
+		result["xmin"] = result["xmin"] * 6
+		result["ymin"] = result["ymin"] * 6
+		result["xmax"] = result["xmax"] * 6
+		result["ymax"] = result["ymax"] * 6
+
+		result.to_csv(detection_file_path)
 		return TreesLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
