@@ -6,6 +6,7 @@ from typing import List
 
 from PIL import Image, ImageDraw
 
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.trees_layer import TreesLayer
@@ -47,7 +48,7 @@ class RequestRenderer:
 		:return: An image representation of the layer.
 		"""
 		layer = request.layers[layer_index]
-		if isinstance(layer, TreesLayer):
+		if isinstance(layer, TreesLayer) or isinstance(layer, CarsLayer):
 			# TODO change image size depending on image size used for prediction
 			overlays = []
 			tree_overlay = Image.new(
