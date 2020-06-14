@@ -15,7 +15,8 @@ class RasterVectorConverter:
 	"""
 
 	@staticmethod
-	def mask_to_vector(image: Image) -> Sequence[Polygon]:
+	def mask_to_vector(image: Image, buffer_size=8, simplify_threshold=16,
+		min_area=1000) -> Sequence[Polygon]:
 		"""
 		Turns a mask image with white shapes into a simplified polygon representation.
 
@@ -23,16 +24,16 @@ class RasterVectorConverter:
 		:return: GeoJSON-like dicts representing detected polygons.
 		"""
 		shapes_from_mask = [
-			shape(geometry).buffer(16).buffer(-16) for geometry,
+			shape(geometry).buffer(buffer_size).buffer(-buffer_size) for geometry,
 			value in shapes(source=image, mask=(image == 255))
 		]
 		simplified_shapes = [
-			shape_from_mask.simplify(32, preserve_topology=True)
+			shape_from_mask.simplify(simplify_threshold, preserve_topology=True)
 			for shape_from_mask in shapes_from_mask
 		]
 		return [
 			non_empty_shape for non_empty_shape in simplified_shapes
-			if not non_empty_shape.is_empty and non_empty_shape.area > 1000
+			if not non_empty_shape.is_empty and non_empty_shape.area > min_area
 		]
 
 	@staticmethod
