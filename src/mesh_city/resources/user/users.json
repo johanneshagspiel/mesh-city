@@ -8,7 +8,7 @@
                 "geocoding": 0,
                 "total": 0
             },
-            "quota": 200,
+            "quota": 20000,
             "date_reset": "2020-05-31"
         }
     },

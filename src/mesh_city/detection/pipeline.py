@@ -14,6 +14,7 @@ from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
+from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
 from mesh_city.request.buildings_layer import BuildingsLayer
 from mesh_city.request.google_layer import GoogleLayer
@@ -57,6 +58,75 @@ class Pipeline:
 		self.detections_to_run = detections_to_run
 		self.request_manager = request_manager
 
+	def detect_buildings(self, request: Request) -> Layer:
+		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		building_detector = BuildingDetector(
+			nn_weights_path=self.file_handler.folder_overview["resource_path"].
+				joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
+		)
+		building_detections_path = self.request_manager.get_image_root(
+		).joinpath("buildings")
+		building_detections_path.mkdir(parents=True, exist_ok=True)
+		detection_file_path = building_detections_path.joinpath(
+			"detections_" + str(request.request_id) + ".geojson"
+		)
+		images = []
+		for tile in tiles:
+			images.append(Image.open(tile.path).convert("RGB").resize((512, 512)))
+		# note: not sure how this will perform for large scale analysis!
+		concat = ImageUtil.concat_image_grid(
+			request.num_of_horizontal_images, request.num_of_vertical_images, images
+		)
+		width, height = concat.size
+		small_concat = concat.resize((int(width / 3), int(height / 3)))
+		concat_image = np.asarray(small_concat)
+		image_tiler = ImageTiler(tile_width=512, tile_height=512)
+		patches = image_tiler.create_tile_dictionary(concat_image)
+		mask_patches = {}
+		for key in patches:
+			mask_patches[key] = building_detector.detect(image=patches[key])
+		concat_mask = np.uint8(image_tiler.construct_image_from_tiles(mask_patches))
+		r2v = RasterVectorConverter()
+		polygons = r2v.mask_to_vector(image=concat_mask)
+		dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
+		dataframe.geometry = dataframe.geometry.scale(
+			xfact=6, yfact=6, zfact=1.0, origin=(0, 0)
+		)
+		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
+		return BuildingsLayer(
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			detections_path=detection_file_path
+		)
+
+	def detect_trees(self, request: Request) -> Layer:
+		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		deep_forest = DeepForest()
+		tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
+		tree_detections_path.mkdir(parents=True, exist_ok=True)
+		detection_file_path = tree_detections_path.joinpath(
+			"detections_" + str(request.request_id) + ".csv"
+		)
+		frames = []
+		for tile in tiles:
+			x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
+			y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
+			image = Image.open(tile.path).convert("RGB")
+			np_image = np.array(image)
+			result = deep_forest.detect(np_image)
+			result["xmin"] += x_offset
+			result["ymin"] += y_offset
+			result["xmax"] += x_offset
+			result["ymax"] += y_offset
+			frames.append(result)
+		concat_result = pd.concat(frames).reset_index(drop=True)
+		concat_result.to_csv(detection_file_path)
+		return TreesLayer(
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			detections_path=detection_file_path
+		)
+
 	def process(self, request: Request) -> Sequence[Layer]:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
@@ -72,69 +142,8 @@ class Pipeline:
 		new_layers = []
 		for feature in self.detections_to_run:
 			if feature == DetectionType.TREES:
-				tiles = request.get_layer_of_type(GoogleLayer).tiles
-				deep_forest = DeepForest()
-				tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
-				tree_detections_path.mkdir(parents=True, exist_ok=True)
-				detection_file_path = tree_detections_path.joinpath(
-					"detections_" + str(request.request_id) + ".csv"
-				)
-				frames = []
-				for tile in tiles:
-					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-					image = Image.open(tile.path).convert("RGB")
-					np_image = np.array(image)
-					result = deep_forest.detect(np_image)
-					result["xmin"] += x_offset
-					result["ymin"] += y_offset
-					result["xmax"] += x_offset
-					result["ymax"] += y_offset
-					frames.append(result)
-				concat_result = pd.concat(frames).reset_index(drop=True)
-				concat_result.to_csv(detection_file_path)
-				new_layers.append(
-					TreesLayer(
-					width=request.num_of_horizontal_images,
-					height=request.num_of_vertical_images,
-					detections_path=detection_file_path
-					)
-				)
+				new_layers.append(self.detect_trees(request=request))
 			if feature == DetectionType.BUILDINGS:
-				tiles = request.get_layer_of_type(GoogleLayer).tiles
-				building_detector = BuildingDetector(
-					nn_weights_path=self.file_handler.folder_overview["resource_path"].
-					joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
-				)
-				building_detections_path = self.request_manager.get_image_root(
-				).joinpath("buildings")
-				building_detections_path.mkdir(parents=True, exist_ok=True)
-				detection_file_path = building_detections_path.joinpath(
-					"detections_" + str(request.request_id) + ".geojson"
-				)
-				mask_images = []
-				for tile in tiles:
-					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-					image = Image.open(tile.path).convert("RGB").resize((512, 512))
-					np_image = np.array(image)
-					mask_images.append(
-						ImageUtil.greyscale_matrix_to_image(building_detector.detect(image=np_image))
-					)
-				# note: not sure how this will perform for large scale analysis!
-				result_mask = ImageUtil.concat_image_grid(
-					request.num_of_horizontal_images, request.num_of_vertical_images, mask_images
-				)
-				np_result = np.asarray(result_mask)
-				r2v = RasterVectorConverter()
-				polygons = r2v.mask_to_vector(image=np_result)
-				dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
-				dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
-				new_layers.append(
-					BuildingsLayer(
-					width=request.num_of_horizontal_images,
-					height=request.num_of_vertical_images,
-					detections_path=detection_file_path
-					)
-				)
+				new_layers.append(self.detect_buildings(request=request))
+
 		return new_layers

@@ -31,7 +31,6 @@ class ImageTiler:
 				left_x = min(image_width - self.tile_width, x_coord * self.tile_width)
 				tile_dictionary[(left_x, upper_y)] = image[
 					left_x:left_x + self.tile_width,upper_y:upper_y + self.tile_height]
-				print(tile_dictionary[(left_x,upper_y)].shape)
 		return tile_dictionary
 
 	def construct_image_from_tiles(self, tile_dictionary):
