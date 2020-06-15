@@ -14,7 +14,7 @@ class GoogleMapsProviderTest(unittest.TestCase):
 	def setUp(self):
 		self.provider = ImageProviderEntity(
 			FileHandler(),
-			type_map_provider="google_maps",
+			type_map_provider="Google Maps",
 			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
 			quota=500
 		)

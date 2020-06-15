@@ -4,9 +4,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
+from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
+from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.util.file_handler import FileHandler
 
 
 class TestRequestMaker(unittest.TestCase):
@@ -14,11 +17,11 @@ class TestRequestMaker(unittest.TestCase):
 
 	def setUp(self):
 		self.request_manager = RequestManager(image_root=self.resource_path)
-		imagery_provider = Mock()
-		imagery_provider.max_zoom = 20
-		imagery_provider.get_and_store_location.return_value = "test_path"
+
 		self.request_maker = RequestMaker(request_manager=self.request_manager)
-		self.request_maker.set_top_down_provider(imagery_provider)
+		self.request_maker.top_down_provider= GoogleMapsProvider(Mock())
+		self.request_maker.image_provider = Mock()
+
 		self.location_input = (-22.824637, -43.242729)
 		self.two_coordinate_input = (-22.824637, -43.242729, -22.821384, -43.238813)
 		self.coordinate_list = [

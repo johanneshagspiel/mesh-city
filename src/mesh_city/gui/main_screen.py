@@ -114,6 +114,7 @@ class MainScreen:
 		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
 		self.temp_image = Label(self.master, image=temp_image)
 		self.temp_image.grid(row=0, column=1, sticky='nsew')
+		self.new_canvas_image = None
 
 		self.start_up_window = self.start_up()
 		self.master.wait_window(self.start_up_window.top)
@@ -175,6 +176,10 @@ class MainScreen:
 		DetectionWindow(self.master, self.application)
 
 	def user_window(self):
+		"""
+		Creates a User Window object
+		:return:
+		"""
 		UserWindow(master=self.master, application=self.application, main_screen=self)
 
 	def set_canvas_image(self, image):
@@ -215,10 +220,14 @@ class MainScreen:
 		self.information_general.configure(state='disabled')
 
 	def start_up(self):
+		"""
+		Method called when starting the application -creates either tutorial window or load screen
+		:return: nothing
+		"""
 
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 		no_requests = True
-
+		# TODO how to check that there are no requests
 		for temp in self.image_path.glob('*'):
 			if temp.is_file() is False:
 				no_requests = False
@@ -226,5 +235,5 @@ class MainScreen:
 
 		if no_requests:
 			return TutorialWindow(self.master, self.application, self)
-		else:
-			return LoadWindow(self.master, self.application, self)
+
+		return LoadWindow(self.master, self.application, self)

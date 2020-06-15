@@ -13,7 +13,7 @@ class MapboxProviderTest(unittest.TestCase):
 
 	def setUp(self):
 		self.provider = ImageProviderEntity(
-			FileHandler(), type_map_provider="map_box", api_key="test", quota=500
+			FileHandler(), type_map_provider="Mapbox", api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4", quota=500
 		)
 
 		self.mapbox = MapboxProvider(self.provider)

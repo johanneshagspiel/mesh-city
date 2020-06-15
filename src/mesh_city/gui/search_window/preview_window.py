@@ -1,13 +1,12 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, END, Entry, Label, Toplevel
+from tkinter import Button, Entry, Label, Toplevel
 
-from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
-
+# pylint: disable=W0201
 class PreviewWindow:
 	"""
 	The preview window class is the gui element that shows the user how much a request would cost
@@ -72,6 +71,10 @@ class PreviewWindow:
 		self.additional_provider_button.grid(row=self.count, columnspan=2)
 
 	def add_another_provider(self):
+		"""
+		Adds
+		:return:
+		"""
 
 		self.addition_provider_gui_list = []
 

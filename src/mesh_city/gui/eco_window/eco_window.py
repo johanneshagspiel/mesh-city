@@ -5,8 +5,10 @@ import math
 from pathlib import Path
 from tkinter import Button, Label, Scale, Toplevel
 
-from mesh_city.detection.meta_data_creator import MetaDataCreator
-from mesh_city.detection.overlay_creator import OverlayCreator
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class EcoWindow:
@@ -30,22 +32,28 @@ class EcoWindow:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		temp_path = next(
-			self.application.file_handler.folder_overview["active_request_path"].
-			glob('building_instructions_request_*')
-		)
-		self.building_instructions = self.application.log_manager.read_log(
-			temp_path, "building_instructions_request"
-		)
+		detected_layers = []
+		for layer in self.application.current_request.layers:
+			if isinstance(layer, GoogleLayer):
+				detected_layers.append("Google Maps")
+			if isinstance(layer, TreesLayer):
+				detected_layers.append("Trees")
+			if isinstance(layer, CarsLayer):
+				detected_layers.append("Cars")
+			if isinstance(layer, BuildingsLayer):
+				detected_layers.append("Buildings")
 
 		self.top_label = Label(self.top, text="")
 		self.top_label.grid(row=0)
 
-		if len(self.building_instructions.instructions.keys()) == 1:
+		if len(detected_layers) == 1:
 			self.top_label["text"
-							] = "This area can not be made more eco-friendly. Detect something first"
+			] = "This area can not be made more eco-friendly. Detect something first"
 
 		else:
+			if "Trees" in detected_layers:
+
+
 			meta_creator = MetaDataCreator(self.application, self.building_instructions)
 			meta_creator.combine_information(["Trees"])
 

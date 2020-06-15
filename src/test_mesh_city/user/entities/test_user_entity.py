@@ -1,5 +1,5 @@
 # pylint: disable=C0114,R0201,W0703,missing-class-docstring,missing-function-docstring
-
+import string
 import unittest
 from datetime import datetime
 
@@ -14,14 +14,14 @@ class ImageProviderEntityTest(unittest.TestCase):
 		self.provider1 = ImageProviderEntity(
 			FileHandler(),
 			type_map_provider="Google Maps",
-			api_key="test",
+			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
 			quota=100,
 			date_reset=datetime(2019, 2, 28)
 		)
 		self.provider2 = ImageProviderEntity(
 			FileHandler(),
 			type_map_provider="Mapbox",
-			api_key="test",
+			api_key="AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
 			quota=100,
 			date_reset=datetime(2019, 2, 28)
 		)
@@ -33,8 +33,8 @@ class ImageProviderEntityTest(unittest.TestCase):
 			{
 			'ahn1':
 			{
-			'api_key': 'test',
-			'date_reset': '2020-06-30',
+			'api_key': 'AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4',
+			'date_reset': '2020-06-30 00:00:00',
 			'quota': 100,
 			'type_map_provider': 'Google Maps',
 			'usage': {
@@ -43,8 +43,8 @@ class ImageProviderEntityTest(unittest.TestCase):
 			},
 			'ahn2':
 			{
-			'api_key': 'test',
-			'date_reset': '2020-06-30',
+			'api_key': 'AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4',
+			'date_reset': '2020-06-30 00:00:00',
 			'quota': 100,
 			'type_map_provider': 'Mapbox',
 			'usage': {
@@ -57,34 +57,17 @@ class ImageProviderEntityTest(unittest.TestCase):
 		print(user_entity.for_storage())
 
 	def test_serialize_deserialize(self):
-		try:
-			UserEntity(
-				FileHandler(),
-				json={
-				'test user':
-				{
-				'ahn1':
-				{
-				'api_key': 'test',
-				'date_reset': '2020-05-31',
-				'quota': 100,
-				'type_map_provider': 'google_maps',
-				'usage': {
-				'geocoding': 0, 'static_map': 0, 'total': 0
-				}
-				},
-				'ahn2':
-				{
-				'api_key': 'test',
-				'date_reset': '2020-05-31',
-				'quota': 100,
-				'type_map_provider': 'ahn',
-				'usage': {
-				'geocoding': 0, 'static_map': 0, 'total': 0
-				}
-				}
-				}
-				}
-			)
-		except Exception:  # pylint: disable=broad-except
-			self.fail("myFunc() raised ExceptionType unexpectedly!")
+		test_json = {'test user':{'ahn1': {'type_map_provider': 'Google Maps', 'api_key': 'AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4', 'usage': {'static_map': 0, 'geocoding': 0, 'total': 0}, 'quota': 100.0, 'date_reset': '2020-06-30'}}}
+		remove = string.punctuation + string.whitespace
+
+		test = UserEntity(
+			FileHandler(),
+			json=test_json
+		)
+		json_result = str(test.for_storage())
+		temp_string = "{'test user': " + json_result + "}"
+
+		to_compare_1 = str(test_json).translate(remove)
+		to_compare_2 = temp_string.translate(remove)
+
+		self.assertEqual(to_compare_1, to_compare_2)
