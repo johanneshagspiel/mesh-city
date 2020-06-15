@@ -2,7 +2,8 @@
 See :class:`.SearchWindowLocationArea`
 """
 
-from tkinter import Button, Entry, Label, Toplevel, messagebox
+from tkinter import Button, Entry, Label, messagebox, Toplevel
+
 from mesh_city.gui.search_window.preview_window import PreviewWindow
 from mesh_city.util.input_util import InputUtil
 
@@ -57,10 +58,7 @@ class SearchWindowLocationArea:
 		effectively returning control to the main screen.
 		"""
 		list_entries = [
-			self.min_lat_entry,
-			self.min_long_entry,
-			self.max_lat_entry,
-			self.max_long_entry,
+			self.min_lat_entry, self.min_long_entry, self.max_lat_entry, self.max_long_entry,
 		]
 		wrong_counter_list = []
 
@@ -69,7 +67,9 @@ class SearchWindowLocationArea:
 				wrong_counter_list.append(counter)
 
 		if len(wrong_counter_list) > 0:
-			messagebox.showinfo("Input Error", "All entries must be filled out with correct coordinates")
+			messagebox.showinfo(
+				"Input Error", "All entries must be filled out with correct coordinates"
+			)
 			for number in wrong_counter_list:
 				list_entries[number].delete(0, 'end')
 

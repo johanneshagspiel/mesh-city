@@ -1,7 +1,7 @@
 """
 See :class:`.SearchWindowLocation`
 """
-from tkinter import Button, Entry, Label, Toplevel, messagebox
+from tkinter import Button, Entry, Label, messagebox, Toplevel
 
 from mesh_city.gui.search_window.preview_window import PreviewWindow
 from mesh_city.util.input_util import InputUtil
@@ -71,10 +71,7 @@ class SearchWindowLocation:
 		:return: None
 		"""
 
-		list_entries = [
-			self.lat_entry,
-			self.long_entry,
-		]
+		list_entries = [self.lat_entry, self.long_entry, ]
 		wrong_counter_list = []
 
 		for counter, element in enumerate(list_entries, 0):
@@ -82,7 +79,9 @@ class SearchWindowLocation:
 				wrong_counter_list.append(counter)
 
 		if len(wrong_counter_list) > 0:
-			messagebox.showinfo("Input Error", "All entries must be filled out with correct coordinates")
+			messagebox.showinfo(
+				"Input Error", "All entries must be filled out with correct coordinates"
+			)
 			for number in wrong_counter_list:
 				list_entries[number].delete(0, 'end')
 

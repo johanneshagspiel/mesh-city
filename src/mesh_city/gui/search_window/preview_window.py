@@ -1,7 +1,7 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, END, Label, Toplevel, Entry
+from tkinter import Button, END, Entry, Label, Toplevel
 
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
@@ -43,14 +43,17 @@ class PreviewWindow:
 		self.temp_list = []
 		self.temp_list_size = -1
 
-		self.chosen_list =[]
+		self.chosen_list = []
 		self.list_providers = []
 
 		for key, value in self.application.user_entity.image_providers.items():
 			self.provider_number += 1
 			self.temp_list.append(
 				Button(
-				self.top, text=key, command=lambda value=value: self.calculate_locations(key, value), bg="white"
+				self.top,
+				text=key,
+				command=lambda value=value: self.calculate_locations(key, value),
+				bg="white"
 				)
 			)
 			self.temp_list_size += 1
@@ -63,7 +66,8 @@ class PreviewWindow:
 			self.count += 1
 
 		self.additional_provider_button = Button(
-			self.top, text="Add new image provider", command=self.add_another_provider, bg="white")
+			self.top, text="Add new image provider", command=self.add_another_provider, bg="white"
+		)
 		self.temp_list.append(self.additional_provider_button)
 		self.additional_provider_button.grid(row=self.count, columnspan=2)
 
@@ -105,7 +109,9 @@ class PreviewWindow:
 		self.count += 1
 
 		self.confirm_button = Button(self.top, text="Confirm", command=None)
-		self.confirm_button = Button(self.top, text="Confirm", command=self.confirm_additional_provider)
+		self.confirm_button = Button(
+			self.top, text="Confirm", command=self.confirm_additional_provider
+		)
 		self.confirm_button.grid(row=self.count, column=1)
 		self.temp_list.append(self.confirm_button)
 		self.addition_provider_gui_list.append(self.confirm_button)
@@ -147,14 +153,19 @@ class PreviewWindow:
 			"static_map",
 			self.number_requests,
 			image_provider_entity.quota,
-			image_provider_entity.usage["total"])
+			image_provider_entity.usage["total"]
+		)
 
 		if temp_cost[0] != -1:
-			self.list_providers.append((image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2]))
+			self.list_providers.append(
+				(image_provider_entity_name, temp_cost[0], temp_cost[1], temp_cost[2])
+			)
 			self.confirm_download()
 		else:
 			self.number_requests -= temp_cost[2]
-			self.list_providers.append((image_provider_entity_name,  temp_cost[1], temp_cost[2], temp_cost[3]))
+			self.list_providers.append(
+				(image_provider_entity_name, temp_cost[1], temp_cost[2], temp_cost[3])
+			)
 			self.select_additional_providers()
 
 	def select_additional_providers(self):
@@ -174,9 +185,12 @@ class PreviewWindow:
 			if key not in self.chosen_list:
 				self.provider_number += 1
 				self.temp_button = Button(
-						self.top, text=key,
-						command=lambda value=value, key=key: self.check_usage(key, value), bg="white"
-					)
+					self.top,
+					text=key,
+					command=lambda value=value,
+					key=key: self.check_usage(key, value),
+					bg="white"
+				)
 				self.temp_button.grid(row=self.count, column=0)
 				self.temp_list.append(self.temp_button)
 
@@ -187,8 +201,8 @@ class PreviewWindow:
 				self.count += 1
 
 		self.additional_provider_button = Button(
-			self.top, text="Add new image provider", command=self.add_another_provider,
-			bg="white")
+			self.top, text="Add new image provider", command=self.add_another_provider, bg="white"
+		)
 		self.temp_list.append(self.additional_provider_button)
 		self.additional_provider_button.grid(row=self.count, column=0, columnspan=2)
 
@@ -210,7 +224,6 @@ class PreviewWindow:
 
 		PreviewWindow(self.master, self.application, self.main_screen, self.coordinates)
 		self.top.destroy()
-
 
 	def confirm_download(self):
 		self.top_label.configure(text="Are you sure you want to proceed?")
@@ -267,4 +280,3 @@ class PreviewWindow:
 			raise ValueError("The number of coordinate values does not check out")
 
 		self.top.destroy()
-

@@ -1,7 +1,7 @@
 """
 A module containing the create new user window
 """
-from tkinter import Button, Entry, Label, Toplevel, messagebox
+from tkinter import Button, Entry, Label, messagebox, Toplevel
 
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.user.entities.user_entity import UserEntity
@@ -112,7 +112,10 @@ class CreateNewUserWindow:
 					wrong_entry_list.append(counter)
 
 		if len(wrong_entry_list) > 0 or self.name_entry.get() == "":
-			messagebox.showinfo("Input Error", "All entries must be filled out with correct information\nAPI keys must start with 'AIza'")
+			messagebox.showinfo(
+				"Input Error",
+				"All entries must be filled out with correct information\nAPI keys must start with 'AIza'"
+			)
 			for number in wrong_entry_list:
 				self.map_providers[number].delete(0, 'end')
 

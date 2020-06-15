@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.entities.request import Request
-from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.entities.tile import Tile
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.request_manager import RequestManager
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.price_table_util import PriceTableUtil
@@ -22,8 +22,12 @@ class RequestMaker:
 	of its RequestManager.
 	"""
 
-	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None,
-	             image_provider: ImageProviderEntity = None):
+	def __init__(
+		self,
+		request_manager: RequestManager,
+		top_down_provider: TopDownProvider = None,
+		image_provider: ImageProviderEntity = None
+	):
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
 		self.image_provider = image_provider

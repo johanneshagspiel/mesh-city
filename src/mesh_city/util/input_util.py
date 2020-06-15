@@ -4,6 +4,7 @@ source = https://code-maven.com/slides/python-programming/is-number
 author = Gabor Szabo
 """
 
+
 class InputUtil:
 
 	def __init__(self):

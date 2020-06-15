@@ -6,12 +6,12 @@ from pathlib import Path
 from shutil import copyfile
 from typing import List
 
+from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
-from mesh_city.request.entities.request import Request
-from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.request.request_manager import RequestManager
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 

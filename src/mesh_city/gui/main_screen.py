@@ -2,7 +2,7 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD, Label
+from tkinter import Button, END, Frame, Label, mainloop, Text, Tk, WORD
 
 import numpy as np
 from PIL import Image, ImageTk
@@ -11,9 +11,9 @@ from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
-from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
 from mesh_city.gui.user_window.user_window import UserWindow
 
