@@ -184,8 +184,10 @@ class RequestManager:
 
 		old_usage = self.image_provider.usage["total"]
 		temp_cost = PriceTableUtil.one_increase(old_usage)
-		self.image_provider.usage["total"] = old_usage + temp_cost
-		self.image_provider.usage["static_map"] = old_usage + temp_cost
+		temp_new_total = old_usage + temp_cost
+
+		self.image_provider.usage["total"] = round(temp_new_total, 4)
+		self.image_provider.usage["static_map"] = round(temp_new_total, 4)
 
 		self.application.log_manager.write_log(self.application.user_entity)
 

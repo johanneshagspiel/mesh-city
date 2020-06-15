@@ -70,7 +70,7 @@ class ImageProviderEntity(LogEntity):
 		self.type = storage["type_map_provider"]
 		self.api_key = storage["api_key"]
 		self.usage = storage["usage"]
-		self.quota = int(storage["quota"])
+		self.quota = float(storage["quota"])
 		self.date_reset = ImageProviderEntity.calculate_end_of_month(datetime.today()).date()
 
 	def for_storage(self):

@@ -89,10 +89,18 @@ class UserWindow:
 			self.pot_delete_list.append(self.temp_quota_label_amount)
 			counter += 1
 
+			temp_image_provider_quota = str(image_provider.quota)
+			temp_image_provider_usage = str(image_provider.usage["static_map"])
+			temp_name = name
+
 			self.change_quota_button = Button(self.top, text="Change quota",
-			                                  command=lambda : self.change_quota(str(image_provider.quota),
-			                                                                     str(image_provider.usage["static_map"]),
-			                                                                     name),
+			                                  command=lambda
+				                                  temp_image_provider_quota=temp_image_provider_quota,
+				                                  temp_image_provider_usage = temp_image_provider_usage,
+				                                  temp_name = temp_name
+			                                  : self.change_quota(temp_image_provider_quota,
+			                                                                     temp_image_provider_usage,
+			                                                                     temp_name),
 			                                  bg="white")
 			self.change_quota_button.grid(row=counter, columnspan=2)
 			self.pot_delete_list.append(self.change_quota_button)
@@ -183,11 +191,11 @@ class UserWindow:
 		temp_new_quota_button.grid(row=3, columnspan=2)
 
 	def change_quota_confirm(self, new_quota, name):
-		if new_quota == "" or (InputUtil.is_float(new_quota is False)):
+		if new_quota == "" or (InputUtil.is_float(new_quota) is False):
 			messagebox.showinfo("Input Error",
 			                    "Quota must be a number")
 			self.temp_new_quota_entry.delete(0, 'end')
-		elif float(new_quota) >= float(self.temp_current_usage_amount["text"]):
+		elif float(new_quota) <= float(self.temp_current_usage_amount["text"]):
 			messagebox.showinfo("Input Error",
 			                    "New quota can not be lower than current usage")
 			self.temp_new_quota_entry.delete(0, 'end')

@@ -80,4 +80,4 @@ class PriceTableUtil:
 		:return: the cost of one increase
 		"""
 		# TODO change if we ever support multiple map providers or actions
-		return PriceTableUtil.price_table_dic["Google Maps"]["static_map"][current_usage+1]
+		return round(PriceTableUtil.price_table_dic["Google Maps"]["static_map"][current_usage+1], 4)
