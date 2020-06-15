@@ -2,18 +2,19 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD
+from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD, Label
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageTk
 
-from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
+from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
+from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
 
 
 class MainScreen:
@@ -86,8 +87,6 @@ class MainScreen:
 		)
 		self.user_button.grid(row=6, column=0)
 
-		self.set_canvas_image(self.create_placeholder_image())
-
 		self.right_frame = Frame(self.master, width=185, background="white")
 		self.right_frame.grid(row=0, column=2, sticky='nsew')
 		self.right_frame.grid_propagate(0)
@@ -109,6 +108,23 @@ class MainScreen:
 		self.information_selection.bind("<Double-1>", lambda event: "break")
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")
+
+		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
+		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
+		self.temp_image = Label(self.master, image=temp_image)
+		self.temp_image.grid(row=0, column=1, sticky='nsew')
+
+		self.start_up_window = self.start_up()
+		self.master.wait_window(self.start_up_window.top)
+
+		temp_image_path = next(
+			self.application.file_handler.folder_overview["active_image_path"].glob(
+				"concat_image_*")
+		)
+		self.temp_image.grid_forget()
+		self.canvas_image = CanvasImage(self.master, temp_image_path)
+		self.new_canvas_image = None
+		self.canvas_image.grid(row=0, column=1, sticky='nsew')
 
 		self.master.columnconfigure(1, weight=1)
 		self.master.rowconfigure(0, weight=1)
@@ -202,3 +218,26 @@ class MainScreen:
 		self.information_general.delete('1.0', END)
 		self.information_general.insert(END, tree_amount_text)
 		self.information_general.configure(state='disabled')
+
+	def set_canvas_image(self, image):
+		"""
+		Calls methods needed to updates the image seen on the map
+		:return: Nothing
+		"""
+		self.new_canvas_image = CanvasImage(self.master, image)
+		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+
+	def start_up(self):
+
+		self.image_path = self.application.file_handler.folder_overview['image_path']
+		no_requests = True
+
+		for temp in self.image_path.glob('*'):
+			if temp.is_file() is False:
+				no_requests = False
+				break
+
+		if no_requests:
+			return TutorialWindow(self.master, self.application, self)
+		else:
+			return LoadWindow(self.master, self.application, self)
