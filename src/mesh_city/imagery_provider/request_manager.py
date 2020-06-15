@@ -187,6 +187,8 @@ class RequestManager:
 		self.image_provider.usage["total"] = old_usage + temp_cost
 		self.image_provider.usage["static_map"] = old_usage + temp_cost
 
+		self.application.log_manager.write_log(self.application.user_entity)
+
 		if latitude in self.file_handler.coordinate_overview.grid:
 			new_to_store = self.file_handler.coordinate_overview.grid[latitude]
 			new_to_store[longitude] = {self.top_down_provider.name: temp_location_stored}

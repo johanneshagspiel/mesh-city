@@ -1,6 +1,8 @@
-from tkinter import Button, END, Label, Toplevel, Text, CHAR, Entry
+from tkinter import Button, END, Label, Toplevel, Text, CHAR, Entry, messagebox
 
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.util.input_util import InputUtil
+
 
 class UserWindow:
 
@@ -167,23 +169,32 @@ class UserWindow:
 		temp_current_usage = Label(self.top, text="Current Usage: ")
 		temp_current_usage.grid(row=1, column=0, sticky="w")
 
-		temp_current_usage_amount = Label(self.top, text=usage)
-		temp_current_usage_amount.grid(row=1, column=1)
+		self.temp_current_usage_amount = Label(self.top, text=usage)
+		self.temp_current_usage_amount.grid(row=1, column=1)
 
 		temp_new_quota = Label(self.top, text="New Quota: ")
 		temp_new_quota.grid(row=2, column=0,  sticky="w")
 
-		temp_new_quota_entry = Entry(self.top)
-		temp_new_quota_entry.grid(row=2, column=1)
+		self.temp_new_quota_entry = Entry(self.top)
+		self.temp_new_quota_entry.grid(row=2, column=1)
 
 		temp_new_quota_button = Button(self.top, text="Confirm",
-		                              command=lambda : self.change_quota_confirm(temp_new_quota_entry.get(), name), bg="white")
+		                              command=lambda : self.change_quota_confirm(self.temp_new_quota_entry.get(), name), bg="white")
 		temp_new_quota_button.grid(row=3, columnspan=2)
 
 	def change_quota_confirm(self, new_quota, name):
-		self.user_entity.image_providers[name].quota = new_quota
-		self.application.log_manager.write_log(self.user_entity)
-		self.top.destroy()
+		if new_quota == "" or (InputUtil.is_float(new_quota is False)):
+			messagebox.showinfo("Input Error",
+			                    "Quota must be a number")
+			self.temp_new_quota_entry.delete(0, 'end')
+		elif float(new_quota) >= float(self.temp_current_usage_amount["text"]):
+			messagebox.showinfo("Input Error",
+			                    "New quota can not be lower than current usage")
+			self.temp_new_quota_entry.delete(0, 'end')
+		else:
+			self.user_entity.image_providers[name].quota = new_quota
+			self.application.log_manager.write_log(self.user_entity)
+			self.top.destroy()
 
 	def change_name(self):
 		for element in self.pot_delete_list:
@@ -193,39 +204,61 @@ class UserWindow:
 		temp_new_name = Label(self.top, text="New Name: ")
 		temp_new_name.grid(row=0, column=0)
 
-		temp_new_name_entry = Entry(self.top)
-		temp_new_name_entry.grid(row=0, column=1)
+		self.temp_new_name_entry = Entry(self.top)
+		self.temp_new_name_entry.grid(row=0, column=1)
 
 		temp_new_name_button = Button(self.top, text="Confirm",
-		                              command=lambda : self.change_name_confirm(temp_new_name_entry.get()), bg="white")
+		                              command=lambda : self.change_name_confirm(self.temp_new_name_entry.get()), bg="white")
 		temp_new_name_button.grid(row=1, columnspan=2)
 
 	def change_name_confirm(self, new_name):
-		self.application.log_manager.change_name(self.user_entity.name, new_name)
-		self.user_entity.name = new_name
-		self.top.destroy()
+		if new_name == "":
+			messagebox.showinfo("Input Error",
+			                    "Name must be filled out")
+			self.temp_new_name_entry.delete(0, 'end')
+		else:
+			self.application.log_manager.change_name(self.user_entity.name, new_name)
+			self.user_entity.name = new_name
+			self.top.destroy()
 
 	def add_providers(self):
 
-		image_provider_entity_dic = {}
+		wrong_entry_list = []
 
-		temp_counter = self.provider_number_start + 1
-		for number in range(0, self.map_providers_size, 2):
-			temp_api_key = self.map_providers[number].get()
-			number += 1
-			temp_quota = self.map_providers[number].get()
-			number += 1
-			temp_name = "Google Maps " + str(temp_counter)
-			image_provider_entity_dic[temp_name] = ImageProviderEntity(
-				file_handler=self.application.file_handler,
-				type_map_provider="Google Maps",
-				api_key=temp_api_key,
-				quota=temp_quota
-			)
-			temp_counter += 1
+		for counter, entry in enumerate(self.map_providers):
+			if counter == 0 or counter % 2 == 0:
+				if InputUtil.is_google_api(entry.get()) is False:
+					wrong_entry_list.append(counter)
+			if counter % 2 == 1:
+				if InputUtil.is_float(entry.get()) is False:
+					wrong_entry_list.append(counter)
 
-		for name, value in image_provider_entity_dic.items():
-			self.user_entity.image_providers[name] = value
+		if len(wrong_entry_list) > 0:
+			messagebox.showinfo("Input Error", "All entries must be filled out with correct information\nAPI keys must start with 'AIza'")
+			for number in wrong_entry_list:
+				self.map_providers[number].delete(0, 'end')
 
-		self.application.log_manager.write_log(self.user_entity)
-		self.top.destroy()
+		else:
+
+			image_provider_entity_dic = {}
+
+			temp_counter = self.provider_number_start + 1
+			for number in range(0, self.map_providers_size, 2):
+				temp_api_key = self.map_providers[number].get()
+				number += 1
+				temp_quota = self.map_providers[number].get()
+				number += 1
+				temp_name = "Google Maps " + str(temp_counter)
+				image_provider_entity_dic[temp_name] = ImageProviderEntity(
+					file_handler=self.application.file_handler,
+					type_map_provider="Google Maps",
+					api_key=temp_api_key,
+					quota=temp_quota
+				)
+				temp_counter += 1
+
+			for name, value in image_provider_entity_dic.items():
+				self.user_entity.image_providers[name] = value
+
+			self.application.log_manager.write_log(self.user_entity)
+			self.top.destroy()

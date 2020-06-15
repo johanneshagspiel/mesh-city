@@ -4,6 +4,7 @@ See :class:`.SearchWindowLocationArea`
 
 from tkinter import Button, Entry, Label, Toplevel, messagebox
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.util.input_util import InputUtil
 
 
 class SearchWindowLocationArea:
@@ -55,20 +56,22 @@ class SearchWindowLocationArea:
 		Makes the area-type request and cleans up after itself by tearing down the GUI and
 		effectively returning control to the main screen.
 		"""
+		list_entries = [
+			self.min_lat_entry,
+			self.min_long_entry,
+			self.max_lat_entry,
+			self.max_long_entry,
+		]
+		wrong_counter_list = []
 
-		if self.min_lat_entry.get() == "" or self.min_long_entry.get() == "" or self.max_lat_entry.get()== "" or self.max_long_entry.get() == "":
-			messagebox.showinfo("Missing Coordinates", "All entries must be filled out")
-			self.min_lat_entry.delete(0, 'end')
-			self.min_long_entry.delete(0, 'end')
-			self.max_lat_entry.delete(0, 'end')
-			self.max_long_entry.delete(0, 'end')
+		for counter, element in enumerate(list_entries, 0):
+			if InputUtil.is_float(element.get()) is False:
+				wrong_counter_list.append(counter)
 
-		elif not isinstance(self.min_lat_entry.get(), float) or not isinstance(self.min_long_entry.get(), float) or not isinstance(self.max_lat_entry.get(), float) or not isinstance(self.max_long_entry.get(), float) or not isinstance(self.min_lat_entry.get(), int) or not isinstance(self.min_long_entry.get(), int) or not isinstance(self.max_lat_entry.get(), int) or not isinstance(self.max_long_entry.get(), int):
-			messagebox.showinfo("Number Error", "All entries must be numbers")
-			self.min_lat_entry.delete(0, 'end')
-			self.min_long_entry.delete(0, 'end')
-			self.max_lat_entry.delete(0, 'end')
-			self.max_long_entry.delete(0, 'end')
+		if len(wrong_counter_list) > 0:
+			messagebox.showinfo("Input Error", "All entries must be filled out with correct coordinates")
+			for number in wrong_counter_list:
+				list_entries[number].delete(0, 'end')
 
 		else:
 			self.value = [

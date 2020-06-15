@@ -1,11 +1,12 @@
 """
 A module containing the create new user window
 """
-from tkinter import Button, Entry, Label, Toplevel
+from tkinter import Button, Entry, Label, Toplevel, messagebox
 
 from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.util.input_util import InputUtil
 
 
 # TODO check user input (check that google maps api key is an google maps api key)
@@ -101,36 +102,52 @@ class CreateNewUserWindow:
 		:return: nothing
 		"""
 
-		image_provider_entity_dic = {}
+		wrong_entry_list = []
 
-		temp_counter = 1
-		for number in range(0, self.map_providers_size, 2):
-			temp_api_key = self.map_providers[number].get()
-			number += 1
-			temp_quota = self.map_providers[number].get()
-			number += 1
-			temp_name = "Google Maps " + str(temp_counter)
-			image_provider_entity_dic[temp_name] = ImageProviderEntity(
+		for counter, entry in enumerate(self.map_providers):
+			if counter == 0 or counter % 2 == 0:
+				if InputUtil.is_google_api(entry.get()) is False:
+					wrong_entry_list.append(counter)
+			if counter % 2 == 1:
+				if InputUtil.is_float(entry.get()) is False:
+					wrong_entry_list.append(counter)
+
+		if len(wrong_entry_list) > 0 or self.name_entry.get() == "":
+			messagebox.showinfo("Input Error", "All entries must be filled out with correct information\nAPI keys must start with 'AIza'")
+			for number in wrong_entry_list:
+				self.map_providers[number].delete(0, 'end')
+
+		else:
+			image_provider_entity_dic = {}
+
+			temp_counter = 1
+			for number in range(0, self.map_providers_size, 2):
+				temp_api_key = self.map_providers[number].get()
+				number += 1
+				temp_quota = self.map_providers[number].get()
+				number += 1
+				temp_name = "Google Maps " + str(temp_counter)
+				image_provider_entity_dic[temp_name] = ImageProviderEntity(
+					file_handler=self.application.file_handler,
+					type_map_provider="Google Maps",
+					api_key=temp_api_key,
+					quota=temp_quota
+				)
+				temp_counter += 1
+
+			name = self.name_entry.get()
+			new_user = UserEntity(
 				file_handler=self.application.file_handler,
-				type_map_provider="Google Maps",
-				api_key=temp_api_key,
-				quota=temp_quota
+				name=name,
+				image_providers=image_provider_entity_dic
 			)
-			temp_counter += 1
+			self.application.log_manager.write_log(new_user)
 
-		name = self.name_entry.get()
-		new_user = UserEntity(
-			file_handler=self.application.file_handler,
-			name=name,
-			image_providers=image_provider_entity_dic
-		)
-		self.application.log_manager.write_log(new_user)
+			self.application.late_init(new_user)
 
-		self.application.late_init(new_user)
+			temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
+			temp_json = self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
+			temp_overview = CoordinateOverview(path_to_store=temp_path, json=temp_json)
+			self.application.file_handler.coordinate_overview = temp_overview
 
-		temp_path = self.application.file_handler.folder_overview["coordinate_overview.json"]
-		temp_json = self.application.log_manager.read_log(temp_path, "coordinate_overview.json")
-		temp_overview = CoordinateOverview(path_to_store=temp_path, json=temp_json)
-		self.application.file_handler.coordinate_overview = temp_overview
-
-		self.top.destroy()
+			self.top.destroy()

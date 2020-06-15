@@ -1,9 +1,10 @@
 """
 See :class:`.SearchWindowLocation`
 """
-from tkinter import Button, Entry, Label, Toplevel
+from tkinter import Button, Entry, Label, Toplevel, messagebox
 
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.util.input_util import InputUtil
 
 
 class SearchWindowLocation:
@@ -69,13 +70,30 @@ class SearchWindowLocation:
 		effectively returning control to the main screen.
 		:return: None
 		"""
-		self.value = [float(self.lat_entry.get()), float(self.long_entry.get())]
 
-		temp_window = PreviewWindow(
-			main_screen=self.main_screen,
-			master=self.master,
-			application=self.application,
-			coordinates=self.value
-		)
-		self.top.destroy()
-		self.main_screen.master.wait_window(temp_window.top)
+		list_entries = [
+			self.lat_entry,
+			self.long_entry,
+		]
+		wrong_counter_list = []
+
+		for counter, element in enumerate(list_entries, 0):
+			if InputUtil.is_float(element.get()) is False:
+				wrong_counter_list.append(counter)
+
+		if len(wrong_counter_list) > 0:
+			messagebox.showinfo("Input Error", "All entries must be filled out with correct coordinates")
+			for number in wrong_counter_list:
+				list_entries[number].delete(0, 'end')
+
+		else:
+			self.value = [float(self.lat_entry.get()), float(self.long_entry.get())]
+
+			temp_window = PreviewWindow(
+				main_screen=self.main_screen,
+				master=self.master,
+				application=self.application,
+				coordinates=self.value
+			)
+			self.top.destroy()
+			self.main_screen.master.wait_window(temp_window.top)
