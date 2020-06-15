@@ -41,7 +41,7 @@ class ExportWindow:
 			width=20,
 			height=3,
 			command=lambda: self.load_request(self.application.current_request),
-			bg="grey"
+			bg="white"
 			)
 		)
 		for (index, request) in enumerate(self.application.request_manager.requests):
@@ -53,7 +53,7 @@ class ExportWindow:
 					width=20,
 					height=3,
 					command=lambda: self.load_request(request),
-					bg="grey"
+					bg="white"
 					)
 				)
 		for (index, request_button) in enumerate(self.request_buttons):

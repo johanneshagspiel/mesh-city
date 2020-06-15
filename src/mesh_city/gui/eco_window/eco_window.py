@@ -2,13 +2,15 @@
 The module containing the eco window
 """
 import math
-from pathlib import Path
+import pandas as pd
+
 from tkinter import Button, Label, Scale, Toplevel
 
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.request.scenario.scenario_pipeline import ScenarioType
 
 
 class EcoWindow:
@@ -53,40 +55,20 @@ class EcoWindow:
 		else:
 			if "Trees" in detected_layers:
 
+				self.tree_layer_panda = pd.read_csv(self.application.current_request.get_layer_of_type(TreesLayer).detections_path)
 
-			meta_creator = MetaDataCreator(self.application, self.building_instructions)
-			meta_creator.combine_information(["Trees"])
+				if self.tree_layer_panda.shape[0] == 1:
 
-			temp_to_read = Path.joinpath(
-				self.application.file_handler.folder_overview["temp_meta_path"],
-				"concat_information.csv"
-			)
-			self.temp_meta_info = self.application.log_manager.read_log(temp_to_read, "information")
+				 	self.top_label["text"] = "This area can not be made more eco-friendly"
 
-			if self.temp_meta_info.information["Amount"] == 0:
-				self.top_label["text"] = "This area can not be made more eco-friendly"
+				else:
+					self.top_label["text"] = "How do you want to make this area more eco-friendly?"
+					self.top_label.grid(row=0)
 
-			else:
-				self.top_label["text"] = "How do you want to make this area more eco-friendly?"
-				self.top_label.grid(row=0)
-
-				self.more_trees = Button(
-					self.top, text="Add more trees", command=self.add_more_trees, bg="white"
-				)
-				self.more_trees.grid(row=1)
-
-				self.test_scenarios = Button(
-					self.top, text="Test different scenarios", command=self.test_scenarios, bg="white"
-				)
-				self.test_scenarios.grid(row=2)
-
-	# pylint: disable=E0202
-	def test_scenarios(self):
-		"""
-		A placeholder function.
-		:return:
-		"""
-		self.top.destroy()
+					self.more_trees = Button(
+						self.top, text="Add more trees", command=self.add_more_trees, bg="white"
+					)
+					self.more_trees.grid(row=1)
 
 	def add_more_trees(self):
 		"""
@@ -94,7 +76,6 @@ class EcoWindow:
 		:return: nothing (creates a gif with additional trees on it and displays that on the mainscreen)
 		"""
 		self.more_trees.grid_forget()
-		self.test_scenarios.grid_forget()
 
 		self.top_label["text"] = "How many trees do you want to add in percentage?"
 		# pylint: disable=W0201
@@ -113,15 +94,13 @@ class EcoWindow:
 		"""
 		increase_percentage = self.tree_increase.get() * 0.01 + 1
 		trees_to_add = math.ceil(
-			self.temp_meta_info.information["Amount"] * increase_percentage -
-			self.temp_meta_info.information["Amount"]
+			(self.tree_layer_panda.shape[0] - 1) * increase_percentage -
+			(self.tree_layer_panda.shape[0] - 1)
 		)
 
-		temp_overlay_creator = OverlayCreator(self.application, self.building_instructions)
-		temp_overlay_creator.create_image_with_more_trees(
-			trees_to_add, self.temp_meta_info, self.building_instructions
+		self.application.create_scenario(
+			request=self.application.current_request, scenario_to_create=[(
+			ScenarioType.MORE_Trees, trees_to_add)]
 		)
 
-		self.main_screen.update_gif()
-		self.main_screen.seen_on_screen = ["Generated"]
 		self.top.destroy()

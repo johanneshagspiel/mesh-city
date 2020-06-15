@@ -6,7 +6,7 @@ from pathlib import Path
 from tkinter import END
 from typing import List
 
-from mesh_city.detection.pipeline import Pipeline
+from mesh_city.detection.detection_pipeline import DetectionPipeline
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
@@ -14,6 +14,7 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
+from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -62,10 +63,17 @@ class Application:
 		:return:
 		"""
 
-		pipeline = Pipeline(self.file_handler, self.request_manager, to_detect)
+		pipeline = DetectionPipeline(self.file_handler, self.request_manager, to_detect)
 		new_layers = pipeline.process(request)
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
+
+	def create_scenario(self, request, scenario_to_create):
+
+		pipeline = ScenarioPipeline(self.file_handler, self.request_manager, scenario_to_create)
+		new_scenarios = pipeline.process(request)
+		for new_scenario in new_scenarios:
+			self.current_request.add_scenario(new_scenario)
 
 	def make_location_request(self, latitude: float, longitude: float) -> None:
 		"""

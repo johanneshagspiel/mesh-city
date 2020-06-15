@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image, ImageTk
 
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
+from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
@@ -54,37 +55,37 @@ class MainScreen:
 		self.left_bar.grid_propagate(0)
 
 		self.search_button = Button(
-			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="grey"
+			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="white"
 		)
 		self.search_button.grid(row=0, column=0)
 
 		self.load_button = Button(
-			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="grey"
+			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="white"
 		)
 		self.load_button.grid(row=1, column=0)
 
 		self.detect_button = Button(
-			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
+			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="white"
 		)
 		self.detect_button.grid(row=2, column=0)
 
 		self.layers_button = Button(
-			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="white"
 		)
 		self.layers_button.grid(row=3, column=0)
 
 		self.eco_button = Button(
-			self.left_bar, text="Eco", width=6, height=3, command=None, bg="grey"
+			self.left_bar, text="Eco", width=6, height=3, command=self.eco_window, bg="white"
 		)
 		self.eco_button.grid(row=4, column=0)
 
 		self.export_button = Button(
-			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
+			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="white"
 		)
 		self.export_button.grid(row=5, column=0)
 
 		self.user_button = Button(
-			self.left_bar, text="User", width=6, height=3, command=self.user_window, bg="grey"
+			self.left_bar, text="User", width=6, height=3, command=self.user_window, bg="white"
 		)
 		self.user_button.grid(row=6, column=0)
 
@@ -182,6 +183,9 @@ class MainScreen:
 		"""
 		UserWindow(master=self.master, application=self.application, main_screen=self)
 
+	def eco_window(self):
+		EcoWindow(master=self.master, application=self.application, main_screen=self)
+
 	def set_canvas_image(self, image):
 		"""
 		Calls methods needed to updates the image seen on the map
@@ -224,16 +228,7 @@ class MainScreen:
 		Method called when starting the application -creates either tutorial window or load screen
 		:return: nothing
 		"""
-
-		self.image_path = self.application.file_handler.folder_overview['image_path']
-		no_requests = True
-		# TODO how to check that there are no requests
-		for temp in self.image_path.glob('*'):
-			if temp.is_file() is False:
-				no_requests = False
-				break
-
-		if no_requests:
+		if len(self.application.request_manager.requests) == 0:
 			return TutorialWindow(self.master, self.application, self)
 
 		return LoadWindow(self.master, self.application, self)

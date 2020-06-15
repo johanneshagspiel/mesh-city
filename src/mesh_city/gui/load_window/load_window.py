@@ -36,7 +36,7 @@ class LoadWindow:
 				width=20,
 				height=3,
 				command=lambda button_request=request: self.load_request(button_request),
-				bg="grey"
+				bg="white"
 			)
 			self.temp_name.grid(row=index + 1, column=1)
 

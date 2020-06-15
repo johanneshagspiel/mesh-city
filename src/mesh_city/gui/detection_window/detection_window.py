@@ -3,7 +3,7 @@ A module containing the detection screen
 """
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
-from mesh_city.detection.pipeline import DetectionType
+from mesh_city.detection.detection_pipeline import DetectionType
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.trees_layer import TreesLayer

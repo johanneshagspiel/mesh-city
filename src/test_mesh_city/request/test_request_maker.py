@@ -19,7 +19,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.request_manager = RequestManager(image_root=self.resource_path)
 
 		self.request_maker = RequestMaker(request_manager=self.request_manager)
-		self.request_maker.top_down_provider= GoogleMapsProvider(Mock())
+		self.request_maker.top_down_provider = GoogleMapsProvider(Mock())
 		self.request_maker.image_provider = Mock()
 
 		self.location_input = (-22.824637, -43.242729)

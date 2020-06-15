@@ -1,0 +1,136 @@
+import copy
+import random
+
+from mesh_city.gui.request_renderer import RequestRenderer
+from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.request.request_manager import RequestManager
+from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
+from mesh_city.request.scenario.scenario import Scenario
+from mesh_city.util.file_handler import FileHandler
+from typing import Sequence
+from enum import Enum
+import pandas as pd
+
+
+class ScenarioType(Enum):
+
+	MORE_Trees = 0
+
+class ScenarioPipeline:
+
+	def __init__(
+		self,
+		file_handler: FileHandler,
+		request_manager: RequestManager,
+		scenarios_to_create
+	):
+		self.file_handler = file_handler
+		self.scenarios_to_create = scenarios_to_create
+		self.request_manager = request_manager
+
+	def add_more_trees(self, request, trees_to_add):
+
+		tree_layer_panda = pd.read_csv(
+			request.get_layer_of_type(TreesLayer).detections_path)
+
+		temp_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
+
+		images_to_add = []
+		images_to_add.append(temp_image)
+		object_counter = tree_layer_panda.shape[0] - 1
+
+		# pylint: disable=W0612
+		for tree in range(0, trees_to_add):
+			tree_to_duplicate = random.randint(1, tree_layer_panda.shape[0]-1)
+			location_to_place_it_to = random.randint(1, tree_layer_panda.shape[0]-1)
+			image_to_paste = temp_image.crop(
+				box=(
+					float(tree_layer_panda.iloc[tree_to_duplicate][1]), #xmin
+					float(tree_layer_panda.iloc[tree_to_duplicate][2]), #ymin
+					float(tree_layer_panda.iloc[tree_to_duplicate][3]), #xmax
+					float(tree_layer_panda.iloc[tree_to_duplicate][4]), #ymax
+				)
+			)
+
+			new_entry = self.calculate_new_location(tree_to_duplicate, location_to_place_it_to, tree_layer_panda)
+			tree_layer_panda.loc[object_counter] = new_entry
+			object_counter += 1
+
+			where_to_place = ((int(float(new_entry[1])), int(float(new_entry[4]))))
+
+			temp_image.paste(image_to_paste, box=where_to_place)
+			temp_to_add_image = copy.deepcopy(temp_image)
+			images_to_add.append(temp_to_add_image)
+
+		more_trees_scenario_path = self.request_manager.get_image_root().joinpath("more_trees")
+		more_trees_scenario_path.mkdir(parents=True, exist_ok=True)
+		more_trees_file_path = more_trees_scenario_path.joinpath(
+			"more_trees" + str(request.request_id) + ".gif"
+		)
+
+		images_to_add[0].save(
+			more_trees_file_path,
+			save_all=True,
+			append_images=images_to_add[1:],
+			optimize=False,
+			duration=100,
+			loop=0
+		)
+
+		return MoreTreesScenario(
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			detections_path=more_trees_file_path
+		)
+
+	# pylint: disable=W0613
+	def calculate_new_location(self, what_to_place, where_to_place, tree_layer_panda):
+		"""
+		The algorithm to decide where to place a new tree. Currently just moves the tree 5 units
+		down and to the right
+		:param what_to_place: the tree to place
+		:param where_to_place: the location adjacent to which to place it at
+		:return: where to place the tree
+		"""
+		old_xmin = tree_layer_panda.iloc[what_to_place][1]
+		old_ymax = tree_layer_panda.iloc[what_to_place][2]
+		old_xmax = tree_layer_panda.iloc[what_to_place][3]
+		old_ymin = tree_layer_panda.iloc[what_to_place][4]
+
+		new_xmin = str(float(old_xmin) + 5)
+		new_ymax = str(float(old_ymax) + 5)
+		new_xmax = str(float(old_xmax) + 5)
+		new_ymin = str(float(old_ymin) + 5)
+
+		new_entry = [
+			tree_layer_panda.shape[0],
+			new_xmin,
+			new_ymin,
+			new_xmax,
+			new_ymax,
+			tree_layer_panda.iloc[what_to_place][5],
+			"Tree"
+		]
+
+		return new_entry
+
+
+	def process(self, request: Request) -> Sequence[Scenario]:
+		"""
+		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
+		returns a list of detection layers corresponding to the detections_to_run variable.
+
+		:param request: The request to process. Must have a GoogleLayer
+		:return:
+		"""
+
+		if not request.has_layer_of_type(GoogleLayer):
+			raise ValueError("The request to process should have imagery to create scenarios based of")
+
+		new_scenarios = []
+		for (feature, information) in self.scenarios_to_create:
+			if feature == ScenarioType.MORE_Trees:
+				new_scenarios.append(self.add_more_trees(request=request, trees_to_add=information))
+		return new_scenarios
