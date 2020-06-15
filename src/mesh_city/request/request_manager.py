@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.tile import Tile
@@ -106,6 +107,17 @@ class RequestManager:
 							width=request.num_of_horizontal_images,
 							height=request.num_of_vertical_images,
 							detections_path=tree_detections_path
+							)
+						)
+					car_detections_path = self.__images_root.joinpath(
+						"cars", "detections_" + str(request.request_id) + ".csv"
+					)
+					if car_detections_path.exists():
+						request.add_layer(
+							CarsLayer(
+							width=request.num_of_horizontal_images,
+							height=request.num_of_vertical_images,
+							detections_path=car_detections_path
 							)
 						)
 					self.add_request(request=request)
