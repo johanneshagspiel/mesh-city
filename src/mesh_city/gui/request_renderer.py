@@ -48,7 +48,7 @@ class RequestRenderer:
 		:return: An image representation of the layer.
 		"""
 		layer = request.layers[layer_index]
-		if isinstance(layer, TreesLayer) or isinstance(layer, CarsLayer):
+		if isinstance(layer, (TreesLayer, CarsLayer)):
 			# TODO change image size depending on image size used for prediction
 			overlays = []
 			tree_overlay = Image.new(

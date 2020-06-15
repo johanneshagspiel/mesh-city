@@ -1,16 +1,18 @@
-import os
+# pylint: disable=E1129
+"""
+See :class:`.CarDetector`
+"""
+
 from pathlib import Path
 
-import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from PIL import Image, ImageDraw
 
 
 class CarDetector:
 	"""
-	the CarDetector class uses Tensorflow and a pre-trained model to detect cars from top-down imagery.
+	The CarDetector class uses Tensorflow and a pre-trained model to detect cars from top-down imagery.
 	"""
 
 	def __init__(self) -> None:
@@ -33,6 +35,11 @@ class CarDetector:
 				tf.import_graph_def(od_graph_def, name='')
 
 	def detect_cars(self, image):
+		"""
+		Detects cars from a numpy representation of an image.
+		:param image: The image
+		:return: A dataframe representation of the car detections.
+		"""
 		with self.detection_graph.as_default():
 			with tf.Session() as sess:
 				# Get handles to input and output tensors
@@ -78,7 +85,7 @@ class CarDetector:
 					"Car"
 					)
 				)
-		df = pd.DataFrame(
+		dataframe = pd.DataFrame(
 			detection_data, columns=['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label']
 		)
-		return df
+		return dataframe

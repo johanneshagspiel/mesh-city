@@ -7,10 +7,9 @@ appropriate classes to create useful information in the form of overlays.
 from enum import Enum
 from typing import List, Sequence
 
-import cv2
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from mesh_city.detection.detection_providers.car_detector import CarDetector
 from mesh_city.detection.detection_providers.deep_forest import DeepForest

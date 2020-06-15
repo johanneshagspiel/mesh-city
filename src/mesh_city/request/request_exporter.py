@@ -73,7 +73,7 @@ class RequestExporter:
 					width=1024,
 					height=1024
 				)
-		if isinstance(layer, TreesLayer) or isinstance(layer, CarsLayer):
+		if isinstance(layer, (TreesLayer, CarsLayer)):
 			origin_path = layer.detections_path
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
