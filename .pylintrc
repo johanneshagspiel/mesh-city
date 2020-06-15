@@ -1,8 +1,13 @@
 [MASTER]
+extension-pkg-whitelist=torch,cv2
 disable =
 	design,
 	elif,
 	fixme,
 	format,
 	no-self-use,
-	spelling,
+	spelling
+
+[TYPECHECK]
+ignored-modules=torch,cv2
+ignored-classes=torch,cv2
