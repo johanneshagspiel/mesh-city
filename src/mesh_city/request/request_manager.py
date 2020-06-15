@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 
 from mesh_city.request.buildings_layer import BuildingsLayer
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.tile import Tile
@@ -101,9 +102,6 @@ class RequestManager:
 					tree_detections_path = self.__images_root.joinpath(
 						"trees", "detections_" + str(request.request_id) + ".csv"
 					)
-					building_detections_path = self.__images_root.joinpath(
-						"buildings", "detections_" + str(request.request_id) + ".geojson"
-					)
 					if tree_detections_path.exists():
 						request.add_layer(
 							TreesLayer(
@@ -112,6 +110,20 @@ class RequestManager:
 							detections_path=tree_detections_path
 							)
 						)
+					car_detections_path = self.__images_root.joinpath(
+						"cars", "detections_" + str(request.request_id) + ".csv"
+					)
+					if car_detections_path.exists():
+						request.add_layer(
+							CarsLayer(
+							width=request.num_of_horizontal_images,
+							height=request.num_of_vertical_images,
+							detections_path=car_detections_path
+							)
+						)
+					building_detections_path = self.__images_root.joinpath(
+						"buildings", "detections_" + str(request.request_id) + ".geojson"
+					)
 					if building_detections_path.exists():
 						request.add_layer(
 							BuildingsLayer(

@@ -7,6 +7,7 @@ from shutil import copyfile
 from typing import List
 
 from mesh_city.request.buildings_layer import BuildingsLayer
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.request_manager import RequestManager
@@ -73,7 +74,7 @@ class RequestExporter:
 					width=1024,
 					height=1024
 				)
-		if isinstance(layer, TreesLayer):
+		if isinstance(layer, (TreesLayer, CarsLayer)):
 			origin_path = layer.detections_path
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)

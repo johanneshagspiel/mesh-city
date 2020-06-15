@@ -5,6 +5,7 @@ main_screen image such as an indication where all the trees are
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
 from mesh_city.request.buildings_layer import BuildingsLayer
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.trees_layer import TreesLayer
 
@@ -34,6 +35,8 @@ class LayersWindow:
 				detected_layers.append("Google Maps")
 			if isinstance(layer, TreesLayer):
 				detected_layers.append("Trees")
+			if isinstance(layer, CarsLayer):
+				detected_layers.append("Cars")
 			if isinstance(layer, BuildingsLayer):
 				detected_layers.append("Buildings")
 

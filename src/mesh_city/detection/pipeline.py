@@ -9,13 +9,16 @@ from typing import List, Sequence
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
+from mesh_city.detection.detection_providers.car_detector import CarDetector
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
 from mesh_city.request.buildings_layer import BuildingsLayer
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.layer import Layer
 from mesh_city.request.request import Request
@@ -39,6 +42,7 @@ class Pipeline:
 	A class responsible for moving data to the detection algorithm in a way they like and then
 	routing the results to the appropriate classes to create useful information.
 	"""
+	TILE_SIZE = 1024
 
 	def __init__(
 		self,
@@ -106,6 +110,35 @@ class Pipeline:
 			detections_path=detection_file_path
 		)
 
+	def detect_cars(self, request: Request) -> CarsLayer:
+		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		car_detector = CarDetector()
+		tree_detections_path = self.request_manager.get_image_root().joinpath("cars")
+		tree_detections_path.mkdir(parents=True, exist_ok=True)
+		detections_path = tree_detections_path.joinpath(
+			"detections_" + str(request.request_id) + ".csv"
+		)
+		frames = []
+
+		for tile in tiles:
+			x_offset = (tile.x_grid_coord - request.x_grid_coord) * Pipeline.TILE_SIZE
+			y_offset = (tile.y_grid_coord - request.y_grid_coord) * Pipeline.TILE_SIZE
+			np_image = np.asarray(Image.open(tile.path).convert("RGB"))
+			image_np_expanded = np.expand_dims(np_image, axis=0)
+			result = car_detector.detect_cars(image_np_expanded)
+			result["xmin"] += x_offset
+			result["ymin"] += y_offset
+			result["xmax"] += x_offset
+			result["ymax"] += y_offset
+			frames.append(result)
+		concat_result = pd.concat(frames).reset_index(drop=True)
+		concat_result.to_csv(detections_path)
+		return CarsLayer(
+				width=request.num_of_horizontal_images,
+				height=request.num_of_vertical_images,
+				detections_path=detections_path
+			)
+
 	def detect_trees(self, request: Request) -> TreesLayer:
 		"""
 		Detects trees from a request's imagery.
@@ -164,5 +197,6 @@ class Pipeline:
 				new_layers.append(self.detect_trees(request=request))
 			if feature == DetectionType.BUILDINGS:
 				new_layers.append(self.detect_buildings(request=request))
-
+			if feature == DetectionType.CARS:
+				new_layers.append(self.detect_cars(request=request))
 		return new_layers

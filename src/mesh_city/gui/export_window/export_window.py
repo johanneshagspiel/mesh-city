@@ -7,6 +7,7 @@ from pathlib import Path
 from tkinter import Button, Checkbutton, filedialog, IntVar, Label, Toplevel
 
 from mesh_city.request.buildings_layer import BuildingsLayer
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.trees_layer import TreesLayer
 
@@ -78,6 +79,8 @@ class ExportWindow:
 				text = "Google Imagery"
 			elif isinstance(layer, TreesLayer):
 				text = "Tree detections CSV"
+			elif isinstance(layer, CarsLayer):
+				text = "Car detections CSV"
 			elif isinstance(layer, BuildingsLayer):
 				text = "Building detections GeoJSON"
 			Checkbutton(self.top, text=text,
