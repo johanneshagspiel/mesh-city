@@ -35,6 +35,7 @@ class Pipeline:
 	A class responsible for moving data to the detection algorithm in a way they like and then
 	routing the results to the appropriate classes to create useful information.
 	"""
+	TILE_SIZE = 1024
 
 	def __init__(self, request_manager: RequestManager, detections_to_run: List[DetectionType]):
 		"""
@@ -72,8 +73,8 @@ class Pipeline:
 				)
 				frames = []
 				for tile in tiles:
-					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
+					x_offset = (tile.x_grid_coord - request.x_grid_coord) * Pipeline.TILE_SIZE
+					y_offset = (tile.y_grid_coord - request.y_grid_coord) * Pipeline.TILE_SIZE
 					image = Image.open(tile.path).convert("RGB")
 					np_image = np.array(image)
 					result = deep_forest.detect(np_image)
@@ -102,8 +103,8 @@ class Pipeline:
 				frames = []
 
 				for tile in tiles:
-					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
+					x_offset = (tile.x_grid_coord - request.x_grid_coord) * Pipeline.TILE_SIZE
+					y_offset = (tile.y_grid_coord - request.y_grid_coord) * Pipeline.TILE_SIZE
 					np_image = np.asarray(Image.open(tile.path).convert("RGB"))
 					image_np_expanded = np.expand_dims(np_image, axis=0)
 					result = car_detector.detect_cars(image_np_expanded)
