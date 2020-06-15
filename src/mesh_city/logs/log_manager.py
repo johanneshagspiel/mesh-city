@@ -6,7 +6,6 @@ import json
 import os
 
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
 from mesh_city.user.entities.user_entity import UserEntity
 
@@ -23,7 +22,8 @@ class LogManager:
 	def get_request_number(self):
 		"""
 		This method is needed because request manager needs to know the number of the next request
-		to name the folder appropriately
+		to name the folder appropriately.
+
 		:return: the number of the next request
 		"""
 
@@ -65,7 +65,8 @@ class LogManager:
 
 	def write_log(self, log_entry):
 		"""
-		A method to write one log entry entity to the associated correct location
+		A method to write one log entry entity to the associated correct location.
+
 		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
@@ -91,10 +92,12 @@ class LogManager:
 
 	def read_log(self, path, type_document):
 		"""
-		Method to read what is at the path and then build it appropriately
+		Method to read what is at the path and then build it appropriately.
+
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
+
 		with open(path, "r") as json_log:
 			data = json_log.read()
 		logs = json.loads(data)
@@ -109,12 +112,6 @@ class LogManager:
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
-
-		if type_document == "coordinate_overview.json":
-			temp_coordinate_overview = CoordinateOverview(
-				path_to_store=self.file_handler.folder_overview["coordinate_overview.json"], json=logs
-			)
-			self.file_handler.coordinate_overview = temp_coordinate_overview
 
 		if type_document == "information":
 			return DetectionMetaData(path_to_store=path, json=logs)

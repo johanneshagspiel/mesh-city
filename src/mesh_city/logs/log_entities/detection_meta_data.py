@@ -1,6 +1,7 @@
 """
 A module of the detection meta class
 """
+
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
 
@@ -19,7 +20,8 @@ class DetectionMetaData(LogEntity):
 
 	def action(self, logs):
 		"""
-		What to do when log manager calls write log
+		What to do when log manager calls write log.
+
 		:param logs:
 		:return:
 		"""
@@ -27,7 +29,8 @@ class DetectionMetaData(LogEntity):
 
 	def load_json(self, json):
 		"""
-		How to load the class from json
+		How to load the class from json.
+
 		:param json: the json file from which to log the class from
 		:return: nothing (the fields are all set correctly)
 		"""
@@ -35,7 +38,8 @@ class DetectionMetaData(LogEntity):
 
 	def for_json(self):
 		"""
-		Turns the class into a json compliant form
+		Turns the class into a json compliant form.
+
 		:return: the class in json compliant form
 		"""
 		return self.information
