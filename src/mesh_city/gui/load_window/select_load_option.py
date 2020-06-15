@@ -32,27 +32,24 @@ class SelectLoadOption:
 
 		self.temp_dict = {}
 
-		temp_path = next(
-			self.application.file_handler.folder_overview["active_request_path"].
-			glob('building_instructions_request_*')
-		)
-		self.building_instructions = self.application.log_manager.read_log(
-			temp_path, "building_instructions_request"
-		)
-
 		self.top_label = Label(self.top, text="What do you want to load?")
 		self.top_label.grid(row=0)
 
-		self.load_request = Button(
-			self.top, text="Previous request", command=self.load_request, bg="white"
-		)
-		self.load_request.grid(row=1)
+		counter = 1
 
-		if "Generated" in self.building_instructions.instructions.keys():
+		if len(self.application.request_manager.requests) > 1:
+			self.load_request = Button(
+				self.top, text="Previous request", command=self.load_request, bg="white"
+			)
+			self.load_request.grid(row=counter)
+			counter += 1
+
+		if len(self.application.current_request.scenarios) > 1:
 			self.load_scenario_button = Button(
 				self.top, text="Previous scenario", command=self.ask_for_scenario, bg="white"
 			)
-			self.load_scenario_button.grid(row=2)
+			self.load_scenario_button.grid(row=counter)
+			counter += 1
 
 	def load_request(self):
 		"""

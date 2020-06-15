@@ -12,6 +12,7 @@ from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.load_window.select_load_option import SelectLoadOption
 from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
@@ -163,7 +164,7 @@ class MainScreen:
 		Creates a load request window object
 		:return: Nothing
 		"""
-		LoadWindow(self.master, self.application, self)
+		SelectLoadOption(self.master, self.application, self)
 
 	def search_window(self):
 		"""
