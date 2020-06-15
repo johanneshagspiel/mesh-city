@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 
 class CarDetector:
 	"""
-	the CarDetector class uses Tensorflow and pre-trained model to detect cars from top-down imagery.
+	the CarDetector class uses Tensorflow and a pre-trained model to detect cars from top-down imagery.
 	"""
 
 	def __init__(self) -> None:
