@@ -2,23 +2,18 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, END, Frame, Label, mainloop, Text, Tk, WORD
+from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD
 
-from PIL import Image, ImageTk
+import numpy as np
+from PIL import Image
 
+from mesh_city.gui.canvas_image.canvas_image import CanvasImage
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
-from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
 from mesh_city.gui.load_window.load_window import LoadWindow
-from mesh_city.gui.load_window.select_load_option import SelectLoadOption
-from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
-from mesh_city.gui.mainscreen_image.gif_image import GifImage
-from mesh_city.gui.map_window.map_window import MapWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
-from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
-from mesh_city.gui.user_window.user_window import UserWindow
 
 
 class MainScreen:
@@ -44,7 +39,7 @@ class MainScreen:
 		self.master.wait_window(self.window.top)
 		self.master.deiconify()
 
-		self.seen_on_screen = ["Google Maps"]
+		self.active_layers = []
 		self.generated_content = []
 
 		self.padding_x = 60
@@ -57,44 +52,41 @@ class MainScreen:
 		self.left_bar.grid_propagate(0)
 
 		self.search_button = Button(
-			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="white"
+			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="grey"
 		)
 		self.search_button.grid(row=0, column=0)
 
 		self.load_button = Button(
-			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="white"
+			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="grey"
 		)
 		self.load_button.grid(row=1, column=0)
 
 		self.detect_button = Button(
-			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="white"
+			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
 		)
 		self.detect_button.grid(row=2, column=0)
 
 		self.layers_button = Button(
-			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="white"
+			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
 		)
 		self.layers_button.grid(row=3, column=0)
 
-		self.map_button = Button(
-			self.left_bar, text="Map", width=6, height=3, command=self.map_window, bg="white"
-		)
-		self.map_button.grid(row=4, column=0)
-
 		self.eco_button = Button(
-			self.left_bar, text="Eco", width=6, height=3, command=self.eco_window, bg="white"
+			self.left_bar, text="Eco", width=6, height=3, command=None, bg="grey"
 		)
-		self.eco_button.grid(row=5, column=0)
+		self.eco_button.grid(row=4, column=0)
 
 		self.export_button = Button(
-			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="white"
+			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
 		)
-		self.export_button.grid(row=6, column=0)
+		self.export_button.grid(row=5, column=0)
 
 		self.user_button = Button(
-			self.left_bar, text="User", width=6, height=3, command=self.user_window, bg="white"
+			self.left_bar, text="User", width=6, height=3, command=None, bg="grey"
 		)
-		self.user_button.grid(row=7, column=0)
+		self.user_button.grid(row=6, column=0)
+
+		self.set_canvas_image(self.create_placeholder_image())
 
 		self.right_frame = Frame(self.master, width=185, background="white")
 		self.right_frame.grid(row=0, column=2, sticky='nsew')
@@ -118,36 +110,26 @@ class MainScreen:
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")
 
-		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
-		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
-
-		self.temp_image = Label(self.master, image=temp_image)
-		self.temp_image.grid(row=0, column=1, sticky='nsew')
-
-		self.start_up_window = self.start_up()
-		self.master.wait_window(self.start_up_window.top)
-
-		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
-		)
-
-		self.new_canvas_image = None
-		self.gif_image = Label(self.master, text="")
-		self.gif_image.grid(row=0, column=1, sticky='nsew')
-		self.temp_image.grid_forget()
-
-		self.canvas_image = CanvasImage(self.master, temp_image_path)
-		self.canvas_image.grid(row=0, column=1, sticky='nsew')
-
 		self.master.columnconfigure(1, weight=1)
 		self.master.rowconfigure(0, weight=1)
 		self.master.rowconfigure(1, weight=1)
 		self.master.rowconfigure(2, weight=1)
 
+	def run(self):
+		"""
+		Runs the main loop that updates the GUI and processes user input.
+		:return: None
+		"""
 		mainloop()
 
-	def user_window(self):
-		UserWindow(self.master, self.application, self)
+	def create_placeholder_image(self):
+		"""
+		Creates a plane white placeholder image of 512x512 pixels
+		:return:
+		"""
+		array = np.zeros([512, 512, 3], dtype=np.uint8)
+		array.fill(255)
+		return Image.fromarray(array)
 
 	def export_window(self):
 		"""
@@ -168,7 +150,7 @@ class MainScreen:
 		Creates a load request window object
 		:return: Nothing
 		"""
-		SelectLoadOption(self.master, self.application, self)
+		LoadWindow(self.master, self.application, self)
 
 	def search_window(self):
 		"""
@@ -180,48 +162,17 @@ class MainScreen:
 	def detect_window(self):
 		"""
 		Creates a detect window object
-		:return: Nothing
+		:return:
 		"""
-		DetectionWindow(self.master, self.application, self)
+		DetectionWindow(self.master, self.application)
 
-	def map_window(self):
-		"""
-		Creates a generate window object
-		:return: Nothing
-		"""
-		MapWindow(self.master, self.application, self)
-
-	def eco_window(self):
-		"""
-		Creates an eco window
-		:return: Nothing
-		"""
-		EcoWindow(self.master, self.application, self)
-
-	def update_image(self):
+	def set_canvas_image(self, image):
 		"""
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
-		)
-
-		self.new_canvas_image = CanvasImage(self.master, temp_image_path)
+		self.new_canvas_image = CanvasImage(self.master, image)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
-
-	def update_gif(self):
-		"""
-		Method to load a gif image on the main screen
-		:return: nothing (a gif image is shown on the main screen)
-		"""
-		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"].glob("concat_image_*")
-		)
-
-		self.gif_image = GifImage(self.master)
-		self.gif_image.load(str(temp_image_path))
-		self.gif_image.grid(row=0, column=1, sticky='nsew')
 
 	def delete_text(self):
 		"""
@@ -244,30 +195,10 @@ class MainScreen:
 		)
 		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
 
-		tree_amount = temp_information_log.information["Amount"]
+		tree_amount = temp_information_log.information["Amount"] - 1
 		tree_amount_text = "Amount of trees detected:\n" + str(tree_amount)
 
 		self.information_general.configure(state='normal')
 		self.information_general.delete('1.0', END)
 		self.information_general.insert(END, tree_amount_text)
 		self.information_general.configure(state='disabled')
-
-	def start_up(self):
-		"""
-		In case the user already has downloaded something, opens the load window so that the user can load
-		the request they are interested in. Otherwise opens the tutorial window
-		:return: nothing (opens either load or tutorial window)
-		"""
-
-		self.image_path = self.application.file_handler.folder_overview['image_path']
-		no_requests = True
-
-		for temp in self.image_path.glob('*'):
-			if temp.is_file() is False:
-				no_requests = False
-				break
-
-		if no_requests:
-			return TutorialWindow(self.master, self.application, self)
-
-		return LoadWindow(self.master, self.application, self)

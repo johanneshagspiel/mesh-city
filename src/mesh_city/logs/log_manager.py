@@ -1,12 +1,11 @@
 """
 A module that contains the log manager who is responsible for performing all the actions associated with logs
 """
-import csv
+
 import json
 import os
 
 from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
-from mesh_city.logs.log_entities.coordinate_overview import CoordinateOverview
 from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
 from mesh_city.user.entities.user_entity import UserEntity
 
@@ -23,7 +22,8 @@ class LogManager:
 	def get_request_number(self):
 		"""
 		This method is needed because request manager needs to know the number of the next request
-		to name the folder appropriately
+		to name the folder appropriately.
+
 		:return: the number of the next request
 		"""
 
@@ -63,100 +63,57 @@ class LogManager:
 
 		return max_log + 1 if max_log > max_directory else max_directory + 1
 
-	def write_log(self, log_entry, type_data=None):
+	def write_log(self, log_entry):
 		"""
-		A method to write one log entry entity to the associated correct location
-		:param type_data: what type of file you want to write to
+		A method to write one log entry entity to the associated correct location.
+
 		:param log_entry: the log entry with its appropriate location to store it to
 		:return: nothing
 		"""
-		if type_data == "csv":
-			with open(log_entry.path_to_store, 'w') as csv_file:
-				writer = csv.writer(csv_file, delimiter=",")
-				for entry in log_entry.for_storage():
-					writer.writerow(entry)
-		else:
-			with open(log_entry.path_to_store, "r") as json_log:
-				data = json_log.read()
-			logs = json.loads(data)
-			result = log_entry.action(logs)
 
-			with open(log_entry.path_to_store, "w") as json_log:
-				json.dump(result, fp=json_log, indent=4)
-				json_log.close()
+		with open(log_entry.path_to_store, "r") as json_log:
+			data = json_log.read()
+		logs = json.loads(data)
+		result = log_entry.action(logs)
 
-	def create_log(self, log_entry, type_data=None):
+		with open(log_entry.path_to_store, "w") as json_log:
+			json.dump(result, fp=json_log, indent=4)
+			json_log.close()
+
+	def create_log(self, log_entry):
 		"""
 		Method to store one new log
-		:param type_data: what type of file you want to write to
 		:param log_entry: the log entry to store
 		:return: nothing (the log is stored to file)
 		"""
-		if type_data == "csv":
-			with open(log_entry.path_to_store, 'w') as csv_file:
-				writer = csv.writer(csv_file, delimiter=",")
-				for entry in log_entry.for_storage():
-					writer.writerow(entry)
-		else:
-			with open(log_entry.path_to_store, "w") as json_log:
-				json.dump(log_entry.for_storage(), fp=json_log, indent=4)
-				json_log.close()
+		with open(log_entry.path_to_store, "w") as json_log:
+			json.dump(log_entry.for_json(), fp=json_log, indent=4)
+			json_log.close()
 
 	def read_log(self, path, type_document):
 		"""
-		Method to read what is at the path and then build it appropriately
+		Method to read what is at the path and then build it appropriately.
+
 		:param path: the path where to load the log from
 		:return: whatever the result of building that object is
 		"""
 
-		if type_document in (
-			'building_instructions_request', 'users.json', 'coordinate_overview.json'
-		):
-
-			with open(path, "r") as json_log:
-				data = json_log.read()
-			logs = json.loads(data)
-
-			if type_document == "building_instructions_request":
-				return BuildingInstructionsRequest(path_to_store=path, json=logs)
-
-			if type_document == "users.json":
-				temp_dic = {}
-				for key, value in logs.items():
-					temp_dic_entry = {key: value}
-					temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
-				return temp_dic
-
-			if type_document == "coordinate_overview.json":
-				temp_coordinate_overview = CoordinateOverview(
-					path_to_store=self.file_handler.folder_overview["coordinate_overview.json"],
-					json=logs
-				)
-				self.file_handler.coordinate_overview = temp_coordinate_overview
-
-		if type_document == "information":
-			temp_list = []
-			with open(path, newline='') as csvfile:
-				csv_reader = csv.reader(csvfile, delimiter=',')
-				for row in csv_reader:
-					temp_list.append(row)
-
-			return DetectionMetaData(path_to_store=path, json=temp_list)
-
-		return None
-
-	def change_name(self, old_name, new_name):
-
-		path = self.file_handler.folder_overview["users.json"]
 		with open(path, "r") as json_log:
 			data = json_log.read()
 		logs = json.loads(data)
 
 		temp_dic = {}
-		for key, value in logs.items():
-			temp_dic[key] = value
-		temp_dic[new_name] = temp_dic.pop(old_name)
 
-		with open(path, "w") as json_log:
-			json.dump(temp_dic, fp=json_log, indent=4)
-			json_log.close()
+		if type_document == "building_instructions_request":
+			return BuildingInstructionsRequest(path_to_store=path, json=logs)
+
+		if type_document == "users.json":
+			for key, value in logs.items():
+				temp_dic_entry = {key: value}
+				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
+			return temp_dic
+
+		if type_document == "information":
+			return DetectionMetaData(path_to_store=path, json=logs)
+
+		return None

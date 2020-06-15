@@ -1,6 +1,7 @@
 """
 A module of the detection meta class
 """
+
 from mesh_city.logs.log_entities.log_entity import LogEntity
 
 
@@ -15,72 +16,30 @@ class DetectionMetaData(LogEntity):
 			self.information = {}
 		else:
 			self.information = {}
-			self.load_storage(json)
+			self.load_json(json)
 
 	def action(self, logs):
 		"""
-		What to do when log manager calls write log
+		What to do when log manager calls write log.
+
 		:param logs:
 		:return:
 		"""
-		return self.for_storage()
+		return self.for_json()
 
-	def load_storage(self, storage):
+	def load_json(self, json):
 		"""
-		How to load the class from json
-		:param storage: the json file from which to log the class from
+		How to load the class from json.
+
+		:param json: the json file from which to log the class from
 		:return: nothing (the fields are all set correctly)
 		"""
-		temp_object = {}
-		object_count = 1
-		first_round = True
-		for row in storage:
-			if first_round:
-				first_round = False
-			else:
-				if len(row) > 1:
-					temp_object[object_count] = {
-						"label": row[0],
-						"xmin": row[1],
-						"ymin": row[2],
-						"xmax": row[3],
-						"ymax": row[4],
-						"score": row[5],
-						"length_image": row[6],
-						"height_image": row[7],
-						"area_image": row[8]
-					}
-					object_count += 1
+		self.information = json
 
-		self.information["Amount"] = object_count - 1
-		self.information["Objects"] = temp_object
-
-	def for_storage(self):
+	def for_json(self):
 		"""
-		Turns the class into a csv compliant form
-		:return: the class in csv compliant form
+		Turns the class into a json compliant form.
+
+		:return: the class in json compliant form
 		"""
-		temp_list_overall = []
-		temp_list = []
-
-		temp_list_overall.append(
-			[
-			"label",
-			"xmin",
-			"ymin",
-			"xmax",
-			"ymax",
-			"score",
-			"length_image",
-			"height_image",
-			"area_image"
-			]
-		)
-
-		for entry in self.information["Objects"].values():
-			for element in entry.values():
-				temp_list.append(element)
-			temp_list_overall.append(temp_list)
-			temp_list = []
-
-		return temp_list_overall
+		return self.information

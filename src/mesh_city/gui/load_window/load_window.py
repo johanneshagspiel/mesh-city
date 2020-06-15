@@ -1,12 +1,8 @@
 """
 A module that contains the loading old request window
 """
+from tkinter import Button, Label, Toplevel
 
-from pathlib import Path
-from tkinter import Button, Label, Toplevel, Scrollbar, Canvas, Frame
-
-from mesh_city.imagery_provider.request_creator import RequestCreator
-from mesh_city.gui.mainscreen_image.auto_scrollbar import AutoScrollbar
 
 class LoadWindow:
 	"""
@@ -31,72 +27,27 @@ class LoadWindow:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		scrollbar = AutoScrollbar(self.top)
-		scrollbar.grid(row=0, column=1, sticky="ns")
-
-		temp_canvas = Canvas(self.top, yscrollcommand=scrollbar.set)
-		temp_canvas.grid(row=0, column=0, sticky="nsew")
-
-		scrollbar.config(command=temp_canvas.yview)
-
-		temp_frame = Frame(temp_canvas, width=1,height=1)
-		temp_frame.grid(row=0)
-
-		self.top_label = Label(temp_frame, text="Which request do you want to load?")
+		self.top_label = Label(top, text="Which request do you want to load?")
 		self.top_label.grid(row=0, column=1)
 
-		counter = 1
-		for temp in self.image_path.glob('*'):
-			if temp.is_file() is False:
-				name_directory = temp.name
-				self.temp_name = Button(
-					temp_frame,
-					text=name_directory,
-					width=20,
-					height=3,
-					command=lambda name_directory=name_directory: self.load_request(name_directory),
-					bg="white"
-				)
-				self.temp_name.grid(row=counter, column=1)
-				counter += 1
+		for (index, request) in enumerate(self.application.request_manager.requests):
+			self.temp_name = Button(
+				self.top,
+				text="Request " + str(request.request_id),
+				width=20,
+				height=3,
+				command=lambda button_request=request: self.load_request(button_request),
+				bg="grey"
+			)
+			self.temp_name.grid(row=index + 1, column=1)
 
-		temp_canvas.configure(scrollregion=temp_canvas.bbox("all"))
-
-	def load_request(self, name_directory):
+	def load_request(self, request):
 		"""
 		Loads an old request as the current request into the main_screen
 		:param name_directory: the directory where the request to be loaded is stored
 		:return: nothing
 		"""
-
-		self.application.file_handler.folder_overview["active_request_path"] = Path.joinpath(
-			self.application.file_handler.folder_overview["image_path"], name_directory
-		)
-
-		temp_path = next(
-			self.application.file_handler.folder_overview["active_request_path"].
-			glob("building_instructions_*")
-		)
-
-		temp_building_instructions_request = self.application.log_manager.read_log(
-			path=temp_path, type_document="building_instructions_request"
-		)
-
-		temp_request_creator = RequestCreator(application=self.application)
-		temp_path = Path.joinpath(
-			self.application.file_handler.folder_overview["temp_image_path"],
-			"concat_image_normal.png"
-		)
-		# TODO change when using other satillte image providers
-		temp_request_creator.follow_create_instructions(
-			["Google Maps", "Paths"], temp_building_instructions_request, temp_path
-		)
-		self.application.file_handler.change(
-			"active_image_path", self.application.file_handler.folder_overview["temp_image_path"]
-		)
-
-		self.main_screen.update_image()
-		self.main_screen.seen_on_screen = ["Google Maps"]
+		self.application.set_current_request(request=request)
 		self.main_screen.delete_text()
 
 		self.top.destroy()

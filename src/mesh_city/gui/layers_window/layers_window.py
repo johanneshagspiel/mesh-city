@@ -2,10 +2,12 @@
 This module provides a GUI interface that can be used to select different layers to appear over the
 main_screen image such as an indication where all the trees are
 """
-from pathlib import Path
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
-from mesh_city.imagery_provider.request_creator import RequestCreator
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class LayersWindow:
@@ -25,61 +27,43 @@ class LayersWindow:
 		self.main_screen = main_screen
 		self.master = master
 		self.application = application
-
 		top = self.top = Toplevel(master)
 
-		self.top.config(padx=4)
-		self.top.config(pady=4)
+		detected_layers = []
+		for layer in self.application.current_request.layers:
+			if isinstance(layer, GoogleLayer):
+				detected_layers.append("Google Maps")
+			if isinstance(layer, TreesLayer):
+				detected_layers.append("Trees")
+			if isinstance(layer, CarsLayer):
+				detected_layers.append("Cars")
+			if isinstance(layer, BuildingsLayer):
+				detected_layers.append("Buildings")
 
-		self.top_label = Label(top, text="")
-		self.top_label.grid(row=0)
-
-		self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup, bg="white")
-
-		self.check_box_list = []
-		self.temp_int_var_list = []
-
-		temp_path = next(
-			self.application.file_handler.folder_overview["active_request_path"].
-			glob('building_instructions_request_*')
-		)
-		self.building_instructions = self.application.log_manager.read_log(
-			temp_path, "building_instructions_request"
-		)
-		print(self.main_screen.seen_on_screen)
-		if self.main_screen.seen_on_screen == ["Generated"]:
-			self.top_label["text"] = "Do you want to load satellite imagery?"
-			self.confirm_button.grid(row=1)
-
+		if len(detected_layers) == 0:
+			self.top_label = Label(top, text="There are no layers to show. Detect something first.")
+			self.top_label.grid(row=0)
 		else:
-			temp_list_detected_layers = []
-			for key in self.building_instructions.instructions.keys():
-				if key != "Google Maps":
-					if key != "Generated":
-						temp_list_detected_layers.append(key)
+			self.top_label = Label(top, text="Tick the layers you want to see")
+			self.top_label.grid(row=0)
 
-			if len(temp_list_detected_layers) == 0:
-				self.top_label["text"] = "There is nothing to load - You have to detect something first."
+			counter = 1
+			self.check_box_list = []
+			self.temp_int_var_list = []
 
-			else:
-				self.top_label["text"] = "What do you want to load?"
+			for layer in detected_layers:
+				if layer in self.main_screen.active_layers:
+					self.temp_int_var_list.append(IntVar(value=1))
+				else:
+					self.temp_int_var_list.append(IntVar())
+				self.check_box_list.append(
+					Checkbutton(self.top, text=layer, variable=self.temp_int_var_list[counter - 1])
+				)
+				self.check_box_list[counter - 1].grid(row=counter)
+				counter += 1
 
-				counter = 1
-
-				for layer in temp_list_detected_layers:
-					if layer in self.main_screen.seen_on_screen:
-						self.temp_int_var_list.append(IntVar(value=1))
-					else:
-						self.temp_int_var_list.append(IntVar())
-					self.check_box_list.append(
-						Checkbutton(
-						self.top, text=layer, variable=self.temp_int_var_list[counter - 1]
-						)
-					)
-					self.check_box_list[counter - 1].grid(row=counter)
-					counter += 1
-
-					self.confirm_button.grid(row=counter)
+				self.confirm_button = Button(self.top, text="Confirm", command=self.cleanup)
+				self.confirm_button.grid(row=counter)
 
 	def cleanup(self):
 		"""
@@ -87,43 +71,11 @@ class LayersWindow:
 		to appear and creates the appropriate overlay image which then appears on the main screen
 		:return: nothing (but it updates the image on the main screen)
 		"""
-
-		temp_counter = 0
-		overlays = []
-		temp_sum = 0
-
-		for element in self.temp_int_var_list:
+		layer_mask = []
+		for (index, element) in enumerate(self.temp_int_var_list):
+			layer_mask.append(False)
 			if element.get() == 1:
-				overlays.append(self.check_box_list[temp_counter].cget("text"))
-				temp_sum += 1
-			temp_counter += 1
-
-		temp_request_creator = RequestCreator(application=self.application)
-		if temp_sum == 0:
-			self.main_screen.seen_on_screen = ["Google Maps"]
-
-			temp_path = Path.joinpath(
-				self.application.file_handler.folder_overview["temp_image_path"],
-				"concat_image_normal.png"
-			)
-			# TODO change when using other satillte image providers
-			temp_request_creator.follow_create_instructions(
-				["Google Maps", "Paths"], self.building_instructions, temp_path
-			)
-			self.application.file_handler.change(
-				"active_image_path", self.application.file_handler.folder_overview["temp_image_path"]
-			)
-
-			self.main_screen.delete_text()
-			self.main_screen.update_image()
-			self.top.destroy()
-
-		else:
-			temp_request_creator.create_overlay_image(
-				self.building_instructions, overlays, (600, 600)
-			)
-
-			self.main_screen.seen_on_screen.extend(overlays)
-			self.main_screen.update_image()
-			self.main_screen.update_text()
-			self.top.destroy()
+				layer_mask[index] = True
+		self.application.load_request_specific_layers(
+			request=self.application.current_request, layer_mask=layer_mask
+		)

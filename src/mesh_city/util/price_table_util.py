@@ -13,8 +13,9 @@ class QuotaException(Exception):
 
 class PriceTableUtil:
 	"""
-	A utility class needed to calculate the costs of a request
+	A utility class needed to calculate the costs of a request.
 	"""
+
 	price_table_dic = {
 		"Google Maps":
 		{
@@ -48,9 +49,11 @@ class PriceTableUtil:
 		api_name, service_type, additional_usage, monthly_quota, current_total_usage
 	):
 		"""
-		calculates the price of an action
-		:return: the cost in list form (in case of error additional information)
+		Calculates the price of an action.
+
+		:return: The cost in list form (in case of error additional information)
 		"""
+
 		cost = 0
 		previous_result = []
 

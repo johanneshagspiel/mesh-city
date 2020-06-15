@@ -3,12 +3,16 @@ Module which specifies the behaviour for interacting with the static google maps
 """
 
 from pathlib import Path
+from typing import Optional
 
 import googlemaps
-import requests
 from PIL import Image
+from requests import get, Response
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
+from mesh_city.util.geo_location_util import GeoLocationUtil
+
+# TODO add documentation explaining the mathematics of this class
 
 
 class GoogleMapsProvider(TopDownProvider):
@@ -24,21 +28,23 @@ class GoogleMapsProvider(TopDownProvider):
 		self.name = "Google Maps"
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
+		self.geo_location_util = GeoLocationUtil()
 
 	def get_and_store_location(
 		self,
-		latitude,
-		longitude,
-		zoom,
-		filename,
-		new_folder_path,
-		width=552,
-		height=552,
-		response=None
-	):
+		latitude: float,
+		longitude: float,
+		zoom: int,
+		filename: str,
+		new_folder_path: Path,
+		width: int = 552,
+		height: int = 552,
+		response: Optional[Response] = None,
+	) -> Path:
 		"""
 		Method which makes an API call, and saves it in right format. Also removes the Google logo.
-		:param response: the response received from a request,used in testing
+
+		:param response: the response received from a request, used in testing
 		:param latitude: latitude centre coordinate
 		:param longitude: latitude centre coordinate
 		:param zoom: how zoomed in the image is
@@ -48,27 +54,33 @@ class GoogleMapsProvider(TopDownProvider):
 		:param height: the height dimension of the image
 		:return:
 		"""
-		if height > 640:
-			height = 640
-		if width > 640:
-			width = 640
-		latitude = str(latitude)
-		longitude = str(longitude)
-		zoom = str(zoom)
-		width = str(width)
-		height = str(height)
-		scale = str(2)
+
+		assert width <= 640
+		assert width > 1
+		assert height <= 640
+		assert height > 1
+
+		scale = 2
 		file_format = "PNG"
 		map_type = "satellite"
-		api_key = self.image_provider_entity.api_key
 
 		if response is None:
-			response = requests.get(
+			response = get(
 				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
-				% (latitude, longitude, zoom, width, height, scale, file_format, map_type, api_key)
+				% (
+				str(latitude),
+				str(longitude),
+				str(zoom),
+				str(width),
+				str(height),
+				str(scale),
+				file_format,
+				map_type,
+				self.image_provider_entity.api_key,
+				)
 			)
 
-		to_store = Path.joinpath(new_folder_path, filename)
+		to_store = new_folder_path.joinpath(filename)
 
 		with open(to_store, "wb") as output:
 			output.write(response.content)
@@ -91,18 +103,22 @@ class GoogleMapsProvider(TopDownProvider):
 	def get_location_from_name(self, name):
 		"""
 		Returns a geographical location based on an address name.
+
 		:param name:
 		:return:
 		"""
+
 		result = googlemaps.client.geocode(client=self.client, address=name)
 		print(result)
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on tile_information
+		Returns an address name based on tile_information.
+
 		:param latitude:
 		:param longitude:
 		:return:
 		"""
+
 		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))
 		print(result)
