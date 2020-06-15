@@ -3,6 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, Label, Toplevel
 
+from mesh_city.gui.download_progress_window.DownloadProgressWindow import DownloadProgressWindow
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
 
@@ -120,6 +121,10 @@ class PreviewWindow:
 		:return: nothing (but updates the main screen with the downloaded image)
 		"""
 		# this is a location request
+		DownloadProgressWindow(self.master, self.application)
+
+		self.top.destroy()
+
 		if len(coordinates) == 2:
 			self.application.make_location_request(
 				latitude=coordinates[0], longitude=coordinates[1]
@@ -134,4 +139,4 @@ class PreviewWindow:
 		else:
 			raise ValueError("The number of coordinate values does not check out")
 
-		self.top.destroy()
+

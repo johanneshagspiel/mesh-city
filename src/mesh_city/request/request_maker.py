@@ -5,14 +5,13 @@ See :class:`.RequestMaker`
 
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
-from time import time
+import time
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.tile import Tile
-from mesh_city.request.request_observer import RequestObserver
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -147,7 +146,7 @@ class RequestMaker:
 		)
 
 		self.state["total_images"] = len(coordinates)
-		self.state["current_image"] = 0
+		self.state["current_image"] = 1
 		self.state["current_time_download"] = 0
 		self.notify_observers()
 
@@ -156,7 +155,7 @@ class RequestMaker:
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
-		for counter, (x_cor_tile, y_cor_tile) in enumerate(1, coordinates):
+		for counter, (x_cor_tile, y_cor_tile) in enumerate(coordinates, 1):
 			start_time_download = time.time()
 			if min_x is None:
 				min_x = x_cor_tile

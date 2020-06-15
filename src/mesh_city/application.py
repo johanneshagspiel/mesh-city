@@ -14,6 +14,7 @@ from mesh_city.request.request import Request
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
+from mesh_city.request.request_observer import RequestObserver
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -31,6 +32,7 @@ class Application:
 		self.main_screen = None
 		self.current_request = None
 		self.request_manager = self.get_request_manager()
+		self.request_observer = None
 
 	def get_request_manager(self) -> RequestManager:
 		"""
@@ -75,10 +77,15 @@ class Application:
 		:param longitude: The longitude of the request
 		:return: None
 		"""
+		self.request_observer = RequestObserver(self.main_screen.master)
+		self.request_maker.attach_observer(self.request_observer)
 
 		finished_request = self.request_maker.make_location_request(
 			latitude=latitude, longitude=longitude
 		)
+
+		self.request_maker.detach_observer(self.request_observer)
+
 		self.process_finished_request(request=finished_request)
 
 	def make_area_request(
@@ -97,6 +104,8 @@ class Application:
 		:param right_longitude: The rightmost longitude value
 		:return: None
 		"""
+		self.request_observer = RequestObserver(self.main_screen.master)
+		self.request_maker.attach_observer(self.request_observer)
 
 		finished_request = self.request_maker.make_area_request(
 			bottom_latitude=bottom_latitude,
@@ -104,6 +113,9 @@ class Application:
 			top_latitude=top_latitude,
 			right_longitude=right_longitude
 		)
+
+		self.request_maker.detach_observer(self.request_observer)
+
 		self.process_finished_request(request=finished_request)
 
 	def set_current_request(self, request: Request) -> None:
