@@ -57,7 +57,7 @@ class Application:
 		Runs a detection based on the current request information and the layers that have to be
 		detected.
 
-		:param building_instructions:
+		:param request:
 		:param to_detect:
 		:return:
 		"""

@@ -113,10 +113,7 @@ class PreviewWindow:
 		self.additional_provider_button.grid_forget()
 
 	def calculate_locations(self, image_provider_entity_name, image_provider_entity):
-		top_down_factory = TopDownProviderFactory()
-		self.application.request_maker.top_down_provider = top_down_factory.get_top_down_provider(
-			image_provider_entity
-		)
+		self.application.request_maker.top_down_provider = image_provider_entity.top_down_provider
 		self.application.request_maker.image_provider = image_provider_entity
 		# this is a location request
 		locations = []

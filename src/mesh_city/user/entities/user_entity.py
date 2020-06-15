@@ -2,7 +2,7 @@
 Module containing the user_entity class
 """
 
-from mesh_city.logs.log_entities.log_entity import LogEntity
+from mesh_city.logs.log_entity import LogEntity
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 
 
@@ -32,16 +32,16 @@ class UserEntity(LogEntity):
 		else:
 			self.name = None
 			self.image_providers = None
-			self.load_json(json)
+			self.load_storage(json)
 
-	def load_json(self, json):
+	def load_storage(self, storage):
 		"""
 		Sets up the user from a json file.
 		:param json: the json file from which to set up the user
 		:return: nothing (the fields of the user are initialized correctly)
 		"""
 
-		key, value = list(json.items())[0]
+		key, value = list(storage.items())[0]
 		self.name = key
 		self.image_providers = {}
 		self.load_image_providers(value)
@@ -57,7 +57,7 @@ class UserEntity(LogEntity):
 		for item in json.items():
 			self.image_providers[item[0]] = (ImageProviderEntity(self.file_handler, item[1]))
 
-	def for_json(self):
+	def for_storage(self):
 		"""
 		Turns the class into a json compliant form.
 
@@ -67,7 +67,7 @@ class UserEntity(LogEntity):
 		self.check_name()
 		temp_image_providers = {}
 		for key, value in self.image_providers.items():
-			temp_image_providers[key] = value.for_json()
+			temp_image_providers[key] = value.for_storage()
 
 		return temp_image_providers
 
@@ -79,7 +79,7 @@ class UserEntity(LogEntity):
 		:return: the updated logs
 		"""
 
-		to_store = self.for_json()
+		to_store = self.for_storage()
 		logs[self.name] = to_store
 		return logs
 
