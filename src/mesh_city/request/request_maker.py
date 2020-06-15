@@ -5,12 +5,14 @@ See :class:`.RequestMaker`
 
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
+from time import time
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.google_layer import GoogleLayer
 from mesh_city.request.request import Request
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.tile import Tile
+from mesh_city.request.request_observer import RequestObserver
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -23,6 +25,9 @@ class RequestMaker:
 	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None):
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
+
+		self.observers = []
+		self.state = {}
 
 	@staticmethod
 	def compute_3x3_area(latitude: float, longitude: float, zoom: int) -> Tuple[
@@ -140,12 +145,19 @@ class RequestMaker:
 			right_longitude=right_longitude,
 			zoom=zoom
 		)
+
+		self.state["total_images"] = len(coordinates)
+		self.state["current_image"] = 0
+		self.state["current_time_download"] = 0
+		self.notify_observers()
+
 		tiles = []
 		folder = Path.joinpath(self.request_manager.get_image_root(), "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
-		for (x_cor_tile, y_cor_tile) in coordinates:
+		for counter, (x_cor_tile, y_cor_tile) in enumerate(1, coordinates):
+			start_time_download = time.time()
 			if min_x is None:
 				min_x = x_cor_tile
 				min_y = y_cor_tile
@@ -153,6 +165,12 @@ class RequestMaker:
 			min_y = min(min_y, y_cor_tile)
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
+			time_needed_download = time.time() - start_time_download
+
+			self.state["current_image"] = counter
+			self.state["current_time_download"] = time_needed_download
+			self.notify_observers()
+
 		request = Request(
 			x_grid_coord=min_x,
 			y_grid_coord=min_y,
@@ -273,3 +291,13 @@ class RequestMaker:
 			if not self.request_manager.is_in_grid(latitude, longitude):
 				counter += 1
 		return counter
+
+	def attach_observer(self, observer):
+		self.observers.append(observer)
+
+	def detach_observer(self, observer):
+		self._observers.remove(observer)
+
+	def notify_observers(self):
+		for observer in self.observers:
+			observer.update(self)
