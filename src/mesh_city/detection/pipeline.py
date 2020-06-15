@@ -111,6 +111,11 @@ class Pipeline:
 		)
 
 	def detect_cars(self, request: Request) -> CarsLayer:
+		"""
+		Detects cars from a request's imagery.
+		:param request: The request to detect cars for.
+		:return: A CarsLayer
+		"""
 		tiles = request.get_layer_of_type(GoogleLayer).tiles
 		car_detector = CarDetector()
 		tree_detections_path = self.request_manager.get_image_root().joinpath("cars")
@@ -134,10 +139,10 @@ class Pipeline:
 		concat_result = pd.concat(frames).reset_index(drop=True)
 		concat_result.to_csv(detections_path)
 		return CarsLayer(
-				width=request.num_of_horizontal_images,
-				height=request.num_of_vertical_images,
-				detections_path=detections_path
-			)
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			detections_path=detections_path
+		)
 
 	def detect_trees(self, request: Request) -> TreesLayer:
 		"""

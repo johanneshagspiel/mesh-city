@@ -4,8 +4,8 @@ A module containing the detection screen
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
 from mesh_city.detection.pipeline import DetectionType
-from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.buildings_layer import BuildingsLayer
+from mesh_city.request.cars_layer import CarsLayer
 from mesh_city.request.trees_layer import TreesLayer
 
 
