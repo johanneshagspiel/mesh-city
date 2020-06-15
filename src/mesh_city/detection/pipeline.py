@@ -17,6 +17,7 @@ from mesh_city.request.layer import Layer
 from mesh_city.request.request import Request
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
 class DetectionType(Enum):
@@ -65,14 +66,24 @@ class Pipeline:
 				deep_forest = DeepForest()
 				tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
 				tree_detections_path.mkdir(parents=True, exist_ok=True)
-				detections_path = tree_detections_path.joinpath(
+				internal_detections_path = tree_detections_path.joinpath(
 					"detections_" + str(request.request_id) + ".csv"
 				)
-				frames = []
+				export_detections_path = tree_detections_path.joinpath(
+					"detections_export" + str(request.request_id) + ".csv"
+				)
+				frames_internal = []
+				frames_export = []
 				for tile in tiles:
 					image = Image.open(tile.path).convert("RGB")
 					np_image = np.array(image)
 					result = deep_forest.detect(np_image)
+
+					frames_export.append(
+						GeoLocationUtil.dataframe_of_image_cor_to_geo(
+						result, tile.x_grid_coord, tile.y_grid_coord
+						)
+					)
 
 					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
 					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
@@ -81,18 +92,19 @@ class Pipeline:
 					result["xmax"] += x_offset
 					result["ymax"] += y_offset
 
-					frames.append(result)
-				concat_result = pd.concat(frames).reset_index(drop=True)
-				concat_result.to_csv(detections_path)
+					frames_internal.append(result)
+
+				concat_result_internal = pd.concat(frames_internal).reset_index(drop=True)
+				concat_result_internal.to_csv(internal_detections_path)
+
+				concat_result_export = pd.concat(frames_export).reset_index(drop=True)
+				concat_result_export.to_csv(export_detections_path)
+
 				new_layers.append(
 					TreesLayer(
 					width=request.num_of_horizontal_images,
 					height=request.num_of_vertical_images,
-					detections_path=detections_path
+					detections_path=internal_detections_path
 					)
 				)
 		return new_layers
-
-	def write_to_csv(self):
-		i
-

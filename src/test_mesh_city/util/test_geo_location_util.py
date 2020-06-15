@@ -2,8 +2,9 @@
 
 import unittest
 
-from mesh_city.util.geo_location_util import GeoLocationUtil
 import pandas as pd
+
+from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
 class TestGeoLocationUtil(unittest.TestCase):
@@ -141,12 +142,30 @@ class TestGeoLocationUtil(unittest.TestCase):
 		)
 		self.assertEqual(correct_answer, calculated_answer)
 
+	def test_pixel_to_geo_coor(self):
+		x_cor_grid, y_cor_grid = 273066, 177808
+		px_x_min, px_y_min, px_x_max, px_y_max = 723.70697, 343.9098816, 906.179688, 528.7900391
+		px_x = px_x_min + ((px_x_max - px_x_min) / 2)
+		px_y = px_y_min + ((px_y_max - px_y_min) / 2)
+
+		calculated_lat, calculated_long = self.geo_location_util.pixel_to_geo_coor(x_cor_grid, y_cor_grid, px_x, px_y)
+		correct_lat, correct_long = 50.0004896827903, 7.500088698
+		self.assertAlmostEqual(correct_lat, calculated_lat)
+		self.assertAlmostEqual(correct_long, calculated_long)
+
 	def test_dataframe_of_image_cor_to_geo(self):
-		data = [
-			[5.634448051452637, 600.099609375, 165.13844299316406, 756.9794311523438, 0.36247017979621887, 'Tree'],
-			[380.353271484375, 476.0328369140625, 551.44580078125, 639.7445678710938, 0.3541949391365051, 'Tree']
-		]
-		df = pd.DataFrame(data, columns=['xmin', 'ymin', 'xmax', 'ymax', 'score', 'Tree'])
+		x_cor_grid, y_cor_grid = 273066, 177808
+		px_x_min, px_y_min, px_x_max, px_y_max = 723.70697, 343.9098816, 906.179688, 528.7900391
 
-		self.geo_location_util.dataframe_of_image_cor_to_geo(df)
+		data = [[px_x_min, px_y_min, px_x_max, px_y_max, 0.354523003, 'Tree'], ]
+		detections = pd.DataFrame(data, columns=['xmin', 'ymin', 'xmax', 'ymax', 'score', 'Tree'])
+		calculated_answer = self.geo_location_util.dataframe_of_image_cor_to_geo(
+			detections, x_cor_grid, y_cor_grid
+		)
 
+		correct_answer_data = [[50.00048968, 7.500088698, 0, 0], ]
+		correct_answer = pd.DataFrame(
+			correct_answer_data, columns=['latitude', 'longitude', 'label', 'generated']
+		)
+
+		pd.testing.assert_frame_equal(correct_answer, calculated_answer)
