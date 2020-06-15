@@ -34,7 +34,7 @@ Then install the dependencies that don't work with Pipenv:
 ```
 Then install the dependencies that don't work with Pipenv:
 ```
-(mesh-city) $ pip install libs/rasterio-1.1.4-cp37-cp37m-win_amd64.whl libs/GDAL-3.0.4-cp37-cp37m-win_amd64.whl libs/Shapely-1.7.0-cp37-cp37m-win_amd64.whl libs/Rtree-0.9.4-cp37-cp37m-win_amd64.whl Fiona-1.8.13-cp37-cp37m-win_amd64.whl
+(mesh-city) $ pip install libs/rasterio-1.1.4-cp37-cp37m-win_amd64.whl libs/GDAL-3.0.4-cp37-cp37m-win_amd64.whl libs/Shapely-1.7.0-cp37-cp37m-win_amd64.whl libs/Rtree-0.9.4-cp37-cp37m-win_amd64.whl libs/Fiona-1.8.13-cp37-cp37m-win_amd64.whl
 ```
 Now you can run the following to check your code for formatting and linting issues:
 ```
