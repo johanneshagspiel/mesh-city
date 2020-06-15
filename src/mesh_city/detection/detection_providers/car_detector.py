@@ -65,10 +65,20 @@ class CarDetector:
 				if 'detection_masks' in output_dict:
 					output_dict['detection_masks'] = output_dict['detection_masks'][0]
 		detection_data = []
-		for (bounding_box, probability) in zip(output_dict['detection_boxes'],
-		                                       output_dict['detection_scores']):
+		for (bounding_box,
+			probability) in zip(output_dict['detection_boxes'], output_dict['detection_scores']):
 			if probability > 0.5:
 				detection_data.append(
-					(bounding_box[1]*1024, bounding_box[0]*1024, bounding_box[3]*1024, bounding_box[2]*1024,probability,"Car"))
-		df = pd.DataFrame(detection_data, columns=['xmin', 'ymin', 'xmax', 'ymax', 'score','label'])
+					(
+					bounding_box[1] * 1024,
+					bounding_box[0] * 1024,
+					bounding_box[3] * 1024,
+					bounding_box[2] * 1024,
+					probability,
+					"Car"
+					)
+				)
+		df = pd.DataFrame(
+			detection_data, columns=['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label']
+		)
 		return df

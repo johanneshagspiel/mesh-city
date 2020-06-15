@@ -3,12 +3,12 @@ Module containing the code interfacing with the Spacenet neural network for buil
 """
 
 import numpy as np
-
 import torch
-from mesh_city.detection.detection_providers.xdxd_sn4 import XDXD_SpaceNet4_UNetVGG16
 from torch import Tensor
 from torch.autograd import Variable
 from torchvision.transforms import transforms
+
+from mesh_city.detection.detection_providers.xdxd_sn4 import XDXD_SpaceNet4_UNetVGG16
 
 
 class BuildingDetector:
