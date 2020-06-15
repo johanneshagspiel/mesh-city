@@ -5,6 +5,7 @@ See :class:`.Application`
 from pathlib import Path
 from tkinter import END
 from typing import List
+from PIL import Image
 
 from mesh_city.detection.detection_pipeline import DetectionPipeline
 from mesh_city.gui.main_screen import MainScreen
@@ -71,9 +72,10 @@ class Application:
 	def create_scenario(self, request, scenario_to_create):
 
 		pipeline = ScenarioPipeline(self.file_handler, self.request_manager, scenario_to_create)
-		new_scenarios = pipeline.process(request)
-		for new_scenario in new_scenarios:
-			self.current_request.add_scenario(new_scenario)
+		new_scenario = pipeline.process(request)
+		self.current_request.add_scenario(new_scenario)
+
+		self.load_scenario_onscreen(request=request, scenario_index=new_scenario.scenario_index)
 
 	def make_location_request(self, latitude: float, longitude: float) -> None:
 		"""
@@ -170,6 +172,15 @@ class Application:
 		:return: None
 		"""
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
+		self.main_screen.set_canvas_image(canvas_image)
+		self.main_screen.information_general.configure(state='normal')
+		self.main_screen.information_general.delete('1.0', END)
+		self.main_screen.information_general.insert(END, "General")
+		self.main_screen.information_general.configure(state='disabled')
+
+	def load_scenario_onscreen(self, request: Request, scenario_index):
+
+		canvas_image = Image.open(self.current_request.scenarios[scenario_index].scenario_path)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)

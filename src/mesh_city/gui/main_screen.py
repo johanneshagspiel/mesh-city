@@ -17,6 +17,7 @@ from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
 from mesh_city.gui.user_window.user_window import UserWindow
+from mesh_city.gui.mainscreen_image.gif_image import GifImage
 
 
 class MainScreen:
@@ -111,11 +112,13 @@ class MainScreen:
 		self.information_selection.bind("<Button-1>", lambda event: "break")
 		self.information_selection.config(cursor="")
 
+		self.gif_image = Label(self.master, text="")
+		self.gif_image.grid(row=0, column=1, sticky='nsew')
+
 		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
 		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
-		self.temp_image = Label(self.master, image=temp_image)
-		self.temp_image.grid(row=0, column=1, sticky='nsew')
-		self.new_canvas_image = None
+		self.new_canvas_image = Label(self.master, image=temp_image)
+		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
 		self.start_up_window = self.start_up()
 		self.master.wait_window(self.start_up_window.top)
@@ -193,6 +196,12 @@ class MainScreen:
 		"""
 		self.new_canvas_image = CanvasImage(self.master, image)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+
+	def set_gif(self, image):
+
+		self.gif_image = GifImage(self.master)
+		self.gif_image.load(image)
+		self.gif_image.grid(row=0, column=1, sticky='nsew')
 
 	def delete_text(self):
 		"""

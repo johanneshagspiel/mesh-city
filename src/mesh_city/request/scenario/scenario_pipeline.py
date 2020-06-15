@@ -67,7 +67,7 @@ class ScenarioPipeline:
 		more_trees_scenario_path = self.request_manager.get_image_root().joinpath("more_trees")
 		more_trees_scenario_path.mkdir(parents=True, exist_ok=True)
 		more_trees_file_path = more_trees_scenario_path.joinpath(
-			"more_trees" + str(request.request_id) + ".gif"
+			"more_trees" + str(len(request.scenarios)) + ".gif"
 		)
 
 		images_to_add[0].save(
@@ -80,9 +80,10 @@ class ScenarioPipeline:
 		)
 
 		return MoreTreesScenario(
+			scenario_index=len(request.scenarios),
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
-			detections_path=more_trees_file_path
+			scenario_path=more_trees_file_path
 		)
 
 	# pylint: disable=W0613
@@ -117,7 +118,7 @@ class ScenarioPipeline:
 		return new_entry
 
 
-	def process(self, request: Request) -> Sequence[Scenario]:
+	def process(self, request: Request) -> Scenario:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
 		returns a list of detection layers corresponding to the detections_to_run variable.
@@ -129,8 +130,10 @@ class ScenarioPipeline:
 		if not request.has_layer_of_type(GoogleLayer):
 			raise ValueError("The request to process should have imagery to create scenarios based of")
 
-		new_scenarios = []
+		new_scenario = []
 		for (feature, information) in self.scenarios_to_create:
 			if feature == ScenarioType.MORE_Trees:
-				new_scenarios.append(self.add_more_trees(request=request, trees_to_add=information))
-		return new_scenarios
+				new_scenario.append(self.add_more_trees(request=request, trees_to_add=information))
+
+		# TODO fix so that it does not only return first scenario
+		return new_scenario[0]
