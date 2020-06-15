@@ -62,7 +62,7 @@ class Application:
 		:return:
 		"""
 
-		pipeline = Pipeline(self.request_manager, to_detect)
+		pipeline = Pipeline(self.file_handler, self.request_manager, to_detect)
 		new_layers = pipeline.process(request)
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
