@@ -21,8 +21,7 @@ class CarDetector:
 			Path(__file__).parents[2],
 			"resources",
 			"neural_networks",
-			"inference_graph",
-			"frozen_inference_graph.pb"
+			"car_inference_graph.pb"
 		)
 
 		# Loading a frozen Tensorflow model into memory
