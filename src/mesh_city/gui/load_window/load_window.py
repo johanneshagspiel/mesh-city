@@ -16,7 +16,6 @@ class LoadWindow:
 		:param application: the global application context
 		:param mainscreen: the screen from which loadwindow is called
 		"""
-
 		self.main_screen = main_screen
 		self.master = master
 		self.value = ""
@@ -47,7 +46,7 @@ class LoadWindow:
 		:param name_directory: the directory where the request to be loaded is stored
 		:return: nothing
 		"""
-		self.application.set_current_request(request=request)
+		self.application.set_current_request(self.main_screen, request=request)
 		self.main_screen.delete_text()
 
 		self.top.destroy()

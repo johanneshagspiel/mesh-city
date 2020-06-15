@@ -3,6 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, END, Label, Toplevel, Entry
 
+from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
@@ -77,41 +78,60 @@ class PreviewWindow:
 		self.provider_number += 1
 		self.temp_name_label = Label(self.top, text=temp_name)
 		self.temp_name_label.grid(row=self.count, column=0)
+		self.temp_list.append(self.temp_name_label)
 		self.addition_provider_gui_list.append(self.temp_name_label)
 		self.count += 1
 
 		self.api_key = Label(self.top, text="API Key")
 		self.api_key.grid(row=self.count, column=0)
+		self.temp_list.append(self.api_key)
 		self.addition_provider_gui_list.append(self.api_key)
 
 		self.api_key_entry = Entry(self.top)
 		self.api_key_entry.grid(row=self.count, column=1, columnspan=2)
+		self.temp_list.append(self.api_key_entry)
 		self.addition_provider_gui_list.append(self.api_key_entry)
 		self.count += 1
 
 		self.quota = Label(self.top, text="Monthly Quota")
 		self.quota.grid(row=self.count, column=0)
+		self.temp_list.append(self.quota)
 		self.addition_provider_gui_list.append(self.quota)
 
 		self.quota_entry = Entry(self.top)
 		self.quota_entry.grid(row=self.count, column=1, columnspan=2)
+		self.temp_list.append(self.quota_entry)
 		self.addition_provider_gui_list.append(self.quota_entry)
 		self.count += 1
 
+		self.confirm_button = Button(self.top, text="Confirm", command=None)
 		self.confirm_button = Button(self.top, text="Confirm", command=self.confirm_additional_provider)
 		self.confirm_button.grid(row=self.count, column=1)
+		self.temp_list.append(self.confirm_button)
 		self.addition_provider_gui_list.append(self.confirm_button)
 
 		self.additional_provider_button.grid_forget()
 
 	def calculate_locations(self, image_provider_entity_name, image_provider_entity):
-		self.application.request_manager.image_provider = image_provider_entity
-		self.application.request_manager.top_down_provider = image_provider_entity.top_down_provider
-		self.locations = self.application.request_manager.calculate_locations(
-			coordinates=self.coordinates
+		top_down_factory = TopDownProviderFactory()
+		self.application.request_maker.top_down_provider = top_down_factory.get_top_down_provider(
+			image_provider_entity
 		)
-		self.locations = self.application.request_manager.check_coordinates(self.locations)
-		self.number_requests = self.locations.pop(0)
+		self.application.request_maker.image_provider = image_provider_entity
+		# this is a location request
+		locations = []
+		if len(self.coordinates) == 2:
+			locations, _, _ = self.application.request_maker.calculate_coordinates_for_location(
+				latitude=self.coordinates[0], longitude=self.coordinates[1])
+		elif len(self.coordinates) == 4:
+			# makes sure that points are always at least a little bit apart
+			self.coordinates[2] += 0.0005
+			self.coordinates[3] += 0.0005
+			locations, _, _ = self.application.request_maker.calculate_coordinates_for_rectangle(
+				bottom_latitude=self.coordinates[0], left_longitude=self.coordinates[1],
+				top_latitude=self.coordinates[2], right_longitude=self.coordinates[3])
+
+		self.number_requests = self.application.request_maker.count_uncached_tiles(locations)
 		self.check_usage(image_provider_entity_name, image_provider_entity)
 
 	def check_usage(self, image_provider_entity_name, image_provider_entity):
@@ -223,11 +243,11 @@ class PreviewWindow:
 			counter += 1
 
 		self.confirm_button = Button(
-			self.top, text="Confirm", command=lambda: self.cleanup(self.locations), bg="white"
+			self.top, text="Confirm", command=lambda: self.cleanup(self.coordinates), bg="white"
 		)
 		self.confirm_button.grid(row=counter, column=1)
 
-	def cleanup(self, locations):
+	def cleanup(self, coordinates):
 		"""
 		Method called when the user clicks on the confirm button. Loads all the images associated
 		with the locations and the updates the main screen
@@ -235,12 +255,19 @@ class PreviewWindow:
 		:return: nothing (but updates the main screen with the downloaded image)
 		"""
 
-		self.application.request_manager.make_request_for_block(locations)
-		self.main_screen.update_image()
-
-		self.main_screen.information_general.configure(state='normal')
-		self.main_screen.information_general.delete('1.0', END)
-		self.main_screen.information_general.insert(END, "General")
-		self.main_screen.information_general.configure(state='disabled')
+		if len(coordinates) == 2:
+			self.application.make_location_request(
+				latitude=coordinates[0], longitude=coordinates[1]
+			)
+		elif len(coordinates) == 4:
+			self.application.make_area_request(
+				bottom_latitude=coordinates[0],
+				left_longitude=coordinates[1],
+				top_latitude=coordinates[2],
+				right_longitude=coordinates[3]
+			)
+		else:
+			raise ValueError("The number of coordinate values does not check out")
 
 		self.top.destroy()
+

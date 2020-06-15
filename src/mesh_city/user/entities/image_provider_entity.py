@@ -93,7 +93,7 @@ class ImageProviderEntity(LogEntity):
 			"total": self.usage["total"]
 			},
 			"quota": self.quota,
-			"date_reset": self.date_reset.date().isoformat()
+			"date_reset": self.date_reset
 		}
 
 	def check_date_reset(self, current_date):

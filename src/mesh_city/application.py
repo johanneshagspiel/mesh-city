@@ -81,6 +81,8 @@ class Application:
 		)
 		self.process_finished_request(request=finished_request)
 
+		self.log_manager.write_log(self.user_entity)
+
 	def make_area_request(
 		self,
 		bottom_latitude: float,
@@ -106,14 +108,16 @@ class Application:
 		)
 		self.process_finished_request(request=finished_request)
 
-	def set_current_request(self, request: Request) -> None:
+		self.log_manager.write_log(self.user_entity)
+
+	def set_current_request(self, main_screen, request: Request) -> None:
 		"""
 		Sets the current request to a new Request and updates the view accordingly.
 
 		:param request:
 		:return:
 		"""
-
+		self.main_screen = main_screen
 		self.current_request = request
 		self.load_request_onscreen(request)
 
@@ -157,7 +161,6 @@ class Application:
 		:param request: The request to load on screen.
 		:return: None
 		"""
-
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.information_general.configure(state='normal')
@@ -176,7 +179,7 @@ class Application:
 
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
-		self.set_current_request(request=request)
+		self.set_current_request(request=request, main_screen=self.main_screen)
 
 	def start(self):
 		"""

@@ -11,6 +11,7 @@ from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.entities.request import Request
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.entities.tile import Tile
+from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.price_table_util import PriceTableUtil
 
@@ -21,9 +22,11 @@ class RequestMaker:
 	of its RequestManager.
 	"""
 
-	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None):
+	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None,
+	             image_provider: ImageProviderEntity = None):
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
+		self.image_provider = image_provider
 
 	@staticmethod
 	def compute_3x3_area(latitude: float, longitude: float, zoom: int) -> Tuple[
@@ -155,14 +158,12 @@ class RequestMaker:
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
 
-			old_usage = self.top_down_provider.usage["total"]
+			old_usage = self.image_provider.usage["total"]
 			temp_cost = PriceTableUtil.one_increase(old_usage)
 			temp_new_total = old_usage + temp_cost
 
-			self.top_down_provider.usage["total"] = round(temp_new_total, 4)
-			self.top_down_provider.usage["static_map"] = round(temp_new_total, 4)
-
-			self.application.log_manager.write_log(self.application.user_entity)
+			self.image_provider.usage["total"] = round(temp_new_total, 4)
+			self.image_provider.usage["static_map"] = round(temp_new_total, 4)
 
 		request = Request(
 			x_grid_coord=min_x,

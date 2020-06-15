@@ -15,6 +15,7 @@ from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
+from mesh_city.gui.user_window.user_window import UserWindow
 
 
 class MainScreen:
@@ -83,7 +84,7 @@ class MainScreen:
 		self.export_button.grid(row=5, column=0)
 
 		self.user_button = Button(
-			self.left_bar, text="User", width=6, height=3, command=None, bg="grey"
+			self.left_bar, text="User", width=6, height=3, command=self.user_window, bg="grey"
 		)
 		self.user_button.grid(row=6, column=0)
 
@@ -116,15 +117,6 @@ class MainScreen:
 
 		self.start_up_window = self.start_up()
 		self.master.wait_window(self.start_up_window.top)
-
-		temp_image_path = next(
-			self.application.file_handler.folder_overview["active_image_path"].glob(
-				"concat_image_*")
-		)
-		self.temp_image.grid_forget()
-		self.canvas_image = CanvasImage(self.master, temp_image_path)
-		self.new_canvas_image = None
-		self.canvas_image.grid(row=0, column=1, sticky='nsew')
 
 		self.master.columnconfigure(1, weight=1)
 		self.master.rowconfigure(0, weight=1)
@@ -182,6 +174,9 @@ class MainScreen:
 		"""
 		DetectionWindow(self.master, self.application)
 
+	def user_window(self):
+		UserWindow(master=self.master, application=self.application, main_screen=self)
+
 	def set_canvas_image(self, image):
 		"""
 		Calls methods needed to updates the image seen on the map
@@ -218,14 +213,6 @@ class MainScreen:
 		self.information_general.delete('1.0', END)
 		self.information_general.insert(END, tree_amount_text)
 		self.information_general.configure(state='disabled')
-
-	def set_canvas_image(self, image):
-		"""
-		Calls methods needed to updates the image seen on the map
-		:return: Nothing
-		"""
-		self.new_canvas_image = CanvasImage(self.master, image)
-		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
 	def start_up(self):
 
