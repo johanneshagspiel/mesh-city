@@ -146,10 +146,10 @@ class ScenarioPipeline:
 		car_center_x = car_xmin + ((car_xmax - car_xmin) / 2)
 		car_center_y = car_ymin + ((car_ymax - car_ymin) / 2)
 
-		new_xmin = car_center_x - tree_distance_center_max_x
-		new_xmax = car_center_x + tree_distance_center_max_x
-		new_ymin = car_center_y - tree_distance_center_max_y
-		new_ymax = car_center_y + tree_distance_center_max_y
+		new_xmin = str(car_center_x - tree_distance_center_max_x)
+		new_xmax = str(car_center_x + tree_distance_center_max_x)
+		new_ymin = str(car_center_y - tree_distance_center_max_y)
+		new_ymax = str(car_center_y + tree_distance_center_max_y)
 
 		new_entry = [
 			tree_dataframe.shape[0],
