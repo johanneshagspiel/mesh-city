@@ -31,18 +31,8 @@ class LoadWindow:
 
 		if self.application.current_request is not None:
 			active_request_id = self.application.current_request.request_id
-			temp_text = "Active Request: Request " + str(active_request_id)
-			self.active_request_button = Button(
-					self.top,
-					text=temp_text,
-					width=20,
-					height=3,
-					command=lambda: self.load_request(self.application.current_request),
-					bg="white"
-				)
-			self.active_request_button.grid(row=1, column=1)
 
-			for (index, request) in enumerate(self.application.request_manager.requests, 2):
+			for (index, request) in enumerate(self.application.request_manager.requests, 1):
 				if request.request_id != active_request_id:
 					self.temp_name = Button(
 						self.top,

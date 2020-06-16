@@ -12,14 +12,14 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
-from mesh_city.util.info_generator import InfoGenerator
+from mesh_city.detection.information_pipeline import InformationPipeline
 
 
 class Application:
@@ -136,7 +136,7 @@ class Application:
 		"""
 		self.current_request = request
 		self.load_request_onscreen(request)
-		self.get_statistics()
+		self.main_screen.active_layers = ["Google Maps"]
 
 	def load_request_specific_layers(self, request: Request, layer_mask: List[bool]) -> None:
 		"""
@@ -149,10 +149,13 @@ class Application:
 
 		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask)
 		self.main_screen.set_canvas_image(canvas_image)
-		self.main_screen.information_general.configure(state="normal")
-		self.main_screen.information_general.delete("1.0", END)
-		self.main_screen.information_general.insert(END, "General")
-		self.main_screen.information_general.configure(state="disabled")
+
+		layer_list = []
+		for (index, element) in enumerate(layer_mask):
+			if element is True:
+				layer_list.append(self.current_request.layers[index])
+		text_to_show = self.get_statistics(request=request, element_list=layer_list)
+		self.main_screen.update_text(text_to_show)
 
 	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
@@ -189,20 +192,12 @@ class Application:
 		"""
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
 		self.main_screen.set_canvas_image(canvas_image)
-		self.main_screen.information_general.configure(state='normal')
-		self.main_screen.information_general.delete('1.0', END)
-		self.main_screen.information_general.insert(END, "General")
-		self.main_screen.information_general.configure(state='disabled')
+		self.main_screen.delete_text()
 
 	def load_scenario_onscreen(self, request: Request, name: str):
 
 		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
 		self.main_screen.set_gif(canvas_image)
-
-		self.main_screen.information_general.configure(state='normal')
-		self.main_screen.information_general.delete('1.0', END)
-		self.main_screen.information_general.insert(END, "General")
-		self.main_screen.information_general.configure(state='disabled')
 
 	def process_finished_request(self, request: Request) -> None:
 		"""
@@ -217,17 +212,18 @@ class Application:
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
 
-	def get_statistics(self):
+	def get_statistics(self, request, element_list):
 		"""
 		Method which can be called to count, analyse and create some statistics of the detections
 		saved in layers of the active request.
 		:return:
 		"""
 		bio_path = self.file_handler.folder_overview['biome_index']
-		info_gen = InfoGenerator(bio_path, self.current_request)
+		info_gen = InformationPipeline(bio_path, self.current_request)
+
+		return info_gen.process(request, element_list)
 		info_gen.get_tree_and_rooftop_co2_values()
 
-		print(info_gen.get_number_of_cars_and_trees())
 
 	def start(self):
 		"""

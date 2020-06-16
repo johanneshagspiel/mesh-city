@@ -4,14 +4,13 @@ See class description
 import csv
 from pathlib import Path
 
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.layer import Layer
-from mesh_city.request.request import Request
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
-class InfoGenerator:
+class InformationPipeline:
 	"""
 	Class which contains methods to count, analyse and create some statistics of the detections
 	saved in layers of a request.
@@ -20,39 +19,6 @@ class InfoGenerator:
 	def __init__(self, bio_path: Path, request: Request):
 		self.bio_path = bio_path
 		self.request = request
-
-	def get_number_of_cars_and_trees(self):
-		"""
-		Analyses a request to
-		:return: the number of trees and cars detected in that request
-		"""
-		layers = self.request.layers
-		trees = None
-		cars = None
-
-		for layer in layers:
-			if isinstance(layer, TreesLayer):
-				trees = self.get_number_of_detections_in_layer(layer)
-			if isinstance(layer, CarsLayer):
-				cars = self.get_number_of_detections_in_layer(layer)
-
-		return {'trees': trees, 'cars': cars}
-
-	def get_number_of_detections_in_layer(self, layer: Layer):
-		"""
-		Analyses a layer to count the number of detections of a certain class in the layer.
-		:param layer: the layer to be analysed
-		:return: the number of detections in the images of the respective class of layer
-		"""
-		if isinstance(layer, (TreesLayer, CarsLayer)):
-			count = 0
-			with open(str(layer.detections_path), newline='') as csv_file:
-				csv_reader = csv.reader(csv_file, delimiter=',')
-				for (index, row) in enumerate(csv_reader):
-					if len(row) > 0 and index > 0:
-						count += 1
-			return count
-		raise Exception("Should be a car or tree")
 
 	def get_tree_and_rooftop_co2_values(self):
 		"""
@@ -98,3 +64,36 @@ class InfoGenerator:
 		print('closest', closest)
 
 		return closest
+
+	def process_tree_layer(self, treeLayer: TreesLayer):
+
+		count = 0
+		with open(str(treeLayer.detections_path), newline='') as csv_file:
+			csv_reader = csv.reader(csv_file, delimiter=',')
+			for (index, row) in enumerate(csv_reader):
+				if len(row) > 0 and index > 0:
+					count += 1
+		self.result_string += "Trees Detected: " + str(count) + "\n"
+
+	def process_cars_layer(self, carsLayer: CarsLayer):
+
+		count = 0
+		with open(str(carsLayer.detections_path), newline='') as csv_file:
+			csv_reader = csv.reader(csv_file, delimiter=',')
+			for (index, row) in enumerate(csv_reader):
+				if len(row) > 0 and index > 0:
+					count += 1
+		self.result_string += "Cars Detected: " + str(count) + "\n"
+
+	def process(self, request: Request, element_list) -> str:
+
+		self.result_string = ""
+
+		for element in element_list:
+			if isinstance(element, TreesLayer):
+				self.process_tree_layer(treeLayer=element)
+			if isinstance(element, CarsLayer):
+				self.process_cars_layer(carsLayer=element)
+
+		return self.result_string
+

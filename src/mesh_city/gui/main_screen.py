@@ -98,7 +98,7 @@ class MainScreen:
 		self.information_general = Text(self.right_frame, width=26, height=50, wrap=WORD)
 		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_general.grid(row=0, column=0, sticky="w")
-		self.information_general.insert(END, "General")
+		self.information_general.insert(END, "")
 		self.information_general.configure(state='disabled')
 		self.information_general.bind("<Double-1>", lambda event: "break")
 		self.information_general.bind("<Button-1>", lambda event: "break")
@@ -202,26 +202,17 @@ class MainScreen:
 		"""
 		self.information_general.configure(state='normal')
 		self.information_general.delete('1.0', END)
-		self.information_general.insert(END, "General")
+		self.information_general.insert(END, "")
 		self.information_general.configure(state='disabled')
 
-	def update_text(self):
+	def update_text(self, text_to_show):
 		"""
 		Method to update the text field on the main screen
 		:return: nothing (new text is show on the mainscreen)
 		"""
-		temp_info_path = next(
-			self.application.file_handler.folder_overview["active_information_path"].
-			glob("concat_information*")
-		)
-		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
-
-		tree_amount = temp_information_log.information["Amount"] - 1
-		tree_amount_text = "Amount of trees detected:\n" + str(tree_amount)
-
 		self.information_general.configure(state='normal')
 		self.information_general.delete('1.0', END)
-		self.information_general.insert(END, tree_amount_text)
+		self.information_general.insert(END, text_to_show)
 		self.information_general.configure(state='disabled')
 
 	def start_up(self):

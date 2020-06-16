@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-from mesh_city.request.request import Request
-from mesh_city.request.tile import Tile
+from mesh_city.request.entities.request import Request
+from mesh_city.request.entities.tile import Tile
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity

@@ -17,7 +17,7 @@ from mesh_city.detection.detection_providers.car_detector import CarDetector
 from mesh_city.detection.detection_providers.deep_forest import DeepForest
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
