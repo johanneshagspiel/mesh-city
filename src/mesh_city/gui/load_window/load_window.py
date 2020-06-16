@@ -26,7 +26,6 @@ class LoadWindow:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-
 		self.top_label = Label(top, text="Which request do you want to load?")
 		self.top_label.grid(row=0, column=1)
 

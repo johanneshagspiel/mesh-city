@@ -141,10 +141,10 @@ class RequestManager:
 							scenario_name = Path(file_path).name.split("_")[1]
 							request.add_scenario(
 								MoreTreesScenario(
-									scenario_name=scenario_name,
-									width=request.num_of_horizontal_images,
-									height=request.num_of_vertical_images,
-									scenario_path=file_path
+								scenario_name=scenario_name,
+								width=request.num_of_horizontal_images,
+								height=request.num_of_vertical_images,
+								scenario_path=file_path
 								)
 							)
 

@@ -57,13 +57,24 @@ class ImageProviderEntityTest(unittest.TestCase):
 		print(user_entity.for_storage())
 
 	def test_serialize_deserialize(self):
-		test_json = {'test user':{'ahn1': {'type_map_provider': 'Google Maps', 'api_key': 'AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4', 'usage': {'static_map': 0, 'geocoding': 0, 'total': 0}, 'quota': 100.0, 'date_reset': '2020-06-30'}}}
+		test_json = {
+			'test user':
+			{
+			'ahn1':
+			{
+			'type_map_provider': 'Google Maps',
+			'api_key': 'AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4',
+			'usage': {
+			'static_map': 0, 'geocoding': 0, 'total': 0
+			},
+			'quota': 100.0,
+			'date_reset': '2020-06-30'
+			}
+			}
+		}
 		remove = string.punctuation + string.whitespace
 
-		test = UserEntity(
-			FileHandler(),
-			json=test_json
-		)
+		test = UserEntity(FileHandler(), json=test_json)
 		json_result = str(test.for_storage())
 		temp_string = "{'test user': " + json_result + "}"
 

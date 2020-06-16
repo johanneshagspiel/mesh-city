@@ -14,4 +14,4 @@ class MoreTreesScenario(Scenario):
 
 	def __init__(self, scenario_name: str, width: int, height: int, scenario_path: Path) -> None:
 		self.scenario_path = scenario_path
-		super().__init__(scenario_name=scenario_name,width=width, height=height)
+		super().__init__(scenario_name=scenario_name, width=width, height=height)

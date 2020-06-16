@@ -79,7 +79,7 @@ class ExportWindow:
 		self.top_label.configure(text="What do you want to export?")
 
 		self.int_variable_list_layers = []
-		next_start=0
+		next_start = 0
 		for (index, layer) in enumerate(request.layers):
 			self.int_variable_list_layers.append(IntVar())
 			text = ""
@@ -92,7 +92,7 @@ class ExportWindow:
 			elif isinstance(layer, BuildingsLayer):
 				text = "Building detections GeoJSON"
 			Checkbutton(self.top, text=text,
-			            variable=self.int_variable_list_layers[index]).grid(row=index + 1)
+				variable=self.int_variable_list_layers[index]).grid(row=index + 1)
 			next_start = index + 1
 
 		self.int_variable_list_scenarios = []
@@ -103,11 +103,11 @@ class ExportWindow:
 				text = "More Trees Scenario: " + scenario.scenario_name
 			text = scenario.scenario_name
 			Checkbutton(self.top, text=text,
-			            variable=self.int_variable_list_scenarios[index]).grid(row=next_start + 1)
+				variable=self.int_variable_list_scenarios[index]).grid(row=next_start + 1)
 			next_start += 1
 
-		Button(self.top, text="Confirm",
-			command=lambda: self.cleanup(request), bg="white").grid(row=next_start)
+		Button(self.top, text="Confirm", command=lambda: self.cleanup(request),
+			bg="white").grid(row=next_start)
 
 	def cleanup(self, request):
 		"""

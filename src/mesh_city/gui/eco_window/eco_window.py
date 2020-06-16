@@ -2,9 +2,9 @@
 The module containing the eco window
 """
 import math
-import pandas as pd
+from tkinter import Button, Entry, Label, Scale, Toplevel
 
-from tkinter import Button, Label, Scale, Toplevel, Entry
+import pandas as pd
 
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
@@ -50,19 +50,21 @@ class EcoWindow:
 
 		if len(detected_layers) == 1:
 			self.top_label["text"
-			] = "This area can not be made more eco-friendly. Detect something first"
+							] = "This area can not be made more eco-friendly. Detect something first"
 
 		else:
 			usable_layers = []
 
 			if "Trees" in detected_layers:
-				self.tree_layer_panda = pd.read_csv(self.application.current_request.get_layer_of_type(TreesLayer).detections_path)
+				self.tree_layer_panda = pd.read_csv(
+					self.application.current_request.get_layer_of_type(TreesLayer).detections_path
+				)
 				if self.tree_layer_panda.shape[0] > 1:
 					usable_layers.append("Trees")
 			if "Cars" in detected_layers:
 				self.car_layer_panda = pd.read_csv(
-					self.application.current_request.get_layer_of_type(
-						CarsLayer).detections_path)
+					self.application.current_request.get_layer_of_type(CarsLayer).detections_path
+				)
 				if self.car_layer_panda.shape[0] > 1:
 					usable_layers.append("Cars")
 			if "Buildings" in detected_layers:
@@ -70,7 +72,7 @@ class EcoWindow:
 
 			if "Trees" or "Buidlings" in usable_layers:
 				self.top_label["text"] = "Scenario Creator"
-				self.top_label.grid(row=0,column=0, columnspan=3)
+				self.top_label.grid(row=0, column=0, columnspan=3)
 
 				self.step_counter = 1
 				self.to_forget = []
@@ -90,7 +92,7 @@ class EcoWindow:
 					self.increase_amount_button = Button(
 						self.top, text="Add more Trees", command=self.add_more_trees, bg="white"
 					)
-					self.increase_amount_button.grid(row=2,column=counter)
+					self.increase_amount_button.grid(row=2, column=counter)
 					self.to_forget.append(self.increase_amount_button)
 					self.option_buttons.append(self.increase_amount_button)
 					counter += 1
@@ -99,16 +101,16 @@ class EcoWindow:
 					self.swap_items_button = Button(
 						self.top, text="Swap Cars with Trees", command=None, bg="white"
 					)
-					self.swap_items_button.grid(row=2,column=counter)
+					self.swap_items_button.grid(row=2, column=counter)
 					self.to_forget.append(self.swap_items_button)
 					self.option_buttons.append(self.swap_items_button)
-					counter+=1
+					counter += 1
 
 				if "Buildings" in usable_layers:
 					self.cover_buildings_button = Button(
 						self.top, text="Cover Buildings", command=None, bg="white"
 					)
-					self.cover_buildings_button.grid(row=2,column=counter)
+					self.cover_buildings_button.grid(row=2, column=counter)
 					self.to_forget.append(self.cover_buildings_button)
 					self.option_buttons.append(self.cover_buildings_button)
 					counter += 1
@@ -126,7 +128,7 @@ class EcoWindow:
 		"""
 		for widget in self.to_forget:
 			widget.grid_forget()
-		self.to_forget= []
+		self.to_forget = []
 
 		self.secondary_label["text"] = "How many trees do you want to add in percentage?"
 
@@ -135,9 +137,7 @@ class EcoWindow:
 		self.tree_increase.grid(row=2, columnspan=3)
 		self.to_forget.append(self.tree_increase)
 
-		confirm_button = Button(
-			self.top, text="Confirm", command=None, bg="white"
-		)
+		confirm_button = Button(self.top, text="Confirm", command=None, bg="white")
 		confirm_button.grid(row=3, columnspan=3)
 		self.to_forget.append(confirm_button)
 
