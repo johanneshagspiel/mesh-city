@@ -77,9 +77,8 @@ class EcoWindow:
 				self.important_widgets = []
 				self.scenario_list = []
 
-				step_text = "Step " + str(self.step_counter)
-				self.step_text_label = Label(self.top, text=step_text)
-				self.step_text_label.grid(row=1, column=0)
+				self.step_one_text_label = Label(self.top, text="Step 1")
+				self.step_one_text_label.grid(row=1, column=0)
 
 				secondary_label_text = "How do you want to make this area more ecofriendly?"
 				self.secondary_label = Label(self.top, text=secondary_label_text)
@@ -98,7 +97,7 @@ class EcoWindow:
 
 				if "Cars" and "Trees" in detected_layers:
 					self.swap_items_button = Button(
-						self.top, text="Swap Cars with Trees", command=None, bg="white"
+						self.top, text="Swap Cars with Trees", command=self.swap_cars_with_trees, bg="white"
 					)
 					self.swap_items_button.grid(row=2,column=counter)
 					self.to_forget.append(self.swap_items_button)
@@ -115,10 +114,10 @@ class EcoWindow:
 					counter += 1
 
 				self.nick_name_label = Label(self.top, text="Scenario name: \n(Optionl)")
-				self.important_widgets.append(self.nick_name_label)
-
 				self.name_entry = Entry(self.top)
-				self.important_widgets.append(self.name_entry)
+				self.confirm_button = Button(
+					self.top, text="Create Scenario", command=None, bg="white"
+				)
 
 			else:
 				self.top_label["text"] = "This area can not be made more eco-friendly"
@@ -135,14 +134,16 @@ class EcoWindow:
 		self.secondary_label["text"] = "How many trees do you want to add in percentage?"
 
 		# pylint: disable=W0201
+		grid_index = self.step_counter + 1
 		self.increase_trees = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.increase_trees.grid(row=2, columnspan=3)
+		self.increase_trees.grid(row=grid_index, columnspan=3)
 		self.to_forget.append(self.increase_trees)
+		grid_index += 1
 
 		confirm_button = Button(
 			self.top, text="Confirm", command=self.cleanup_more_trees, bg="white"
 		)
-		confirm_button.grid(row=3, columnspan=3)
+		confirm_button.grid(row=grid_index, columnspan=3)
 		self.to_forget.append(confirm_button)
 
 
@@ -154,14 +155,16 @@ class EcoWindow:
 		self.secondary_label["text"] = "How many cars do you want to swap with trees in percentage?"
 
 		# pylint: disable=W0201
+		grid_index = self.step_counter + 1
 		self.trees_for_cars = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.trees_for_cars.grid(row=2, columnspan=3)
+		self.trees_for_cars.grid(row=grid_index, columnspan=3)
 		self.to_forget.append(self.trees_for_cars)
+		grid_index += 1
 
 		confirm_button = Button(
 			self.top, text="Confirm", command=self.cleanup_swap_cars, bg="white"
 		)
-		confirm_button.grid(row=3, columnspan=3)
+		confirm_button.grid(row=grid_index, columnspan=3)
 		self.to_forget.append(confirm_button)
 
 	def cleanup_more_trees(self):
@@ -173,7 +176,7 @@ class EcoWindow:
 		trees_to_add = math.ceil((self.tree_layer_panda.shape[0] - 1) * increase_percentage)
 
 		self.scenario_list.append((ScenarioType.MORE_TREES, trees_to_add))
-		self.add_another_step()
+		self.add_another_step(ScenarioType.MORE_TREES, trees_to_add)
 
 	def cleanup_swap_cars(self):
 		"""
@@ -184,7 +187,7 @@ class EcoWindow:
 		cars_to_swap = math.ceil((self.car_layer_panda.shape[0] - 1) * swap_percentag)
 
 		self.scenario_list.append((ScenarioType.SWAP_CARS, cars_to_swap))
-		self.add_another_step()
+		self.add_another_step(ScenarioType.SWAP_CARS, cars_to_swap)
 
 	def add_another_step(self, scenario_type, scenario_info):
 		
@@ -192,8 +195,43 @@ class EcoWindow:
 			widget.grid_forget()
 		self.to_forget = []
 
-		self.nick_name_label.grid(row=2, column=0)
-		self.name_entry.grid(row=2, column=1)
+		scenario_text = ""
+		if scenario_type is ScenarioType.MORE_TREES:
+			scenario_text = "Add " + str(scenario_info) + " trees"
+		if scenario_type is ScenarioType.SWAP_CARS:
+			scenario_text = "Swap " + str(scenario_info) + " cars with trees"
+
+		self.step_info_label = Label(self.top, text=scenario_text)
+		self.step_info_label.grid(row=self.step_counter, column=1)
+
+		grid_index = self.step_counter + 1
+
+		if self.step_counter < 5:
+			self.step_counter += 1
+			self.new_step_label = Label(self.top, text="Step " + str(self.step_counter))
+			self.new_step_label.grid(row=grid_index, column=0)
+
+			self.secondary_label["text"] = "How do you want to make this area more ecofriendly?"
+			self.secondary_label.grid(row=grid_index, column=1, columnspan=2)
+
+			grid_index += 1
+			for counter, widget in enumerate(self.important_widgets):
+				widget.grid(row=grid_index, column=counter)
+				self.to_forget.append(widget)
+		else:
+			self.secondary_label.grid_forget()
+
+		grid_index += 1
+		self.nick_name_label.grid(row=grid_index, column=0)
+		self.to_forget.append(self.nick_name_label)
+
+		self.name_entry.grid(row=grid_index, column=1)
+		self.to_forget.append(self.name_entry)
+
+		grid_index +=1
+		self.confirm_button.grid(row=grid_index,column=1)
+		self.to_forget.append(self.confirm_button)
+
 
 	def cleanup(self):
 
