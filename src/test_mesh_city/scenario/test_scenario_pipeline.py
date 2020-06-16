@@ -9,13 +9,21 @@ from mesh_city.util.file_handler import FileHandler
 
 
 class TestScenarioPipeline(unittest.TestCase):
+	def setUp(self) -> None:
+		self.file_handler = FileHandler(root=Path(__file__).parents[1])
+		self.request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
+		self.request_manager.load_data()
+
+	def test_swap_cars_scenario(self):
+		pipeline = ScenarioPipeline(request_manager=self.request_manager,
+			scenarios_to_create=[(ScenarioType.SWAP_CARS,4)]
+		)
+		request = self.request_manager.get_request_by_id(0)
+		pipeline.process(request)
 
 	def test_more_tree_scenario(self):
-		file_handler = FileHandler(root=Path(__file__).parents[1])
-		request_manager = RequestManager(file_handler.folder_overview["image_path"])
-		request_manager.load_data()
-		pipeline = ScenarioPipeline(request_manager=request_manager,
-			scenarios_to_create=[(ScenarioType.MORE_TREES,1)]
+		pipeline = ScenarioPipeline(request_manager=self.request_manager,
+			scenarios_to_create=[(ScenarioType.MORE_TREES,4)]
 		)
-		request = request_manager.get_request_by_id(0)
+		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
