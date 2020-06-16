@@ -3,8 +3,8 @@
 import unittest
 from pathlib import Path
 
-from mesh_city.request.entities.request import Request
-from mesh_city.request.entities.tile import Tile
+from mesh_city.request.request import Request
+from mesh_city.request.tile import Tile
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_manager import RequestManager
 

@@ -6,14 +6,11 @@ from typing import Sequence
 import pandas as pd
 
 from mesh_city.gui.request_renderer import RequestRenderer
-from mesh_city.request.entities.request import Request
+from mesh_city.request.request import Request
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.scenario import Scenario
-from mesh_city.util.file_handler import FileHandler
-
 
 class ScenarioType(Enum):
 
@@ -24,14 +21,10 @@ class ScenarioPipeline:
 
 	def __init__(
 		self,
-		file_handler: FileHandler,
-		request_manager: RequestManager,
 		scenarios_to_create,
 		name=None
 	):
-		self.file_handler = file_handler
 		self.scenarios_to_create = scenarios_to_create
-		self.request_manager = request_manager
 		self.name = name
 
 	def add_more_trees(self, request, trees_to_add):

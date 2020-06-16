@@ -12,7 +12,7 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
-from mesh_city.request.entities.request import Request
+from mesh_city.request.request import Request
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
@@ -77,7 +77,7 @@ class Application:
 	def create_scenario(self, request, scenario_to_create, name=None):
 
 		pipeline = ScenarioPipeline(
-			self.file_handler, self.request_manager, scenario_to_create, name
+			scenario_to_create, name
 		)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
