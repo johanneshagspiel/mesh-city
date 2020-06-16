@@ -37,7 +37,7 @@ class ScenarioPipeline:
 		tree_layer_panda = pd.read_csv(
 			request.get_layer_of_type(TreesLayer).detections_path)
 
-		temp_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
+		temp_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0, scaling=1)
 
 		images_to_add = []
 		images_to_add.append(temp_image)
@@ -66,26 +66,24 @@ class ScenarioPipeline:
 			temp_to_add_image = copy.deepcopy(temp_image)
 			images_to_add.append(temp_to_add_image)
 
-		more_trees_scenario_path = self.request_manager.get_image_root().joinpath("more_trees")
+		more_trees_scenario_path = self.request_manager.get_image_root().joinpath("scenarios")
 		more_trees_scenario_path.mkdir(parents=True, exist_ok=True)
-		more_trees_file_path = more_trees_scenario_path.joinpath(
-			"more_trees" + str(len(request.scenarios)) + ".gif"
-		)
+
+		scenario_name = "MoreTrees" + str(len(request.scenarios))
+		if self.name is not None:
+			scenario_name = self.name
+
+		more_trees_file_name = "request" + str(request.request_id) + "_" + scenario_name + "_.gif"
+		more_trees_file_path = more_trees_scenario_path.joinpath(more_trees_file_name)
 
 		images_to_add[0].save(
-			more_trees_file_path,
+			fp=more_trees_file_path,
 			save_all=True,
 			append_images=images_to_add[1:],
 			optimize=False,
 			duration=100,
 			loop=0
 		)
-
-		scenario_nick_name = "MoreTrees" + str(len(request.scenarios))
-		if self.name is not None:
-			scenario_nick_name = self.name
-
-		scenario_name="request" + str(request.request_id) + "_" + scenario_nick_name + "_.gif"
 
 		return MoreTreesScenario(
 			scenario_name=scenario_name,
@@ -108,10 +106,10 @@ class ScenarioPipeline:
 		old_xmax = tree_layer_panda.iloc[what_to_place][3]
 		old_ymin = tree_layer_panda.iloc[what_to_place][4]
 
-		new_xmin = str(float(old_xmin) + 5)
-		new_ymax = str(float(old_ymax) + 5)
-		new_xmax = str(float(old_xmax) + 5)
-		new_ymin = str(float(old_ymin) + 5)
+		new_xmin = str(float(old_xmin) + 50)
+		new_ymax = str(float(old_ymax) + 50)
+		new_xmax = str(float(old_xmax) + 50)
+		new_ymin = str(float(old_ymin) + 50)
 
 		new_entry = [
 			tree_layer_panda.shape[0],

@@ -78,9 +78,10 @@ class EcoWindow:
 		self.more_trees.grid_forget()
 
 		self.top_label["text"] = "How many trees do you want to add in percentage?"
+		self.top_label.grid(columnspan=2)
 		# pylint: disable=W0201
 		self.tree_increase = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.tree_increase.grid(row=1)
+		self.tree_increase.grid(row=1, columnspan=2)
 
 		nick_name_label = Label(self.top, text="Scenario name: \n(Optionl)")
 		nick_name_label.grid(row=2,column=0)
@@ -91,7 +92,7 @@ class EcoWindow:
 		confirm_button = Button(
 			self.top, text="Confirm", command=self.cleanup_more_trees, bg="white"
 		)
-		confirm_button.grid(row=3)
+		confirm_button.grid(row=3, columnspan=2)
 
 	def cleanup_more_trees(self):
 		"""

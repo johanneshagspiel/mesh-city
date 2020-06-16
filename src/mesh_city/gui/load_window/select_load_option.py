@@ -32,23 +32,28 @@ class SelectLoadOption:
 
 		self.temp_dict = {}
 
-		self.top_label = Label(self.top, text="What do you want to load?")
+		self.top_label = Label(self.top, text="There is nothing to load.")
 		self.top_label.grid(row=0)
 
 		counter = 1
+		self.to_forget_list = []
 
 		if len(self.application.request_manager.requests) > 1:
-			self.load_request = Button(
+			self.top_label["text"] = "What do you want to load?"
+			load_request_button = Button(
 				self.top, text="Previous request", command=self.load_request, bg="white"
 			)
-			self.load_request.grid(row=counter)
+			load_request_button.grid(row=counter)
+			self.to_forget_list.append(load_request_button)
 			counter += 1
 
 		if len(self.application.current_request.scenarios) > 0:
-			self.load_scenario_button = Button(
+			self.top_label["text"] = "What do you want to load?"
+			load_scenario_button = Button(
 				self.top, text="Previous scenario", command=self.ask_for_scenario, bg="white"
 			)
-			self.load_scenario_button.grid(row=counter)
+			load_scenario_button.grid(row=counter)
+			self.to_forget_list.append(load_scenario_button)
 			counter += 1
 
 	def load_request(self):
@@ -66,23 +71,21 @@ class SelectLoadOption:
 		"""
 		self.top_label["text"] = "Which scenario do you want to load?"
 
-		self.load_request.grid_forget()
-		self.load_scenario_button.grid_forget()
+		for widget in self.to_forget_list:
+			widget.grid_forget()
 
 		temp_counter = 1
-		for scenario in self.application.current_request.scenarios:
-			temp_name = scenario.scenario_index
-			temp_index = scenario.scenario_index
+		for scenario_name in self.application.current_request.scenarios.keys():
 			scenario_button = Button(
 				self.top,
-				text=temp_name,
-				command=lambda temp_index=temp_index: self.load_scenario(temp_index),
+				text=scenario_name,
+				command=lambda scenario_name=scenario_name: self.load_scenario(scenario_name),
 				bg="white"
 			)
 			scenario_button.grid(row=temp_counter)
 			temp_counter += 1
 
-	def load_scenario(self, temp_index):
+	def load_scenario(self, scenario_name):
 		"""
 		Loads the selected scenario onto the main_screen
 		:param name: the name of the scenario to load
@@ -90,5 +93,5 @@ class SelectLoadOption:
 		"""
 
 		self.application.load_scenario_onscreen(request=self.application.current_request,
-		                                        scenario_index=temp_index)
+		                                        name=scenario_name)
 		self.top.destroy()

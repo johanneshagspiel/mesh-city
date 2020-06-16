@@ -72,13 +72,13 @@ class Application:
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 
-	def create_scenario(self, request, scenario_to_create, nick_name=None):
+	def create_scenario(self, request, scenario_to_create, name=None):
 
-		pipeline = ScenarioPipeline(self.file_handler, self.request_manager, scenario_to_create, nick_name)
+		pipeline = ScenarioPipeline(self.file_handler, self.request_manager, scenario_to_create, name)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
 
-		self.load_scenario_onscreen(request=request, scenario_name=new_scenario.scenario_name)
+		self.load_scenario_onscreen(request=request, name=new_scenario.scenario_name)
 
 	def make_location_request(self, latitude: float, longitude: float) -> None:
 		"""
@@ -179,10 +179,10 @@ class Application:
 		self.main_screen.information_general.insert(END, "General")
 		self.main_screen.information_general.configure(state='disabled')
 
-	def load_scenario_onscreen(self, request: Request, scenario_index: int):
+	def load_scenario_onscreen(self, request: Request, name: str):
 
-		canvas_image = Image.open(self.current_request.scenarios[scenario_index].scenario_path)
-		self.main_screen.set_canvas_image(canvas_image)
+		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
+		self.main_screen.set_gif(canvas_image)
 
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)

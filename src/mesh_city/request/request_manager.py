@@ -133,18 +133,19 @@ class RequestManager:
 							detections_path=building_detections_path
 							)
 						)
-					more_trees_path = self.__images_root.joinpath("more_trees")
-					if more_trees_path.exists():
+					scenarios = self.__images_root.joinpath("scenarios")
+					if scenarios.exists():
 						pattern = "request" + str(request.request_id) + "*"
-						file_paths = sorted(more_trees_path.glob(pattern))
+						file_paths = sorted(scenarios.glob(pattern))
 						for file_path in file_paths:
-							scenario_name = str(file_path).split("_")[1]
+							scenario_name = Path(file_path).name.split("_")[1]
+							print(scenario_name)
 							request.add_scenario(
 								MoreTreesScenario(
 									scenario_name=scenario_name,
 									width=request.num_of_horizontal_images,
 									height=request.num_of_vertical_images,
-									detections_path=file_path
+									scenario_path=file_path
 								)
 							)
 
