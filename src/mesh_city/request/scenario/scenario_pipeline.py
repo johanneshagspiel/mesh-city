@@ -11,6 +11,7 @@ from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request import Request
+from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.scenario import Scenario
 
 
@@ -23,9 +24,11 @@ class ScenarioPipeline:
 
 	def __init__(
 		self,
+		request_manager: RequestManager,
 		scenarios_to_create: Sequence[Tuple[ScenarioType, Any]],
 		name: str=None
 	):
+		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
 
