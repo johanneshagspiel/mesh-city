@@ -29,16 +29,42 @@ class LoadWindow:
 		self.top_label = Label(top, text="Which request do you want to load?")
 		self.top_label.grid(row=0, column=1)
 
-		for (index, request) in enumerate(self.application.request_manager.requests):
-			self.temp_name = Button(
-				self.top,
-				text="Request " + str(request.request_id),
-				width=20,
-				height=3,
-				command=lambda button_request=request: self.load_request(button_request),
-				bg="white"
-			)
-			self.temp_name.grid(row=index + 1, column=1)
+		if self.application.current_request is not None:
+			active_request_id = self.application.current_request.request_id
+			temp_text = "Active Request: Request " + str(active_request_id)
+			self.active_request_button = Button(
+					self.top,
+					text=temp_text,
+					width=20,
+					height=3,
+					command=lambda: self.load_request(self.application.current_request),
+					bg="white"
+				)
+			self.active_request_button.grid(row=1, column=1)
+
+			for (index, request) in enumerate(self.application.request_manager.requests, 2):
+				if request.request_id != active_request_id:
+					self.temp_name = Button(
+						self.top,
+						text="Request " + str(request.request_id),
+						width=20,
+						height=3,
+						command=lambda button_request=request: self.load_request(button_request),
+						bg="white"
+					)
+					self.temp_name.grid(row=index + 1, column=1)
+
+		else:
+			for (index, request) in enumerate(self.application.request_manager.requests):
+					self.temp_name = Button(
+						self.top,
+						text="Request " + str(request.request_id),
+						width=20,
+						height=3,
+						command=lambda button_request=request: self.load_request(button_request),
+						bg="white"
+					)
+					self.temp_name.grid(row=index + 1, column=1)
 
 	def load_request(self, request):
 		"""
