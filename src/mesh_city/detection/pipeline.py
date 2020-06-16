@@ -26,7 +26,6 @@ from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.trees_layer import TreesLayer
 from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.image_util import ImageUtil
-from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
 class DetectionType(Enum):
@@ -79,6 +78,7 @@ class Pipeline:
 			"detections_" + str(request.request_id) + ".geojson"
 		)
 		images = []
+
 		for tile in tiles:
 			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
 		# note: not sure how this will perform for large scale analysis!
@@ -92,6 +92,7 @@ class Pipeline:
 		image_tiler = ImageTiler(tile_width=512, tile_height=512)
 		patches = image_tiler.create_tile_dictionary(concat_image)
 		mask_patches = {}
+
 		for key in patches:
 			mask_patches[key] = building_detector.detect(image=patches[key])
 		concat_mask = np.uint8(image_tiler.construct_image_from_tiles(mask_patches))
@@ -105,6 +106,7 @@ class Pipeline:
 			origin=(0, 0)
 		)
 		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
+
 		return BuildingsLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
@@ -137,8 +139,10 @@ class Pipeline:
 			result["xmax"] += x_offset
 			result["ymax"] += y_offset
 			frames.append(result)
+
 		concat_result = pd.concat(frames).reset_index(drop=True)
 		concat_result.to_csv(detections_path)
+
 		return CarsLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
@@ -159,6 +163,7 @@ class Pipeline:
 			"detections_" + str(request.request_id) + ".csv"
 		)
 		images = []
+
 		for tile in tiles:
 			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
 		# note: not sure how this will perform for large scale analysis!
@@ -179,6 +184,7 @@ class Pipeline:
 		result["ymax"] = result["ymax"] * 6
 
 		result.to_csv(detection_file_path)
+
 		return TreesLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
@@ -206,53 +212,3 @@ class Pipeline:
 			if feature == DetectionType.CARS:
 				new_layers.append(self.detect_cars(request=request))
 		return new_layers
-
-# new_layers = []
-# 		for feature in self.detections_to_run:
-# 			if feature == DetectionType.TREES:
-# 				tiles = request.get_layer_of_type(GoogleLayer).tiles
-# 				deep_forest = DeepForest()
-# 				tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
-# 				tree_detections_path.mkdir(parents=True, exist_ok=True)
-# 				internal_detections_path = tree_detections_path.joinpath(
-# 					"detections_" + str(request.request_id) + ".csv"
-# 				)
-# 				export_detections_path = tree_detections_path.joinpath(
-# 					"detections_export" + str(request.request_id) + ".csv"
-# 				)
-# 				frames_internal = []
-# 				frames_export = []
-# 				for tile in tiles:
-# 					image = Image.open(tile.path).convert("RGB")
-# 					np_image = np.array(image)
-# 					result = deep_forest.detect(np_image)
-#
-# 					frames_export.append(
-# 						GeoLocationUtil.dataframe_of_image_cor_to_geo(
-# 						result, tile.x_grid_coord, tile.y_grid_coord
-# 						)
-# 					)
-#
-# 					x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-# 					y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-# 					result["xmin"] += x_offset
-# 					result["ymin"] += y_offset
-# 					result["xmax"] += x_offset
-# 					result["ymax"] += y_offset
-#
-# 					frames_internal.append(result)
-#
-# 				concat_result_internal = pd.concat(frames_internal).reset_index(drop=True)
-# 				concat_result_internal.to_csv(internal_detections_path)
-#
-# 				concat_result_export = pd.concat(frames_export).reset_index(drop=True)
-# 				concat_result_export.to_csv(export_detections_path)
-#
-# 				new_layers.append(
-# 					TreesLayer(
-# 					width=request.num_of_horizontal_images,
-# 					height=request.num_of_vertical_images,
-# 					detections_path=internal_detections_path
-# 					)
-# 				)
-# 		return new_layers

@@ -4,7 +4,6 @@ See :class:`.GeoLocationUtil`
 
 import math
 
-import pandas as pd
 from pyproj import Transformer
 
 
@@ -300,63 +299,40 @@ class GeoLocationUtil:
 		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
 
 	@staticmethod
-	def pixel_to_geo_coor(image_grid_x, image_grid_y, px_x, px_y, resolution=1024, zoom=20):
+	def pixel_to_geo_coor(
+		image_grid_x,
+		image_grid_y,
+		xmin,
+		ymin,
+		xmax,
+		ymax,
+		image_width=1024,
+		image_height=1024,
+		zoom=20
+	):
 		"""
-		Method that transforms the position of a pixel into geographical coordinates
+		Method that transforms the position of a bounding box on an image, into pixel corodinaetes
+		and then into geographical coordinates
 		:param image_grid_x: the x coordinate of the grid position (aka. the Northwest corner) of the
 		image
 		:param image_grid_y: the y coordinate of the grid position (aka. the Northwest corner) of the
 		image
-		:param px_x: the x position of the pixel (origin (0, 0) is in the Northwest cornet of the image)
-		:param px_y: the y position of the pixel (origin (0, 0) is in the Northwest cornet of the image)
-		:param resolution: the resolution of the image, assuming the image is a square
+		:param xmin:
+		:param ymin:
+		:param xmax:
+		:param ymax:
+		:param image_width:
+		:param image_height:
 		:param zoom: the zoom level, regarding the zoom level of the tile corresponding to the image
 		:return: a tuple (latitude, longitude) in geographical coordinates (EPSG:4326)
 		"""
-		image_grid_x_offset = px_x / resolution
-		image_grid_y_offset = px_y / resolution
+		px_x = xmin + ((xmax - xmin) / 2)
+		px_y = ymin + ((ymax - ymin) / 2)
+
+		image_grid_x_offset = px_x / image_width
+		image_grid_y_offset = px_y / image_height
 
 		image_grid_x += image_grid_x_offset
 		image_grid_y += image_grid_y_offset
 
 		return GeoLocationUtil.tile_value_to_degree(image_grid_x, image_grid_y, zoom, False)
-
-	@staticmethod
-	def dataframe_of_image_cor_to_geo(detections, image_grid_x, image_grid_y):
-		"""
-		Method which extracts information regarding the bounding boxes of detections in a dataframe
-		and transform the information into a new dataframe containing the geographical centre
-		coordinates of the detections.
-		:param detections: a panda dataframe
-		:param image_grid_x: the x coordinate of the grid position (aka. the Northwest corner) of the
-		image
-		:param image_grid_y: the y coordinate of the grid position (aka. the Northwest corner) of the
-		image
-		:param label:
-		:param generated:
-		:return: a panda dataframe with the columns, latitude, longitude, label and generated.
-		Latitude and longitude being in the standard EPSG:4326 datum. Label, indicating what the
-		detection is ('car', 'building' or 'tree). Generated, a boolean value indicating whether the
-		detection was generated through a swapping or whether it was detected on 'clean' satellite
-		imagery.
-		"""
-		csv_data = {'latitude': [], 'longitude': [], 'label': [], 'generated': []}
-		for index, row in detections.iterrows():  # pylint: disable=unused-variable
-			xmin = row['xmin']
-			ymin = row['ymin']
-			xmax = row['xmax']
-			ymax = row['ymax']
-			# score = row['score']
-			# label = row['Tree']
-
-			px_x = xmin + ((xmax - xmin) / 2)
-			px_y = ymin + ((ymax - ymin) / 2)
-
-			latitude, longitude = GeoLocationUtil.pixel_to_geo_coor(image_grid_x, image_grid_y, px_x, px_y)
-			csv_data['latitude'].append(latitude)
-			csv_data['longitude'].append(longitude)
-			csv_data['label'].append(0)
-			csv_data['generated'].append(0)
-
-		answer = pd.DataFrame(csv_data)
-		return answer
