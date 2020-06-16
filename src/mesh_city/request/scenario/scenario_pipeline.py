@@ -24,11 +24,13 @@ class ScenarioPipeline:
 		self,
 		file_handler: FileHandler,
 		request_manager: RequestManager,
-		scenarios_to_create
+		scenarios_to_create,
+		name=None
 	):
 		self.file_handler = file_handler
 		self.scenarios_to_create = scenarios_to_create
 		self.request_manager = request_manager
+		self.name=name
 
 	def add_more_trees(self, request, trees_to_add):
 
@@ -79,8 +81,14 @@ class ScenarioPipeline:
 			loop=0
 		)
 
+		scenario_nick_name = "more_trees_" + str(len(request.scenarios))
+		if self.name is not None:
+			scenario_nick_name = self.name
+
+		scenario_name="request_" + str(request.request_id) + "_" + scenario_nick_name + ".gif"
+
 		return MoreTreesScenario(
-			scenario_index=len(request.scenarios),
+			scenario_name=len(request.scenarios),
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
 			scenario_path=more_trees_file_path

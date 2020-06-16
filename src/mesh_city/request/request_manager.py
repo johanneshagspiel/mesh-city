@@ -12,6 +12,7 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
 
 
 class RequestManager:
@@ -132,6 +133,21 @@ class RequestManager:
 							detections_path=building_detections_path
 							)
 						)
+					more_trees_path = self.__images_root.joinpath("more_trees")
+					if more_trees_path.exists():
+						pattern = "*_" + str(request.request_id) + ".gif"
+						file_paths = sorted(more_trees_path.glob(pattern))
+						for file_path in file_paths:
+							scenario_name = "test"
+							request.add_scenario(
+								MoreTreesScenario(
+									scenario_name=scenario_name,
+									width=request.num_of_horizontal_images,
+									height=request.num_of_vertical_images,
+									detections_path=file_path
+								)
+							)
+
 					self.add_request(request=request)
 
 	def add_request(self, request: Request) -> None:

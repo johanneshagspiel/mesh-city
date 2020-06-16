@@ -44,7 +44,7 @@ class SelectLoadOption:
 			self.load_request.grid(row=counter)
 			counter += 1
 
-		if len(self.application.current_request.scenarios) > 1:
+		if len(self.application.current_request.scenarios) > 0:
 			self.load_scenario_button = Button(
 				self.top, text="Previous scenario", command=self.ask_for_scenario, bg="white"
 			)
@@ -70,28 +70,25 @@ class SelectLoadOption:
 		self.load_scenario_button.grid_forget()
 
 		temp_counter = 1
-		for key in self.building_instructions.instructions["Generated"]:
-			for path in self.building_instructions.instructions["Generated"][key][1]:
-				temp_path = Path(path)
-				temp_name = temp_path.name
-				self.temp_dict[temp_name] = temp_path
-				scenario_button = Button(
-					self.top,
-					text=temp_name,
-					command=lambda temp_name=temp_name: self.load_scenario(temp_name),
-					bg="white"
-				)
-				scenario_button.grid(row=temp_counter)
-				temp_counter += 1
+		for scenario in self.application.current_request.scenarios:
+			temp_name = scenario.scenario_index
+			temp_index = scenario.scenario_index
+			scenario_button = Button(
+				self.top,
+				text=temp_name,
+				command=lambda temp_index=temp_index: self.load_scenario(temp_index),
+				bg="white"
+			)
+			scenario_button.grid(row=temp_counter)
+			temp_counter += 1
 
-	def load_scenario(self, name):
+	def load_scenario(self, temp_index):
 		"""
 		Loads the selected scenario onto the main_screen
 		:param name: the name of the scenario to load
 		:return: nothing (the main screen image is now the selected scenario)
 		"""
-		path = self.temp_dict[name].parents[0]
-		self.application.file_handler.change("active_image_path", path)
-		self.main_screen.update_gif()
-		self.main_screen.seen_on_screen = ["Generated"]
+
+		self.application.load_scenario_onscreen(request=self.application.current_request,
+		                                        scenario_index=temp_index)
 		self.top.destroy()

@@ -10,6 +10,7 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
 
 
 class ExportWindow:
@@ -17,7 +18,7 @@ class ExportWindow:
 	The window where the user can select what they want to export as well as where to export that to
 	"""
 
-	def __init__(self, master, application):
+	def __init__(self, master, application, main_screen):
 		"""
 		First asks the user which request to export
 		:param master: the master tkinter application
@@ -26,6 +27,8 @@ class ExportWindow:
 		self.master = master
 		self.value = ""
 		self.application = application
+		self.main_screen = main_screen
+
 		self.top = Toplevel(master)
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 
@@ -69,9 +72,10 @@ class ExportWindow:
 			button.grid_forget()
 		self.top_label.forget()
 
-		self.application.set_current_request(request=request)
+		self.application.set_current_request(request=request,main_screen=self.main_screen)
 		self.top_label.configure(text="What do you want to export?")
 		self.int_variable_list = []
+		next_start = 0
 		for (index, layer) in enumerate(request.layers):
 			self.int_variable_list.append(IntVar())
 			text = ""
@@ -83,6 +87,16 @@ class ExportWindow:
 				text = "Car detections CSV"
 			elif isinstance(layer, BuildingsLayer):
 				text = "Building detections GeoJSON"
+			Checkbutton(self.top, text=text,
+			            variable=self.int_variable_list[index]).grid(row=index + 1)
+			next_start = index
+
+		for (index, scenario) in enumerate(request.scenarios, next_start):
+			self.int_variable_list.append(IntVar())
+			text = ""
+			if isinstance(scenario, MoreTreesScenario):
+				text = "More Trees Scenario: " + scenario.scenario_index
+			text = scenario.scenario_index
 			Checkbutton(self.top, text=text,
 				variable=self.int_variable_list[index]).grid(row=index + 1)
 

@@ -12,6 +12,6 @@ class MoreTreesScenario(Scenario):
 	A layer class representing the more trees scenario for a request
 	"""
 
-	def __init__(self, scenario_index: int, width: int, height: int, scenario_path: Path) -> None:
+	def __init__(self, scenario_name: str, width: int, height: int, scenario_path: Path) -> None:
 		self.scenario_path = scenario_path
-		super().__init__(scenario_index, width, height)
+		super().__init__(scenario_name=scenario_name,width=width, height=height)

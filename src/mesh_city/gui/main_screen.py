@@ -150,7 +150,7 @@ class MainScreen:
 		Creates an export window
 		:return: Nothing (creates an export window)
 		"""
-		ExportWindow(self.master, self.application)
+		ExportWindow(master=self.master, application=self.application, main_screen=self)
 
 	def layers_window(self):
 		"""

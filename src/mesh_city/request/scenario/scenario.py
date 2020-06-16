@@ -10,7 +10,7 @@ class Scenario(ABC):
 	An abstract base class that request scenarios inherit from.
 	"""
 
-	def __init__(self, scenario_index: int, width: int, height: int) -> None:
-		self.scenario_index = scenario_index
+	def __init__(self, scenario_name: str, width: int, height: int) -> None:
+		self.scenario_name = scenario_name
 		self.width = width
 		self.height = height

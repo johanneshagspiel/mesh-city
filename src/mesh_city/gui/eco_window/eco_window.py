@@ -4,7 +4,7 @@ The module containing the eco window
 import math
 import pandas as pd
 
-from tkinter import Button, Label, Scale, Toplevel
+from tkinter import Button, Label, Scale, Toplevel, Entry
 
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
@@ -82,10 +82,16 @@ class EcoWindow:
 		self.tree_increase = Scale(self.top, from_=0, to=100, orient="horizontal")
 		self.tree_increase.grid(row=1)
 
+		nick_name_label = Label(self.top, text="Scenario name: \n(Optionl)")
+		nick_name_label.grid(row=2,column=0)
+
+		self.name_entry = Entry(self.top)
+		self.name_entry.grid(row=2, column=1)
+
 		confirm_button = Button(
 			self.top, text="Confirm", command=self.cleanup_more_trees, bg="white"
 		)
-		confirm_button.grid(row=2)
+		confirm_button.grid(row=3)
 
 	def cleanup_more_trees(self):
 		"""
@@ -98,9 +104,14 @@ class EcoWindow:
 			(self.tree_layer_panda.shape[0] - 1)
 		)
 
+		name = self.name_entry.get()
+		if name == "":
+			name = None
+
 		self.application.create_scenario(
-			request=self.application.current_request, scenario_to_create=[(
-			ScenarioType.MORE_Trees, trees_to_add)]
+			request=self.application.current_request,
+			scenario_to_create=[(ScenarioType.MORE_Trees, trees_to_add)],
+			name=name
 		)
 
 		self.top.destroy()
