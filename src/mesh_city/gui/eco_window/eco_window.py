@@ -74,7 +74,8 @@ class EcoWindow:
 
 				self.step_counter = 1
 				self.to_forget = []
-				self.option_buttons = []
+				self.important_widgets = []
+				self.scenario_list = []
 
 				step_text = "Step " + str(self.step_counter)
 				self.step_text_label = Label(self.top, text=step_text)
@@ -92,7 +93,7 @@ class EcoWindow:
 					)
 					self.increase_amount_button.grid(row=2,column=counter)
 					self.to_forget.append(self.increase_amount_button)
-					self.option_buttons.append(self.increase_amount_button)
+					self.important_widgets.append(self.increase_amount_button)
 					counter += 1
 
 				if "Cars" and "Trees" in detected_layers:
@@ -101,7 +102,7 @@ class EcoWindow:
 					)
 					self.swap_items_button.grid(row=2,column=counter)
 					self.to_forget.append(self.swap_items_button)
-					self.option_buttons.append(self.swap_items_button)
+					self.important_widgets.append(self.swap_items_button)
 					counter+=1
 
 				if "Buildings" in usable_layers:
@@ -110,11 +111,14 @@ class EcoWindow:
 					)
 					self.cover_buildings_button.grid(row=2,column=counter)
 					self.to_forget.append(self.cover_buildings_button)
-					self.option_buttons.append(self.cover_buildings_button)
+					self.important_widgets.append(self.cover_buildings_button)
 					counter += 1
 
 				self.nick_name_label = Label(self.top, text="Scenario name: \n(Optionl)")
+				self.important_widgets.append(self.nick_name_label)
+
 				self.name_entry = Entry(self.top)
+				self.important_widgets.append(self.name_entry)
 
 			else:
 				self.top_label["text"] = "This area can not be made more eco-friendly"
@@ -131,18 +135,59 @@ class EcoWindow:
 		self.secondary_label["text"] = "How many trees do you want to add in percentage?"
 
 		# pylint: disable=W0201
-		self.tree_increase = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.tree_increase.grid(row=2, columnspan=3)
-		self.to_forget.append(self.tree_increase)
+		self.increase_trees = Scale(self.top, from_=0, to=100, orient="horizontal")
+		self.increase_trees.grid(row=2, columnspan=3)
+		self.to_forget.append(self.increase_trees)
 
 		confirm_button = Button(
-			self.top, text="Confirm", command=None, bg="white"
+			self.top, text="Confirm", command=self.cleanup_more_trees, bg="white"
 		)
 		confirm_button.grid(row=3, columnspan=3)
 		self.to_forget.append(confirm_button)
 
-	def add_another_step(self):
 
+	def swap_cars_with_trees(self):
+		for widget in self.to_forget:
+			widget.grid_forget()
+		self.to_forget= []
+
+		self.secondary_label["text"] = "How many cars do you want to swap with trees in percentage?"
+
+		# pylint: disable=W0201
+		self.trees_for_cars = Scale(self.top, from_=0, to=100, orient="horizontal")
+		self.trees_for_cars.grid(row=2, columnspan=3)
+		self.to_forget.append(self.trees_for_cars)
+
+		confirm_button = Button(
+			self.top, text="Confirm", command=self.cleanup_swap_cars, bg="white"
+		)
+		confirm_button.grid(row=3, columnspan=3)
+		self.to_forget.append(confirm_button)
+
+	def cleanup_more_trees(self):
+		"""
+		creates a gif with additional trees on it and displays that on the mainscreen
+		:return: nothing (a gif is created, stored, logged and shown on the mainscreen)
+		"""
+		increase_percentage = self.increase_trees.get() * 0.01
+		trees_to_add = math.ceil((self.tree_layer_panda.shape[0] - 1) * increase_percentage)
+
+		self.scenario_list.append((ScenarioType.MORE_TREES, trees_to_add))
+		self.add_another_step()
+
+	def cleanup_swap_cars(self):
+		"""
+		creates a gif with additional trees on it and displays that on the mainscreen
+		:return: nothing (a gif is created, stored, logged and shown on the mainscreen)
+		"""
+		swap_percentag = self.trees_for_cars.get() * 0.01 + 1
+		cars_to_swap = math.ceil((self.car_layer_panda.shape[0] - 1) * swap_percentag)
+
+		self.scenario_list.append((ScenarioType.SWAP_CARS, cars_to_swap))
+		self.add_another_step()
+
+	def add_another_step(self, scenario_type, scenario_info):
+		
 		for widget in self.to_forget:
 			widget.grid_forget()
 		self.to_forget = []
@@ -150,25 +195,15 @@ class EcoWindow:
 		self.nick_name_label.grid(row=2, column=0)
 		self.name_entry.grid(row=2, column=1)
 
-	def cleanup_more_trees(self):
-		"""
-		creates a gif with additional trees on it and displays that on the mainscreen
-		:return: nothing (a gif is created, stored, logged and shown on the mainscreen)
-		"""
-		increase_percentage = self.tree_increase.get() * 0.01 + 1
-		trees_to_add = math.ceil(
-			(self.tree_layer_panda.shape[0] - 1) * increase_percentage -
-			(self.tree_layer_panda.shape[0] - 1)
-		)
-
 	def cleanup(self):
+
 		name = self.name_entry.get()
 		if name == "":
 			name = None
 
 		self.application.create_scenario(
 			request=self.application.current_request,
-			scenario_to_create=[(ScenarioType.MORE_Trees, trees_to_add)],
+			scenario_to_create=self.scenario_list,
 			name=name
 		)
 

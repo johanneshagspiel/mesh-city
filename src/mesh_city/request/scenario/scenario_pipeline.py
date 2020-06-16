@@ -16,7 +16,8 @@ import pandas as pd
 
 class ScenarioType(Enum):
 
-	MORE_Trees = 0
+	MORE_TREES = 0
+	SWAP_CARS = 1
 
 class ScenarioPipeline:
 
@@ -138,7 +139,7 @@ class ScenarioPipeline:
 
 		new_scenario = []
 		for (feature, information) in self.scenarios_to_create:
-			if feature == ScenarioType.MORE_Trees:
+			if feature == ScenarioType.MORE_TREES:
 				new_scenario.append(self.add_more_trees(request=request, trees_to_add=information))
 
 		# TODO fix so that it does not only return first scenario
