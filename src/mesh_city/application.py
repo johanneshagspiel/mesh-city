@@ -77,8 +77,8 @@ class Application:
 
 	def create_scenario(self, request, scenario_to_create, name=None):
 
-		pipeline = ScenarioPipeline(
-			scenario_to_create, name
+		pipeline = ScenarioPipeline(request_manager=self.request_manager,
+			scenarios_to_create=scenario_to_create, name=name
 		)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
@@ -199,6 +199,9 @@ class Application:
 		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
 		self.main_screen.set_gif(canvas_image)
 
+		text_to_show = self.get_statistics(request=request, element_list=[self.current_request.scenarios[name]])
+		self.main_screen.update_text(text_to_show)
+
 	def process_finished_request(self, request: Request) -> None:
 		"""
 		Adds a made request to the RequestManager of the Application sets the state of the Application
@@ -222,8 +225,6 @@ class Application:
 		info_gen = InformationPipeline(bio_path, self.current_request)
 
 		return info_gen.process(request, element_list)
-		info_gen.get_tree_and_rooftop_co2_values()
-
 
 	def start(self):
 		"""

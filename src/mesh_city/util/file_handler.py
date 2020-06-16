@@ -28,7 +28,7 @@ class FileHandler:
 			"users.json":
 			Path.joinpath(self.root, 'resources', 'user', 'users.json'),
 			"biome_index":
-			Path.joinpath(self.root, 'resources', 'PlanetPainter_BiomeIndex.csv'),
+			Path.joinpath(self.root, 'resources', 'mvrdv', 'PlanetPainter_BiomeIndex.csv'),
 			"MVRDV":
 				Path.joinpath(self.root, 'resources', 'mvrdv', 'mvrdv_logo.png')
 		}

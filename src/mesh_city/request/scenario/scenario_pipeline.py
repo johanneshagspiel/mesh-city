@@ -26,11 +26,13 @@ class ScenarioPipeline:
 		self,
 		request_manager: RequestManager,
 		scenarios_to_create: Sequence[Tuple[ScenarioType, Any]],
-		name: str=None
+		name: str = None
 	):
 		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
+
+		print(self.scenarios_to_create)
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 
@@ -224,7 +226,8 @@ class ScenarioPipeline:
 			scenario_name=scenario_name,
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
-			scenario_path=scenario_file_path_gif
+			scenario_path=scenario_file_path_gif,
+			information_path=scenario_file_path_csv
 		)
 
 	def process(self, request: Request) -> Scenario:

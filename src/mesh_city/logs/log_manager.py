@@ -5,7 +5,7 @@ A module that contains the log manager who is responsible for performing all the
 import json
 import os
 
-from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.user.user_entity import UserEntity
 
 
 class LogManager:

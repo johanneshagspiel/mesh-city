@@ -3,7 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, Entry, Label, Toplevel
 
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
 

@@ -7,6 +7,7 @@ from pathlib import Path
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -85,6 +86,21 @@ class InformationPipeline:
 					count += 1
 		self.result_string += "Cars Detected: " + str(count) + "\n"
 
+	def process_scenario(self, scenario: Scenario):
+
+		print('hi')
+
+		# count_trees_added = 0
+		# count_cars_swapped = 0
+		#
+		# with open(str(scenario.detections_path), newline='') as csv_file:
+		# 	csv_reader = csv.reader(csv_file, delimiter=',')
+		# 	for (index, row) in enumerate(csv_reader):
+		# 		if len(row) > 0 and index > 0:
+		# 			count += 1
+		#
+		# self.result_string += "Cars Detected: " + str(count) + "\n"
+
 	def process(self, request: Request, element_list) -> str:
 
 		self.result_string = ""
@@ -94,6 +110,8 @@ class InformationPipeline:
 				self.process_tree_layer(treeLayer=element)
 			if isinstance(element, CarsLayer):
 				self.process_cars_layer(carsLayer=element)
+			if isinstance(element, Scenario):
+				self.process_scenario(scenario=element)
 
 		return self.result_string
 

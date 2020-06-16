@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import mock
 
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.file_handler import FileHandler
 
 

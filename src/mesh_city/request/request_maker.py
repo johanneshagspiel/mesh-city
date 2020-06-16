@@ -11,7 +11,7 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.entities.tile import Tile
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 

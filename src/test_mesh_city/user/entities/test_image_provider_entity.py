@@ -5,7 +5,7 @@ from datetime import datetime
 
 from parameterized import parameterized
 
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.file_handler import FileHandler
 
 
