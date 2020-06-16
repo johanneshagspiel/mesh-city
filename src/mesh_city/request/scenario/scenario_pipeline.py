@@ -122,26 +122,27 @@ class ScenarioPipeline:
 	def calculate_car_swap_location(self, car_to_swap_index, tree_to_replace_with_index,
 	                                tree_dataframe, car_dataframe):
 
+		print(tree_dataframe)
 		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]
-		tree_ymax = tree_dataframe.iloc[tree_to_replace_with_index][2]
+		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][2]
 		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][3]
-		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][4]
+		tree_ymax= tree_dataframe.iloc[tree_to_replace_with_index][4]
 
 		tree_distance_center_max_x = (tree_xmax - tree_xmin) / 2
 		tree_distance_center_max_y = (tree_ymax - tree_ymin) / 2
 
 		car_xmin = car_dataframe.iloc[car_to_swap_index][1]
-		car_ymax = car_dataframe.iloc[car_to_swap_index][2]
+		car_ymin = car_dataframe.iloc[car_to_swap_index][2]
 		car_xmax = car_dataframe.iloc[car_to_swap_index][3]
-		car_ymin = car_dataframe.iloc[car_to_swap_index][4]
+		car_ymax = car_dataframe.iloc[car_to_swap_index][4]
 
 		car_center_x = car_xmin + ((car_xmax - car_xmin) / 2)
 		car_center_y = car_ymin + ((car_ymax - car_ymin) / 2)
 
-		new_xmin = car_center_x - tree_distance_center_max_x
-		new_xmax = car_center_x + tree_distance_center_max_x
-		new_ymin = car_center_y - tree_distance_center_max_y
-		new_ymax = car_center_y + tree_distance_center_max_y
+		new_xmin = str(car_center_x - tree_distance_center_max_x)
+		new_xmax = str(car_center_x + tree_distance_center_max_x)
+		new_ymin = str(car_center_y - tree_distance_center_max_y)
+		new_ymax = str(car_center_y + tree_distance_center_max_y)
 
 		new_entry = [
 			tree_dataframe.shape[0],
@@ -165,9 +166,9 @@ class ScenarioPipeline:
 		:return: where to place the tree
 		"""
 		old_xmin = tree_dataframe.iloc[what_to_place][1]
-		old_ymax = tree_dataframe.iloc[what_to_place][2]
+		old_ymin = tree_dataframe.iloc[what_to_place][2]
 		old_xmax = tree_dataframe.iloc[what_to_place][3]
-		old_ymin = tree_dataframe.iloc[what_to_place][4]
+		old_ymax = tree_dataframe.iloc[what_to_place][4]
 
 		new_xmin = str(float(old_xmin) + 50)
 		new_ymax = str(float(old_ymax) + 50)
