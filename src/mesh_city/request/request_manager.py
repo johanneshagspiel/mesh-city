@@ -69,7 +69,8 @@ class RequestManager:
 				"y_grid_coord": request.y_grid_coord,
 				"num_of_horizontal_images": request.num_of_horizontal_images,
 				"num_of_vertical_images": request.num_of_vertical_images,
-				"zoom": request.zoom
+				"zoom": request.zoom,
+				"name": request.name
 				}
 			)
 		with open(self.__images_root.joinpath("requests.json"), 'w') as fout:

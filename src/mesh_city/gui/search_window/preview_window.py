@@ -256,6 +256,13 @@ class PreviewWindow:
 			self.usage_left_label.grid(row=counter, column=2)
 			counter += 1
 
+		self.nick_name_label = Label(self.top, text="Request name: \n(Optionl)")
+		self.nick_name_label.grid(row=counter, column=0)
+
+		self.name_entry = Entry(self.top)
+		self.name_entry.grid(row=counter, column=1)
+		counter += 1
+
 		self.confirm_button = Button(
 			self.top, text="Confirm", command=lambda: self.cleanup(self.coordinates), bg="white"
 		)
@@ -268,17 +275,22 @@ class PreviewWindow:
 		:param locations: the locations to download
 		:return: nothing (but updates the main screen with the downloaded image)
 		"""
+		name = self.name_entry.get()
+		if name == "":
+			name = None
 
 		if len(coordinates) == 2:
 			self.application.make_location_request(
-				latitude=coordinates[0], longitude=coordinates[1]
+				latitude=coordinates[0], longitude=coordinates[1],
+				name=name
 			)
 		elif len(coordinates) == 4:
 			self.application.make_area_request(
 				bottom_latitude=coordinates[0],
 				left_longitude=coordinates[1],
 				top_latitude=coordinates[2],
-				right_longitude=coordinates[3]
+				right_longitude=coordinates[3],
+				name=name
 			)
 		else:
 			raise ValueError("The number of coordinate values does not check out")

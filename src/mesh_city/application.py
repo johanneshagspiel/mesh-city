@@ -85,7 +85,7 @@ class Application:
 
 		self.load_scenario_onscreen(request=request, name=new_scenario.scenario_name)
 
-	def make_location_request(self, latitude: float, longitude: float) -> None:
+	def make_location_request(self, latitude: float, longitude: float, name:str = None) -> None:
 		"""
 		Makes a location request and updates the application correspondingly.
 
@@ -94,7 +94,7 @@ class Application:
 		:return: None
 		"""
 		finished_request = self.request_maker.make_location_request(
-			latitude=latitude, longitude=longitude
+			latitude=latitude, longitude=longitude, name=name
 		)
 		self.process_finished_request(request=finished_request)
 
@@ -105,7 +105,8 @@ class Application:
 		bottom_latitude: float,
 		left_longitude: float,
 		top_latitude: float,
-		right_longitude: float
+		right_longitude: float,
+		name: str = None
 	) -> None:
 		"""
 		Makes an area request and updates the application correspondingly.
@@ -121,7 +122,8 @@ class Application:
 			bottom_latitude=bottom_latitude,
 			left_longitude=left_longitude,
 			top_latitude=top_latitude,
-			right_longitude=right_longitude
+			right_longitude=right_longitude,
+			name=name
 		)
 		self.process_finished_request(request=finished_request)
 

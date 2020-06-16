@@ -125,6 +125,7 @@ class RequestMaker:
 		left_longitude: float,
 		top_latitude: float,
 		right_longitude: float,
+		name: str = None,
 		zoom: Any = None
 	) -> Request:
 		"""
@@ -162,10 +163,14 @@ class RequestMaker:
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
 
+		request_id = self.request_manager.get_new_request_id()
+		if name is None:
+			name = "Request_" + str(request_id)
 		request = Request(
 			x_grid_coord=min_x,
 			y_grid_coord=min_y,
-			request_id=self.request_manager.get_new_request_id(),
+			request_id=request_id,
+			name=name,
 			num_of_horizontal_images=width,
 			num_of_vertical_images=height,
 			zoom=zoom
@@ -199,7 +204,7 @@ class RequestMaker:
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
 
-	def make_location_request(self, latitude: float, longitude: float, zoom: Any = None) -> Request:
+	def make_location_request(self, latitude: float, longitude: float, name: str = None, zoom: Any = None) -> Request:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider
 		by first calculating a 3x3 section of tiles around a given point defined by a latitude and
@@ -212,7 +217,7 @@ class RequestMaker:
 		"""
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
-		return self.make_area_request(bottom, left, top, right, zoom)
+		return self.make_area_request(bottom, left, top, right, zoom=zoom, name=name)
 
 	def calculate_coordinates_for_rectangle(
 		self,
