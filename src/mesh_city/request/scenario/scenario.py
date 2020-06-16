@@ -1,16 +1,16 @@
 """
 See :class:`.Scenario`
 """
+from pathlib import Path
 
-from abc import ABC
 
-
-class Scenario(ABC):
+class Scenario:
 	"""
-	An abstract base class that request scenarios inherit from.
+	An the base scenario class.
 	"""
 
-	def __init__(self, scenario_name: str, width: int, height: int) -> None:
+	def __init__(self, scenario_name: str, width: int, height: int, scenario_path: Path) -> None:
 		self.scenario_name = scenario_name
 		self.width = width
 		self.height = height
+		self.scenario_path = scenario_path

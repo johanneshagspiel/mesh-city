@@ -10,7 +10,6 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
 from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.util.file_handler import FileHandler
 
@@ -19,7 +18,6 @@ class ScenarioType(Enum):
 
 	MORE_TREES = 0
 	SWAP_CARS = 1
-
 
 class ScenarioPipeline:
 
@@ -37,21 +35,18 @@ class ScenarioPipeline:
 
 	def add_more_trees(self, request, trees_to_add):
 
-		tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
+		if self.tree_panda is None:
+			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
+		else:
+			tree_dataframe = self.tree_panda
 
-		base_image = RequestRenderer.create_image_from_layer(
-			request=request, layer_index=0, scaling=1
-		)
-
-		images_to_add = []
-		images_to_add.append(base_image)
 		object_counter = tree_dataframe.shape[0] - 1
 
 		# pylint: disable=W0612
 		for tree in range(0, trees_to_add):
 			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
-			source_tree_image = base_image.crop(
+			source_tree_image = self.base_image.crop(
 				box=(
 				float(tree_dataframe.iloc[source_tree_index][1]),  #xmin
 				float(tree_dataframe.iloc[source_tree_index][2]),  #ymin
@@ -66,37 +61,56 @@ class ScenarioPipeline:
 			tree_dataframe.loc[object_counter] = new_entry
 			object_counter += 1
 
+			new_entry[6] = "AddedTree"
+			self.changes_pd.append(new_entry)
+
 			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
 
-			base_image.paste(source_tree_image, box=coordinate)
-			temp_to_add_image = copy.deepcopy(base_image)
-			images_to_add.append(temp_to_add_image)
+			self.base_image.paste(source_tree_image, box=coordinate)
+			temp_to_add_image = copy.deepcopy(self.base_image)
+			self.images_to_add.append(temp_to_add_image)
 
-		more_trees_scenario_path = self.request_manager.get_image_root().joinpath("scenarios")
-		more_trees_scenario_path.mkdir(parents=True, exist_ok=True)
+		self.tree_panda = tree_dataframe
 
-		scenario_name = "MoreTrees" + str(len(request.scenarios))
-		if self.name is not None:
-			scenario_name = self.name
+	def swap_cars_with_trees(self, request, trees_to_add):
+		
+		if self.tree_panda is None:
+			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
+		else:
+			tree_dataframe = self.tree_panda
 
-		more_trees_file_name = "request" + str(request.request_id) + "_" + scenario_name + "_.gif"
-		more_trees_file_path = more_trees_scenario_path.joinpath(more_trees_file_name)
+		object_counter = tree_dataframe.shape[0] - 1
 
-		images_to_add[0].save(
-			fp=more_trees_file_path,
-			save_all=True,
-			append_images=images_to_add[1:],
-			optimize=False,
-			duration=100,
-			loop=0
-		)
+		# pylint: disable=W0612
+		for tree in range(0, trees_to_add):
+			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			source_tree_image = self.base_image.crop(
+				box=(
+				float(tree_dataframe.iloc[source_tree_index][1]),  #xmin
+				float(tree_dataframe.iloc[source_tree_index][2]),  #ymin
+				float(tree_dataframe.iloc[source_tree_index][3]),  #xmax
+				float(tree_dataframe.iloc[source_tree_index][4]),  #ymax
+				)
+			)
 
-		return MoreTreesScenario(
-			scenario_name=scenario_name,
-			width=request.num_of_horizontal_images,
-			height=request.num_of_vertical_images,
-			scenario_path=more_trees_file_path
-		)
+			new_entry = self.calculate_new_location(
+				source_tree_index, destination_tree_index, tree_dataframe
+			)
+			tree_dataframe.loc[object_counter] = new_entry
+			object_counter += 1
+
+			new_entry[6] = "AddedTree"
+			self.changes_pd.append(new_entry)
+
+			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
+
+			self.base_image.paste(source_tree_image, box=coordinate)
+			temp_to_add_image = copy.deepcopy(self.base_image)
+			self.images_to_add.append(temp_to_add_image)
+
+		self.tree_panda = tree_dataframe
+
 
 	# pylint: disable=W0613
 	def calculate_new_location(self, what_to_place, where_to_place, tree_dataframe):
@@ -129,6 +143,38 @@ class ScenarioPipeline:
 
 		return new_entry
 
+	def combine_results(self, request):
+
+		scenario_path = self.request_manager.get_image_root().joinpath("scenarios")
+		scenario_path.mkdir(parents=True, exist_ok=True)
+
+		scenario_name = "Scenario" + str(len(request.scenarios))
+		if self.name is not None:
+			scenario_name = self.name
+
+		scenario_file_name = "request" + str(request.request_id) + "_" + scenario_name
+		scenario_file_gif = scenario_file_name + "_.gif"
+		scenario_file_csv = scenario_file_name + "_.csv"
+		scenario_file_path = scenario_path.joinpath(scenario_file_gif)
+
+		self.images_to_add[0].save(
+			fp=scenario_file_path,
+			save_all=True,
+			append_images=self.images_to_add[1:],
+			optimize=False,
+			duration=100,
+			loop=0
+		)
+
+		self.changes_pd.to_csv(path_or_buf=scenario_file_csv)
+
+		return Scenario(
+			scenario_name=scenario_name,
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			scenario_path=scenario_file_path
+		)
+
 	def process(self, request: Request) -> Scenario:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
@@ -143,10 +189,23 @@ class ScenarioPipeline:
 				"The request to process should have imagery to create scenarios based of"
 			)
 
-		new_scenario = []
+		self.base_image = RequestRenderer.create_image_from_layer(
+			request=request, layer_index=0, scaling=1
+		)
+		self.images_to_add = []
+		self.images_to_add.append(self.base_image)
+
+		self.changes_pd = pd.DataFrame(columns=["","xmin","ymin","xmax","ymax","score","label"])
+
+		self.tree_panda = None
+		self.car_panda = None
+
 		for (feature, information) in self.scenarios_to_create:
 			if feature == ScenarioType.MORE_TREES:
-				new_scenario.append(self.add_more_trees(request=request, trees_to_add=information))
+				self.add_more_trees(request=request, trees_to_add=information)
+			if feature == ScenarioType.SWAP_CARS:
+				self.swap_cars_with_trees(request=request, trees_to_add=information)
 
-		# TODO fix so that it does not only return first scenario
-		return new_scenario[0]
+		new_scenario = self.combine_results(request)
+
+		return new_scenario

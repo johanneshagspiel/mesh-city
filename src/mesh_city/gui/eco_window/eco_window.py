@@ -117,7 +117,7 @@ class EcoWindow:
 				self.nick_name_label = Label(self.top, text="Scenario name: \n(Optionl)")
 				self.name_entry = Entry(self.top)
 				self.confirm_button = Button(
-					self.top, text="Create Scenario", command=None, bg="white"
+					self.top, text="Create Scenario", command=self.cleanup, bg="white"
 				)
 
 			else:

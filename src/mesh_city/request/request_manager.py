@@ -12,7 +12,7 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
+from mesh_city.request.scenario.scenario import Scenario
 
 
 class RequestManager:
@@ -140,7 +140,7 @@ class RequestManager:
 						for file_path in file_paths:
 							scenario_name = Path(file_path).name.split("_")[1]
 							request.add_scenario(
-								MoreTreesScenario(
+								Scenario(
 								scenario_name=scenario_name,
 								width=request.num_of_horizontal_images,
 								height=request.num_of_vertical_images,
