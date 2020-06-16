@@ -7,7 +7,7 @@ from typing import List
 import geopandas as gpd
 from PIL import Image, ImageDraw
 
-from mesh_city.request.entities.request import Request
+from mesh_city.request.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
