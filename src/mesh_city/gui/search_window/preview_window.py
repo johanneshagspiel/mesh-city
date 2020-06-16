@@ -231,7 +231,7 @@ class PreviewWindow:
 
 	def confirm_download(self):
 		self.top_label.configure(text="Are you sure you want to proceed?")
-		self.top_label.grid(row=0, column=0, columnspna=3)
+		self.top_label.grid(row=0, column=0, columnspan=3)
 
 		for widget in self.temp_list:
 			widget.grid_forget()

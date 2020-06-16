@@ -7,6 +7,7 @@ import pandas as pd
 
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
@@ -44,8 +45,8 @@ class ScenarioPipeline:
 
 		# pylint: disable=W0612
 		for tree in range(0, trees_to_add):
-			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
-			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			source_tree_index = random.randint(1, tree_dataframe.shape[0])
+			destination_tree_index = random.randint(1, tree_dataframe.shape[0])
 			source_tree_image = self.base_image.crop(
 				box=(
 				float(tree_dataframe.iloc[source_tree_index][1]),  #xmin
@@ -55,7 +56,7 @@ class ScenarioPipeline:
 				)
 			)
 
-			new_entry = self.calculate_new_location(
+			new_entry = self.calculate_new_location_tree_addition(
 				source_tree_index, destination_tree_index, tree_dataframe
 			)
 			tree_dataframe.loc[object_counter] = new_entry
@@ -74,7 +75,12 @@ class ScenarioPipeline:
 
 		self.tree_panda = tree_dataframe
 
-	def swap_cars_with_trees(self, request, trees_to_add):
+	def swap_cars_with_trees(self, request, cars_to_swap):
+
+		if self.car_panda is None:
+			car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path)
+		else:
+			car_dataframe = self.car_panda
 
 		if self.tree_panda is None:
 			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
@@ -84,38 +90,76 @@ class ScenarioPipeline:
 		object_counter = tree_dataframe.shape[0] - 1
 
 		# pylint: disable=W0612
-		for tree in range(0, trees_to_add):
-			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
-			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
-			source_tree_image = self.base_image.crop(
+		for car in range(0, cars_to_swap):
+			car_to_swap_index = random.randint(1, car_dataframe.shape[0])
+			tree_to_replace_with_index = random.randint(1, car_dataframe.shape[0])
+
+			tree_image = self.base_image.crop(
 				box=(
-				float(tree_dataframe.iloc[source_tree_index][1]),  #xmin
-				float(tree_dataframe.iloc[source_tree_index][2]),  #ymin
-				float(tree_dataframe.iloc[source_tree_index][3]),  #xmax
-				float(tree_dataframe.iloc[source_tree_index][4]),  #ymax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  #xmin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  #ymin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  #xmax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  #ymax
 				)
 			)
 
-			new_entry = self.calculate_new_location(
-				source_tree_index, destination_tree_index, tree_dataframe
-			)
+			new_entry = self.calculate_car_swap_location(car_to_swap_index, tree_to_replace_with_index,
+			                                             tree_dataframe, car_dataframe)
 			tree_dataframe.loc[object_counter] = new_entry
 			object_counter += 1
 
 			new_entry[6] = "SwapedCar"
 			self.changes_pd.append(new_entry)
 
-			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
+			car_dataframe.drop(car_dataframe.index[car_to_swap_index])
 
-			self.base_image.paste(source_tree_image, box=coordinate)
+			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
+			self.base_image.paste(tree_image, box=coordinate)
+
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
 		self.tree_panda = tree_dataframe
+		self.car_panda = car_dataframe
 
+	def calculate_car_swap_location(self, car_to_swap_index, tree_to_replace_with_index,
+	                                tree_dataframe, car_dataframe):
+
+		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]
+		tree_ymax = tree_dataframe.iloc[tree_to_replace_with_index][2]
+		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][3]
+		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][4]
+
+		tree_distance_center_max_x = tree_xmax / 2
+		tree_distance_center_max_y = tree_ymax / 2
+
+		car_xmin = car_dataframe.iloc[car_to_swap_index][1]
+		car_ymax = car_dataframe.iloc[car_to_swap_index][2]
+		car_xmax = car_dataframe.iloc[car_to_swap_index][3]
+		car_ymin = car_dataframe.iloc[car_to_swap_index][4]
+
+		car_center_x = (car_xmax - car_xmin) / 2
+		car_center_y = (car_ymax - car_ymin) / 2
+
+		new_xmin = car_center_x - tree_distance_center_max_x
+		new_xmax = car_center_x + tree_distance_center_max_x
+		new_ymin = car_center_y - tree_distance_center_max_y
+		new_ymax = car_center_y + tree_distance_center_max_y
+
+		new_entry = [
+			tree_dataframe.shape[0],
+			new_xmin,
+			new_ymin,
+			new_xmax,
+			new_ymax,
+			tree_dataframe.iloc[tree_to_replace_with_index][5],
+			"Tree"
+		]
+
+		return new_entry
 
 	# pylint: disable=W0613
-	def calculate_new_location(self, what_to_place, where_to_place, tree_dataframe):
+	def calculate_new_location_tree_addition(self, what_to_place, where_to_place, tree_dataframe):
 		"""
 		The algorithm to decide where to place a new tree. Currently just moves the tree 5 units
 		down and to the right
@@ -208,7 +252,7 @@ class ScenarioPipeline:
 			if feature == ScenarioType.MORE_TREES:
 				self.add_more_trees(request=request, trees_to_add=information)
 			if feature == ScenarioType.SWAP_CARS:
-				self.swap_cars_with_trees(request=request, trees_to_add=information)
+				self.swap_cars_with_trees(request=request, cars_to_swap=information)
 
 		new_scenario = self.combine_results(request)
 
