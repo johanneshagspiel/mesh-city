@@ -16,7 +16,6 @@ class UserWindow:
 		self.main_screen = main_screen
 		self.master = master
 		self.application = application
-		self.main_screen = main_screen
 		self.top = Toplevel(master)
 
 		self.top.config(padx=4)

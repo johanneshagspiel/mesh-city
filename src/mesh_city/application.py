@@ -34,7 +34,6 @@ class Application:
 		self.main_screen = None
 		self.request_manager = self.get_request_manager()
 
-
 	def get_request_manager(self) -> RequestManager:
 		"""
 		Creates a RequestManager instance and makes it load both previous requests and references to downloaded
@@ -86,7 +85,6 @@ class Application:
 		:param longitude: The longitude of the request
 		:return: None
 		"""
-
 		finished_request = self.request_maker.make_location_request(
 			latitude=latitude, longitude=longitude
 		)

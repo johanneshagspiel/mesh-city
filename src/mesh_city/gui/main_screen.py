@@ -121,20 +121,20 @@ class MainScreen:
 		self.new_canvas_image = Label(self.master, image=temp_image)
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
-		self.start_up_window = self.start_up()
-		self.master.wait_window(self.start_up_window.top)
-
 		self.master.columnconfigure(1, weight=1)
 		self.master.rowconfigure(0, weight=1)
 		self.master.rowconfigure(1, weight=1)
 		self.master.rowconfigure(2, weight=1)
+
+		mainloop()
 
 	def run(self):
 		"""
 		Runs the main loop that updates the GUI and processes user input.
 		:return: None
 		"""
-		mainloop()
+		self.start_up_window = self.start_up()
+		self.master.wait_window(self.start_up_window.top)
 
 	def create_placeholder_image(self):
 		"""
