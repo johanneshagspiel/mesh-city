@@ -59,7 +59,7 @@ class PreviewWindow:
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)
 
-			temp_text = "Usage left: " + str(value.quota - value.usage["total"])
+			temp_text = "Usage left: " + str(round((float(value.quota) - float(value.usage["total"])), 4))
 			self.temp_list.append(Label(self.top, text=temp_text))
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=1)
@@ -198,7 +198,7 @@ class PreviewWindow:
 				self.temp_button.grid(row=self.count, column=0)
 				self.temp_list.append(self.temp_button)
 
-				temp_text = "Usage left: " + str(value.quota - value.usage["total"])
+				temp_text = "Usage left: " + str(round((float(value.quota) - float(value.usage["total"])), 4))
 				self.temp_label = Label(self.top, text=temp_text)
 				self.temp_label.grid(row=self.count, column=1)
 				self.temp_list.append(self.temp_label)
