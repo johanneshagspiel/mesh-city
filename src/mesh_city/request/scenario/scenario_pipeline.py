@@ -1,5 +1,9 @@
 import copy
 import random
+from enum import Enum
+from typing import Sequence
+
+import pandas as pd
 
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.request.entities.request import Request
@@ -9,15 +13,13 @@ from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
 from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.util.file_handler import FileHandler
-from typing import Sequence
-from enum import Enum
-import pandas as pd
 
 
 class ScenarioType(Enum):
 
 	MORE_TREES = 0
 	SWAP_CARS = 1
+
 
 class ScenarioPipeline:
 
@@ -31,14 +33,15 @@ class ScenarioPipeline:
 		self.file_handler = file_handler
 		self.scenarios_to_create = scenarios_to_create
 		self.request_manager = request_manager
-		self.name=name
+		self.name = name
 
 	def add_more_trees(self, request, trees_to_add):
 
-		tree_layer_panda = pd.read_csv(
-			request.get_layer_of_type(TreesLayer).detections_path)
+		tree_layer_panda = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
 
-		temp_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0, scaling=1)
+		temp_image = RequestRenderer.create_image_from_layer(
+			request=request, layer_index=0, scaling=1
+		)
 
 		images_to_add = []
 		images_to_add.append(temp_image)
@@ -46,18 +49,20 @@ class ScenarioPipeline:
 
 		# pylint: disable=W0612
 		for tree in range(0, trees_to_add):
-			tree_to_duplicate = random.randint(1, tree_layer_panda.shape[0]-1)
-			location_to_place_it_to = random.randint(1, tree_layer_panda.shape[0]-1)
+			tree_to_duplicate = random.randint(1, tree_layer_panda.shape[0] - 1)
+			location_to_place_it_to = random.randint(1, tree_layer_panda.shape[0] - 1)
 			image_to_paste = temp_image.crop(
 				box=(
-					float(tree_layer_panda.iloc[tree_to_duplicate][1]), #xmin
-					float(tree_layer_panda.iloc[tree_to_duplicate][2]), #ymin
-					float(tree_layer_panda.iloc[tree_to_duplicate][3]), #xmax
-					float(tree_layer_panda.iloc[tree_to_duplicate][4]), #ymax
+				float(tree_layer_panda.iloc[tree_to_duplicate][1]),  #xmin
+				float(tree_layer_panda.iloc[tree_to_duplicate][2]),  #ymin
+				float(tree_layer_panda.iloc[tree_to_duplicate][3]),  #xmax
+				float(tree_layer_panda.iloc[tree_to_duplicate][4]),  #ymax
 				)
 			)
 
-			new_entry = self.calculate_new_location(tree_to_duplicate, location_to_place_it_to, tree_layer_panda)
+			new_entry = self.calculate_new_location(
+				tree_to_duplicate, location_to_place_it_to, tree_layer_panda
+			)
 			tree_layer_panda.loc[object_counter] = new_entry
 			object_counter += 1
 
@@ -124,7 +129,6 @@ class ScenarioPipeline:
 
 		return new_entry
 
-
 	def process(self, request: Request) -> Scenario:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
@@ -135,7 +139,9 @@ class ScenarioPipeline:
 		"""
 
 		if not request.has_layer_of_type(GoogleLayer):
-			raise ValueError("The request to process should have imagery to create scenarios based of")
+			raise ValueError(
+				"The request to process should have imagery to create scenarios based of"
+			)
 
 		new_scenario = []
 		for (feature, information) in self.scenarios_to_create:

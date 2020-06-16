@@ -6,6 +6,7 @@ from tkinter import Button, Entry, Label, Toplevel
 from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
+
 # pylint: disable=W0201
 class PreviewWindow:
 	"""

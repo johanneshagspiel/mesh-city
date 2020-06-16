@@ -19,7 +19,9 @@ class ProviderFactoryTest(unittest.TestCase):
 
 	def test_construct_image_provider_wrong(self):
 
-		self.assertRaises(ValueError, ImageProviderEntity,
+		self.assertRaises(
+			ValueError,
+			ImageProviderEntity,
 			FileHandler(),
 			type_map_provider="this_is_an_undefined_image_provider_type",
 			api_key="test",

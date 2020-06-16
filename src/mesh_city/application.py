@@ -5,6 +5,7 @@ See :class:`.Application`
 from pathlib import Path
 from tkinter import END
 from typing import List
+
 from PIL import Image
 
 from mesh_city.detection.detection_pipeline import DetectionPipeline
@@ -74,7 +75,9 @@ class Application:
 
 	def create_scenario(self, request, scenario_to_create, name=None):
 
-		pipeline = ScenarioPipeline(self.file_handler, self.request_manager, scenario_to_create, name)
+		pipeline = ScenarioPipeline(
+			self.file_handler, self.request_manager, scenario_to_create, name
+		)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
 
@@ -210,4 +213,3 @@ class Application:
 		"""
 		self.main_screen = MainScreen(application=self)
 		self.main_screen.run()
-
