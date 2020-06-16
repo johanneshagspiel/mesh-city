@@ -65,6 +65,7 @@ class EcoWindow:
 						CarsLayer).detections_path)
 				if self.car_layer_panda.shape[0] > 1:
 					usable_layers.append("Cars")
+					self.max_amount_cars_swapable = self.car_layer_panda.shape[0] - 1
 			if "Buildings" in detected_layers:
 				usable_layers.append("Buildings")
 
@@ -185,6 +186,12 @@ class EcoWindow:
 		"""
 		swap_percentag = self.trees_for_cars.get() * 0.01 + 1
 		cars_to_swap = math.ceil((self.car_layer_panda.shape[0] - 1) * swap_percentag)
+
+		self.max_amount_cars_swapable -= cars_to_swap
+
+		if self.max_amount_cars_swapable < 0:
+			cars_to_swap = self.car_layer_panda.shape[0] - 1
+			self.important_widgets.remove(self.swap_items_button)
 
 		self.scenario_list.append((ScenarioType.SWAP_CARS, cars_to_swap))
 		self.add_another_step(ScenarioType.SWAP_CARS, cars_to_swap)

@@ -18,6 +18,7 @@ from mesh_city.util.file_handler import FileHandler
 class ScenarioType(Enum):
 
 	MORE_TREES = 0
+	SWAP_CARS = 1
 
 
 class ScenarioPipeline:
