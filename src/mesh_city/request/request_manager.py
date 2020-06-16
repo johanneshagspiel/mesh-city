@@ -140,9 +140,9 @@ class RequestManager:
 						# pattern_only_gifs = "*.gif"
 						# file_paths = sorted(file_paths_request.glob(pattern_only_gifs))
 						for file_path in file_paths:
-							if os.path.splitext(Path(file_path)) != ".csv":
+							if  os.path.splitext(Path(file_path))[1] != ".csv":
 								scenario_name = Path(file_path).name.split("_")[1]
-								information_path = str(os.path.splitext(Path(file_path))) + ".csv"
+								information_path = str(os.path.splitext(Path(file_path))[0]) + ".csv"
 								request.add_scenario(
 									Scenario(
 									scenario_name=scenario_name,

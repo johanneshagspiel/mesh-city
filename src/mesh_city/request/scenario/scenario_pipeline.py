@@ -32,8 +32,6 @@ class ScenarioPipeline:
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
 
-		print(self.scenarios_to_create)
-
 	def add_more_trees(self, request: Request, trees_to_add: int):
 
 		if self.tree_panda is None:
@@ -130,7 +128,6 @@ class ScenarioPipeline:
 	def calculate_car_swap_location(self, car_to_swap_index: int, tree_to_replace_with_index: int,
 	                                tree_dataframe: DataFrame, car_dataframe: DataFrame):
 
-		print(tree_dataframe)
 		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]
 		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][2]
 		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][3]
@@ -147,10 +144,10 @@ class ScenarioPipeline:
 		car_center_x = car_xmin + ((car_xmax - car_xmin) / 2)
 		car_center_y = car_ymin + ((car_ymax - car_ymin) / 2)
 
-		new_xmin = str(car_center_x - tree_distance_center_max_x)
-		new_xmax = str(car_center_x + tree_distance_center_max_x)
-		new_ymin = str(car_center_y - tree_distance_center_max_y)
-		new_ymax = str(car_center_y + tree_distance_center_max_y)
+		new_xmin = car_center_x - tree_distance_center_max_x
+		new_xmax = car_center_x + tree_distance_center_max_x
+		new_ymin = car_center_y - tree_distance_center_max_y
+		new_ymax = car_center_y + tree_distance_center_max_y
 
 		new_entry = [
 			tree_dataframe.shape[0],

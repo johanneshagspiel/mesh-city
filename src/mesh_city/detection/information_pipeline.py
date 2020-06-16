@@ -88,18 +88,22 @@ class InformationPipeline:
 
 	def process_scenario(self, scenario: Scenario):
 
-		print('hi')
+		count_trees_added = 0
+		count_cars_swapped = 0
 
-		# count_trees_added = 0
-		# count_cars_swapped = 0
-		#
-		# with open(str(scenario.detections_path), newline='') as csv_file:
-		# 	csv_reader = csv.reader(csv_file, delimiter=',')
-		# 	for (index, row) in enumerate(csv_reader):
-		# 		if len(row) > 0 and index > 0:
-		# 			count += 1
-		#
-		# self.result_string += "Cars Detected: " + str(count) + "\n"
+		with open(str(scenario.information_path), newline='') as csv_file:
+			csv_reader = csv.reader(csv_file, delimiter=',')
+			for (index, row) in enumerate(csv_reader):
+				if len(row) > 0 and index > 0:
+					if row[6] == "AddedTree":
+						count_trees_added += 1
+					if row[6] == "SwappedCar":
+						count_cars_swapped += 1
+
+		if count_trees_added > 0:
+			self.result_string += "Trees added: " + str(count_trees_added) + "\n"
+		if count_cars_swapped > 0:
+			self.result_string += "Cars swap with trees: " + str(count_cars_swapped) + "\n"
 
 	def process(self, request: Request, element_list) -> str:
 
