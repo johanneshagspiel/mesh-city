@@ -79,6 +79,7 @@ class ExportWindow:
 		self.top_label.configure(text="What do you want to export?")
 
 		self.int_variable_list_layers = []
+		next_start = 0
 		for (index, layer) in enumerate(request.layers):
 			self.int_variable_list_layers.append(IntVar())
 			text = ""
@@ -92,19 +93,20 @@ class ExportWindow:
 				text = "Building detections GeoJSON"
 			Checkbutton(self.top, text=text,
 				variable=self.int_variable_list_layers[index]).grid(row=index + 1)
+			next_start = index + 1
 
 		self.int_variable_list_scenarios = []
+		self.scenario_name_list = []
 		for (index, scenario) in enumerate(request.scenarios.values()):
 			self.int_variable_list_scenarios.append(IntVar())
-			text = ""
-			if isinstance(scenario, Scenario):
-				text = "Scenario: " + scenario.scenario_name
 			text = scenario.scenario_name
+			self.scenario_name_list.append(text)
 			Checkbutton(self.top, text=text,
-				variable=self.int_variable_list_scenarios[index]).grid(row=index+1+len(request.layers))
+				variable=self.int_variable_list_scenarios[index]).grid(row=next_start + 1)
+			next_start += 1
 
 		Button(self.top, text="Confirm", command=lambda: self.cleanup(request),
-			bg="white").grid(row=len(request.layers)+1+len(request.scenarios))
+			bg="white").grid(row=next_start+1)
 
 	def cleanup(self, request):
 		"""
@@ -120,10 +122,10 @@ class ExportWindow:
 
 		has_export_scenario = False
 		scenario_mask = []
-		for element in self.int_variable_list_scenarios:
+		for (index, element) in enumerate(self.int_variable_list_scenarios):
 			if element.get() == 1:
 				has_export_scenario = True
-			scenario_mask.append(element.get() == 1)
+				scenario_mask.append(self.application.current_request.scenarios[self.scenario_name_list[index]])
 
 		if has_export_scenario or has_export_scenario:
 			export_directory = Path(filedialog.askdirectory())
@@ -132,6 +134,8 @@ class ExportWindow:
 					request=request, layer_mask=layer_mask, export_directory=export_directory
 				)
 			if has_export_scenario:
-				None
+				self.application.export_request_scenarios(
+					request=request, scenario_mask=scenario_mask, export_directory=export_directory
+				)
 
 		self.top.destroy()
