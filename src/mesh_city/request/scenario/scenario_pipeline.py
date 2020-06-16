@@ -45,8 +45,8 @@ class ScenarioPipeline:
 
 		# pylint: disable=W0612
 		for tree in range(0, trees_to_add):
-			source_tree_index = random.randint(1, tree_dataframe.shape[0])
-			destination_tree_index = random.randint(1, tree_dataframe.shape[0])
+			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			source_tree_image = self.base_image.crop(
 				box=(
 				float(tree_dataframe.iloc[source_tree_index][1]),  #xmin
@@ -91,8 +91,9 @@ class ScenarioPipeline:
 
 		# pylint: disable=W0612
 		for car in range(0, cars_to_swap):
-			car_to_swap_index = random.randint(1, car_dataframe.shape[0])
-			tree_to_replace_with_index = random.randint(1, car_dataframe.shape[0])
+			car_to_swap_index_temp = random.randint(1, car_dataframe.shape[0] - 1)
+			car_to_swap_axis_name = car_dataframe.iloc[car_to_swap_index_temp][0]
+			tree_to_replace_with_index = random.randint(1, car_dataframe.shape[0] - 1)
 
 			tree_image = self.base_image.crop(
 				box=(
@@ -103,15 +104,18 @@ class ScenarioPipeline:
 				)
 			)
 
-			new_entry = self.calculate_car_swap_location(car_to_swap_index, tree_to_replace_with_index,
+			new_entry = self.calculate_car_swap_location(car_to_swap_index_temp, tree_to_replace_with_index,
 			                                             tree_dataframe, car_dataframe)
 			tree_dataframe.loc[object_counter] = new_entry
 			object_counter += 1
 
-			new_entry[6] = "SwapedCar"
-			self.changes_pd.append(new_entry)
+			new_entry[6] = "SwappedCar"
+			del new_entry[0]
+			temp_index = len(self.changes_pd)
+			self.changes_pd.loc[temp_index] = new_entry
 
-			car_dataframe.drop(car_dataframe.index[car_to_swap_index])
+			temp = car_dataframe.drop(car_to_swap_axis_name)
+			car_dataframe = temp
 
 			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
 			self.base_image.paste(tree_image, box=coordinate)
@@ -130,16 +134,16 @@ class ScenarioPipeline:
 		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][3]
 		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][4]
 
-		tree_distance_center_max_x = tree_xmax / 2
-		tree_distance_center_max_y = tree_ymax / 2
+		tree_distance_center_max_x = (tree_xmax - tree_xmin) / 2
+		tree_distance_center_max_y = (tree_ymax - tree_ymin) / 2
 
 		car_xmin = car_dataframe.iloc[car_to_swap_index][1]
 		car_ymax = car_dataframe.iloc[car_to_swap_index][2]
 		car_xmax = car_dataframe.iloc[car_to_swap_index][3]
 		car_ymin = car_dataframe.iloc[car_to_swap_index][4]
 
-		car_center_x = (car_xmax - car_xmin) / 2
-		car_center_y = (car_ymax - car_ymin) / 2
+		car_center_x = car_xmin + ((car_xmax - car_xmin) / 2)
+		car_center_y = car_ymin + ((car_ymax - car_ymin) / 2)
 
 		new_xmin = car_center_x - tree_distance_center_max_x
 		new_xmax = car_center_x + tree_distance_center_max_x
