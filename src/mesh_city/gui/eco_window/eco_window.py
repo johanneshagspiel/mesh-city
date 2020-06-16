@@ -168,7 +168,7 @@ class EcoWindow:
 
 		self.application.create_scenario(
 			request=self.application.current_request,
-			scenario_to_create=[(ScenarioType.MORE_Trees, trees_to_add)],
+			scenario_to_create=[(ScenarioType.MORE_TREES, trees_to_add)],
 			name=name
 		)
 

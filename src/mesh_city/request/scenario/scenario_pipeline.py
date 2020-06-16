@@ -17,7 +17,7 @@ from mesh_city.util.file_handler import FileHandler
 
 class ScenarioType(Enum):
 
-	MORE_Trees = 0
+	MORE_TREES = 0
 
 
 class ScenarioPipeline:
@@ -36,39 +36,39 @@ class ScenarioPipeline:
 
 	def add_more_trees(self, request, trees_to_add):
 
-		tree_layer_panda = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
+		tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
 
-		temp_image = RequestRenderer.create_image_from_layer(
+		base_image = RequestRenderer.create_image_from_layer(
 			request=request, layer_index=0, scaling=1
 		)
 
 		images_to_add = []
-		images_to_add.append(temp_image)
-		object_counter = tree_layer_panda.shape[0] - 1
+		images_to_add.append(base_image)
+		object_counter = tree_dataframe.shape[0] - 1
 
 		# pylint: disable=W0612
 		for tree in range(0, trees_to_add):
-			tree_to_duplicate = random.randint(1, tree_layer_panda.shape[0] - 1)
-			location_to_place_it_to = random.randint(1, tree_layer_panda.shape[0] - 1)
-			image_to_paste = temp_image.crop(
+			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			source_tree_image = base_image.crop(
 				box=(
-				float(tree_layer_panda.iloc[tree_to_duplicate][1]),  #xmin
-				float(tree_layer_panda.iloc[tree_to_duplicate][2]),  #ymin
-				float(tree_layer_panda.iloc[tree_to_duplicate][3]),  #xmax
-				float(tree_layer_panda.iloc[tree_to_duplicate][4]),  #ymax
+				float(tree_dataframe.iloc[source_tree_index][1]),  #xmin
+				float(tree_dataframe.iloc[source_tree_index][2]),  #ymin
+				float(tree_dataframe.iloc[source_tree_index][3]),  #xmax
+				float(tree_dataframe.iloc[source_tree_index][4]),  #ymax
 				)
 			)
 
 			new_entry = self.calculate_new_location(
-				tree_to_duplicate, location_to_place_it_to, tree_layer_panda
+				source_tree_index, destination_tree_index, tree_dataframe
 			)
-			tree_layer_panda.loc[object_counter] = new_entry
+			tree_dataframe.loc[object_counter] = new_entry
 			object_counter += 1
 
-			where_to_place = ((int(float(new_entry[1])), int(float(new_entry[4]))))
+			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
 
-			temp_image.paste(image_to_paste, box=where_to_place)
-			temp_to_add_image = copy.deepcopy(temp_image)
+			base_image.paste(source_tree_image, box=coordinate)
+			temp_to_add_image = copy.deepcopy(base_image)
 			images_to_add.append(temp_to_add_image)
 
 		more_trees_scenario_path = self.request_manager.get_image_root().joinpath("scenarios")
@@ -98,7 +98,7 @@ class ScenarioPipeline:
 		)
 
 	# pylint: disable=W0613
-	def calculate_new_location(self, what_to_place, where_to_place, tree_layer_panda):
+	def calculate_new_location(self, what_to_place, where_to_place, tree_dataframe):
 		"""
 		The algorithm to decide where to place a new tree. Currently just moves the tree 5 units
 		down and to the right
@@ -106,10 +106,10 @@ class ScenarioPipeline:
 		:param where_to_place: the location adjacent to which to place it at
 		:return: where to place the tree
 		"""
-		old_xmin = tree_layer_panda.iloc[what_to_place][1]
-		old_ymax = tree_layer_panda.iloc[what_to_place][2]
-		old_xmax = tree_layer_panda.iloc[what_to_place][3]
-		old_ymin = tree_layer_panda.iloc[what_to_place][4]
+		old_xmin = tree_dataframe.iloc[what_to_place][1]
+		old_ymax = tree_dataframe.iloc[what_to_place][2]
+		old_xmax = tree_dataframe.iloc[what_to_place][3]
+		old_ymin = tree_dataframe.iloc[what_to_place][4]
 
 		new_xmin = str(float(old_xmin) + 50)
 		new_ymax = str(float(old_ymax) + 50)
@@ -117,12 +117,12 @@ class ScenarioPipeline:
 		new_ymin = str(float(old_ymin) + 50)
 
 		new_entry = [
-			tree_layer_panda.shape[0],
+			tree_dataframe.shape[0],
 			new_xmin,
 			new_ymin,
 			new_xmax,
 			new_ymax,
-			tree_layer_panda.iloc[what_to_place][5],
+			tree_dataframe.iloc[what_to_place][5],
 			"Tree"
 		]
 
@@ -144,7 +144,7 @@ class ScenarioPipeline:
 
 		new_scenario = []
 		for (feature, information) in self.scenarios_to_create:
-			if feature == ScenarioType.MORE_Trees:
+			if feature == ScenarioType.MORE_TREES:
 				new_scenario.append(self.add_more_trees(request=request, trees_to_add=information))
 
 		# TODO fix so that it does not only return first scenario
