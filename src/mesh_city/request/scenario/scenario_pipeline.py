@@ -62,7 +62,9 @@ class ScenarioPipeline:
 			object_counter += 1
 
 			new_entry[6] = "AddedTree"
-			self.changes_pd.append(new_entry)
+			del new_entry[0]
+			temp_index = len(self.changes_pd)
+			self.changes_pd.loc[temp_index] = new_entry
 
 			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
 
@@ -73,7 +75,7 @@ class ScenarioPipeline:
 		self.tree_panda = tree_dataframe
 
 	def swap_cars_with_trees(self, request, trees_to_add):
-		
+
 		if self.tree_panda is None:
 			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
 		else:
@@ -100,7 +102,7 @@ class ScenarioPipeline:
 			tree_dataframe.loc[object_counter] = new_entry
 			object_counter += 1
 
-			new_entry[6] = "AddedTree"
+			new_entry[6] = "SwapedCar"
 			self.changes_pd.append(new_entry)
 
 			coordinate = ((int(float(new_entry[1])), int(float(new_entry[4]))))
@@ -154,11 +156,13 @@ class ScenarioPipeline:
 
 		scenario_file_name = "request" + str(request.request_id) + "_" + scenario_name
 		scenario_file_gif = scenario_file_name + "_.gif"
+		scenario_file_path_gif = scenario_path.joinpath(scenario_file_gif)
+
 		scenario_file_csv = scenario_file_name + "_.csv"
-		scenario_file_path = scenario_path.joinpath(scenario_file_gif)
+		scenario_file_path_csv = scenario_path.joinpath(scenario_file_csv)
 
 		self.images_to_add[0].save(
-			fp=scenario_file_path,
+			fp=scenario_file_path_gif,
 			save_all=True,
 			append_images=self.images_to_add[1:],
 			optimize=False,
@@ -166,13 +170,13 @@ class ScenarioPipeline:
 			loop=0
 		)
 
-		self.changes_pd.to_csv(path_or_buf=scenario_file_csv)
+		self.changes_pd.to_csv(path_or_buf=scenario_file_path_csv)
 
 		return Scenario(
 			scenario_name=scenario_name,
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
-			scenario_path=scenario_file_path
+			scenario_path=scenario_file_path_gif
 		)
 
 	def process(self, request: Request) -> Scenario:
@@ -195,7 +199,7 @@ class ScenarioPipeline:
 		self.images_to_add = []
 		self.images_to_add.append(self.base_image)
 
-		self.changes_pd = pd.DataFrame(columns=["","xmin","ymin","xmax","ymax","score","label"])
+		self.changes_pd = pd.DataFrame(columns=["xmin","ymin","xmax","ymax","score","label"])
 
 		self.tree_panda = None
 		self.car_panda = None
