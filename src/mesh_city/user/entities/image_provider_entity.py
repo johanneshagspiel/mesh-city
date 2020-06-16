@@ -9,6 +9,7 @@ from mesh_city.imagery_provider.top_down_provider.google_maps_provider import Go
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.logs.log_entity import LogEntity
+from mesh_city.util.price_table_util import PriceTableUtil
 
 
 class ImageProviderEntity(LogEntity):
@@ -91,6 +92,13 @@ class ImageProviderEntity(LogEntity):
 			"quota": self.quota,
 			"date_reset": str(self.date_reset)
 		}
+
+	def increment_usage(self):
+		old_usage = self.usage["total"]
+		temp_cost = PriceTableUtil.one_increase(old_usage)
+		temp_new_total = old_usage + temp_cost
+		self.usage["total"] = round(temp_new_total, 4)
+		self.usage["static_map"] = round(temp_new_total, 4)
 
 	def check_date_reset(self, current_date):
 		"""
