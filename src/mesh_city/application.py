@@ -16,6 +16,7 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
+from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
@@ -164,8 +165,17 @@ class Application:
 		"""
 
 		request_exporter = RequestExporter(request_manager=self.request_manager)
-		request_exporter.export_request(
+		request_exporter.export_request_layers(
 			request=request, layer_mask=layer_mask, export_directory=export_directory
+		)
+
+	def export_request_scenarios(
+		self, request: Request, scenario_mask: List[Scenario], export_directory: Path
+	) -> None:
+
+		request_exporter = RequestExporter(request_manager=self.request_manager)
+		request_exporter.export_request_scenarios(
+			request=request, scenario_mask=scenario_mask, export_directory=export_directory
 		)
 
 	def load_request_onscreen(self, request: Request) -> None:
