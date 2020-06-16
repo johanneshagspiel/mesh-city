@@ -14,8 +14,8 @@ class TestScenarioPipeline(unittest.TestCase):
 		file_handler = FileHandler(root=Path(__file__).parents[1])
 		request_manager = RequestManager(file_handler.folder_overview["image_path"])
 		request_manager.load_data()
-		pipeline = ScenarioPipeline(
-			scenarios_to_create=[ScenarioType.MORE_TREES]
+		pipeline = ScenarioPipeline(request_manager=request_manager,
+			scenarios_to_create=[(ScenarioType.MORE_TREES,1)]
 		)
 		request = request_manager.get_request_by_id(0)
 		pipeline.process(request)
