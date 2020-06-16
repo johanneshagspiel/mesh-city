@@ -152,5 +152,3 @@ class TestGeoLocationUtil(unittest.TestCase):
 		correct_lat, correct_long = 50.0004896827903, 7.500088698
 		self.assertAlmostEqual(correct_lat, calculated_lat)
 		self.assertAlmostEqual(correct_long, calculated_long)
-
-
