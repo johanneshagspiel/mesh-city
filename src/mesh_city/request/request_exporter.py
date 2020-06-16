@@ -131,4 +131,3 @@ class RequestExporter:
 				str(m_north_of_0)
 				]
 			)
-

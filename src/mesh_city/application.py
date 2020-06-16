@@ -15,6 +15,7 @@ from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.util.file_handler import FileHandler
+from mesh_city.util.info_generator import InfoGenerator
 
 
 class Application:
@@ -116,6 +117,7 @@ class Application:
 
 		self.current_request = request
 		self.load_request_onscreen(request)
+		self.get_statistics()
 
 	def load_request_specific_layers(self, request: Request, layer_mask: List[bool]) -> None:
 		"""
@@ -177,6 +179,18 @@ class Application:
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
+
+	def get_statistics(self):
+		"""
+		Method which can be called to count, analyse and create some statistics of the detections
+		saved in layers of the active request.
+		:return:
+		"""
+		bio_path = self.file_handler.folder_overview['biome_index']
+		info_gen = InfoGenerator(bio_path, self.current_request)
+		info_gen.get_tree_and_rooftop_co2_values()
+
+		print(info_gen.get_number_of_cars_and_trees())
 
 	def start(self):
 		"""

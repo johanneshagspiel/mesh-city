@@ -63,6 +63,8 @@ class FileHandler:
 			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
 			"selected_layer_path":
 			Path.joinpath(self.root, 'resources', 'images', "request_0", "0_tile_0_0", "layers"),
+			"biome_index":
+			Path.joinpath(self.root, 'resources', 'PlanetPainter_BiomeIndex.csv'),
 		}
 		# initiated with a CoordinateOverview, coordinate_overview.grid is a json file
 		self.coordinate_overview = None
