@@ -13,6 +13,5 @@ def main() -> None:
 	"""
 	Application().start()
 
-
 if __name__ == '__main__':
 	main()

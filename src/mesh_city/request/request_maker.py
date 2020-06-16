@@ -217,7 +217,6 @@ class RequestMaker:
 		:param zoom: The zoom level, can be None
 		:return: The request object with a populated GoogleLayer
 		"""
-
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.make_area_request(bottom, left, top, right, zoom)

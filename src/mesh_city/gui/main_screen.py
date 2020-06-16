@@ -36,13 +36,13 @@ class MainScreen:
 		self.application = application
 		self.master = Tk()
 
-		self.master.title("Mesh City")
-		self.master.geometry("910x665")
-
 		self.master.withdraw()
-		self.window = StartWindow(self.master, application)
+		self.window = StartWindow(self.master, self.application)
 		self.master.wait_window(self.window.top)
 		self.master.deiconify()
+
+		self.master.title("Mesh City")
+		self.master.geometry("910x665")
 
 		self.active_layers = []
 		self.generated_content = []
@@ -116,25 +116,25 @@ class MainScreen:
 		self.gif_image = Label(self.master, text="")
 		self.gif_image.grid(row=0, column=1, sticky='nsew')
 
-		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
-		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
-		self.new_canvas_image = Label(self.master, image=temp_image)
-		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
-
 		self.master.columnconfigure(1, weight=1)
 		self.master.rowconfigure(0, weight=1)
 		self.master.rowconfigure(1, weight=1)
 		self.master.rowconfigure(2, weight=1)
-
-		mainloop()
 
 	def run(self):
 		"""
 		Runs the main loop that updates the GUI and processes user input.
 		:return: None
 		"""
+		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
+		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
+		self.new_canvas_image = Label(self.master, image=temp_image)
+		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+
 		self.start_up_window = self.start_up()
 		self.master.wait_window(self.start_up_window.top)
+
+		mainloop()
 
 	def create_placeholder_image(self):
 		"""

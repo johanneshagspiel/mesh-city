@@ -31,8 +31,11 @@ class Application:
 		self.request_maker = None
 		self.user_entity = None
 		self.current_request = None
-		self.main_screen = None
 		self.request_manager = self.get_request_manager()
+		self.main_screen = None
+
+	def get_main_screen(self):
+		return self.main_screen
 
 	def get_request_manager(self) -> RequestManager:
 		"""
@@ -171,7 +174,6 @@ class Application:
 		"""
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
 		self.main_screen.set_canvas_image(canvas_image)
-
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)
 		self.main_screen.information_general.insert(END, "General")
@@ -208,3 +210,4 @@ class Application:
 		"""
 		self.main_screen = MainScreen(application=self)
 		self.main_screen.run()
+
