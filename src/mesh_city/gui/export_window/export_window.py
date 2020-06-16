@@ -30,6 +30,9 @@ class ExportWindow:
 		self.main_screen = main_screen
 
 		self.top = Toplevel(master)
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 
 		self.top_label = Label(self.top, text="Which request do you want to export?")
@@ -72,12 +75,13 @@ class ExportWindow:
 			button.grid_forget()
 		self.top_label.forget()
 
-		self.application.set_current_request(request=request,main_screen=self.main_screen)
+		self.application.set_current_request(request=request)
 		self.top_label.configure(text="What do you want to export?")
-		self.int_variable_list = []
-		next_start = 0
+
+		self.int_variable_list_layers = []
+		next_start=0
 		for (index, layer) in enumerate(request.layers):
-			self.int_variable_list.append(IntVar())
+			self.int_variable_list_layers.append(IntVar())
 			text = ""
 			if isinstance(layer, GoogleLayer):
 				text = "Google Imagery"
@@ -88,36 +92,49 @@ class ExportWindow:
 			elif isinstance(layer, BuildingsLayer):
 				text = "Building detections GeoJSON"
 			Checkbutton(self.top, text=text,
-			            variable=self.int_variable_list[index]).grid(row=index + 1)
-			next_start = index
+			            variable=self.int_variable_list_layers[index]).grid(row=index + 1)
+			next_start = index + 1
 
-		for (index, scenario) in enumerate(request.scenarios, next_start):
-			self.int_variable_list.append(IntVar())
+		self.int_variable_list_scenarios = []
+		for (index, scenario) in enumerate(request.scenarios.values()):
+			self.int_variable_list_scenarios.append(IntVar())
 			text = ""
 			if isinstance(scenario, MoreTreesScenario):
-				text = "More Trees Scenario: " + scenario.scenario_index
-			text = scenario.scenario_index
+				text = "More Trees Scenario: " + scenario.scenario_name
+			text = scenario.scenario_name
 			Checkbutton(self.top, text=text,
-				variable=self.int_variable_list[index]).grid(row=index + 1)
+			            variable=self.int_variable_list_scenarios[index]).grid(row=next_start + 1)
+			next_start += 1
 
 		Button(self.top, text="Confirm",
-			command=lambda: self.cleanup(request)).grid(row=len(request.layers) + 1)
+			command=lambda: self.cleanup(request), bg="white").grid(row=next_start)
 
 	def cleanup(self, request):
 		"""
 		Asks the user to select a folder to export to. Then copies all the files into this folder
 		:return: nothing (the desired images are exported to a folder)
 		"""
+		has_export_layer = False
 		layer_mask = []
-		has_export = False
-		for element in self.int_variable_list:
+		for element in self.int_variable_list_layers:
 			if element.get() == 1:
-				has_export = True
+				has_export_layer = True
 			layer_mask.append(element.get() == 1)
 
-		if has_export:
+		has_export_scenario = False
+		scenario_mask = []
+		for element in self.int_variable_list_scenarios:
+			if element.get() == 1:
+				has_export_scenario = True
+			scenario_mask.append(element.get() == 1)
+
+		if has_export_scenario or has_export_scenario:
 			export_directory = Path(filedialog.askdirectory())
-			self.application.export_request_layers(
-				request=request, layer_mask=layer_mask, export_directory=export_directory
-			)
+			if has_export_layer:
+				self.application.export_request_layers(
+					request=request, layer_mask=layer_mask, export_directory=export_directory
+				)
+			if has_export_scenario:
+				None
+
 		self.top.destroy()

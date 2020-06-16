@@ -139,7 +139,6 @@ class RequestManager:
 						file_paths = sorted(scenarios.glob(pattern))
 						for file_path in file_paths:
 							scenario_name = Path(file_path).name.split("_")[1]
-							print(scenario_name)
 							request.add_scenario(
 								MoreTreesScenario(
 									scenario_name=scenario_name,

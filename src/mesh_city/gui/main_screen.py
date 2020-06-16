@@ -95,7 +95,7 @@ class MainScreen:
 		self.right_frame.grid(row=0, column=2, sticky='nsew')
 		self.right_frame.grid_propagate(0)
 
-		self.information_general = Text(self.right_frame, width=26, height=30, wrap=WORD)
+		self.information_general = Text(self.right_frame, width=26, height=50, wrap=WORD)
 		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
 		self.information_general.grid(row=0, column=0, sticky="w")
 		self.information_general.insert(END, "General")
@@ -103,15 +103,6 @@ class MainScreen:
 		self.information_general.bind("<Double-1>", lambda event: "break")
 		self.information_general.bind("<Button-1>", lambda event: "break")
 		self.information_general.config(cursor="")
-
-		self.information_selection = Text(self.right_frame, width=26, height=14, wrap=WORD)
-		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
-		self.information_selection.grid(row=1, column=0, sticky="w")
-		self.information_selection.insert(END, "Selection")
-		self.information_selection.configure(state='disabled')
-		self.information_selection.bind("<Double-1>", lambda event: "break")
-		self.information_selection.bind("<Button-1>", lambda event: "break")
-		self.information_selection.config(cursor="")
 
 		self.gif_image = Label(self.master, text="")
 		self.gif_image.grid(row=0, column=1, sticky='nsew')

@@ -72,10 +72,15 @@ class LayersWindow:
 		:return: nothing (but it updates the image on the main screen)
 		"""
 		layer_mask = []
+		active_layers = []
 		for (index, element) in enumerate(self.temp_int_var_list):
 			layer_mask.append(False)
 			if element.get() == 1:
 				layer_mask[index] = True
+				active_layers.append(self.check_box_list[index].cget("text"))
+
+		self.main_screen.active_layers = active_layers
 		self.application.load_request_specific_layers(
 			request=self.application.current_request, layer_mask=layer_mask
 		)
+		self.top.destroy()

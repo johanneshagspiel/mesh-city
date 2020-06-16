@@ -53,24 +53,60 @@ class EcoWindow:
 			] = "This area can not be made more eco-friendly. Detect something first"
 
 		else:
+			usable_layers = []
+
 			if "Trees" in detected_layers:
-
 				self.tree_layer_panda = pd.read_csv(self.application.current_request.get_layer_of_type(TreesLayer).detections_path)
+				if self.tree_layer_panda.shape[0] > 1:
+					usable_layers.append("Trees")
+			if "Cars" in detected_layers:
+				self.car_layer_panda = pd.read_csv(
+					self.application.current_request.get_layer_of_type(
+						CarsLayer).detections_path)
+				if self.car_layer_panda.shape[0] > 1:
+					usable_layers.append("Cars")
+			if "Buildings" in detected_layers:
+				usable_layers.append("Buildings")
 
-				if self.tree_layer_panda.shape[0] == 1:
+			if len(usable_layers) == 0:
+				self.top_label["text"] = "This area can not be made more eco-friendly"
 
-				 	self.top_label["text"] = "This area can not be made more eco-friendly"
+			else:
+				self.top_label["text"] = "Scenario Creator"
+				self.top_label.grid(row=0,column=0, columnspan=3)
 
-				else:
-					self.top_label["text"] = "How do you want to make this area more eco-friendly?"
-					self.top_label.grid(row=0)
+				self.step_counter = 1
+				self.to_forget = []
 
-					self.more_trees = Button(
-						self.top, text="Add more trees", command=self.add_more_trees, bg="white"
+				step_text = "Step " + str(self.step_counter)
+				self.step_text_label = Label(self.top, text=step_text)
+				self.step_text_label.grid(row=1, column=0)
+
+				how_eco_label_text = "How do you want to make this area more ecofriendly?"
+				self.how_eco_label = Label(self.top, text=how_eco_label_text)
+				self.how_eco_label.grid(row=2, column=0, columnspan=3)
+
+				self.increase_amount_button = Button(
+					self.top, text="Add more Trees", command=None, bg="white"
+				)
+				self.increase_amount_button.grid(row=3,column=0)
+
+				counter = 1
+				if (len(usable_layers)) > 1:
+					self.swap_items_button = Button(
+						self.top, text="Swap Cars with Trees", command=None, bg="white"
 					)
-					self.more_trees.grid(row=1)
+					self.swap_items_button.grid(row=3,column=counter)
+					counter+=1
 
-	def add_more_trees(self):
+				if "Buildings" in usable_layers:
+					self.cover_buildings_button = Button(
+						self.top, text="Cover Buildings", command=None, bg="white"
+					)
+					self.cover_buildings_button.grid(row=3,column=counter)
+					counter += 1
+
+	def increase_amount(self):
 		"""
 		Asks the user how many more trees they want in percentage
 		:return: nothing (creates a gif with additional trees on it and displays that on the mainscreen)
