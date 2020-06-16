@@ -10,7 +10,7 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.scenario.more_trees_scenario import MoreTreesScenario
+from mesh_city.request.scenario.scenario import Scenario
 
 
 class ExportWindow:
@@ -97,8 +97,8 @@ class ExportWindow:
 		for (index, scenario) in enumerate(request.scenarios.values()):
 			self.int_variable_list_scenarios.append(IntVar())
 			text = ""
-			if isinstance(scenario, MoreTreesScenario):
-				text = "More Trees Scenario: " + scenario.scenario_name
+			if isinstance(scenario, Scenario):
+				text = "Scenario: " + scenario.scenario_name
 			text = scenario.scenario_name
 			Checkbutton(self.top, text=text,
 				variable=self.int_variable_list_scenarios[index]).grid(row=index+1+len(request.layers))
