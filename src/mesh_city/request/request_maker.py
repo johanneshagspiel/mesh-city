@@ -117,6 +117,12 @@ class RequestMaker:
 			filename=file_name,
 			new_folder_path=folder_path,
 		)
+
+		old_usage = self.image_provider.usage["total"]
+		temp_cost = PriceTableUtil.one_increase(old_usage)
+		temp_new_total = old_usage + temp_cost
+		self.image_provider.usage["total"] = round(temp_new_total, 4)
+		self.image_provider.usage["static_map"] = round(temp_new_total, 4)
 		return Tile(path=result_path, x_grid_coord=tile_x, y_grid_coord=tile_y)
 
 	def make_area_request(
@@ -161,13 +167,6 @@ class RequestMaker:
 			min_y = min(min_y, y_cor_tile)
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
-
-			old_usage = self.image_provider.usage["total"]
-			temp_cost = PriceTableUtil.one_increase(old_usage)
-			temp_new_total = old_usage + temp_cost
-
-			self.image_provider.usage["total"] = round(temp_new_total, 4)
-			self.image_provider.usage["static_map"] = round(temp_new_total, 4)
 
 		request = Request(
 			x_grid_coord=min_x,

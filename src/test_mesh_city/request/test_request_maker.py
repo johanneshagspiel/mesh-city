@@ -4,12 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
-from mesh_city.util.file_handler import FileHandler
 
 
 class TestRequestMaker(unittest.TestCase):
@@ -17,22 +14,32 @@ class TestRequestMaker(unittest.TestCase):
 
 	def setUp(self):
 		self.request_manager = RequestManager(image_root=self.resource_path)
-
-		self.request_maker = RequestMaker(request_manager=self.request_manager)
-		self.request_maker.top_down_provider = GoogleMapsProvider(Mock())
-		self.request_maker.image_provider = Mock()
+		imagery_provider = Mock()
+		imagery_provider.max_zoom = 20
+		imagery_provider.get_and_store_location.return_value = "test_path"
+		image_provider = Mock()
+		image_provider.usage = {"total": 42, "static_map": 42}
+		self.request_maker = RequestMaker(request_manager=self.request_manager, image_provider=image_provider)
+		self.request_maker.set_top_down_provider(imagery_provider)
 
 		self.location_input = (-22.824637, -43.242729)
 		self.two_coordinate_input = (-22.824637, -43.242729, -22.821384, -43.238813)
 		self.coordinate_list = [
-			(199167, 296295), (199168, 296295), (199169, 296295), (199170, 296295), (199171, 296295),
-			(199172, 296295), (199167, 296296), (199168, 296296), (199169, 296296), (199170, 296296),
-			(199171, 296296), (199172, 296296), (199167, 296297), (199168, 296297), (199169, 296297),
-			(199170, 296297), (199171, 296297), (199172, 296297), (199167, 296298), (199168, 296298),
+			(199167, 296295), (199168, 296295), (199169, 296295), (199170, 296295),
+			(199171, 296295),
+			(199172, 296295), (199167, 296296), (199168, 296296), (199169, 296296),
+			(199170, 296296),
+			(199171, 296296), (199172, 296296), (199167, 296297), (199168, 296297),
+			(199169, 296297),
+			(199170, 296297), (199171, 296297), (199172, 296297), (199167, 296298),
+			(199168, 296298),
 			(199169, 296298), (199170, 296298), (199171, 296298), (199172, 296298), (199167,
-			296299), (199168, 296299), (199169, 296299), (199170, 296299), (199171,
-			296299), (199172, 296299), (199167, 296300), (199168, 296300), (199169,
-			296300), (199170, 296300), (199171, 296300), (199172, 296300),
+			                                                                         296299),
+			(199168, 296299), (199169, 296299), (199170, 296299), (199171,
+			                                                       296299), (199172, 296299),
+			(199167, 296300), (199168, 296300), (199169,
+			                                     296300), (199170, 296300), (199171, 296300),
+			(199172, 296300),
 		]
 
 	def test_make_location_request(self):
@@ -56,7 +63,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.assertTrue(request.has_layer_of_type(GoogleLayer))
 
 	def test_calculate_coordinates_for_rectangle(self):
-		list_of_coordinates, _, _= self.request_maker.calculate_coordinates_for_rectangle(
+		list_of_coordinates, _, _ = self.request_maker.calculate_coordinates_for_rectangle(
 			self.two_coordinate_input[0],
 			self.two_coordinate_input[1],
 			self.two_coordinate_input[2],
