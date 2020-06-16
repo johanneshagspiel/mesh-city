@@ -30,9 +30,10 @@ class Application:
 		self.log_manager = LogManager(file_handler=self.file_handler)
 		self.request_maker = None
 		self.user_entity = None
-		self.main_screen = None
 		self.current_request = None
+		self.main_screen = None
 		self.request_manager = self.get_request_manager()
+
 
 	def get_request_manager(self) -> RequestManager:
 		"""
@@ -120,14 +121,13 @@ class Application:
 
 		self.log_manager.write_log(self.user_entity)
 
-	def set_current_request(self, main_screen, request: Request) -> None:
+	def set_current_request(self, request: Request) -> None:
 		"""
 		Sets the current request to a new Request and updates the view accordingly.
 
 		:param request:
 		:return:
 		"""
-		self.main_screen = main_screen
 		self.current_request = request
 		self.load_request_onscreen(request)
 
@@ -173,6 +173,7 @@ class Application:
 		"""
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
 		self.main_screen.set_canvas_image(canvas_image)
+
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)
 		self.main_screen.information_general.insert(END, "General")
@@ -182,6 +183,7 @@ class Application:
 
 		canvas_image = Image.open(self.current_request.scenarios[scenario_index].scenario_path)
 		self.main_screen.set_canvas_image(canvas_image)
+
 		self.main_screen.information_general.configure(state='normal')
 		self.main_screen.information_general.delete('1.0', END)
 		self.main_screen.information_general.insert(END, "General")
@@ -198,7 +200,7 @@ class Application:
 
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
-		self.set_current_request(request=request, main_screen=self.main_screen)
+		self.set_current_request(request=request)
 
 	def start(self):
 		"""
@@ -206,6 +208,5 @@ class Application:
 
 		:return: None
 		"""
-
 		self.main_screen = MainScreen(application=self)
 		self.main_screen.run()

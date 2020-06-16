@@ -81,14 +81,14 @@ class ScenarioPipeline:
 			loop=0
 		)
 
-		scenario_nick_name = "more_trees_" + str(len(request.scenarios))
+		scenario_nick_name = "MoreTrees" + str(len(request.scenarios))
 		if self.name is not None:
 			scenario_nick_name = self.name
 
-		scenario_name="request_" + str(request.request_id) + "_" + scenario_nick_name + ".gif"
+		scenario_name="request" + str(request.request_id) + "_" + scenario_nick_name + "_.gif"
 
 		return MoreTreesScenario(
-			scenario_name=len(request.scenarios),
+			scenario_name=scenario_name,
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
 			scenario_path=more_trees_file_path

@@ -135,10 +135,10 @@ class RequestManager:
 						)
 					more_trees_path = self.__images_root.joinpath("more_trees")
 					if more_trees_path.exists():
-						pattern = "*_" + str(request.request_id) + ".gif"
+						pattern = "request" + str(request.request_id) + "*"
 						file_paths = sorted(more_trees_path.glob(pattern))
 						for file_path in file_paths:
-							scenario_name = "test"
+							scenario_name = str(file_path).split("_")[1]
 							request.add_scenario(
 								MoreTreesScenario(
 									scenario_name=scenario_name,
