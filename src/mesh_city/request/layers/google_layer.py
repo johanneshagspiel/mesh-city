@@ -4,7 +4,7 @@ See :class:`.GoogleLayer`
 
 from typing import List
 
-from mesh_city.request.tile import Tile
+from mesh_city.request.entities.tile import Tile
 from mesh_city.request.layers.layer import Layer
 
 
