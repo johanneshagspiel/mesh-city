@@ -7,10 +7,10 @@ import pandas as pd
 from pandas import DataFrame
 
 from mesh_city.gui.request_renderer import RequestRenderer
+from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.entities.request import Request
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.scenario import Scenario
 
@@ -26,7 +26,7 @@ class ScenarioPipeline:
 		self,
 		request_manager: RequestManager,
 		scenarios_to_create: Sequence[Tuple[ScenarioType, Any]],
-		name: str=None
+		name: str = None
 	):
 		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
@@ -47,10 +47,10 @@ class ScenarioPipeline:
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			source_tree_image = self.base_image.crop(
 				box=(
-					float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
-					float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
-					float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
-					float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
+				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
+				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
+				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
+				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
 				)
 			)
 
@@ -95,16 +95,16 @@ class ScenarioPipeline:
 
 			tree_image = self.base_image.crop(
 				box=(
-					float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
-					float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
-					float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
-					float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
 				)
 			)
 
-			new_entry = self.calculate_car_swap_location(car_to_swap_index_temp,
-			                                             tree_to_replace_with_index,
-			                                             tree_dataframe, car_dataframe)
+			new_entry = self.calculate_car_swap_location(
+				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
+			)
 			tree_dataframe.loc[object_counter] = new_entry
 			object_counter += 1
 
@@ -125,8 +125,13 @@ class ScenarioPipeline:
 		self.tree_panda = tree_dataframe
 		self.car_panda = car_dataframe
 
-	def calculate_car_swap_location(self, car_to_swap_index: int, tree_to_replace_with_index: int,
-	                                tree_dataframe: DataFrame, car_dataframe: DataFrame):
+	def calculate_car_swap_location(
+		self,
+		car_to_swap_index: int,
+		tree_to_replace_with_index: int,
+		tree_dataframe: DataFrame,
+		car_dataframe: DataFrame
+	):
 
 		print(tree_dataframe)
 		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]

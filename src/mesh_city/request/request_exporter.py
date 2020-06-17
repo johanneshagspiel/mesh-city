@@ -138,7 +138,9 @@ class RequestExporter:
 	) -> None:
 		export_directory.mkdir(parents=True, exist_ok=True)
 		for scenario in scenario_mask:
-			self.export_scenario(request=request, scenario=scenario, export_directory=export_directory)
+			self.export_scenario(
+				request=request, scenario=scenario, export_directory=export_directory
+			)
 
 	def export_scenario(self, request: Request, scenario: Scenario, export_directory: Path) -> None:
 

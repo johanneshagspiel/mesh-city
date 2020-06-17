@@ -96,4 +96,3 @@ class InformationPipeline:
 				self.process_cars_layer(carsLayer=element)
 
 		return self.result_string
-
