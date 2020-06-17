@@ -107,9 +107,7 @@ class GoogleMapsProvider(TopDownProvider):
 		:param name:
 		:return:
 		"""
-
 		result = googlemaps.client.geocode(client=self.client, address=name)
-		print(result)
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
@@ -119,6 +117,4 @@ class GoogleMapsProvider(TopDownProvider):
 		:param longitude:
 		:return:
 		"""
-
 		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))
-		print(result)

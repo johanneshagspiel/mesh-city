@@ -3,6 +3,7 @@ See :class:`.GeoLocationUtil`
 """
 
 import math
+from math import asin, cos, sqrt
 
 from pyproj import Transformer
 
@@ -297,3 +298,36 @@ class GeoLocationUtil:
 		pixels_per_unit_y_direction = (sw_geo_y - nw_geo_y) / image_height
 
 		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
+
+	@staticmethod
+	def distance(latitude1, longitude1, latitude2, longitude2):
+		"""
+		Method to calculate the distance between to geographical locations
+		:param latitude1:
+		:param longitude1:
+		:param latitude2:
+		:param longitude2:
+		:return: the distance in meters
+		"""
+		# TODO reference stack overflow:
+		# https://stackoverflow.com/questions/41336756/find-the-closest-latitude-and-longitude
+		p_value = 0.017453292519943295
+		a_value = 0.5 - cos((latitude2 - latitude1) * p_value) / 2 + cos(latitude1 *
+			p_value) * cos(latitude2 * p_value) * (1 - cos((longitude2 - longitude1) * p_value)) / 2
+		return 12742 * asin(sqrt(a_value))
+
+	@staticmethod
+	def closest(data, point):
+		"""
+		Method to analyse a dictionary of points and find which of those is the closest to the input
+		point
+		:param data: a dictionary with at least the fields 'latitude' and 'longitude'
+		:param point: the point you want to find is closest to the point in the dictionary
+		:return: the closest point
+		"""
+		return min(
+			data,
+			key=lambda dic_point: GeoLocationUtil.distance(
+			point['latitude'], point['longitude'], dic_point['latitude'], dic_point['longitude']
+			)
+		)

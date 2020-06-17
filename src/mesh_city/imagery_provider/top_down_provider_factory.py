@@ -5,7 +5,6 @@ Module which provides a simple factory to create different types of TopDownProvi
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
 
 
 class TopDownProviderFactory:
@@ -13,7 +12,8 @@ class TopDownProviderFactory:
 	A class that created different kinds of TopDownProvider's
 	"""
 
-	def get_top_down_provider(self, image_provider_entity: ImageProviderEntity):
+	@staticmethod
+	def get_top_down_provider(image_provider_entity):
 		"""
 		Constructs a TopDownProvider instance using an ImageProviderEntity instance.
 

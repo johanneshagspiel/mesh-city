@@ -100,10 +100,7 @@ class ImageUtil:
 		:param image_2: The right image.
 		:return: The combined image.
 		"""
-
-		temp = Image.new("RGB", (image_1.width + image_2.width, image_1.height))
-		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
-			temp = Image.new("RGBA", (image_1.width + image_2.width, image_1.height))
+		temp = Image.new(image_1.mode, (image_1.width + image_2.width, image_1.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (image_1.width, 0))
 		return temp
@@ -117,16 +114,13 @@ class ImageUtil:
 		:param image_2: The bottom image.
 		:return: Nothing.
 		"""
-
-		temp = Image.new("RGB", (image_1.width, image_1.height + image_2.height))
-		if image_1.mode == "RGBA" or image_2.mode == "RGBA":
-			temp = Image.new("RGBA", (image_1.width, image_1.height + image_2.height))
+		temp = Image.new(image_1.mode, (image_1.width, image_1.height + image_2.height))
 		temp.paste(image_1, (0, 0))
 		temp.paste(image_2, (0, image_1.height))
 		return temp
 
 	@staticmethod
-	def greyscale_matrix_to_image(matrix):
+	def greyscale_matrix_to_image(matrix) -> Image:
 		"""
 		Converts a given matrix with values 0-255 to a grayscale image.
 
