@@ -101,6 +101,7 @@ class ScenarioPipeline:
 		:param cars_to_swap:
 		:return:
 		"""
+
 		if self.cars is None:
 			car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path)
 		else:
@@ -298,8 +299,8 @@ class ScenarioPipeline:
 		for (feature, information) in self.scenarios_to_create:
 			if feature == ScenarioModificationType.MORE_TREES:
 				self.add_more_trees(request=request, trees_to_add=information)
-			if feature == ScenarioModificationType.SWAP_CARS:
-				self.swap_cars_with_trees(request=request, cars_to_swap=information)
+			# if feature == ScenarioModificationType.SWAP_CARS:
+			# 	self.swap_cars_with_trees(request=request, cars_to_swap=information)
 
 		new_scenario = self.combine_results(request)
 
