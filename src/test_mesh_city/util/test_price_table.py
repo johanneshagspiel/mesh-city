@@ -4,7 +4,7 @@ import unittest
 
 from parameterized import parameterized
 
-from mesh_city.util.price_table_util import PriceTableUtil, QuotaException
+from mesh_city.util.price_table_util import PriceTableUtil
 
 
 class PriceTableTest(unittest.TestCase):

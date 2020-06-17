@@ -22,7 +22,8 @@ class TestRequest(unittest.TestCase):
 			num_of_horizontal_images=1,
 			num_of_vertical_images=1,
 			zoom=20,
-			layers=[google_layer]
+			layers=[google_layer],
+			name="test"
 		)
 		self.assertTrue(request.has_layer_of_type(GoogleLayer))
 
@@ -37,7 +38,8 @@ class TestRequest(unittest.TestCase):
 			num_of_horizontal_images=1,
 			num_of_vertical_images=1,
 			zoom=20,
-			layers=[google_layer]
+			layers=[google_layer],
+			name="test"
 		)
 		with self.assertRaises(ValueError):
 			request.get_layer_of_type(TreesLayer)

@@ -20,6 +20,9 @@ from mesh_city.scenario.scenario import Scenario
 
 
 class ScenarioModificationType(Enum):
+	"""
+	Enum class representing types of modifications that can be part of a scenario.
+	"""
 	MORE_TREES = 0
 	SWAP_CARS = 1
 
@@ -39,6 +42,11 @@ class ScenarioPipeline:
 		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
+		self.trees = None
+		self.cars = None
+		self.base_image = None
+		self.images_to_add = None
+		self.changes_pd = None
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""

@@ -23,7 +23,8 @@ class TestRequestManager(unittest.TestCase):
 			num_of_horizontal_images=1,
 			num_of_vertical_images=1,
 			zoom=20,
-			layers=[google_layer]
+			layers=[google_layer],
+			name="test"
 		)
 		request_manager.add_request(request=request)
 		self.assertTrue(request_manager.is_in_grid(x_coord=0, y_coord=0))
@@ -36,7 +37,8 @@ class TestRequestManager(unittest.TestCase):
 			y_grid_coord=0,
 			num_of_horizontal_images=1,
 			num_of_vertical_images=1,
-			zoom=20
+			zoom=20,
+			name="test"
 		)
 		request_manager.add_request(request=request)
 		self.assertFalse(request_manager.is_in_grid(x_coord=0, y_coord=0))
