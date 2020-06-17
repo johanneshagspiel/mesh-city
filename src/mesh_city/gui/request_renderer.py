@@ -11,7 +11,6 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
-from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.util.image_util import ImageUtil
 
@@ -76,7 +75,8 @@ class RequestRenderer:
 							(float(row[1]) / scaling, float(row[2]) / scaling),
 							(float(row[3]) / scaling, float(row[4]) / scaling)
 							),
-							outline= (34,139,34)
+							outline=(34, 139, 34),
+							fill=(34, 139, 34, 50)
 						)
 				overlays.append(tree_overlay)
 			return tree_overlay
@@ -100,7 +100,8 @@ class RequestRenderer:
 							(float(row[1]) / scaling, float(row[2]) / scaling),
 							(float(row[3]) / scaling, float(row[4]) / scaling)
 							),
-							outline=(0,0,255)
+							outline=(0, 0, 255),
+							fill=(0, 0, 255, 50)
 						)
 				overlays.append(car_overlay)
 			return car_overlay
@@ -137,94 +138,3 @@ class RequestRenderer:
 				)
 			return building_overlay
 		raise ValueError("The overlay could not be created")
-
-	@staticmethod
-	def render_map(request: Request, layer_mask, scaling=16) -> Image:
-
-		base_image = Image.new(
-			'RGB',
-			(
-			round(request.num_of_horizontal_images * 1024 / scaling),
-			round(request.num_of_vertical_images * 1024 / scaling)
-			), (255, 255, 255)
-		)
-		base_image.putalpha(255)
-
-		result_image = base_image
-		for mask in layer_mask:
-			temp_image = RequestRenderer.create_map_from_layer(request=request, layer=mask, scaling=scaling)
-			result_image = Image.alpha_composite(
-				im1=result_image,
-				im2=temp_image
-			)
-		return result_image
-
-	@staticmethod
-	def create_map_from_layer(request: Request, layer, scaling=16) -> Image:
-		if isinstance(layer, TreesLayer):
-			# TODO change image size depending on image size used for prediction
-			overlays = []
-			tree_overlay = Image.new(
-				'RGBA',
-				(
-				round(request.num_of_horizontal_images * 1024 / scaling),
-				round(request.num_of_vertical_images * 1024 / scaling)
-				), (255, 255, 255, 0)
-			)
-			draw = ImageDraw.Draw(tree_overlay)
-			with open(layer.detections_path, newline='') as csvfile:
-				csv_reader = csv.reader(csvfile, delimiter=',')
-				for (index, row) in enumerate(csv_reader):
-					if len(row) > 0 and index > 0:
-						draw.rectangle(
-							xy=(
-							(float(row[1]) / scaling, float(row[2]) / scaling),
-							(float(row[3]) / scaling, float(row[4]) / scaling)
-							),
-							outline=(34,139,34), fill=(34,139,34, 50)
-						)
-				overlays.append(tree_overlay)
-			return tree_overlay
-		elif isinstance(layer, CarsLayer):
-			# TODO change image size depending on image size used for prediction
-			overlays = []
-			car_overlay = Image.new(
-				'RGBA',
-				(
-				round(request.num_of_horizontal_images * 1024 / scaling),
-				round(request.num_of_vertical_images * 1024 / scaling)
-				), (255, 255, 255, 0)
-			)
-			draw = ImageDraw.Draw(car_overlay)
-			with open(layer.detections_path, newline='') as csvfile:
-				csv_reader = csv.reader(csvfile, delimiter=',')
-				for (index, row) in enumerate(csv_reader):
-					if len(row) > 0 and index > 0:
-						draw.rectangle(
-							xy=(
-							(float(row[1]) / scaling, float(row[2]) / scaling),
-							(float(row[3]) / scaling, float(row[4]) / scaling)
-							),
-							outline=(0,0,255), fill=(0,0,255, 50)
-						)
-				overlays.append(car_overlay)
-			return car_overlay
-
-		elif isinstance(layer, BuildingsLayer):
-			building_dataframe = gpd.read_file(layer.detections_path)
-			building_dataframe.geometry = building_dataframe.geometry.scale(
-				xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
-			)
-			building_overlay = Image.new(
-				'RGBA',
-				(
-				round(request.num_of_horizontal_images * 1024 / scaling),
-				round(request.num_of_vertical_images * 1024 / scaling)
-				), (255, 255, 255, 0)
-			)
-			draw = ImageDraw.Draw(building_overlay)
-			for polygon in building_dataframe["geometry"]:
-				draw.polygon(
-					xy=list(zip(*polygon.exterior.coords.xy)), fill=(255, 0, 0, 50), outline="red"
-				)
-			return building_overlay

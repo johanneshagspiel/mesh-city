@@ -136,7 +136,7 @@ class ExportWindow:
 				)
 			if has_export_scenario:
 				self.application.export_request_scenarios(
-					request=request, scenario_mask=scenario_mask, export_directory=export_directory
+					scenario_list=scenario_mask, export_directory=export_directory
 				)
 
 		self.top.destroy()

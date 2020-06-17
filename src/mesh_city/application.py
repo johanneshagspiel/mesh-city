@@ -182,21 +182,6 @@ class Application:
 		text_to_show = self.get_statistics(element_list=layer_list)
 		self.main_screen.update_text(text_to_show)
 
-	def create_map(self, request: Request, layer_mask) -> None:
-		"""
-		Loads specific layers of a request onto the screen.
-
-		:param request: The request to load
-		:param layer_mask: A boolean mask representing which layers to render.
-		:return: None
-		"""
-
-		canvas_image = RequestRenderer.render_map(request=request, layer_mask=layer_mask)
-		self.main_screen.set_canvas_image(canvas_image)
-
-		text_to_show = self.get_statistics(request=request, element_list=layer_mask)
-		self.main_screen.update_text(text_to_show)
-
 	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
 	) -> None:
@@ -215,19 +200,19 @@ class Application:
 		)
 
 	def export_request_scenarios(
-		self, request: Request, scenario_mask: Sequence[Scenario], export_directory: Path
+		self, scenario_list: Sequence[Scenario], export_directory: Path
 	) -> None:
 		"""
 		Exports scenario's certain requests belonging to a request to an export directory.
 		:param request: The request to export scenarios for
-		:param scenario_mask: Which scenario's to export
+		:param scenario_list: Which scenario's to export
 		:param export_directory: The directory to export scenario's to
 		:return:
 		"""
 
 		request_exporter = RequestExporter(request_manager=self.request_manager)
 		request_exporter.export_request_scenarios(
-			request=request, scenario_mask=scenario_mask, export_directory=export_directory
+			scenario_list=scenario_list, export_directory=export_directory
 		)
 
 	def load_request_onscreen(self, request: Request) -> None:

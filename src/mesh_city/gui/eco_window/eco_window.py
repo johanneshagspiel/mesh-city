@@ -10,7 +10,7 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.scenario.scenario_pipeline import ScenarioType
+from mesh_city.scenario.scenario_pipeline import ScenarioModificationType
 
 
 class EcoWindow:
@@ -184,8 +184,8 @@ class EcoWindow:
 		increase_percentage = self.increase_trees.get() * 0.01
 		trees_to_add = math.ceil((self.tree_layer_panda.shape[0] - 1) * increase_percentage)
 
-		self.scenario_list.append((ScenarioType.MORE_TREES, trees_to_add))
-		self.add_another_step(ScenarioType.MORE_TREES, trees_to_add)
+		self.scenario_list.append((ScenarioModificationType.MORE_TREES, trees_to_add))
+		self.add_another_step(ScenarioModificationType.MORE_TREES, trees_to_add)
 
 	def cleanup_swap_cars(self):
 		"""
@@ -201,8 +201,8 @@ class EcoWindow:
 			cars_to_swap = self.car_layer_panda.shape[0] - 1
 			self.important_widgets.remove(self.swap_items_button)
 
-		self.scenario_list.append((ScenarioType.SWAP_CARS, cars_to_swap))
-		self.add_another_step(ScenarioType.SWAP_CARS, cars_to_swap)
+		self.scenario_list.append((ScenarioModificationType.SWAP_CARS, cars_to_swap))
+		self.add_another_step(ScenarioModificationType.SWAP_CARS, cars_to_swap)
 
 	def add_another_step(self, scenario_type, scenario_info):
 		"""
@@ -216,9 +216,9 @@ class EcoWindow:
 		self.to_forget = []
 
 		scenario_text = ""
-		if scenario_type is ScenarioType.MORE_TREES:
+		if scenario_type is ScenarioModificationType.MORE_TREES:
 			scenario_text = "Add " + str(scenario_info) + " trees"
-		if scenario_type is ScenarioType.SWAP_CARS:
+		if scenario_type is ScenarioModificationType.SWAP_CARS:
 			scenario_text = "Swap " + str(scenario_info) + " cars with trees"
 
 		step_info_label = Label(self.top, text=scenario_text)

@@ -1,5 +1,5 @@
 """
-Module containing the tutorialwindow class
+Module containing the TutorialWindow class
 """
 from tkinter import Button, Label, Toplevel
 
