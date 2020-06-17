@@ -264,7 +264,7 @@ class Application:
 		:return:
 		"""
 		bio_path = self.file_handler.folder_overview['biome_index']
-		info_gen = InformationStringBuilder(bio_path)
+		info_gen = InformationStringBuilder(bio_path, self.current_request)
 
 		return info_gen.process(element_list=element_list)
 
