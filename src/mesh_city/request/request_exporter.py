@@ -84,6 +84,7 @@ class RequestExporter:
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			copyfile(origin_path, export_directory.joinpath(rel_path))
+			
 		if isinstance(layer, BuildingsLayer):
 			origin_path = layer.detections_path
 			building_dataframe = gpd.read_file(origin_path)
