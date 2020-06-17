@@ -1,5 +1,9 @@
 """
 See :class:`.ScenarioPipeline`
+
+source for the part of creating an elipse mask for the trees:
+source: Nadia Alramli
+url: https://stackoverflow.com/questions/890051/how-do-i-generate-circular-thumbnails-with-pil
 """
 
 import copy
@@ -9,6 +13,7 @@ from typing import Any, Sequence, Tuple
 
 import pandas as pd
 from pandas import DataFrame
+from PIL import Image, ImageDraw, ImageOps
 
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.request.entities.request import Request
@@ -73,14 +78,25 @@ class ScenarioPipeline:
 		for tree in range(0, trees_to_add):
 			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
-			source_tree_image = self.base_image.crop(
-				box=(
+
+
+			tree_area_to_cut=(
 				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
 				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
 				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
 				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
 				)
+
+			tree_image_cropped = self.base_image.crop(
+				box=tree_area_to_cut
 			)
+
+			mask = Image.new('L', tree_image_cropped.size, 0)
+			draw = ImageDraw.Draw(mask)
+			draw.ellipse((0, 0) + tree_image_cropped.size, fill=255)
+
+			source_tree_image = ImageOps.fit(tree_image_cropped, mask.size, centering=(0.5, 0.5))
+			source_tree_image.putalpha(mask)
 
 			new_entry = self.calculate_new_location_tree_addition(
 				source_tree_index, destination_tree_index, tree_dataframe
@@ -136,9 +152,16 @@ class ScenarioPipeline:
 				tree_dataframe.iloc[tree_to_replace_with_index][4],  # ymax
 				)
 
-			tree_image = self.base_image.crop(
+			tree_image_cropped = self.base_image.crop(
 				box=tree_area_to_cut
 			)
+
+			mask = Image.new('L', tree_image_cropped.size, 0)
+			draw = ImageDraw.Draw(mask)
+			draw.ellipse((0, 0) + tree_image_cropped.size, fill=255)
+
+			tree_image = ImageOps.fit(tree_image_cropped, mask.size, centering=(0.5, 0.5))
+			tree_image.putalpha(mask)
 
 			new_entry = self.create_new_swapped_tree_entry(
 				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe

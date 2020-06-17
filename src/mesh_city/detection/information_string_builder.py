@@ -117,7 +117,7 @@ class InformationStringBuilder:
 		if count_trees_added > 0:
 			result_string += "Trees added: " + str(count_trees_added) + "\n"
 		if count_cars_swapped > 0:
-			result_string += "Cars swap with trees: " + str(count_cars_swapped) + "\n"
+			result_string += "Cars swapped with trees: " + str(count_cars_swapped) + "\n"
 		return result_string
 
 	def process(self, element_list: Sequence[Union[Layer, Scenario]]) -> str:
