@@ -137,7 +137,7 @@ class InformationStringBuilder:
 		"""
 		Processes a list of elements that can be either Layers or Scenarios
 		:param element_list: The list of Layers and/or Scenarios
-		:return: The information string
+		:return: An information string with all the statistics of the request/scenario
 		"""
 		info_dict = self.get_tree_and_rooftop_co2_values(self.request)
 		eco_name = info_dict['biodome']
@@ -184,14 +184,14 @@ class InformationStringBuilder:
 		result_string += "Rooftops: " + str(square_meters_of_rooftops) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
-		result_string += "Biomass: CO2 storage:\n"
+		result_string += "Biomass. \nCO2 storage:\n"
 		result_string += str(total_carbon_storage) + " kg carbon " + "\n \n"
 
-		result_string += "Air Quality: O2/CO2 Emission:\n"
+		result_string += "Air Quality. \nO2/CO2 Emission:\n"
 		result_string += str(total_oxygen_emission) + " kg O2 " + "\n"
 		result_string += str(total_carbon_emission) + " kg CO2 " + "\n \n"
 
-		result_string += "Comfort: Urban Cooling:\n"
+		result_string += "Comfort. \nUrban Cooling:\n"
 		result_string += str(total_urban_cooling) + " degrees kelvin" + "\n \n"
 
 		return result_string
