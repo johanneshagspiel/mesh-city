@@ -13,11 +13,13 @@ class DeepForest:
 		self.model = deepforest.deepforest()
 		self.model.use_release()
 
-	def detect(self, image):
+	def detect(self, path):
 		"""
 		Method used to detect trees from images.
 
 		:param image_path: path where the image is stored from which to detect trees
 		:return: numpy array with bounding box over where threes are
 		"""
-		return self.model.predict_image(numpy_image=image, return_plot=False)
+		return self.model.predict_tile(
+			raster_path=path, return_plot=False, patch_size=512, patch_overlap=0.25
+		)

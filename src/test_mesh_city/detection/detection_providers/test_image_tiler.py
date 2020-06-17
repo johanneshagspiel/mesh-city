@@ -15,3 +15,10 @@ class TestImageTiler(unittest.TestCase):
 		dictionary = image_tiler.create_tile_dictionary(image)
 		reconstructed_image = image_tiler.construct_image_from_tiles(dictionary)
 		np.testing.assert_array_equal(image, reconstructed_image)
+
+	def test_complex(self):
+		image_tiler = ImageTiler(512, 512)
+		image = np.arange(2328690).reshape(1706, 1365).astype(np.int8)
+		dictionary = image_tiler.create_tile_dictionary(image)
+		reconstructed_image = image_tiler.construct_image_from_tiles(dictionary)
+		np.testing.assert_array_equal(image, reconstructed_image)

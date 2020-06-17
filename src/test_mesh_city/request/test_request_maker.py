@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from mesh_city.request.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 
@@ -17,8 +17,13 @@ class TestRequestMaker(unittest.TestCase):
 		imagery_provider = Mock()
 		imagery_provider.max_zoom = 20
 		imagery_provider.get_and_store_location.return_value = "test_path"
-		self.request_maker = RequestMaker(request_manager=self.request_manager)
+		image_provider = Mock()
+		image_provider.usage = {"total": 42, "static_map": 42}
+		self.request_maker = RequestMaker(
+			request_manager=self.request_manager, image_provider=image_provider
+		)
 		self.request_maker.set_top_down_provider(imagery_provider)
+
 		self.location_input = (-22.824637, -43.242729)
 		self.two_coordinate_input = (-22.824637, -43.242729, -22.821384, -43.238813)
 		self.coordinate_list = [
@@ -53,7 +58,7 @@ class TestRequestMaker(unittest.TestCase):
 		self.assertTrue(request.has_layer_of_type(GoogleLayer))
 
 	def test_calculate_coordinates_for_rectangle(self):
-		list_of_coordinates, _, _= self.request_maker.calculate_coordinates_for_rectangle(
+		list_of_coordinates, _, _ = self.request_maker.calculate_coordinates_for_rectangle(
 			self.two_coordinate_input[0],
 			self.two_coordinate_input[1],
 			self.two_coordinate_input[2],

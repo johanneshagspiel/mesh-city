@@ -8,7 +8,6 @@ from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
-from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.image_util import ImageUtil
 
 
@@ -29,30 +28,27 @@ def compute_image_similarity(image1, image2):
 
 class TestBuildingDetectorRaster(unittest.TestCase):
 
-	def test_construct_building_detector(self):
-		"""
-		Fails if weights file is not found or dependencies are not set up correctly
-		"""
-		BuildingDetector(FileHandler())
+	def setUp(self):
+		self.weights_path = Path(__file__).parents[2].joinpath(
+			"resources", "neural_networks", "xdxd_spacenet4_solaris_weights.pth"
+		)
 
 	def test_building_detection(self):
 		"""
 		Fails if something goes wrong running a simple detection
 		"""
-		building_detector = BuildingDetector(FileHandler())
+		building_detector = BuildingDetector(nn_weights_path=self.weights_path)
 		# TODO: Set up some type of test resource in the project structure to avoid things like this.
-		result_image = Image.fromarray(
+		result_image = ImageUtil.greyscale_matrix_to_image(
 			building_detector.detect(
 			np.asarray(
 			Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize((512, 512))
 			)
-			),
-			'L'
+			)
 		)
 		ground_truth = Image.open(
 			Path(__file__).parents[0].joinpath("test-images/groundtruth1.png")
 		).convert('L')
-		print()
 		self.assertGreaterEqual(compute_image_similarity(result_image, ground_truth), 0.9)
 
 	def test_tiled_building_detection(self):
@@ -63,7 +59,7 @@ class TestBuildingDetectorRaster(unittest.TestCase):
 		array = np.asarray(image)
 		tile_dict = image_tiler.create_tile_dictionary(array)
 
-		building_detector = BuildingDetector(FileHandler())
+		building_detector = BuildingDetector(self.weights_path)
 		for (x_coord, y_coord) in tile_dict:
 			tile_dict[(x_coord, y_coord)] = building_detector.detect(tile_dict[(x_coord, y_coord)])
 		result = image_tiler.construct_image_from_tiles(tile_dict)

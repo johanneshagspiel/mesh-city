@@ -16,7 +16,6 @@ class LoadWindow:
 		:param application: the global application context
 		:param mainscreen: the screen from which loadwindow is called
 		"""
-
 		self.main_screen = main_screen
 		self.master = master
 		self.value = ""
@@ -24,19 +23,38 @@ class LoadWindow:
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 		top = self.top = Toplevel(master)
 
+		self.top.config(padx=4)
+		self.top.config(pady=4)
+
 		self.top_label = Label(top, text="Which request do you want to load?")
 		self.top_label.grid(row=0, column=1)
 
-		for (index, request) in enumerate(self.application.request_manager.requests):
-			self.temp_name = Button(
-				self.top,
-				text="Request " + str(request.request_id),
-				width=20,
-				height=3,
-				command=lambda button_request=request: self.load_request(button_request),
-				bg="grey"
-			)
-			self.temp_name.grid(row=index + 1, column=1)
+		if self.application.current_request is not None:
+			active_request_id = self.application.current_request.request_id
+
+			for (index, request) in enumerate(self.application.request_manager.requests, 1):
+				if request.request_id != active_request_id:
+					self.temp_name = Button(
+						self.top,
+						text=request.name,
+						width=20,
+						height=3,
+						command=lambda button_request=request: self.load_request(button_request),
+						bg="white"
+					)
+					self.temp_name.grid(row=index + 1, column=1)
+
+		else:
+			for (index, request) in enumerate(self.application.request_manager.requests):
+				self.temp_name = Button(
+					self.top,
+					text=request.name,
+					width=20,
+					height=3,
+					command=lambda button_request=request: self.load_request(button_request),
+					bg="white"
+				)
+				self.temp_name.grid(row=index + 1, column=1)
 
 	def load_request(self, request):
 		"""

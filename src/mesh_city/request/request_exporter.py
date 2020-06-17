@@ -6,10 +6,13 @@ from pathlib import Path
 from shutil import copyfile
 from typing import List
 
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -21,7 +24,7 @@ class RequestExporter:
 	def __init__(self, request_manager: RequestManager):
 		self.request_manager = request_manager
 
-	def export_request(
+	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
 	) -> None:
 		"""
@@ -72,7 +75,12 @@ class RequestExporter:
 					width=1024,
 					height=1024
 				)
-		if isinstance(layer, TreesLayer):
+		if isinstance(layer, (TreesLayer, CarsLayer)):
+			origin_path = layer.detections_path
+			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
+			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
+			copyfile(origin_path, export_directory.joinpath(rel_path))
+		if isinstance(layer, BuildingsLayer):
 			origin_path = layer.detections_path
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
@@ -124,3 +132,20 @@ class RequestExporter:
 				str(m_north_of_0)
 				]
 			)
+
+	def export_request_scenarios(
+		self, request: Request, scenario_mask: List[Scenario], export_directory: Path
+	) -> None:
+		export_directory.mkdir(parents=True, exist_ok=True)
+		for scenario in scenario_mask:
+			self.export_scenario(
+				request=request, scenario=scenario, export_directory=export_directory
+			)
+
+	def export_scenario(self, request: Request, scenario: Scenario, export_directory: Path) -> None:
+
+		if isinstance(scenario, Scenario):
+			origin_path = scenario.scenario_path
+			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
+			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
+			copyfile(origin_path, export_directory.joinpath(rel_path))

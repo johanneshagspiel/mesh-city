@@ -5,9 +5,7 @@ A module that contains the log manager who is responsible for performing all the
 import json
 import os
 
-from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
-from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
-from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.user.user_entity import UserEntity
 
 
 class LogManager:
@@ -104,16 +102,26 @@ class LogManager:
 
 		temp_dic = {}
 
-		if type_document == "building_instructions_request":
-			return BuildingInstructionsRequest(path_to_store=path, json=logs)
-
 		if type_document == "users.json":
 			for key, value in logs.items():
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
 
-		if type_document == "information":
-			return DetectionMetaData(path_to_store=path, json=logs)
-
 		return None
+
+	def change_name(self, old_name, new_name):
+
+		path = self.file_handler.folder_overview["users.json"]
+		with open(path, "r") as json_log:
+			data = json_log.read()
+		logs = json.loads(data)
+
+		temp_dic = {}
+		for key, value in logs.items():
+			temp_dic[key] = value
+		temp_dic[new_name] = temp_dic.pop(old_name)
+
+		with open(path, "w") as json_log:
+			json.dump(temp_dic, fp=json_log, indent=4)
+			json_log.close()
