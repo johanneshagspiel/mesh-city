@@ -146,13 +146,17 @@ class RequestManager:
 								information_path = str(
 									os.path.splitext(Path(file_path))[0]
 								) + ".csv"
+								picture_path = str(
+									os.path.splitext(Path(file_path))[0]
+								) + ".png"
 								request.add_scenario(
 									Scenario(
 									scenario_name=scenario_name,
 									width=request.num_of_horizontal_images,
 									height=request.num_of_vertical_images,
 									scenario_path=file_path,
-									information_path=information_path
+									information_path=information_path,
+									picture_path=picture_path
 									)
 								)
 
