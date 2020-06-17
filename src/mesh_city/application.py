@@ -242,8 +242,8 @@ class Application:
 		:param name: The name of a scenario of the current request.
 		:return: None
 		"""
-		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
-		self.main_screen.set_gif(canvas_image)
+		canvas_image = Image.open(self.current_request.scenarios[name].picture_path)
+		self.main_screen.set_canvas_image(canvas_image)
 
 		text_to_show = self.get_statistics(element_list=[self.current_request.scenarios[name]])
 		self.main_screen.update_text(text_to_show)
