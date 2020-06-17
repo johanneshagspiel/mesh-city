@@ -107,7 +107,7 @@ class ScenarioPipeline:
 
 			coordinate = ((int(new_entry[0]), int(new_entry[3])))
 
-			self.base_image.paste(source_tree_image, box=coordinate)
+			self.base_image.alpha_composite(source_tree_image, dest=coordinate)
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
@@ -174,7 +174,7 @@ class ScenarioPipeline:
 			car_dataframe = temp
 
 			coordinate = ((int(new_entry[0]), int(new_entry[3])))
-			self.base_image.paste(tree_image, box=coordinate)
+			self.base_image.alpha_composite(tree_image, dest=coordinate)
 
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
@@ -221,6 +221,16 @@ class ScenarioPipeline:
 		new_ymin = car_center_y - tree_distance_center_max_y
 		new_ymax = car_center_y + tree_distance_center_max_y
 
+		if new_xmin < 0:
+			to_add = (-1) * new_xmin
+			new_xmin = new_xmin + to_add
+			new_xmax = new_xmax + to_add
+
+		if new_ymin < 0:
+			to_add = (-1) * new_ymin
+			new_ymin = new_ymin + to_add
+			new_ymax = new_ymax + to_add
+
 		new_entry = [
 			new_xmin,
 			new_ymin,
@@ -250,6 +260,16 @@ class ScenarioPipeline:
 		new_ymax = old_ymax + 50
 		new_xmax = old_xmax + 50
 		new_ymin = old_ymin + 50
+
+		if new_xmin < 0:
+			to_add = (-1) * new_xmin
+			new_xmin = new_xmin + to_add
+			new_xmax = new_xmax + to_add
+
+		if new_ymin < 0:
+			to_add = (-1) * new_ymin
+			new_ymin = new_ymin + to_add
+			new_ymax = new_ymax + to_add
 
 		new_entry = [
 			new_xmin,
