@@ -3,13 +3,13 @@
 import unittest
 from pathlib import Path
 
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.trees_layer import TreesLayer
 
 
-class MyTestCase(unittest.TestCase):
+class RequestExporterTest(unittest.TestCase):
 
 	def setUp(self):
 		self.path = Path("dummy_path")
@@ -22,7 +22,8 @@ class MyTestCase(unittest.TestCase):
 			num_of_horizontal_images=1,
 			num_of_vertical_images=1,
 			zoom=20,
-			layers=[self.trees_layer]
+			layers=[self.trees_layer],
+			name="test"
 		)
 
 		self.request_manager = RequestManager(None)

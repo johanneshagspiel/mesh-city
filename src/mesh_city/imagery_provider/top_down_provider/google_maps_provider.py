@@ -104,21 +104,17 @@ class GoogleMapsProvider(TopDownProvider):
 		"""
 		Returns a geographical location based on an address name.
 
-		:param name:
-		:return:
+		:param name: The adress name
+		:return: The location corresponding to the adress name
 		"""
-
-		result = googlemaps.client.geocode(client=self.client, address=name)
-		print(result)
+		return googlemaps.client.geocode(client=self.client, address=name)
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on tile_information.
+		Returns an address name based on a coordinate.
 
-		:param latitude:
-		:param longitude:
-		:return:
+		:param latitude: The latitude of the coordinate
+		:param longitude: THe longitude of the coordinate
+		:return: The adress name corresponding to the location
 		"""
-
-		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))
-		print(result)
+		return googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))

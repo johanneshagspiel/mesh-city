@@ -10,13 +10,14 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Polygon
 
-from mesh_city.request.buildings_layer import BuildingsLayer
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.layer import Layer
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.layer import Layer
+from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -28,7 +29,7 @@ class RequestExporter:
 	def __init__(self, request_manager: RequestManager):
 		self.request_manager = request_manager
 
-	def export_request(
+	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
 	) -> None:
 		"""
@@ -212,3 +213,29 @@ class RequestExporter:
 		pd.DataFrame(csv_data).to_csv(str(layer.detections_export_path), index=False)
 
 		return layer.detections_export_path
+
+	def export_request_scenarios(
+		self, scenario_list: List[Scenario], export_directory: Path
+	) -> None:
+		"""
+		Exports
+		:param scenario_list:
+		:param export_directory:
+		:return:
+		"""
+		export_directory.mkdir(parents=True, exist_ok=True)
+		for scenario in scenario_list:
+			self.export_scenario(scenario=scenario, export_directory=export_directory)
+
+	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
+		"""
+		Exports a scenario to a given directory
+		:param scenario: The scenario to export
+		:param export_directory: The directory to export the scenario to
+		:return:
+		"""
+		if isinstance(scenario, Scenario):
+			origin_path = scenario.scenario_path
+			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
+			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
+			copyfile(origin_path, export_directory.joinpath(rel_path))
