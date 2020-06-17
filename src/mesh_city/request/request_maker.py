@@ -310,7 +310,9 @@ class RequestMaker:
 		self.observers.append(observer)
 
 	def detach_observer(self, observer):
-		self._observers.remove(observer)
+		for observer in self.observers:
+			observer.destroy()
+		self.observers.remove(observer)
 
 	def notify_observers(self):
 		for observer in self.observers:

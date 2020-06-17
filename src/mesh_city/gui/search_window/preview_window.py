@@ -303,6 +303,8 @@ class PreviewWindow:
 		if name == "":
 			name = None
 
+		self.top.destroy()
+
 		if len(coordinates) == 2:
 			self.application.make_location_request(
 				latitude=coordinates[0], longitude=coordinates[1], name=name
@@ -317,5 +319,3 @@ class PreviewWindow:
 			)
 		else:
 			raise ValueError("The number of coordinate values does not check out")
-
-		self.top.destroy()
