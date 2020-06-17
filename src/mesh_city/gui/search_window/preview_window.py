@@ -2,9 +2,10 @@
 """
 A module containing the preview window
 """
-from tkinter import Button, Entry, Label, Toplevel
+from tkinter import Button, Entry, Label, messagebox, Toplevel
 
 from mesh_city.user.image_provider_entity import ImageProviderEntity
+from mesh_city.util.input_util import InputUtil
 from mesh_city.util.price_table_util import PriceTableUtil
 
 
@@ -232,22 +233,39 @@ class PreviewWindow:
 		Adds an additional provider and destroys the GUI element.
 		:return: None
 		"""
+
 		temp_api_key = self.api_key_entry.get()
 		temp_quota = self.quota_entry.get()
 		temp_name = self.temp_name_label.cget("text")
 
-		temp_image_provider = ImageProviderEntity(
-			file_handler=self.application.file_handler,
-			type_map_provider="Google Maps",
-			api_key=temp_api_key,
-			quota=temp_quota
-		)
+		wrong_entry_list = []
 
-		self.user_entity.image_providers[temp_name] = temp_image_provider
-		self.application.log_manager.write_log(self.user_entity)
+		if InputUtil.is_google_api(temp_api_key) is False:
+			wrong_entry_list.append(self.api_key_entry)
+		if InputUtil.is_float(temp_quota) is False:
+			wrong_entry_list.append(self.quota_entry)
 
-		PreviewWindow(self.master, self.application, self.main_screen, self.coordinates)
-		self.top.destroy()
+		if len(wrong_entry_list) > 0:
+			messagebox.showinfo(
+				"Input Error",
+				"All entries must be filled out with correct information\nAPI keys must start with 'AIza'"
+			)
+			for widget in wrong_entry_list:
+				widget.delete(0, 'end')
+
+		else:
+			temp_image_provider = ImageProviderEntity(
+				file_handler=self.application.file_handler,
+				type_map_provider="Google Maps",
+				api_key=temp_api_key,
+				quota=temp_quota
+			)
+
+			self.user_entity.image_providers[temp_name] = temp_image_provider
+			self.application.log_manager.write_log(self.user_entity)
+
+			PreviewWindow(self.master, self.application, self.main_screen, self.coordinates)
+			self.top.destroy()
 
 	def confirm_download(self) -> None:
 		"""

@@ -54,6 +54,10 @@ class RequestObserver:
 		)
 
 	def update_gui(self):
+		"""
+		When the observer is notified of a change, the gui needs to be udpated to reflect the change
+		:return:
+		"""
 		images_to_download = "Progress: " + str(self.current_image) + " out of " + str(
 			self.total_images
 		) + " images downloaded"

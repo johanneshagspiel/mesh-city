@@ -27,14 +27,13 @@ class DetectionObserver:
 		self.master = master
 		self.top = Toplevel(master)
 
-		self.top_label = Label(self.top, text="")
+		self.top_label = Label(self.top, text="Warming up the algorithms")
 		self.top_label.grid(row=0, column=0)
+		self.time_remaining_label = Label(self.top, text="")
 
 		self.tiles_to_detect = Label(self.top, text="")
-		self.tiles_to_detect.grid(row=1, column=0)
 
-		self.time_remaining_label = Label(self.top, text="")
-		self.time_remaining_label.grid(row=2, column=0)
+		self.top_label.update()
 
 	def update(self, detection_pipeline):
 		"""
@@ -72,6 +71,9 @@ class DetectionObserver:
 		Once the observer has been notified of a change, the gui needs to be updated
 		:return:
 		"""
+
+		self.tiles_to_detect.grid(row=1, column=0)
+		self.time_remaining_label.grid(row=2, column=0)
 
 		top_label_text = "Currently detecting: " + self.detection_type
 		self.top_label["text"] = top_label_text
