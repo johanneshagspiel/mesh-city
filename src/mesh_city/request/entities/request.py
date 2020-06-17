@@ -5,7 +5,7 @@ See :class:`.Request`
 from typing import Any
 
 from mesh_city.request.layers.layer import Layer
-from mesh_city.request.scenario.scenario import Scenario
+from mesh_city.scenario.scenario import Scenario
 
 
 class Request:

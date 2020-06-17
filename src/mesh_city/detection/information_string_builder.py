@@ -9,7 +9,7 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.scenario.scenario import Scenario
+from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -19,16 +19,15 @@ class InformationStringBuilder:
 	saved in layers of a request.
 	"""
 
-	def __init__(self, bio_path: Path, request: Request):
+	def __init__(self, bio_path: Path):
 		self.bio_path = bio_path
-		self.request = request
 
-	def get_tree_and_rooftop_co2_values(self):
+	def get_tree_and_rooftop_co2_values(self, request: Request):
 		"""
 		Analyses the biome information csv and the coordinates of the current request
+		:param request: The Request to create the information dictionary for.
 		:return: the relevant biome values of the closest point in the list
 		"""
-		request = self.request
 
 		info = []
 		with open(str(self.bio_path), newline='') as csv_file:
@@ -59,7 +58,7 @@ class InformationStringBuilder:
 					info.append(dictionary)
 
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
-						request.y_grid_coord, 20)
+			request.y_grid_coord, 20)
 		point = {'latitude': latitude, 'longitude': longitude}
 
 		closest = GeoLocationUtil.closest(info, point)
@@ -83,7 +82,7 @@ class InformationStringBuilder:
 					count += 1
 		return "Trees Detected: " + str(count) + "\n"
 
-	def process_cars_layer(self, cars_layer: CarsLayer) -> None:
+	def process_cars_layer(self, cars_layer: CarsLayer) -> str:
 		"""
 		Generates information for a CarsLayer
 		:param cars_layer: The CarsLayer to generate information for

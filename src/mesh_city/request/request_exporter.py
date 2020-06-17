@@ -12,7 +12,7 @@ from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.scenario.scenario import Scenario
+from mesh_city.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 

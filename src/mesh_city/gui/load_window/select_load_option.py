@@ -1,7 +1,6 @@
 """
 The module containing the select load option window
 """
-from pathlib import Path
 from tkinter import Button, Label, Toplevel
 
 from mesh_city.gui.load_window.load_window import LoadWindow

@@ -10,7 +10,7 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.scenario.scenario_pipeline import ScenarioType
+from mesh_city.scenario.scenario_pipeline import ScenarioType
 
 
 class EcoWindow:
@@ -131,7 +131,7 @@ class EcoWindow:
 	def add_more_trees(self):
 		"""
 		Asks the user how many more trees they want in percentage
-		:return: nothing (creates a gif with additional trees on it and displays that on the mainscreen)
+		:return: None
 		"""
 		for widget in self.to_forget:
 			widget.grid_forget()
@@ -153,6 +153,10 @@ class EcoWindow:
 		self.to_forget.append(confirm_button)
 
 	def swap_cars_with_trees(self):
+		"""
+		Prompts the user to enter how much of the cars should be swapped by trees.
+		:return: None
+		"""
 		for widget in self.to_forget:
 			widget.grid_forget()
 		self.to_forget = []
@@ -201,7 +205,12 @@ class EcoWindow:
 		self.add_another_step(ScenarioType.SWAP_CARS, cars_to_swap)
 
 	def add_another_step(self, scenario_type, scenario_info):
-
+		"""
+		Adds another scenario step to the scenario that is being made.
+		:param scenario_type: The type of step
+		:param scenario_info: The information corresponding to the step
+		:return: None
+		"""
 		for widget in self.to_forget:
 			widget.grid_forget()
 		self.to_forget = []
@@ -212,15 +221,15 @@ class EcoWindow:
 		if scenario_type is ScenarioType.SWAP_CARS:
 			scenario_text = "Swap " + str(scenario_info) + " cars with trees"
 
-		self.step_info_label = Label(self.top, text=scenario_text)
-		self.step_info_label.grid(row=self.step_counter, column=1)
+		step_info_label = Label(self.top, text=scenario_text)
+		step_info_label.grid(row=self.step_counter, column=1)
 
 		grid_index = self.step_counter + 1
 
 		if self.step_counter < 5:
 			self.step_counter += 1
-			self.new_step_label = Label(self.top, text="Step " + str(self.step_counter))
-			self.new_step_label.grid(row=grid_index, column=0)
+			new_step_label = Label(self.top, text="Step " + str(self.step_counter))
+			new_step_label.grid(row=grid_index, column=0)
 
 			self.secondary_label["text"] = "How do you want to make this area more ecofriendly?"
 			self.secondary_label.grid(row=grid_index, column=1, columnspan=2)
@@ -244,13 +253,18 @@ class EcoWindow:
 		self.to_forget.append(self.confirm_button)
 
 	def cleanup(self):
-
+		"""
+		Cleans up the GUI element and lets the application create a scenario for the request.
+		:return:
+		"""
 		name = self.name_entry.get()
 		if name == "":
 			name = None
 
 		self.application.create_scenario(
-			request=self.application.current_request, scenario_to_create=self.scenario_list, name=name
+			request=self.application.current_request,
+			scenarios_to_create=self.scenario_list,
+			name=name
 		)
 
 		self.top.destroy()

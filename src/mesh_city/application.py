@@ -8,7 +8,7 @@ from typing import List, Sequence, Union
 from PIL import Image
 
 from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionType
-from mesh_city.detection.information_pipeline import InformationStringBuilder
+from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
@@ -17,8 +17,8 @@ from mesh_city.request.layers.layer import Layer
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.scenario.scenario import Scenario
-from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline
+from mesh_city.scenario.scenario import Scenario
+from mesh_city.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -79,15 +79,21 @@ class Application:
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 
-	def create_scenario(self, request, scenario_to_create, name=None):
-
+	def create_scenario(self, request: RequestManager, scenarios_to_create, name=None):
+		"""
+		Creates a scenario based on a request
+		:param request: A Request
+		:param scenarios_to_create: A para
+		:param name:
+		:return: 
+		"""
 		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager, scenarios_to_create=scenario_to_create, name=name
+			request_manager=self.request_manager, scenarios_to_create=scenarios_to_create, name=name
 		)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
 
-		self.load_scenario_onscreen(request=request, name=new_scenario.scenario_name)
+		self.load_scenario_onscreen(name=new_scenario.scenario_name)
 
 	def make_location_request(self, latitude: float, longitude: float, name: str = None) -> None:
 		"""
@@ -160,7 +166,7 @@ class Application:
 		for (index, element) in enumerate(layer_mask):
 			if element is True:
 				layer_list.append(self.current_request.layers[index])
-		text_to_show = self.get_statistics(request=request, element_list=layer_list)
+		text_to_show = self.get_statistics(element_list=layer_list)
 		self.main_screen.update_text(text_to_show)
 
 	def export_request_layers(
@@ -207,19 +213,16 @@ class Application:
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.delete_text()
 
-	def load_scenario_onscreen(self, request: Request, name: str) -> None:
+	def load_scenario_onscreen(self, name: str) -> None:
 		"""
-		Loads a named scenario belonging to a Request on-screen.
-		:param request: The Request
-		:param name: The name of the Request's scenario.
+		Loads a named scenario of the current request
+		:param name: The name of a scenario of the current request.
 		:return: None
 		"""
 		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
 		self.main_screen.set_gif(canvas_image)
 
-		text_to_show = self.get_statistics(
-			request=request, element_list=[self.current_request.scenarios[name]]
-		)
+		text_to_show = self.get_statistics(element_list=[self.current_request.scenarios[name]])
 		self.main_screen.update_text(text_to_show)
 
 	def process_finished_request(self, request: Request) -> None:
@@ -235,14 +238,14 @@ class Application:
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
 
-	def get_statistics(self, request: Request, element_list: Sequence[Union[Layer, Scenario]]):
+	def get_statistics(self, element_list: Sequence[Union[Layer, Scenario]]):
 		"""
 		Method which can be called to count, analyse and create some statistics of the detections
 		saved in layers of the active request.
 		:return:
 		"""
 		bio_path = self.file_handler.folder_overview['biome_index']
-		info_gen = InformationStringBuilder(bio_path, self.current_request)
+		info_gen = InformationStringBuilder(bio_path)
 
 		return info_gen.process(element_list=element_list)
 

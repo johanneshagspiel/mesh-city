@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline, ScenarioType
+from mesh_city.scenario import ScenarioPipeline, ScenarioType
 from mesh_city.util.file_handler import FileHandler
 
 

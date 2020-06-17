@@ -5,7 +5,7 @@ See :class:`.MainScreen`
 from tkinter import Button, END, Frame, Label, mainloop, Text, Tk, WORD
 
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image
 
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.eco_window.eco_window import EcoWindow
@@ -118,9 +118,8 @@ class MainScreen:
 		:return: None
 		"""
 		mvrdv_path = self.application.file_handler.folder_overview["MVRDV"]
-		temp_image = ImageTk.PhotoImage(Image.open(mvrdv_path))
-		self.new_canvas_image = Label(self.master, image=temp_image)
-		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+		new_canvas_image = Image.open(mvrdv_path)
+		self.set_canvas_image(new_canvas_image)
 
 		self.start_up_window = self.start_up()
 		self.master.wait_window(self.start_up_window.top)
@@ -130,7 +129,7 @@ class MainScreen:
 	def create_placeholder_image(self):
 		"""
 		Creates a plane white placeholder image of 512x512 pixels
-		:return:
+		:return: None
 		"""
 		array = np.zeros([512, 512, 3], dtype=np.uint8)
 		array.fill(255)
@@ -139,42 +138,42 @@ class MainScreen:
 	def export_window(self):
 		"""
 		Creates an export window
-		:return: Nothing (creates an export window)
+		:return: None
 		"""
 		ExportWindow(master=self.master, application=self.application, main_screen=self)
 
 	def layers_window(self):
 		"""
 		Creates a layers window object
-		:return: Nothing
+		:return: None
 		"""
 		LayersWindow(self.master, self.application, self)
 
 	def load_window(self):
 		"""
 		Creates a load request window object
-		:return: Nothing
+		:return: None
 		"""
 		SelectLoadOption(self.master, self.application, self)
 
 	def search_window(self):
 		"""
 		Creates a search window object
-		:return: Nothing
+		:return: None
 		"""
 		SearchWindowStart(self.master, self.application, self)
 
 	def detect_window(self):
 		"""
 		Creates a detect window object
-		:return:
+		:return: None
 		"""
 		DetectionWindow(self.master, self.application)
 
 	def user_window(self):
 		"""
 		Creates a User Window object
-		:return:
+		:return: None
 		"""
 		UserWindow(master=self.master, application=self.application, main_screen=self)
 
@@ -190,7 +189,11 @@ class MainScreen:
 		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
 
 	def set_gif(self, image):
+		"""
 
+		:param image:
+		:return:
+		"""
 		self.gif_image = GifImage(self.master)
 		self.gif_image.load(image)
 		self.gif_image.grid(row=0, column=1, sticky='nsew')
@@ -198,7 +201,7 @@ class MainScreen:
 	def delete_text(self):
 		"""
 		Method to delete all text in the right hand side general information text field
-		:return: nothing (the right hand side general information text field now says "General")
+		:return: None
 		"""
 		self.information_general.configure(state='normal')
 		self.information_general.delete('1.0', END)
@@ -208,7 +211,7 @@ class MainScreen:
 	def update_text(self, text_to_show):
 		"""
 		Method to update the text field on the main screen
-		:return: nothing (new text is show on the mainscreen)
+		:return: None
 		"""
 		self.information_general.configure(state='normal')
 		self.information_general.delete('1.0', END)
@@ -217,8 +220,8 @@ class MainScreen:
 
 	def start_up(self):
 		"""
-		Method called when starting the application -creates either tutorial window or load screen
-		:return: nothing
+		Method called when starting the application. Creates either tutorial window or load screen
+		:return: None
 		"""
 		if len(self.application.request_manager.requests) == 0:
 			return TutorialWindow(self.master, self.application, self)
