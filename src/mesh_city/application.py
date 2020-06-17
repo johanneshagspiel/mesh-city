@@ -26,8 +26,7 @@ from mesh_city.util.file_handler import FileHandler
 
 class Application:
 	"""
-	For the application to work, you will need to have
-	``resources/images/request_0/0_tile_0_0/concat_image_request_10_tile_0_0.png``
+	The main application class. Encapsulates the program's state and acts as a type of hub.
 	"""
 
 	def __init__(self):
@@ -270,7 +269,7 @@ class Application:
 
 	def start(self):
 		"""
-		Creates a mainscreen UI element and passes self as application context.
+		Creates a MainScreen UI element and passes self as application context.
 
 		:return: None
 		"""
