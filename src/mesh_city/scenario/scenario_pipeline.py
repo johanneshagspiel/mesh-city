@@ -32,6 +32,7 @@ class ScenarioModificationType(Enum):
 	SWAP_CARS = 1
 	PAINT_BUILDINGS_GREEN = 2
 
+
 class ScenarioPipeline:
 	"""
 	A class used to create scenario's from requests whose behaviour can be customized by specifying
@@ -52,25 +53,30 @@ class ScenarioPipeline:
 		self.base_image = None
 		self.images_to_add = None
 		self.changes_pd = None
-		self.observers= []
+		self.observers = []
 		self.state = {}
 
+	# pylint: disable=W0613
 	def paint_buildings_green(self, request: Request, buildings_to_make_green: int):
-		pass
-
+		"""
+		Paints all the detected buildings green
+		:param request: the request for which to paint all the buildings green for
+		:param buildings_to_make_green: how many buildings to paint green
+		:return:
+		"""
+		return None
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""
-		Creates the dataframes nee
-		:param request:
-		:param trees_to_add:
+		Adds more trees to the image based on the detected trees
+		:param request: the request for which to add more trees to
+		:param trees_to_add: how many trees to add
 		:return:
 		"""
 		if self.trees is None:
 			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
 		else:
 			tree_dataframe = self.trees
-
 
 		# pylint: disable=W0612
 		self.state["scenario_type"] = "Adding more trees"
@@ -82,17 +88,14 @@ class ScenarioPipeline:
 			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 
-
-			tree_area_to_cut=(
+			tree_area_to_cut = (
 				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
 				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
 				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
 				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
-				)
-
-			tree_image_cropped = self.base_image.crop(
-				box=tree_area_to_cut
 			)
+
+			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
 
 			mask = Image.new('L', tree_image_cropped.size, 0)
 			draw = ImageDraw.Draw(mask)
@@ -153,11 +156,9 @@ class ScenarioPipeline:
 				tree_dataframe.iloc[tree_to_replace_with_index][2],  # ymin
 				tree_dataframe.iloc[tree_to_replace_with_index][3],  # xmax
 				tree_dataframe.iloc[tree_to_replace_with_index][4],  # ymax
-				)
-
-			tree_image_cropped = self.base_image.crop(
-				box=tree_area_to_cut
 			)
+
+			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
 
 			mask = Image.new('L', tree_image_cropped.size, 0)
 			draw = ImageDraw.Draw(mask)
@@ -275,12 +276,7 @@ class ScenarioPipeline:
 			new_ymax = new_ymax + to_add
 
 		new_entry = [
-			new_xmin,
-			new_ymin,
-			new_xmax,
-			new_ymax,
-			tree_dataframe.iloc[what_to_place][5],
-			"AddedTree"
+			new_xmin, new_ymin, new_xmax, new_ymax, tree_dataframe.iloc[what_to_place][5], "AddedTree"
 		]
 
 		return new_entry
@@ -311,7 +307,7 @@ class ScenarioPipeline:
 		scenario_file_png = scenario_file_name + "_.png"
 		scenario_file_path_png = scenario_path.joinpath(scenario_file_png)
 
-		self.images_to_add[len(self.images_to_add)-1].save(fp=scenario_file_path_png)
+		self.images_to_add[len(self.images_to_add) - 1].save(fp=scenario_file_path_png)
 
 		self.images_to_add[0].save(
 			fp=scenario_file_path_gif,

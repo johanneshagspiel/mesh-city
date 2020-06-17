@@ -66,7 +66,6 @@ class EcoWindow:
 		if "Buildings" in detected_layers:
 			usable_layers.append("Buildings")
 
-
 		if "Trees" in usable_layers or "Buidlings" in usable_layers:
 			self.top_label["text"] = "Scenario Creator"
 			self.top_label.grid(row=0, column=0, columnspan=3)

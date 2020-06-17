@@ -16,6 +16,8 @@ class RequestObserver(Observer):
 		The initialization method
 		:param master: the master tkinter object
 		"""
+		super().__init__()
+
 		self.total_images = 0
 		self.current_image = 0
 		self.missing_images = 0

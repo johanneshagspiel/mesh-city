@@ -3,6 +3,8 @@ The module for the observer class
 """
 from abc import ABC, abstractmethod
 
+
+# pylint: disable=W0104,W0107
 class Observer(ABC):
 	"""
 	The abstract observer class upon which all the oher observers are based on

@@ -139,17 +139,19 @@ class RequestManager:
 						pattern_scenario_to_request = "request" + str(request.request_id) + "*"
 						file_paths = sorted(scenarios.glob(pattern_scenario_to_request))
 						for file_path in file_paths:
-							if os.path.splitext(Path(file_path))[1] != ".csv" and os.path.splitext(Path(file_path))[1] != ".png":
+							if os.path.splitext(Path(file_path))[1] != ".csv" and os.path.splitext(
+								Path(file_path)
+							)[1] != ".png":
 								scenario_name = Path(file_path).name.split("_")[1]
-								information_path = Path(str(
-									os.path.splitext(Path(file_path))[0]
-								) + ".csv")
-								picture_path = Path(str(
-									os.path.splitext(Path(file_path))[0]
-								) + ".png")
-								scenario_path= Path(str(
-									os.path.splitext(Path(file_path))[0]
-								) + ".gif")
+								information_path = Path(
+									str(os.path.splitext(Path(file_path))[0]) + ".csv"
+								)
+								picture_path = Path(
+									str(os.path.splitext(Path(file_path))[0]) + ".png"
+								)
+								scenario_path = Path(
+									str(os.path.splitext(Path(file_path))[0]) + ".gif"
+								)
 								request.add_scenario(
 									Scenario(
 									scenario_name=scenario_name,

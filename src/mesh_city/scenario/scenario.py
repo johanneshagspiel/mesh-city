@@ -10,7 +10,12 @@ class Scenario:
 	"""
 
 	def __init__(
-		self, scenario_name: str, width: int, height: int, scenario_path: Path, information_path: Path,
+		self,
+		scenario_name: str,
+		width: int,
+		height: int,
+		scenario_path: Path,
+		information_path: Path,
 		picture_path: Path
 	) -> None:
 		self.scenario_name = scenario_name

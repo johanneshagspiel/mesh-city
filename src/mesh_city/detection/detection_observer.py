@@ -16,6 +16,8 @@ class DetectionObserver(Observer):
 		The initialization method
 		:param master: the master tkinter object
 		"""
+		super().__init__()
+
 		self.total_tiles = 0
 		self.current_tile = 0
 		self.current_time_detection = 0
