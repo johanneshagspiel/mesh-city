@@ -5,6 +5,7 @@ import math
 from tkinter import Button, Entry, Label, Scale, Toplevel
 
 import pandas as pd
+import geopandas as gpd
 
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
@@ -64,10 +65,13 @@ class EcoWindow:
 				usable_layers.append("Cars")
 				self.max_amount_cars_swapable = self.car_layer_panda.shape[0] - 1
 		if "Buildings" in detected_layers:
-			usable_layers.append("Buildings")
+			self.buildings_gdf = gpd.read_file(
+				self.application.current_request.get_layer_of_type(BuildingsLayer).detections_path
+			)
+			if self.tree_layer_panda.shape[0] > 1:
+				usable_layers.append("Buildings")
 
-
-		if "Trees" in usable_layers or "Buidlings" in usable_layers:
+		if "Trees" in usable_layers or "Buildings" in usable_layers:
 			self.top_label["text"] = "Scenario Creator"
 			self.top_label.grid(row=0, column=0, columnspan=3)
 
@@ -108,7 +112,7 @@ class EcoWindow:
 
 			if "Buildings" in usable_layers:
 				self.cover_buildings_button = Button(
-					self.top, text="Cover Buildings", command=None, bg="white"
+					self.top, text="Cover Buildings", command=self.paint_buildings_green, bg="white"
 				)
 				self.cover_buildings_button.grid(row=2, column=counter)
 				self.to_forget.append(self.cover_buildings_button)
@@ -124,6 +128,43 @@ class EcoWindow:
 		else:
 			self.top_label["text"] = "This area can not be made more eco-friendly"
 			self.top_label.grid(row=0)
+
+	def paint_buildings_green(self):
+		"""
+		Asks the user how much of the buildings should be made green as a percentage.
+		:return: None
+		"""
+		for widget in self.to_forget:
+			widget.grid_forget()
+		self.to_forget = []
+
+		self.secondary_label["text"] = "How much of the buildings should be made green?"
+
+		# pylint: disable=W0201
+		grid_index = self.step_counter + 1
+		self.buildings_to_paint_green_scale = Scale(self.top, from_=0, to=100, orient="horizontal")
+		self.buildings_to_paint_green_scale.grid(row=grid_index, columnspan=3)
+		self.to_forget.append(self.buildings_to_paint_green_scale)
+		grid_index += 1
+
+		confirm_button = Button(
+			self.top, text="Confirm", command=self.cleanup_paint_buildings, bg="white"
+		)
+		confirm_button.grid(row=grid_index, columnspan=3)
+		self.to_forget.append(confirm_button)
+
+
+	def cleanup_paint_buildings(self):
+		"""
+		Adds a step corresponding to painting some buildings green.
+		:return:
+		"""
+		increase_percentage = self.buildings_to_paint_green_scale.get() * 0.01
+		trees_to_add = math.ceil((self.buildings_gdf.shape[0] - 1) * increase_percentage)
+
+		self.scenario_list.append((ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add))
+		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
+
 
 	def add_more_trees(self):
 		"""

@@ -7,6 +7,7 @@ url: https://stackoverflow.com/questions/890051/how-do-i-generate-circular-thumb
 """
 
 import copy
+import math
 import random
 from enum import Enum
 from pathlib import Path
@@ -65,37 +66,42 @@ class ScenarioPipeline:
 
 	def paint_buildings_green(self, request: Request, buildings_to_make_green: int, scaling=1):
 		buildings_layer = request.get_layer_of_type(BuildingsLayer)
-		green_overlay = cv2.imread(self.overlay_path, 0)
-		vertical_tiles = request.num_of_vertical_images * 2 / scaling
-		horizontal_tiles = request.num_of_horizontal_images * 2 / scaling
+		green_overlay = np.asarray(Image.open(str(self.overlay_path)).convert("RGB"))
+		vertical_tiles = math.ceil(request.num_of_vertical_images * 2 / scaling)
+		horizontal_tiles = math.ceil(request.num_of_horizontal_images * 2 / scaling)
 		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
+		cropped_overlay = tiled_overlay[0:self.base_image.width,0:self.base_image.height]
 		building_dataframe = gpd.read_file(buildings_layer.detections_path)
 		building_dataframe.geometry = building_dataframe.geometry.scale(
 			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
 		)
 		mask_base = Image.new(
-			'RGBA',
+			'RGB',
 			(
-				round(request.num_of_horizontal_images * 1024 / scaling),
-				round(request.num_of_vertical_images * 1024 / scaling)
-			), (255, 255, 255, 0)
+				self.base_image.width,
+				self.base_image.height
+			), (0, 0, 0)
 		)
 		draw = ImageDraw.Draw(mask_base)
 		for (index, polygon) in enumerate(building_dataframe["geometry"]):
 			if index < buildings_to_make_green:
 				draw.polygon(
-					xy=list(zip(*polygon.exterior.coords.xy)), fill=(255, 255, 255, 255)
+					xy=list(zip(*polygon.exterior.coords.xy)), fill=(255, 255, 255)
 				)
 		final_mask = np.asarray(mask_base).astype(float) / 255
-		final_overlay = cv2.multiply(final_mask,tiled_overlay)
-		self.base_image = cv2.multiply(1-final_mask,self.base_image)
-		self.base_image = cv2.add(self.base_image,final_overlay)
+		final_overlay = cv2.multiply(final_mask, cropped_overlay, dtype=cv2.CV_32F)
+		masked_numpy_base = cv2.multiply(1 - final_mask, np.asarray(self.base_image.convert("RGB")),
+		                                 dtype=cv2.CV_32F)
+		new_base_image_numpy = cv2.add(masked_numpy_base, final_overlay, dtype=cv2.CV_8UC3)
+		self.base_image = Image.fromarray(new_base_image_numpy.astype(np.uint8))
+		temp_to_add_image = copy.deepcopy(self.base_image)
+		self.images_to_add.append(temp_to_add_image)
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""
-		Creates the dataframes nee
-		:param request:
-		:param trees_to_add:
+		Adds more trees to the image based on the detected trees
+		:param request: the request for which to add more trees to
+		:param trees_to_add: how many trees to add
 		:return:
 		"""
 		if self.trees is None:
@@ -120,9 +126,7 @@ class ScenarioPipeline:
 				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
 			)
 
-			tree_image_cropped = self.base_image.crop(
-				box=tree_area_to_cut
-			)
+			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
 
 			mask = Image.new('L', tree_image_cropped.size, 0)
 			draw = ImageDraw.Draw(mask)
@@ -185,9 +189,7 @@ class ScenarioPipeline:
 				tree_dataframe.iloc[tree_to_replace_with_index][4],  # ymax
 			)
 
-			tree_image_cropped = self.base_image.crop(
-				box=tree_area_to_cut
-			)
+			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
 
 			mask = Image.new('L', tree_image_cropped.size, 0)
 			draw = ImageDraw.Draw(mask)
@@ -305,11 +307,7 @@ class ScenarioPipeline:
 			new_ymax = new_ymax + to_add
 
 		new_entry = [
-			new_xmin,
-			new_ymin,
-			new_xmax,
-			new_ymax,
-			tree_dataframe.iloc[what_to_place][5],
+			new_xmin, new_ymin, new_xmax, new_ymax, tree_dataframe.iloc[what_to_place][5],
 			"AddedTree"
 		]
 

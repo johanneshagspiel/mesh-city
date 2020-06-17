@@ -15,10 +15,22 @@ class TestScenarioPipeline(unittest.TestCase):
 		self.request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
 		self.request_manager.load_data()
 
+	def test_paint_buildings_scenario(self):
+		pipeline = ScenarioPipeline(
+			request_manager=self.request_manager,
+			scenarios_to_create=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)],
+			overlay_path=FileHandler().folder_overview["resource_path"].joinpath(
+				"trees-overlay.png")
+		)
+		request = self.request_manager.get_request_by_id(0)
+		pipeline.process(request)
+
 	def test_swap_cars_scenario(self):
 		pipeline = ScenarioPipeline(
 			request_manager=self.request_manager,
-			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 4)]
+			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 4)],
+			overlay_path=FileHandler().folder_overview["resource_path"].joinpath(
+				"trees-overlay.png")
 		)
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
@@ -27,7 +39,8 @@ class TestScenarioPipeline(unittest.TestCase):
 		pipeline = ScenarioPipeline(
 			request_manager=self.request_manager,
 			scenarios_to_create=[(ScenarioModificationType.MORE_TREES, 4)],
-			overlay_path=FileHandler().folder_overview["resource_path"].joinpath("trees-overlay.png")
+			overlay_path=FileHandler().folder_overview["resource_path"].joinpath(
+				"trees-overlay.png")
 		)
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)

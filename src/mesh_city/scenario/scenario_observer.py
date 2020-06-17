@@ -16,6 +16,7 @@ class ScenarioObserver(Observer):
 		The initialization method
 		:param master: the master tkinter object
 		"""
+		super().__init__()
 		self.total_frames = 0
 		self.current_frame = 0
 		self.scenario_type = ""
@@ -72,7 +73,10 @@ class ScenarioObserver(Observer):
 		self.frames_to_detect.update()
 
 	def update_combination(self):
-
+		"""
+		How to update the gui in the case images are combined
+		:return:
+		"""
 		self.top_label["text"] = "Combining all the frames"
 		self.top_label.update()
 		self.frames_to_detect["text"] = "One moment please"
