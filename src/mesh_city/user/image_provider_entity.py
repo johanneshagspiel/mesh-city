@@ -4,9 +4,6 @@ This module contains the image provider log
 from calendar import monthrange
 from datetime import datetime
 
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
-from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
-from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.logs.log_entity import LogEntity
 from mesh_city.util.price_table_util import PriceTableUtil
@@ -133,16 +130,3 @@ class ImageProviderEntity(LogEntity):
 		:return: just turns the object to json
 		"""
 		return self.for_storage()
-
-	def load_map_entity(self):
-		"""
-		Loads the approp
-		:return:
-		"""
-		if self.type == "Google Maps":
-			return GoogleMapsProvider(image_provider_entity=self)
-		if self.type == "Mapbox":
-			return MapboxProvider(image_provider_entity=self)
-		if self.type == "ahn":
-			return AhnProvider(image_provider_entity=self)
-		return None

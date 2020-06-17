@@ -2,7 +2,6 @@
 Module which provides a simple factory to create different types of TopDownProvider's.
 """
 
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider.google_maps_provider import GoogleMapsProvider
 from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 
@@ -25,6 +24,4 @@ class TopDownProviderFactory:
 			return GoogleMapsProvider(image_provider_entity=image_provider_entity)
 		if image_provider_entity.type == "Mapbox":
 			return MapboxProvider(image_provider_entity=image_provider_entity)
-		if image_provider_entity.type == "ahn":
-			return AhnProvider(image_provider_entity=image_provider_entity)
 		raise ValueError("This image provider type_of_detection is not defined")

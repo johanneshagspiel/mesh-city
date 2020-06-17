@@ -2,7 +2,7 @@
 
 import unittest
 
-from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
+from mesh_city.imagery_provider.top_down_provider.mapbox_provider import MapboxProvider
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
 from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.file_handler import FileHandler
@@ -13,9 +13,9 @@ class ProviderFactoryTest(unittest.TestCase):
 	def test_construct_image_provider_right(self):
 		top_down_factory = TopDownProviderFactory()
 		entity = ImageProviderEntity(
-			FileHandler(), type_map_provider="ahn", api_key="test", quota="200"
+			FileHandler(), type_map_provider="Mapbox", api_key="test", quota="200"
 		)
-		self.assertIsInstance(top_down_factory.get_top_down_provider(entity), AhnProvider)
+		self.assertIsInstance(top_down_factory.get_top_down_provider(entity), MapboxProvider)
 
 	def test_construct_image_provider_wrong(self):
 
