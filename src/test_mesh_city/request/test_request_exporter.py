@@ -1,10 +1,11 @@
+# pylint: disable=C0114,R0201,missing-class-docstring,missing-function-docstring
+
 import unittest
 from pathlib import Path
 
 from mesh_city.request.request import Request
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.tile import Tile
 from mesh_city.request.trees_layer import TreesLayer
 
 
@@ -12,9 +13,7 @@ class MyTestCase(unittest.TestCase):
 
 	def setUp(self):
 		self.path = Path("dummy_path")
-		self.trees_layer = TreesLayer(
-			width=1, height=1, detections_path=self.path
-		)
+		self.trees_layer = TreesLayer(width=1, height=1, detections_path=self.path)
 		self.trees_layer.detections_export_path = self.path
 		self.request = Request(
 			request_id=42,
@@ -30,4 +29,6 @@ class MyTestCase(unittest.TestCase):
 		self.request_exporter = RequestExporter(self.request_manager)
 
 	def test_get_export_csv(self):
-		self.assertEqual(self.path, self.request_exporter.get_export_csv(self.request, self.trees_layer))
+		self.assertEqual(
+			self.path, self.request_exporter.get_export_csv(self.request, self.trees_layer)
+		)

@@ -84,7 +84,7 @@ class RequestExporter:
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			copyfile(origin_path, export_directory.joinpath(rel_path))
-			
+
 		if isinstance(layer, BuildingsLayer):
 			origin_path = layer.detections_path
 			building_dataframe = gpd.read_file(origin_path)
@@ -102,9 +102,8 @@ class RequestExporter:
 			for polygon in building_dataframe["geometry"]:
 				original_coordinates = list(zip(*polygon.exterior.coords.xy))
 				new_coordinates = []
-				for x, y in original_coordinates:
-					latitude, longitude = GeoLocationUtil.tile_value_to_degree(x, y, request.zoom,
-																				False)
+				for x_cor, y_cor in original_coordinates:
+					latitude, longitude = GeoLocationUtil.tile_value_to_degree(x_cor, y_cor, request.zoom, False)
 					new_coordinates.append((longitude, latitude))
 				new_polygons.append(Polygon(new_coordinates))
 			world_coordinates_dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(new_polygons))

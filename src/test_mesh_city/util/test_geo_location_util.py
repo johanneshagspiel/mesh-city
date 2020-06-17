@@ -2,8 +2,6 @@
 
 import unittest
 
-import pandas as pd
-
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
