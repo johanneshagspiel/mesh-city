@@ -1,40 +1,14 @@
 {
-    "Thomas": {
+    "John": {
         "Google Maps 1": {
             "type_map_provider": "Google Maps",
             "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
             "usage": {
-                "static_map": 0,
+                "static_map": 0.018,
                 "geocoding": 0,
-                "total": 0
+                "total": 0.018
             },
             "quota": 200.0,
-            "date_reset": "2020-06-30"
-        }
-    },
-    "Timaeus": {
-        "Google Maps 1": {
-            "type_map_provider": "Google Maps",
-            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
-            "usage": {
-                "static_map": 0,
-                "geocoding": 0,
-                "total": 0
-            },
-            "quota": 100,
-            "date_reset": "2020-06-30"
-        }
-    },
-    "blkub": {
-        "Google Maps 1": {
-            "type_map_provider": "Google Maps",
-            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
-            "usage": {
-                "static_map": 0.506,
-                "geocoding": 0,
-                "total": 0.506
-            },
-            "quota": 20000.0,
             "date_reset": "2020-06-30"
         }
     }
