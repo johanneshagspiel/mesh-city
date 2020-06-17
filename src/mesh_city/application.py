@@ -7,6 +7,7 @@ from typing import List, Sequence, Union
 
 from PIL import Image
 
+from mesh_city.detection.detection_observer import DetectionObserver
 from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionType
 from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
@@ -75,9 +76,14 @@ class Application:
 		:param to_detect: The detections to run
 		:return: None
 		"""
-
+		detection_observer = DetectionObserver(self.main_screen.master)
 		pipeline = DetectionPipeline(self.file_handler, self.request_manager, to_detect)
+		pipeline.attach_observer(detection_observer)
+
 		new_layers = pipeline.process(request)
+
+		pipeline.detach_observer(detection_observer)
+
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 

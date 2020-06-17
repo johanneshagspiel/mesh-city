@@ -3,7 +3,7 @@ A module containing the pipeline class which is responsible for moving images to
 detection algorithm in a form and frequency that they require and then moving the results to the
 appropriate classes to create useful information in the form of overlays.
 """
-
+import time
 from enum import Enum
 from typing import List, Sequence
 
@@ -61,6 +61,9 @@ class DetectionPipeline:
 		self.detections_to_run = detections_to_run
 		self.request_manager = request_manager
 
+		self.observers = []
+		self.state = {}
+
 	def detect_buildings(self, request: Request) -> BuildingsLayer:
 		"""
 		Detects buildings from a request's imagery.
@@ -91,8 +94,23 @@ class DetectionPipeline:
 		image_tiler = ImageTiler(tile_width=512, tile_height=512)
 		patches = image_tiler.create_tile_dictionary(concat_image)
 		mask_patches = {}
-		for key in patches:
+
+		self.state["detection_type"] = "Buildings"
+		self.state["total_tiles"] = len(patches)
+		self.state["current_tile"] = 1
+		self.state["current_time_detection"] = 0
+		self.notify_observers()
+
+		for counter, key in enumerate(patches, 1):
+			start_time_download = time.time()
+
 			mask_patches[key] = building_detector.detect(image=patches[key])
+
+			time_needed_download = time.time() - start_time_download
+			self.state["current_tile"] = counter
+			self.state["current_time_detection"] = time_needed_download
+			self.notify_observers()
+
 		concat_mask = np.uint8(image_tiler.construct_image_from_tiles(mask_patches))
 		r2v = RasterVectorConverter()
 		polygons = r2v.mask_to_vector(image=concat_mask)
@@ -125,7 +143,15 @@ class DetectionPipeline:
 		)
 		frames = []
 
-		for tile in tiles:
+		self.state["detection_type"] = "Cars"
+		self.state["total_tiles"] = len(tiles)
+		self.state["current_tile"] = 1
+		self.state["current_time_detection"] = 0
+		self.notify_observers()
+
+		for counter, tile in enumerate(tiles, 1):
+			start_time_download = time.time()
+
 			x_offset = (tile.x_grid_coord - request.x_grid_coord) * DetectionPipeline.TILE_SIZE
 			y_offset = (tile.y_grid_coord - request.y_grid_coord) * DetectionPipeline.TILE_SIZE
 			np_image = np.asarray(Image.open(tile.path).convert("RGB"))
@@ -136,6 +162,12 @@ class DetectionPipeline:
 			result["xmax"] += x_offset
 			result["ymax"] += y_offset
 			frames.append(result)
+
+			time_needed_download = time.time() - start_time_download
+			self.state["current_tile"] = counter
+			self.state["current_time_detection"] = time_needed_download
+			self.notify_observers()
+
 		concat_result = pd.concat(frames).reset_index(drop=True)
 		concat_result.to_csv(detections_path)
 		return CarsLayer(
@@ -205,3 +237,28 @@ class DetectionPipeline:
 			if feature == DetectionType.CARS:
 				new_layers.append(self.detect_cars(request=request))
 		return new_layers
+
+	def attach_observer(self, observer):
+		"""
+		Attaches a observer to the request maker
+		:param observer: the observer to attach
+		:return: nothing
+		"""
+		self.observers.append(observer)
+
+	def detach_observer(self, observer):
+		"""
+		Detaches a observer from the request maker and gets rid of its gui element
+		:param observer: the observer to detach
+		:return:
+		"""
+		observer.destroy()
+		self.observers.remove(observer)
+
+	def notify_observers(self):
+		"""
+		Notifies all observers about a change in the state of the request maker
+		:return:
+		"""
+		for observer in self.observers:
+			observer.update(self)

@@ -3,9 +3,9 @@
 See :class:`.RequestMaker`
 """
 
+import time
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
-import time
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.entities.request import Request
@@ -179,7 +179,6 @@ class RequestMaker:
 			self.state["current_time_download"] = time_needed_download
 			self.notify_observers()
 
-
 		request_id = self.request_manager.get_new_request_id()
 		if name is None:
 			name = "Request_" + str(request_id)
@@ -307,13 +306,26 @@ class RequestMaker:
 		return counter
 
 	def attach_observer(self, observer):
+		"""
+		Attaches a observer to the request maker
+		:param observer: the observer to attach
+		:return: nothing
+		"""
 		self.observers.append(observer)
 
 	def detach_observer(self, observer):
-		for observer in self.observers:
-			observer.destroy()
+		"""
+		Detaches a observer from the request maker and gets rid of its gui element
+		:param observer: the observer to detach
+		:return:
+		"""
+		observer.destroy()
 		self.observers.remove(observer)
 
 	def notify_observers(self):
+		"""
+		Notifies all observers about a change in the state of the request maker
+		:return:
+		"""
 		for observer in self.observers:
 			observer.update(self)

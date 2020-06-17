@@ -99,9 +99,9 @@ class DetectionWindow:
 				selected_detections.append(
 					self.text_to_detection_type(self.check_box_list[index].cget("text"))
 				)
+		self.top.destroy()
 		if len(selected_detections) > 0:
 
 			self.application.run_detection(
 				request=self.application.current_request, to_detect=selected_detections
 			)
-		self.top.destroy()

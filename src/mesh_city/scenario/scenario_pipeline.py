@@ -60,10 +60,10 @@ class ScenarioPipeline:
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			source_tree_image = self.base_image.crop(
 				box=(
-					float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
-					float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
-					float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
-					float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
+				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
+				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
+				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
+				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
 				)
 			)
 
@@ -113,10 +113,10 @@ class ScenarioPipeline:
 
 			tree_image = self.base_image.crop(
 				box=(
-					float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
-					float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
-					float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
-					float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
 				)
 			)
 
