@@ -7,7 +7,6 @@ from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
 
-# pylint: disable=W0201
 class PreviewWindow:
 	"""
 	The preview window class is the gui element that shows the user how much a request would cost
