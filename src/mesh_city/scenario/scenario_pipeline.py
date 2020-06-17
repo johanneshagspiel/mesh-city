@@ -48,6 +48,9 @@ class ScenarioPipeline:
 		self.images_to_add = None
 		self.changes_pd = None
 
+		self.observers= []
+		self.state = {}
+
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""
 		Creates the dataframes nee
@@ -60,9 +63,13 @@ class ScenarioPipeline:
 		else:
 			tree_dataframe = self.trees
 
-		object_counter = tree_dataframe.shape[0] - 1
 
 		# pylint: disable=W0612
+		self.state["scenario_type"] = "Adding more trees"
+		self.state["total_frames"] = trees_to_add
+		self.state["current_frame"] = 1
+		self.notify_observers()
+
 		for tree in range(0, trees_to_add):
 			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
@@ -88,6 +95,9 @@ class ScenarioPipeline:
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
+			self.state["current_frame"] = tree + 1
+			self.notify_observers()
+
 		self.trees = tree_dataframe
 
 	def swap_cars_with_trees(self, request: Request, cars_to_swap: int):
@@ -108,13 +118,14 @@ class ScenarioPipeline:
 		else:
 			tree_dataframe = self.trees
 
-		object_counter = tree_dataframe.shape[0] - 1
+		self.state["scenario_type"] = "Swapping cars with trees"
+		self.state["total_frames"] = cars_to_swap
+		self.state["current_frame"] = 1
+		self.notify_observers()
 
 		# pylint: disable=W0612
 		for car in range(0, cars_to_swap):
-
 			car_to_swap_index_temp = random.randint(1, len(car_dataframe) - 1)
-
 			car_to_swap_axis_name = car_dataframe.iloc[car_to_swap_index_temp][0]
 			tree_to_replace_with_index = random.randint(1, len(tree_dataframe) - 1)
 
@@ -144,6 +155,9 @@ class ScenarioPipeline:
 
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
+
+			self.state["current_frame"] = car + 1
+			self.notify_observers()
 
 		self.trees = tree_dataframe
 		self.cars = car_dataframe
@@ -231,6 +245,9 @@ class ScenarioPipeline:
 		:param request: The request
 		:return: The resulting Scenario.
 		"""
+
+		self.notify_observers_combination()
+
 		scenario_path = self.request_manager.get_image_root().joinpath("scenarios")
 		scenario_path.mkdir(parents=True, exist_ok=True)
 
@@ -304,3 +321,36 @@ class ScenarioPipeline:
 		new_scenario = self.combine_results(request)
 
 		return new_scenario
+
+	def attach_observer(self, observer):
+		"""
+		Attaches a observer to the scenario pipeline
+		:param observer: the observer to attach
+		:return: nothing
+		"""
+		self.observers.append(observer)
+
+	def detach_observer(self, observer):
+		"""
+		Detaches a observer from the scenario pipeline and gets rid of its gui
+		:param observer: the observer to detach
+		:return:
+		"""
+		observer.destroy()
+		self.observers.remove(observer)
+
+	def notify_observers(self):
+		"""
+		Notifies all observers about a change in the state of the scenario pipeline
+		:return:
+		"""
+		for observer in self.observers:
+			observer.update(self)
+
+	def notify_observers_combination(self):
+		"""
+		Notifies all observers that the images are being combined right now
+		:return:
+		"""
+		for observer in self.observers:
+			observer.update_combination()

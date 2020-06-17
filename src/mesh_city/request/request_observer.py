@@ -3,8 +3,10 @@ The module containing the request observer
 """
 from tkinter import Label, Toplevel
 
+from mesh_city.util.observer import Observer
 
-class RequestObserver:
+
+class RequestObserver(Observer):
 	"""
 	This class both observers request maker and acts as a progress bar indicating how far the download has progresed
 	"""
@@ -30,15 +32,15 @@ class RequestObserver:
 		self.time_remaining_label = Label(self.top, text="")
 		self.time_remaining_label.grid(row=1, column=0)
 
-	def update(self, request_maker):
+	def update(self, observee):
 		"""
 		Method called by the observee to indicate that a state has changed. It means that another image has been downloaded
 		:param request_maker:
 		:return:
 		"""
-		self.total_images = request_maker.state["total_images"]
-		self.current_image = request_maker.state["current_image"]
-		self.current_time_download = request_maker.state["current_time_download"]
+		self.total_images = observee.state["total_images"]
+		self.current_image = observee.state["current_image"]
+		self.current_time_download = observee.state["current_time_download"]
 		self.update_estimated_time_to_finish()
 		self.update_gui()
 

@@ -138,8 +138,6 @@ class RequestManager:
 					if scenarios.exists():
 						pattern_scenario_to_request = "request" + str(request.request_id) + "*"
 						file_paths = sorted(scenarios.glob(pattern_scenario_to_request))
-						# pattern_only_gifs = "*.gif"
-						# file_paths = sorted(file_paths_request.glob(pattern_only_gifs))
 						for file_path in file_paths:
 							if os.path.splitext(Path(file_path))[1] != ".csv" and os.path.splitext(Path(file_path))[1] != ".png":
 								scenario_name = Path(file_path).name.split("_")[1]

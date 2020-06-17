@@ -20,6 +20,7 @@ from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.request_observer import RequestObserver
 from mesh_city.scenario.scenario import Scenario
+from mesh_city.scenario.scenario_observer import ScenarioObserver
 from mesh_city.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
@@ -95,10 +96,13 @@ class Application:
 		:param name:
 		:return:
 		"""
+		scenario_observer = ScenarioObserver(self.main_screen.master)
 		pipeline = ScenarioPipeline(
 			request_manager=self.request_manager, scenarios_to_create=scenarios_to_create, name=name
 		)
+		pipeline.attach_observer(scenario_observer)
 		new_scenario = pipeline.process(request)
+		pipeline.detach_observer(scenario_observer)
 		self.current_request.add_scenario(new_scenario)
 
 		self.load_scenario_onscreen(name=new_scenario.scenario_name)

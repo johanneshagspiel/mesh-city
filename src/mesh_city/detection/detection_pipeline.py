@@ -253,7 +253,7 @@ class DetectionPipeline:
 
 	def detach_observer(self, observer):
 		"""
-		Detaches a observer from the request maker and gets rid of its gui element
+		Detaches a observer from the detection pipeline and gets rid of its gui
 		:param observer: the observer to detach
 		:return:
 		"""
@@ -262,7 +262,7 @@ class DetectionPipeline:
 
 	def notify_observers(self):
 		"""
-		Notifies all observers about a change in the state of the request maker
+		Notifies all observers about a change in the state of the detection pipeline
 		:return:
 		"""
 		for observer in self.observers:

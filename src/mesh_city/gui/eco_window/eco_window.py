@@ -258,10 +258,10 @@ class EcoWindow:
 		if name == "":
 			name = None
 
+		self.top.destroy()
+
 		self.application.create_scenario(
 			request=self.application.current_request,
 			scenarios_to_create=self.scenario_list,
 			name=name
 		)
-
-		self.top.destroy()
