@@ -128,7 +128,7 @@ class ExportWindow:
 					self.application.current_request.scenarios[self.scenario_name_list[index]]
 				)
 
-		if has_export_scenario or has_export_scenario:
+		if has_export_layer or has_export_scenario:
 			export_directory = Path(filedialog.askdirectory())
 			if has_export_layer:
 				self.application.export_request_layers(
