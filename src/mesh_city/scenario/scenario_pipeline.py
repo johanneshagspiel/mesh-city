@@ -30,7 +30,7 @@ class ScenarioModificationType(Enum):
 	"""
 	MORE_TREES = 0
 	SWAP_CARS = 1
-
+	PAINT_BUILDINGS_GREEN = 2
 
 class ScenarioPipeline:
 	"""
@@ -52,9 +52,12 @@ class ScenarioPipeline:
 		self.base_image = None
 		self.images_to_add = None
 		self.changes_pd = None
-
 		self.observers= []
 		self.state = {}
+
+	def paint_buildings_green(self, request: Request, buildings_to_make_green: int):
+		pass
+
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""

@@ -122,6 +122,7 @@ class DetectionPipeline:
 			zfact=1.0,
 			origin=(0, 0)
 		)
+		dataframe["label"] = "Building"
 		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
 
 		return BuildingsLayer(
