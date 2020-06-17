@@ -1,5 +1,6 @@
 from tkinter import Label, Toplevel
 
+
 class RequestObserver:
 
 	def __init__(self, master):
@@ -29,13 +30,19 @@ class RequestObserver:
 	def update_estimated_time_to_finish(self):
 		self.missing_images = self.total_images - self.current_image
 		self.duration_so_far += self.current_time_download
-		self.estimated_time_to_finish = self.missing_images * (self.duration_so_far / self.current_image)
+		self.estimated_time_to_finish = self.missing_images * (
+			self.duration_so_far / self.current_image
+		)
 
 	def update_gui(self):
-		images_to_download = "Progress: " + str(self.current_image) + " out of " + str(self.total_images) + " images downloaded"
+		images_to_download = "Progress: " + str(self.current_image) + " out of " + str(
+			self.total_images
+		) + " images downloaded"
 		self.images_to_download_label["text"] = images_to_download
 
-		time_remaining = "Time remaining: " + str(round(self.estimated_time_to_finish, 2)) + " seconds"
+		time_remaining = "Time remaining: " + str(
+			round(self.estimated_time_to_finish, 2)
+		) + " seconds"
 		self.time_remaining_label["text"] = time_remaining
 
 		self.images_to_download_label.update()

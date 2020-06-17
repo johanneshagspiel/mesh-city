@@ -20,6 +20,9 @@ from mesh_city.scenario.scenario import Scenario
 
 
 class ScenarioModificationType(Enum):
+	"""
+	Enum class representing types of modifications that can be part of a scenario.
+	"""
 	MORE_TREES = 0
 	SWAP_CARS = 1
 
@@ -39,6 +42,11 @@ class ScenarioPipeline:
 		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
+		self.trees = None
+		self.cars = None
+		self.base_image = None
+		self.images_to_add = None
+		self.changes_pd = None
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""
@@ -60,10 +68,10 @@ class ScenarioPipeline:
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			source_tree_image = self.base_image.crop(
 				box=(
-					float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
-					float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
-					float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
-					float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
+				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
+				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
+				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
+				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
 				)
 			)
 
@@ -113,10 +121,10 @@ class ScenarioPipeline:
 
 			tree_image = self.base_image.crop(
 				box=(
-					float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
-					float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
-					float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
-					float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
+				float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
+				float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
 				)
 			)
 

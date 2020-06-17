@@ -3,9 +3,9 @@
 See :class:`.RequestMaker`
 """
 
+import time
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
-import time
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.entities.request import Request
@@ -178,7 +178,6 @@ class RequestMaker:
 			self.state["current_image"] = counter
 			self.state["current_time_download"] = time_needed_download
 			self.notify_observers()
-
 
 		request_id = self.request_manager.get_new_request_id()
 		if name is None:

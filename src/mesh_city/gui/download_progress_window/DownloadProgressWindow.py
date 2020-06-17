@@ -1,5 +1,6 @@
-from tkinter import Label, Toplevel
 from threading import Timer
+from tkinter import Label, Toplevel
+
 
 class DownloadProgressWindow:
 
@@ -27,10 +28,14 @@ class DownloadProgressWindow:
 		t.start()
 
 	def update_gui(self):
-		images_to_download = "Progress: " + str(self.application.request_observer.current_image) + " out of " + str(self.application.request_observer.total_images) + " images"
+		images_to_download = "Progress: " + str(
+			self.application.request_observer.current_image
+		) + " out of " + str(self.application.request_observer.total_images) + " images"
 		self.images_to_download_label["text"] = images_to_download
 
-		time_remaining = "Time remaining for download: " + str(self.application.request_observer.estimated_time_to_finish)
+		time_remaining = "Time remaining for download: " + str(
+			self.application.request_observer.estimated_time_to_finish
+		)
 		self.time_remaining_label["text"] = time_remaining
 
 		print("hi2")

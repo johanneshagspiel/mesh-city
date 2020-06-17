@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.scenario import ScenarioPipeline, ScenarioType
+from mesh_city.scenario.scenario_pipeline import ScenarioModificationType, ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -17,14 +17,16 @@ class TestScenarioPipeline(unittest.TestCase):
 
 	def test_swap_cars_scenario(self):
 		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager, scenarios_to_create=[(ScenarioType.SWAP_CARS, 4)]
+			request_manager=self.request_manager,
+			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 4)]
 		)
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
 
 	def test_more_tree_scenario(self):
 		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager, scenarios_to_create=[(ScenarioType.MORE_TREES, 4)]
+			request_manager=self.request_manager,
+			scenarios_to_create=[(ScenarioModificationType.MORE_TREES, 4)]
 		)
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
