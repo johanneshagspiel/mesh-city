@@ -6,12 +6,13 @@ import json
 import os
 from pathlib import Path
 
-from mesh_city.request.buildings_layer import BuildingsLayer
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
-from mesh_city.request.tile import Tile
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.request.entities.request import Request
+from mesh_city.request.entities.tile import Tile
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
+from mesh_city.scenario.scenario import Scenario
 
 
 class RequestManager:
@@ -68,7 +69,8 @@ class RequestManager:
 				"y_grid_coord": request.y_grid_coord,
 				"num_of_horizontal_images": request.num_of_horizontal_images,
 				"num_of_vertical_images": request.num_of_vertical_images,
-				"zoom": request.zoom
+				"zoom": request.zoom,
+				"name": request.name
 				}
 			)
 		with open(self.__images_root.joinpath("requests.json"), 'w') as fout:
@@ -132,6 +134,28 @@ class RequestManager:
 							detections_path=building_detections_path
 							)
 						)
+					scenarios = self.__images_root.joinpath("scenarios")
+					if scenarios.exists():
+						pattern_scenario_to_request = "request" + str(request.request_id) + "*"
+						file_paths = sorted(scenarios.glob(pattern_scenario_to_request))
+						# pattern_only_gifs = "*.gif"
+						# file_paths = sorted(file_paths_request.glob(pattern_only_gifs))
+						for file_path in file_paths:
+							if os.path.splitext(Path(file_path))[1] != ".csv":
+								scenario_name = Path(file_path).name.split("_")[1]
+								information_path = str(
+									os.path.splitext(Path(file_path))[0]
+								) + ".csv"
+								request.add_scenario(
+									Scenario(
+									scenario_name=scenario_name,
+									width=request.num_of_horizontal_images,
+									height=request.num_of_vertical_images,
+									scenario_path=file_path,
+									information_path=information_path
+									)
+								)
+
 					self.add_request(request=request)
 
 	def add_request(self, request: Request) -> None:

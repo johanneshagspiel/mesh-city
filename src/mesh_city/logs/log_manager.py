@@ -3,11 +3,8 @@ A module that contains the log manager who is responsible for performing all the
 """
 
 import json
-import os
 
-from mesh_city.logs.log_entities.building_instructions_request import BuildingInstructionsRequest
-from mesh_city.logs.log_entities.detection_meta_data import DetectionMetaData
-from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.user.user_entity import UserEntity
 
 
 class LogManager:
@@ -18,50 +15,6 @@ class LogManager:
 	def __init__(self, file_handler):
 		self.file_handler = file_handler
 		self.paths = file_handler.folder_overview
-
-	def get_request_number(self):
-		"""
-		This method is needed because request manager needs to know the number of the next request
-		to name the folder appropriately.
-
-		:return: the number of the next request
-		"""
-
-		max_log = 0
-
-		if self.paths["log_request_.json"].is_file():
-			with open(self.paths["log_request_.json"], "r") as json_log:
-				data = json_log.read()
-				json_log.close()
-			logs = json.loads(data)
-
-			for item in logs.values():
-				for element in item:
-					element = [int(k) for k, v in element.items()][0]
-					if element > max_log:
-						max_log = element
-
-		else:
-			max_log = 0
-
-		max_directory = 0
-
-		temp_path = self.paths["image_path"]
-
-		if len(os.listdir(self.paths["image_path"])) == 0:
-			max_directory = 0
-		else:
-			for temp in temp_path.glob("*"):
-				if temp.is_file():
-					continue
-				directory = temp.name
-				if directory.split("_")[1] == '':
-					continue
-				temp_result = int(directory.split("_")[1])
-				if temp_result > max_directory:
-					max_directory = temp_result
-
-		return max_log + 1 if max_log > max_directory else max_directory + 1
 
 	def write_log(self, log_entry):
 		"""
@@ -104,16 +57,32 @@ class LogManager:
 
 		temp_dic = {}
 
-		if type_document == "building_instructions_request":
-			return BuildingInstructionsRequest(path_to_store=path, json=logs)
-
 		if type_document == "users.json":
 			for key, value in logs.items():
 				temp_dic_entry = {key: value}
 				temp_dic[key] = UserEntity(file_handler=self.file_handler, json=temp_dic_entry)
 			return temp_dic
 
-		if type_document == "information":
-			return DetectionMetaData(path_to_store=path, json=logs)
-
 		return None
+
+	def change_name(self, old_name: str, new_name: str):
+		"""
+		Changes the name of a user
+		:param old_name: The old name of the user
+		:param new_name: The new name of the user
+		:return: None
+		"""
+
+		path = self.file_handler.folder_overview["users.json"]
+		with open(path, "r") as json_log:
+			data = json_log.read()
+		logs = json.loads(data)
+
+		temp_dic = {}
+		for key, value in logs.items():
+			temp_dic[key] = value
+		temp_dic[new_name] = temp_dic.pop(old_name)
+
+		with open(path, "w") as json_log:
+			json.dump(temp_dic, fp=json_log, indent=4)
+			json_log.close()

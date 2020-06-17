@@ -139,3 +139,14 @@ class TestGeoLocationUtil(unittest.TestCase):
 			x_cor_grid=x_cor_grid, y_cor_grid=y_cor_grid, image_height=1024, image_width=1024, zoom=20
 		)
 		self.assertEqual(correct_answer, calculated_answer)
+
+	def test_pixel_to_geo_coor(self):
+		x_cor_grid, y_cor_grid = 273066, 177808
+		px_x_min, px_y_min, px_x_max, px_y_max = 723.70697, 343.9098816, 906.179688, 528.7900391
+		# px_x = px_x_min + ((px_x_max - px_x_min) / 2)
+		# px_y = px_y_min + ((px_y_max - px_y_min) / 2)
+
+		calculated_lat, calculated_long = self.geo_location_util.pixel_to_geo_coor(x_cor_grid, y_cor_grid, px_x_min, px_y_min, px_x_max, px_y_max)
+		correct_lat, correct_long = 50.0004896827903, 7.500088698
+		self.assertAlmostEqual(correct_lat, calculated_lat)
+		self.assertAlmostEqual(correct_long, calculated_long)

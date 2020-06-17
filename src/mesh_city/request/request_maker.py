@@ -3,14 +3,16 @@
 See :class:`.RequestMaker`
 """
 
+import time
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
+from mesh_city.request.entities.tile import Tile
+from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.tile import Tile
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -20,9 +22,18 @@ class RequestMaker:
 	of its RequestManager.
 	"""
 
-	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None):
+	def __init__(
+		self,
+		request_manager: RequestManager,
+		top_down_provider: TopDownProvider = None,
+		image_provider: ImageProviderEntity = None
+	):
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
+		self.image_provider = image_provider
+
+		self.observers = []
+		self.state = {}
 
 	@staticmethod
 	def compute_3x3_area(latitude: float, longitude: float, zoom: int) -> Tuple[
@@ -109,6 +120,7 @@ class RequestMaker:
 			filename=file_name,
 			new_folder_path=folder_path,
 		)
+		self.image_provider.increment_usage()
 		return Tile(path=result_path, x_grid_coord=tile_x, y_grid_coord=tile_y)
 
 	def make_area_request(
@@ -117,6 +129,7 @@ class RequestMaker:
 		left_longitude: float,
 		top_latitude: float,
 		right_longitude: float,
+		name: str = None,
 		zoom: Any = None
 	) -> Request:
 		"""
@@ -140,12 +153,19 @@ class RequestMaker:
 			right_longitude=right_longitude,
 			zoom=zoom
 		)
+
+		self.state["total_images"] = len(coordinates)
+		self.state["current_image"] = 1
+		self.state["current_time_download"] = 0
+		self.notify_observers()
+
 		tiles = []
 		folder = Path.joinpath(self.request_manager.get_image_root(), "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
-		for (x_cor_tile, y_cor_tile) in coordinates:
+		for counter, (x_cor_tile, y_cor_tile) in enumerate(coordinates, 1):
+			start_time_download = time.time()
 			if min_x is None:
 				min_x = x_cor_tile
 				min_y = y_cor_tile
@@ -153,10 +173,20 @@ class RequestMaker:
 			min_y = min(min_y, y_cor_tile)
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
+			time_needed_download = time.time() - start_time_download
+
+			self.state["current_image"] = counter
+			self.state["current_time_download"] = time_needed_download
+			self.notify_observers()
+
+		request_id = self.request_manager.get_new_request_id()
+		if name is None:
+			name = "Request_" + str(request_id)
 		request = Request(
 			x_grid_coord=min_x,
 			y_grid_coord=min_y,
-			request_id=self.request_manager.get_new_request_id(),
+			request_id=request_id,
+			name=name,
 			num_of_horizontal_images=width,
 			num_of_vertical_images=height,
 			zoom=zoom
@@ -190,7 +220,9 @@ class RequestMaker:
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
 
-	def make_location_request(self, latitude: float, longitude: float, zoom: Any = None) -> Request:
+	def make_location_request(
+		self, latitude: float, longitude: float, name: str = None, zoom: Any = None
+	) -> Request:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider
 		by first calculating a 3x3 section of tiles around a given point defined by a latitude and
@@ -201,10 +233,9 @@ class RequestMaker:
 		:param zoom: The zoom level, can be None
 		:return: The request object with a populated GoogleLayer
 		"""
-
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
-		return self.make_area_request(bottom, left, top, right, zoom)
+		return self.make_area_request(bottom, left, top, right, zoom=zoom, name=name)
 
 	def calculate_coordinates_for_rectangle(
 		self,
@@ -273,3 +304,28 @@ class RequestMaker:
 			if not self.request_manager.is_in_grid(latitude, longitude):
 				counter += 1
 		return counter
+
+	def attach_observer(self, observer):
+		"""
+		Attaches a observer to the request maker
+		:param observer: the observer to attach
+		:return: nothing
+		"""
+		self.observers.append(observer)
+
+	def detach_observer(self, observer):
+		"""
+		Detaches a observer from the request maker and gets rid of its gui element
+		:param observer: the observer to detach
+		:return:
+		"""
+		observer.destroy()
+		self.observers.remove(observer)
+
+	def notify_observers(self):
+		"""
+		Notifies all observers about a change in the state of the request maker
+		:return:
+		"""
+		for observer in self.observers:
+			observer.update(self)

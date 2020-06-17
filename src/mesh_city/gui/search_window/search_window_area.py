@@ -2,14 +2,15 @@
 See :class:`.SearchWindowLocationArea`
 """
 
-from tkinter import Button, Entry, Label, Toplevel
+from tkinter import Button, Entry, Label, messagebox, Toplevel
 
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.util.input_util import InputUtil
 
 
 class SearchWindowLocationArea:
 	"""
-	A pop-up type_of_detection GUI element that the user can fill in to make an area-type_of_detection request.
+	A pop-up type GUI element that the user can fill in to make an area-type request.
 	.. todo:: Make a pop-up class that this inherits from.
 	"""
 
@@ -25,6 +26,9 @@ class SearchWindowLocationArea:
 		self.value = ""
 		self.application = application
 		top = self.top = Toplevel(master)
+
+		self.top.config(padx=4)
+		self.top.config(pady=4)
 
 		Label(top, text="Which area are you interested in downloading ?").grid(row=0, column=3)
 
@@ -46,76 +50,42 @@ class SearchWindowLocationArea:
 		self.max_long_entry = Entry(top, width=20)
 		self.max_long_entry.grid(row=4, column=3)
 
-		self.temp_1 = Label(self.top, text="Please enter address information in this form:")
-		self.temp_1.grid(row=5, column=4)
-		self.temp_2 = Label(self.top, text="{house number} {street} {postcode} {city} {country}")
-		self.temp_2.grid(row=6, column=4)
-
-		Button(top, text="Search", command=self.cleanup).grid(row=5, column=3)
-
-		self.type_button_min = Button(
-			top, text="Address", command=lambda: self.change_search_type(True, "min")
-		)
-		self.type_button_min.grid(row=1, column=4)
-
-		self.type_button_max = Button(
-			top, text="Address", command=lambda: self.change_search_type(True, "max")
-		)
-		self.type_button_max.grid(row=3, column=4)
-
-	def change_search_type(self, first_time, name):
-		"""
-		Changes the search type_of_detection from address-based to coordinate-based or the other way around.
-		:param first_time: A flag indicating whether this is the first time the type_of_detection button is pressed
-		:param name: The name indicating which of the points of the rectangle-defined area is to
-		have a different type_of_detection.
-		:return:
-		"""
-
-		if name == "min":
-			if self.min_lat["information_general"] == "Min Latitude:":
-				self.min_lat["information_general"] = "Address:"
-				self.min_long_entry.grid_forget()
-				self.type_button_min.configure(text="Coordinates")
-				self.min_log["information_general"] = ""
-				first_time = False
-
-			if (self.min_lat["information_general"] == "Address:") & first_time:
-				self.min_lat["information_general"] = "Min Latitude:"
-				self.min_long_entry.grid(row=2, column=3)
-				self.type_button_min.configure(text="Address")
-				self.min_log["information_general"] = "Min Longitude:"
-
-		if name == "max":
-			if self.max_lat["information_general"] == "Max Latitude:":
-				self.max_lat["information_general"] = "Address:"
-				self.max_long_entry.grid_forget()
-				self.type_button_max.configure(text="Coordinates")
-				self.max_log["information_general"] = ""
-				first_time = False
-
-			if (self.max_lat["information_general"] == "Address:") & first_time:
-				self.max_lat["information_general"] = "Max Latitude:"
-				self.max_long_entry.grid(row=4, column=3)
-				self.type_button_max.configure(text="Address")
-				self.max_log["information_general"] = "Max Longitude:"
+		Button(top, text="Search", command=self.cleanup, bg="white").grid(row=5, column=3)
 
 	def cleanup(self):
 		"""
-		Makes the area-type_of_detection request and cleans up after itself by tearing down the GUI and
+		Makes the area-type request and cleans up after itself by tearing down the GUI and
 		effectively returning control to the main screen.
 		"""
-		self.value = [
-			float(self.min_lat_entry.get()),
-			float(self.min_long_entry.get()),
-			float(self.max_lat_entry.get()),
-			float(self.max_long_entry.get()),
+		list_entries = [
+			self.min_lat_entry, self.min_long_entry, self.max_lat_entry, self.max_long_entry,
 		]
+		wrong_counter_list = []
 
-		PreviewWindow(
-			main_screen=self.main_screen,
-			master=self.master,
-			application=self.application,
-			coordinates=self.value
-		)
-		self.top.destroy()
+		for counter, element in enumerate(list_entries, 0):
+			if InputUtil.is_float(element.get()) is False:
+				wrong_counter_list.append(counter)
+
+		if len(wrong_counter_list) > 0:
+			messagebox.showinfo(
+				"Input Error", "All entries must be filled out with correct coordinates"
+			)
+			for number in wrong_counter_list:
+				list_entries[number].delete(0, 'end')
+
+		else:
+			self.value = [
+				float(self.min_lat_entry.get()),
+				float(self.min_long_entry.get()),
+				float(self.max_lat_entry.get()),
+				float(self.max_long_entry.get()),
+			]
+
+			temp_window = PreviewWindow(
+				main_screen=self.main_screen,
+				master=self.master,
+				application=self.application,
+				coordinates=self.value
+			)
+			self.top.destroy()
+			self.main_screen.master.wait_window(temp_window.top)
