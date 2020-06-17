@@ -81,6 +81,7 @@ class DetectionPipeline:
 			"detections_" + str(request.request_id) + ".geojson"
 		)
 		images = []
+
 		for tile in tiles:
 			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
 		# note: not sure how this will perform for large scale analysis!
@@ -122,6 +123,7 @@ class DetectionPipeline:
 			origin=(0, 0)
 		)
 		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
+
 		return BuildingsLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
@@ -163,6 +165,7 @@ class DetectionPipeline:
 			result["ymax"] += y_offset
 			frames.append(result)
 
+
 			time_needed_download = time.time() - start_time_download
 			self.state["current_tile"] = counter
 			self.state["current_time_detection"] = time_needed_download
@@ -170,6 +173,7 @@ class DetectionPipeline:
 
 		concat_result = pd.concat(frames).reset_index(drop=True)
 		concat_result.to_csv(detections_path)
+
 		return CarsLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
@@ -190,6 +194,7 @@ class DetectionPipeline:
 			"detections_" + str(request.request_id) + ".csv"
 		)
 		images = []
+
 		for tile in tiles:
 			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
 		# note: not sure how this will perform for large scale analysis!
@@ -210,6 +215,7 @@ class DetectionPipeline:
 		result["ymax"] = result["ymax"] * 6
 
 		result.to_csv(detection_file_path)
+
 		return TreesLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,

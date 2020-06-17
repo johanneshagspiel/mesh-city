@@ -331,3 +331,42 @@ class GeoLocationUtil:
 			point['latitude'], point['longitude'], dic_point['latitude'], dic_point['longitude']
 			)
 		)
+
+	@staticmethod
+	def pixel_to_geo_coor(
+		image_grid_x,
+		image_grid_y,
+		xmin,
+		ymin,
+		xmax,
+		ymax,
+		image_width=1024,
+		image_height=1024,
+		zoom=20
+	):
+		"""
+		Method that transforms the position of a bounding box on an image, into pixel corodinaetes
+		and then into geographical coordinates
+		:param image_grid_x: the x coordinate of the grid position (aka. the Northwest corner) of the
+		image
+		:param image_grid_y: the y coordinate of the grid position (aka. the Northwest corner) of the
+		image
+		:param xmin:
+		:param ymin:
+		:param xmax:
+		:param ymax:
+		:param image_width:
+		:param image_height:
+		:param zoom: the zoom level, regarding the zoom level of the tile corresponding to the image
+		:return: a tuple (latitude, longitude) in geographical coordinates (EPSG:4326)
+		"""
+		px_x = xmin + ((xmax - xmin) / 2)
+		px_y = ymin + ((ymax - ymin) / 2)
+
+		image_grid_x_offset = px_x / image_width
+		image_grid_y_offset = px_y / image_height
+
+		image_grid_x += image_grid_x_offset
+		image_grid_y += image_grid_y_offset
+
+		return GeoLocationUtil.tile_value_to_degree(image_grid_x, image_grid_y, zoom, False)
