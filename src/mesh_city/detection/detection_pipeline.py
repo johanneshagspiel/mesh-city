@@ -165,7 +165,6 @@ class DetectionPipeline:
 			result["ymax"] += y_offset
 			frames.append(result)
 
-
 			time_needed_download = time.time() - start_time_download
 			self.state["current_tile"] = counter
 			self.state["current_time_detection"] = time_needed_download
