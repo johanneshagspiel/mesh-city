@@ -15,6 +15,7 @@ from mesh_city.gui.load_window.load_window import LoadWindow
 from mesh_city.gui.load_window.select_load_option import SelectLoadOption
 from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
 from mesh_city.gui.mainscreen_image.gif_image import GifImage
+from mesh_city.gui.map_window.map_window import MapWindow
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
 from mesh_city.gui.start_window.start_window import StartWindow
 from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
@@ -81,15 +82,20 @@ class MainScreen:
 		)
 		self.eco_button.grid(row=4, column=0)
 
+		self.map_button = Button(
+			self.left_bar, text="Map", width=6, height=3, command=self.map_window, bg="white"
+		)
+		self.map_button.grid(row=5, column=0)
+
 		self.export_button = Button(
 			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="white"
 		)
-		self.export_button.grid(row=5, column=0)
+		self.export_button.grid(row=6, column=0)
 
 		self.user_button = Button(
 			self.left_bar, text="User", width=6, height=3, command=self.user_window, bg="white"
 		)
-		self.user_button.grid(row=6, column=0)
+		self.user_button.grid(row=7, column=0)
 
 		self.right_frame = Frame(self.master, width=185, background="white")
 		self.right_frame.grid(row=0, column=2, sticky='nsew')
@@ -141,6 +147,9 @@ class MainScreen:
 		:return: None
 		"""
 		ExportWindow(master=self.master, application=self.application, main_screen=self)
+
+	def map_window(self):
+		MapWindow(master=self.master, application=self.application, main_screen=self)
 
 	def layers_window(self):
 		"""

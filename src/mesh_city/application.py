@@ -169,6 +169,21 @@ class Application:
 		text_to_show = self.get_statistics(element_list=layer_list)
 		self.main_screen.update_text(text_to_show)
 
+	def create_map(self, request: Request, layer_mask) -> None:
+		"""
+		Loads specific layers of a request onto the screen.
+
+		:param request: The request to load
+		:param layer_mask: A boolean mask representing which layers to render.
+		:return: None
+		"""
+
+		canvas_image = RequestRenderer.render_map(request=request, layer_mask=layer_mask)
+		self.main_screen.set_canvas_image(canvas_image)
+
+		text_to_show = self.get_statistics(request=request, element_list=layer_mask)
+		self.main_screen.update_text(text_to_show)
+
 	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
 	) -> None:
