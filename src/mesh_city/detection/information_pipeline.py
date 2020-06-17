@@ -83,7 +83,7 @@ class InformationStringBuilder:
 					count += 1
 		return "Trees Detected: " + str(count) + "\n"
 
-	def process_cars_layer(self, cars_layer: CarsLayer) -> None:
+	def process_cars_layer(self, cars_layer: CarsLayer) -> str:
 		"""
 		Generates information for a CarsLayer
 		:param cars_layer: The CarsLayer to generate information for
