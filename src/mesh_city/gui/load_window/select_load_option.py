@@ -91,7 +91,5 @@ class SelectLoadOption:
 		:return: nothing (the main screen image is now the selected scenario)
 		"""
 
-		self.application.load_scenario_onscreen(
-			request=self.application.current_request, name=scenario_name
-		)
+		self.application.load_scenario_onscreen(name=scenario_name)
 		self.top.destroy()

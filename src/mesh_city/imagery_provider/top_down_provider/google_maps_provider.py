@@ -12,6 +12,7 @@ from requests import get, Response
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
+
 # TODO add documentation explaining the mathematics of this class
 
 
@@ -68,15 +69,15 @@ class GoogleMapsProvider(TopDownProvider):
 			response = get(
 				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
 				% (
-				str(latitude),
-				str(longitude),
-				str(zoom),
-				str(width),
-				str(height),
-				str(scale),
-				file_format,
-				map_type,
-				self.image_provider_entity.api_key,
+					str(latitude),
+					str(longitude),
+					str(zoom),
+					str(width),
+					str(height),
+					str(scale),
+					file_format,
+					map_type,
+					self.image_provider_entity.api_key,
 				)
 			)
 
@@ -104,17 +105,17 @@ class GoogleMapsProvider(TopDownProvider):
 		"""
 		Returns a geographical location based on an address name.
 
-		:param name:
-		:return:
+		:param name: The adress name
+		:return: The location corresponding to the adress name
 		"""
-		result = googlemaps.client.geocode(client=self.client, address=name)
+		return googlemaps.client.geocode(client=self.client, address=name)
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on tile_information.
+		Returns an address name based on a coordinate.
 
-		:param latitude:
-		:param longitude:
-		:return:
+		:param latitude: The latitude of the coordinate
+		:param longitude: THe longitude of the coordinate
+		:return: The adress name corresponding to the location
 		"""
-		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))
+		return googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))

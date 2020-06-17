@@ -73,10 +73,10 @@ class PreviewWindow:
 		self.temp_list.append(self.additional_provider_button)
 		self.additional_provider_button.grid(row=self.count, columnspan=2)
 
-	def add_another_provider(self):
+	def add_another_provider(self) -> None:
 		"""
-		Adds
-		:return:
+		Adds a new provider object.
+		:return: None
 		"""
 
 		self.addition_provider_gui_list = []
@@ -124,7 +124,15 @@ class PreviewWindow:
 
 		self.additional_provider_button.grid_forget()
 
-	def calculate_locations(self, image_provider_entity_name, image_provider_entity):
+	def calculate_locations(
+		self, image_provider_entity_name: str, image_provider_entity: ImageProviderEntity
+	) -> None:
+		"""
+		Calculates the number of requests that will have to be made for these coordinates.
+		:param image_provider_entity_name: The name of the ImageProviderEntity
+		:param image_provider_entity: The ImageProviderEntity
+		:return: None
+		"""
 		self.application.request_maker.top_down_provider = image_provider_entity.top_down_provider
 		self.application.request_maker.image_provider = image_provider_entity
 		# this is a location request
@@ -143,7 +151,9 @@ class PreviewWindow:
 		self.number_requests = self.application.request_maker.count_uncached_tiles(locations)
 		self.check_usage(image_provider_entity_name, image_provider_entity)
 
-	def check_usage(self, image_provider_entity_name, image_provider_entity):
+	def check_usage(
+		self, image_provider_entity_name: str, image_provider_entity: ImageProviderEntity
+	) -> None:
 		"""
 		Method to check how much this request would cost
 		:param image_provider_entity: the image provider entity used for the request
@@ -174,8 +184,11 @@ class PreviewWindow:
 			)
 			self.select_additional_providers()
 
-	def select_additional_providers(self):
-
+	def select_additional_providers(self) -> None:
+		"""
+		Prompts the user to select additional providers for requests that would exceed the quota
+		:return: None
+		"""
 		for widget in self.temp_list:
 			widget.grid_forget()
 
@@ -214,8 +227,11 @@ class PreviewWindow:
 		self.temp_list.append(self.additional_provider_button)
 		self.additional_provider_button.grid(row=self.count, column=0, columnspan=2)
 
-	def confirm_additional_provider(self):
-
+	def confirm_additional_provider(self) -> None:
+		"""
+		Adds an additional provider and destroys the GUI element.
+		:return: None
+		"""
 		temp_api_key = self.api_key_entry.get()
 		temp_quota = self.quota_entry.get()
 		temp_name = self.temp_name_label.cget("text")
