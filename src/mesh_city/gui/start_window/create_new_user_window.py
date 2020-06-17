@@ -3,8 +3,8 @@ A module containing the create new user window
 """
 from tkinter import Button, Entry, Label, messagebox, Toplevel
 
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
-from mesh_city.user.entities.user_entity import UserEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
+from mesh_city.user.user_entity import UserEntity
 from mesh_city.util.input_util import InputUtil
 
 

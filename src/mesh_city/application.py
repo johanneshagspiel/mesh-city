@@ -9,7 +9,6 @@ from typing import List
 from PIL import Image
 
 from mesh_city.detection.detection_pipeline import DetectionPipeline
-from mesh_city.detection.information_pipeline import InformationPipeline
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
@@ -20,6 +19,7 @@ from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
+from mesh_city.detection.information_pipeline import InformationPipeline
 
 
 class Application:
@@ -77,13 +77,15 @@ class Application:
 
 	def create_scenario(self, request, scenario_to_create, name=None):
 
-		pipeline = ScenarioPipeline(scenario_to_create, name)
+		pipeline = ScenarioPipeline(request_manager=self.request_manager,
+			scenarios_to_create=scenario_to_create, name=name
+		)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
 
 		self.load_scenario_onscreen(request=request, name=new_scenario.scenario_name)
 
-	def make_location_request(self, latitude: float, longitude: float) -> None:
+	def make_location_request(self, latitude: float, longitude: float, name:str = None) -> None:
 		"""
 		Makes a location request and updates the application correspondingly.
 
@@ -92,7 +94,7 @@ class Application:
 		:return: None
 		"""
 		finished_request = self.request_maker.make_location_request(
-			latitude=latitude, longitude=longitude
+			latitude=latitude, longitude=longitude, name=name
 		)
 		self.process_finished_request(request=finished_request)
 
@@ -103,7 +105,8 @@ class Application:
 		bottom_latitude: float,
 		left_longitude: float,
 		top_latitude: float,
-		right_longitude: float
+		right_longitude: float,
+		name: str = None
 	) -> None:
 		"""
 		Makes an area request and updates the application correspondingly.
@@ -119,7 +122,8 @@ class Application:
 			bottom_latitude=bottom_latitude,
 			left_longitude=left_longitude,
 			top_latitude=top_latitude,
-			right_longitude=right_longitude
+			right_longitude=right_longitude,
+			name=name
 		)
 		self.process_finished_request(request=finished_request)
 
@@ -197,6 +201,9 @@ class Application:
 		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
 		self.main_screen.set_gif(canvas_image)
 
+		text_to_show = self.get_statistics(request=request, element_list=[self.current_request.scenarios[name]])
+		self.main_screen.update_text(text_to_show)
+
 	def process_finished_request(self, request: Request) -> None:
 		"""
 		Adds a made request to the RequestManager of the Application sets the state of the Application
@@ -220,7 +227,6 @@ class Application:
 		info_gen = InformationPipeline(bio_path, self.current_request)
 
 		return info_gen.process(request, element_list)
-		info_gen.get_tree_and_rooftop_co2_values()
 
 	def start(self):
 		"""

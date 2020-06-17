@@ -4,7 +4,7 @@ import unittest
 
 from mesh_city.imagery_provider.top_down_provider.ahn_provider import AhnProvider
 from mesh_city.imagery_provider.top_down_provider_factory import TopDownProviderFactory
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.file_handler import FileHandler
 
 

@@ -3,7 +3,7 @@ A module containing the preview window
 """
 from tkinter import Button, Entry, Label, Toplevel
 
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
 
@@ -59,7 +59,7 @@ class PreviewWindow:
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=0)
 
-			temp_text = "Usage left: " + str(value.quota - value.usage["total"])
+			temp_text = "Usage left: " + str(round((float(value.quota) - float(value.usage["total"])), 4))
 			self.temp_list.append(Label(self.top, text=temp_text))
 			self.temp_list_size += 1
 			self.temp_list[self.temp_list_size].grid(row=self.count, column=1)
@@ -198,7 +198,7 @@ class PreviewWindow:
 				self.temp_button.grid(row=self.count, column=0)
 				self.temp_list.append(self.temp_button)
 
-				temp_text = "Usage left: " + str(value.quota - value.usage["total"])
+				temp_text = "Usage left: " + str(round((float(value.quota) - float(value.usage["total"])), 4))
 				self.temp_label = Label(self.top, text=temp_text)
 				self.temp_label.grid(row=self.count, column=1)
 				self.temp_list.append(self.temp_label)
@@ -256,6 +256,13 @@ class PreviewWindow:
 			self.usage_left_label.grid(row=counter, column=2)
 			counter += 1
 
+		self.nick_name_label = Label(self.top, text="Request name: \n(Optionl)")
+		self.nick_name_label.grid(row=counter, column=0)
+
+		self.name_entry = Entry(self.top)
+		self.name_entry.grid(row=counter, column=1)
+		counter += 1
+
 		self.confirm_button = Button(
 			self.top, text="Confirm", command=lambda: self.cleanup(self.coordinates), bg="white"
 		)
@@ -268,17 +275,22 @@ class PreviewWindow:
 		:param locations: the locations to download
 		:return: nothing (but updates the main screen with the downloaded image)
 		"""
+		name = self.name_entry.get()
+		if name == "":
+			name = None
 
 		if len(coordinates) == 2:
 			self.application.make_location_request(
-				latitude=coordinates[0], longitude=coordinates[1]
+				latitude=coordinates[0], longitude=coordinates[1],
+				name=name
 			)
 		elif len(coordinates) == 4:
 			self.application.make_area_request(
 				bottom_latitude=coordinates[0],
 				left_longitude=coordinates[1],
 				top_latitude=coordinates[2],
-				right_longitude=coordinates[3]
+				right_longitude=coordinates[3],
+				name=name
 			)
 		else:
 			raise ValueError("The number of coordinate values does not check out")

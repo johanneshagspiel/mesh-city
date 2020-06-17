@@ -1,6 +1,6 @@
 from tkinter import Button, CHAR, END, Entry, Label, messagebox, Text, Toplevel
 
-from mesh_city.user.entities.image_provider_entity import ImageProviderEntity
+from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.input_util import InputUtil
 
 

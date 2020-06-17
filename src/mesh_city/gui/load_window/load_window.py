@@ -36,7 +36,7 @@ class LoadWindow:
 				if request.request_id != active_request_id:
 					self.temp_name = Button(
 						self.top,
-						text="Request " + str(request.request_id),
+						text=request.name,
 						width=20,
 						height=3,
 						command=lambda button_request=request: self.load_request(button_request),
@@ -46,15 +46,15 @@ class LoadWindow:
 
 		else:
 			for (index, request) in enumerate(self.application.request_manager.requests):
-				self.temp_name = Button(
-					self.top,
-					text="Request " + str(request.request_id),
-					width=20,
-					height=3,
-					command=lambda button_request=request: self.load_request(button_request),
-					bg="white"
-				)
-				self.temp_name.grid(row=index + 1, column=1)
+					self.temp_name = Button(
+						self.top,
+						text=request.name,
+						width=20,
+						height=3,
+						command=lambda button_request=request: self.load_request(button_request),
+						bg="white"
+					)
+					self.temp_name.grid(row=index + 1, column=1)
 
 	def load_request(self, request):
 		"""

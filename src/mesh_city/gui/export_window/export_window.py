@@ -38,7 +38,7 @@ class ExportWindow:
 		self.top_label = Label(self.top, text="Which request do you want to export?")
 		self.top_label.grid(row=0)
 		active_request_id = self.application.current_request.request_id
-		temp_text = "Active Request: Request " + str(active_request_id)
+		temp_text = "Active Request: " + self.application.current_request.name
 		self.request_buttons = []
 		self.request_buttons.append(
 			Button(
@@ -55,7 +55,7 @@ class ExportWindow:
 				self.request_buttons.append(
 					Button(
 					self.top,
-					text="Request " + str(request.request_id),
+					text= request.name,
 					width=20,
 					height=3,
 					command=lambda: self.load_request(request),

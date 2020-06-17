@@ -19,8 +19,9 @@ class Request:
 		x_grid_coord,
 		y_grid_coord,
 		zoom,
+		name,
 		layers=None,
-		scenarios=None
+		scenarios=None,
 	) -> None:
 		self.request_id = request_id
 		self.x_grid_coord = x_grid_coord
@@ -28,6 +29,7 @@ class Request:
 		self.num_of_horizontal_images = num_of_horizontal_images
 		self.num_of_vertical_images = num_of_vertical_images
 		self.zoom = zoom
+		self.name = name
 		self.layers = [] if layers is None else layers
 		self.scenarios = {} if scenarios is None else scenarios
 
