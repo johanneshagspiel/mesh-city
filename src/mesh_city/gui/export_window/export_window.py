@@ -55,7 +55,7 @@ class ExportWindow:
 				self.request_buttons.append(
 					Button(
 					self.top,
-					text= request.name,
+					text=request.name,
 					width=20,
 					height=3,
 					command=lambda: self.load_request(request),

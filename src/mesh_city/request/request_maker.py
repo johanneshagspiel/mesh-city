@@ -204,7 +204,9 @@ class RequestMaker:
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
 
-	def make_location_request(self, latitude: float, longitude: float, name: str = None, zoom: Any = None) -> Request:
+	def make_location_request(
+		self, latitude: float, longitude: float, name: str = None, zoom: Any = None
+	) -> Request:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider
 		by first calculating a 3x3 section of tiles around a given point defined by a latitude and
