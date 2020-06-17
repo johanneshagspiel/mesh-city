@@ -157,7 +157,7 @@ class DetectionPipeline:
 
 			x_offset = (tile.x_grid_coord - request.x_grid_coord) * DetectionPipeline.TILE_SIZE
 			y_offset = (tile.y_grid_coord - request.y_grid_coord) * DetectionPipeline.TILE_SIZE
-			np_image = np.asarray(Image.open(tile.path).convert("RGB"))
+			np_image = np.asarray(Image.open(tile.path).convert("RGB").resize((256,256)))
 			image_np_expanded = np.expand_dims(np_image, axis=0)
 			result = car_detector.detect_cars(image_np_expanded)
 			result["xmin"] += x_offset

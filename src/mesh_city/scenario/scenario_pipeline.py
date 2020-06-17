@@ -9,14 +9,19 @@ url: https://stackoverflow.com/questions/890051/how-do-i-generate-circular-thumb
 import copy
 import random
 from enum import Enum
+from pathlib import Path
 from typing import Any, Sequence, Tuple
 
+import cv2
+import geopandas as gpd
+import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
@@ -32,6 +37,7 @@ class ScenarioModificationType(Enum):
 	SWAP_CARS = 1
 	PAINT_BUILDINGS_GREEN = 2
 
+
 class ScenarioPipeline:
 	"""
 	A class used to create scenario's from requests whose behaviour can be customized by specifying
@@ -42,8 +48,10 @@ class ScenarioPipeline:
 		self,
 		request_manager: RequestManager,
 		scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]],
+		overlay_path: Path,
 		name: str = None
 	):
+		self.overlay_path = overlay_path
 		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
@@ -52,12 +60,36 @@ class ScenarioPipeline:
 		self.base_image = None
 		self.images_to_add = None
 		self.changes_pd = None
-		self.observers= []
+		self.observers = []
 		self.state = {}
 
-	def paint_buildings_green(self, request: Request, buildings_to_make_green: int):
-		pass
-
+	def paint_buildings_green(self, request: Request, buildings_to_make_green: int, scaling=1):
+		buildings_layer = request.get_layer_of_type(BuildingsLayer)
+		green_overlay = cv2.imread(self.overlay_path, 0)
+		vertical_tiles = request.num_of_vertical_images * 2 / scaling
+		horizontal_tiles = request.num_of_horizontal_images * 2 / scaling
+		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
+		building_dataframe = gpd.read_file(buildings_layer.detections_path)
+		building_dataframe.geometry = building_dataframe.geometry.scale(
+			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
+		)
+		mask_base = Image.new(
+			'RGBA',
+			(
+				round(request.num_of_horizontal_images * 1024 / scaling),
+				round(request.num_of_vertical_images * 1024 / scaling)
+			), (255, 255, 255, 0)
+		)
+		draw = ImageDraw.Draw(mask_base)
+		for (index, polygon) in enumerate(building_dataframe["geometry"]):
+			if index < buildings_to_make_green:
+				draw.polygon(
+					xy=list(zip(*polygon.exterior.coords.xy)), fill=(255, 255, 255, 255)
+				)
+		final_mask = np.asarray(mask_base).astype(float) / 255
+		final_overlay = cv2.multiply(final_mask,tiled_overlay)
+		self.base_image = cv2.multiply(1-final_mask,self.base_image)
+		self.base_image = cv2.add(self.base_image,final_overlay)
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
 		"""
@@ -71,7 +103,6 @@ class ScenarioPipeline:
 		else:
 			tree_dataframe = self.trees
 
-
 		# pylint: disable=W0612
 		self.state["scenario_type"] = "Adding more trees"
 		self.state["total_frames"] = trees_to_add
@@ -82,13 +113,12 @@ class ScenarioPipeline:
 			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 
-
-			tree_area_to_cut=(
+			tree_area_to_cut = (
 				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
 				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
 				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
 				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
-				)
+			)
 
 			tree_image_cropped = self.base_image.crop(
 				box=tree_area_to_cut
@@ -153,7 +183,7 @@ class ScenarioPipeline:
 				tree_dataframe.iloc[tree_to_replace_with_index][2],  # ymin
 				tree_dataframe.iloc[tree_to_replace_with_index][3],  # xmax
 				tree_dataframe.iloc[tree_to_replace_with_index][4],  # ymax
-				)
+			)
 
 			tree_image_cropped = self.base_image.crop(
 				box=tree_area_to_cut
@@ -311,7 +341,7 @@ class ScenarioPipeline:
 		scenario_file_png = scenario_file_name + "_.png"
 		scenario_file_path_png = scenario_path.joinpath(scenario_file_png)
 
-		self.images_to_add[len(self.images_to_add)-1].save(fp=scenario_file_path_png)
+		self.images_to_add[len(self.images_to_add) - 1].save(fp=scenario_file_path_png)
 
 		self.images_to_add[0].save(
 			fp=scenario_file_path_gif,
@@ -363,7 +393,8 @@ class ScenarioPipeline:
 				self.add_more_trees(request=request, trees_to_add=information)
 			if feature == ScenarioModificationType.SWAP_CARS:
 				self.swap_cars_with_trees(request=request, cars_to_swap=information)
-
+			if feature == ScenarioModificationType.PAINT_BUILDINGS_GREEN:
+				self.paint_buildings_green(request=request, buildings_to_make_green=information)
 		new_scenario = self.combine_results(request)
 
 		return new_scenario

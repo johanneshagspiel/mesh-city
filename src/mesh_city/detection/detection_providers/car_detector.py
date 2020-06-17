@@ -70,7 +70,7 @@ class CarDetector:
 		detection_data = []
 		for (bounding_box,
 			probability) in zip(output_dict['detection_boxes'], output_dict['detection_scores']):
-			if probability > 0.5:
+			if probability > 0.99:
 				detection_data.append(
 					(
 					bounding_box[1] * 1024,

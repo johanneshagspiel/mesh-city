@@ -97,7 +97,8 @@ class Application:
 		"""
 		scenario_observer = ScenarioObserver(self.main_screen.master)
 		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager, scenarios_to_create=scenarios_to_create, name=name
+			request_manager=self.request_manager, scenarios_to_create=scenarios_to_create, name=name,
+			overlay_path=self.file_handler.folder_overview["resource_path"].joinpath("trees-overlay.png")
 		)
 		pipeline.attach_observer(scenario_observer)
 		new_scenario = pipeline.process(request)
