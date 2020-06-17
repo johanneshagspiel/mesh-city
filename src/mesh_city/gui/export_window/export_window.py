@@ -55,7 +55,7 @@ class ExportWindow:
 				self.request_buttons.append(
 					Button(
 					self.top,
-					text= request.name,
+					text=request.name,
 					width=20,
 					height=3,
 					command=lambda: self.load_request(request),
@@ -106,7 +106,7 @@ class ExportWindow:
 			next_start += 1
 
 		Button(self.top, text="Confirm", command=lambda: self.cleanup(request),
-			bg="white").grid(row=next_start+1)
+			bg="white").grid(row=next_start + 1)
 
 	def cleanup(self, request):
 		"""
@@ -125,7 +125,9 @@ class ExportWindow:
 		for (index, element) in enumerate(self.int_variable_list_scenarios):
 			if element.get() == 1:
 				has_export_scenario = True
-				scenario_mask.append(self.application.current_request.scenarios[self.scenario_name_list[index]])
+				scenario_mask.append(
+					self.application.current_request.scenarios[self.scenario_name_list[index]]
+				)
 
 		if has_export_scenario or has_export_scenario:
 			export_directory = Path(filedialog.askdirectory())

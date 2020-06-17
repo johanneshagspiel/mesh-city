@@ -3,23 +3,23 @@ See :class:`.Application`
 """
 
 from pathlib import Path
-from tkinter import END
-from typing import List
+from typing import List, Sequence, Union
 
 from PIL import Image
 
-from mesh_city.detection.detection_pipeline import DetectionPipeline
+from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionType
+from mesh_city.detection.information_pipeline import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.layer import Layer
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.request.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
-from mesh_city.detection.information_pipeline import InformationPipeline
 
 
 class Application:
@@ -37,7 +37,11 @@ class Application:
 		self.request_manager = self.get_request_manager()
 		self.main_screen = None
 
-	def get_main_screen(self):
+	def get_main_screen(self) -> MainScreen:
+		"""
+		Gets the MainScreen instance of this Application
+		:return: The MainScreen instance
+		"""
 		return self.main_screen
 
 	def get_request_manager(self) -> RequestManager:
@@ -45,7 +49,7 @@ class Application:
 		Creates a RequestManager instance and makes it load both previous requests and references to downloaded
 		imagery.
 
-		:return: The RequestManager instance.
+		:return: The RequestManager instance with requests and grid loaded from disk.
 		"""
 
 		request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
@@ -60,14 +64,14 @@ class Application:
 		self.user_entity = user_entity
 		self.request_maker = RequestMaker(request_manager=self.request_manager)
 
-	def run_detection(self, request, to_detect):
+	def run_detection(self, request: Request, to_detect: Sequence[DetectionType]) -> None:
 		"""
 		Runs a detection based on the current request information and the layers that have to be
 		detected.
 
-		:param request:
-		:param to_detect:
-		:return:
+		:param request: The request to run detections for
+		:param to_detect: The detections to run
+		:return: None
 		"""
 
 		pipeline = DetectionPipeline(self.file_handler, self.request_manager, to_detect)
@@ -77,15 +81,15 @@ class Application:
 
 	def create_scenario(self, request, scenario_to_create, name=None):
 
-		pipeline = ScenarioPipeline(request_manager=self.request_manager,
-			scenarios_to_create=scenario_to_create, name=name
+		pipeline = ScenarioPipeline(
+			request_manager=self.request_manager, scenarios_to_create=scenario_to_create, name=name
 		)
 		new_scenario = pipeline.process(request)
 		self.current_request.add_scenario(new_scenario)
 
 		self.load_scenario_onscreen(request=request, name=new_scenario.scenario_name)
 
-	def make_location_request(self, latitude: float, longitude: float, name:str = None) -> None:
+	def make_location_request(self, latitude: float, longitude: float, name: str = None) -> None:
 		"""
 		Makes a location request and updates the application correspondingly.
 
@@ -192,8 +196,15 @@ class Application:
 		)
 
 	def export_request_scenarios(
-		self, request: Request, scenario_mask: List[Scenario], export_directory: Path
+		self, request: Request, scenario_mask: Sequence[Scenario], export_directory: Path
 	) -> None:
+		"""
+		Exports scenario's certain requests belonging to a request to an export directory.
+		:param request: The request to export scenarios for
+		:param scenario_mask: Which scenario's to export
+		:param export_directory: The directory to export scenario's to
+		:return:
+		"""
 
 		request_exporter = RequestExporter(request_manager=self.request_manager)
 		request_exporter.export_request_scenarios(
@@ -211,12 +222,19 @@ class Application:
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.delete_text()
 
-	def load_scenario_onscreen(self, request: Request, name: str):
-
+	def load_scenario_onscreen(self, request: Request, name: str) -> None:
+		"""
+		Loads a named scenario belonging to a Request on-screen.
+		:param request: The Request
+		:param name: The name of the Request's scenario.
+		:return: None
+		"""
 		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
 		self.main_screen.set_gif(canvas_image)
 
-		text_to_show = self.get_statistics(request=request, element_list=[self.current_request.scenarios[name]])
+		text_to_show = self.get_statistics(
+			request=request, element_list=[self.current_request.scenarios[name]]
+		)
 		self.main_screen.update_text(text_to_show)
 
 	def process_finished_request(self, request: Request) -> None:
@@ -232,16 +250,16 @@ class Application:
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
 
-	def get_statistics(self, request, element_list):
+	def get_statistics(self, request: Request, element_list: Sequence[Union[Layer, Scenario]]):
 		"""
 		Method which can be called to count, analyse and create some statistics of the detections
 		saved in layers of the active request.
 		:return:
 		"""
 		bio_path = self.file_handler.folder_overview['biome_index']
-		info_gen = InformationPipeline(bio_path, self.current_request)
+		info_gen = InformationStringBuilder(bio_path, self.current_request)
 
-		return info_gen.process(request, element_list)
+		return info_gen.process(element_list=element_list)
 
 	def start(self):
 		"""

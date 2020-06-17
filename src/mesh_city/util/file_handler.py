@@ -30,7 +30,7 @@ class FileHandler:
 			"biome_index":
 			Path.joinpath(self.root, 'resources', 'mvrdv', 'PlanetPainter_BiomeIndex.csv'),
 			"MVRDV":
-				Path.joinpath(self.root, 'resources', 'mvrdv', 'mvrdv_logo.png')
+			Path.joinpath(self.root, 'resources', 'mvrdv', 'mvrdv_logo.png')
 		}
 		# initiated with a CoordinateOverview, coordinate_overview.grid is a json file
 		self.coordinate_overview = None
