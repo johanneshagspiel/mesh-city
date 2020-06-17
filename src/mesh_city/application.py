@@ -8,7 +8,7 @@ from typing import List, Sequence, Union
 from PIL import Image
 
 from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionType
-from mesh_city.detection.information_pipeline import InformationPipeline
+from mesh_city.detection.information_pipeline import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.logs.log_manager import LogManager
@@ -242,7 +242,7 @@ class Application:
 		:return:
 		"""
 		bio_path = self.file_handler.folder_overview['biome_index']
-		info_gen = InformationPipeline(bio_path, self.current_request)
+		info_gen = InformationStringBuilder(bio_path, self.current_request)
 
 		return info_gen.process(element_list=element_list)
 

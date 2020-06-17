@@ -13,7 +13,7 @@ from mesh_city.request.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
-class InformationPipeline:
+class InformationStringBuilder:
 	"""
 	Class which contains methods to count, analyse and create some statistics of the detections
 	saved in layers of a request.
@@ -59,7 +59,7 @@ class InformationPipeline:
 					info.append(dictionary)
 
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
-		                                                           request.y_grid_coord, 20)
+						request.y_grid_coord, 20)
 		point = {'latitude': latitude, 'longitude': longitude}
 
 		closest = GeoLocationUtil.closest(info, point)
