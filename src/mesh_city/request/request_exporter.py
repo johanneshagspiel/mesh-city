@@ -235,7 +235,12 @@ class RequestExporter:
 		:return:
 		"""
 		if isinstance(scenario, Scenario):
-			origin_path = scenario.scenario_path
-			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
-			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
-			copyfile(origin_path, export_directory.joinpath(rel_path))
+			origin_path_gif = scenario.scenario_path
+			rel_path_gif = origin_path_gif.relative_to(self.request_manager.get_image_root())
+			export_directory.joinpath(rel_path_gif.parent).mkdir(parents=True, exist_ok=True)
+			copyfile(origin_path_gif, export_directory.joinpath(rel_path_gif))
+
+			picture_path = scenario.picture_path
+			rel_path_picture = picture_path.relative_to(self.request_manager.get_image_root())
+			export_directory.joinpath(rel_path_picture.parent).mkdir(parents=True, exist_ok=True)
+			copyfile(picture_path, export_directory.joinpath(rel_path_picture))
