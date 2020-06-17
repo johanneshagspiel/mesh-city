@@ -33,7 +33,7 @@ class RequestRenderer:
 			(
 			round(request.num_of_horizontal_images * 1024 / scaling),
 			round(request.num_of_vertical_images * 1024 / scaling)
-			), (255, 255, 255, 0)
+			), (255, 255, 255, 255)
 		)
 		result_image = base_image
 		for (index, mask) in enumerate(layer_mask):
