@@ -85,8 +85,8 @@ class ScenarioPipeline:
 		self.notify_observers()
 
 		for tree in range(0, trees_to_add):
-			source_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
-			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
+			source_tree_index = random.randint(1, len(tree_dataframe) - 1)
+			destination_tree_index = random.randint(1, len(tree_dataframe) - 1)
 
 			tree_area_to_cut = (
 				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
@@ -260,10 +260,24 @@ class ScenarioPipeline:
 		old_xmax = tree_dataframe.iloc[what_to_place][3]
 		old_ymax = tree_dataframe.iloc[what_to_place][4]
 
-		new_xmin = old_xmin + 50
-		new_ymax = old_ymax + 50
-		new_xmax = old_xmax + 50
-		new_ymin = old_ymin + 50
+		where_xmin = tree_dataframe.iloc[where_to_place][1]
+		where_ymin = tree_dataframe.iloc[where_to_place][2]
+		where_xmax = tree_dataframe.iloc[where_to_place][3]
+		where_ymax = tree_dataframe.iloc[where_to_place][4]
+
+		where_center_x = where_xmin + ((where_xmax - where_xmin) / 2)
+		where_center_y = where_ymin + ((where_ymax - where_ymin) / 2)
+
+		y_offset = random.uniform(-50, 50)
+		x_offset = random.uniform(-50, 50)
+
+		new_center_y = where_center_y + y_offset
+		new_center_x = where_center_x + x_offset
+
+		new_xmin = new_center_x + ((old_xmax - old_xmin) / 2)
+		new_xmax = new_center_x + ((old_xmax - old_xmin) / 2)
+		new_ymin = new_center_y + ((old_ymax - old_ymin) / 2)
+		new_ymax = new_center_y + ((old_ymax - old_ymin) / 2)
 
 		if new_xmin < 0:
 			to_add = (-1) * new_xmin
