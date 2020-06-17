@@ -187,19 +187,19 @@ class Application:
 		)
 
 	def export_request_scenarios(
-		self, request: Request, scenario_mask: Sequence[Scenario], export_directory: Path
+		self, scenario_list: Sequence[Scenario], export_directory: Path
 	) -> None:
 		"""
 		Exports scenario's certain requests belonging to a request to an export directory.
 		:param request: The request to export scenarios for
-		:param scenario_mask: Which scenario's to export
+		:param scenario_list: Which scenario's to export
 		:param export_directory: The directory to export scenario's to
 		:return:
 		"""
 
 		request_exporter = RequestExporter(request_manager=self.request_manager)
 		request_exporter.export_request_scenarios(
-			request=request, scenario_mask=scenario_mask, export_directory=export_directory
+			scenario_list=scenario_list, export_directory=export_directory
 		)
 
 	def load_request_onscreen(self, request: Request) -> None:

@@ -1,3 +1,7 @@
+"""
+See :class:`.ScenarioPipeline`
+"""
+
 import copy
 import random
 from enum import Enum
@@ -15,17 +19,21 @@ from mesh_city.request.request_manager import RequestManager
 from mesh_city.scenario.scenario import Scenario
 
 
-class ScenarioType(Enum):
+class ScenarioModificationType(Enum):
 	MORE_TREES = 0
 	SWAP_CARS = 1
 
 
 class ScenarioPipeline:
+	"""
+	A class used to create scenario's from requests whose behaviour can be customized by specifying
+	what type of things it should change.
+	"""
 
 	def __init__(
 		self,
 		request_manager: RequestManager,
-		scenarios_to_create: Sequence[Tuple[ScenarioType, Any]],
+		scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]],
 		name: str = None
 	):
 		self.request_manager = request_manager
@@ -33,11 +41,16 @@ class ScenarioPipeline:
 		self.name = name
 
 	def add_more_trees(self, request: Request, trees_to_add: int):
-
-		if self.tree_panda is None:
+		"""
+		Creates the dataframes nee
+		:param request:
+		:param trees_to_add:
+		:return:
+		"""
+		if self.trees is None:
 			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
 		else:
-			tree_dataframe = self.tree_panda
+			tree_dataframe = self.trees
 
 		object_counter = tree_dataframe.shape[0] - 1
 
@@ -47,10 +60,10 @@ class ScenarioPipeline:
 			destination_tree_index = random.randint(1, tree_dataframe.shape[0] - 1)
 			source_tree_image = self.base_image.crop(
 				box=(
-				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
-				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
-				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
-				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
+					float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
+					float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
+					float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
+					float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
 				)
 			)
 
@@ -71,19 +84,24 @@ class ScenarioPipeline:
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
-		self.tree_panda = tree_dataframe
+		self.trees = tree_dataframe
 
 	def swap_cars_with_trees(self, request: Request, cars_to_swap: int):
-
-		if self.car_panda is None:
+		"""
+		Modifies the
+		:param request:
+		:param cars_to_swap:
+		:return:
+		"""
+		if self.cars is None:
 			car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path)
 		else:
-			car_dataframe = self.car_panda
+			car_dataframe = self.cars
 
-		if self.tree_panda is None:
+		if self.trees is None:
 			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
 		else:
-			tree_dataframe = self.tree_panda
+			tree_dataframe = self.trees
 
 		object_counter = tree_dataframe.shape[0] - 1
 
@@ -95,14 +113,14 @@ class ScenarioPipeline:
 
 			tree_image = self.base_image.crop(
 				box=(
-				float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
-				float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
-				float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
-				float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
+					float(tree_dataframe.iloc[tree_to_replace_with_index][1]),  # xmin
+					float(tree_dataframe.iloc[tree_to_replace_with_index][2]),  # ymin
+					float(tree_dataframe.iloc[tree_to_replace_with_index][3]),  # xmax
+					float(tree_dataframe.iloc[tree_to_replace_with_index][4]),  # ymax
 				)
 			)
 
-			new_entry = self.calculate_car_swap_location(
+			new_entry = self.create_new_swapped_tree_entry(
 				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
 			)
 			tree_dataframe.loc[object_counter] = new_entry
@@ -122,16 +140,24 @@ class ScenarioPipeline:
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
-		self.tree_panda = tree_dataframe
-		self.car_panda = car_dataframe
+		self.trees = tree_dataframe
+		self.cars = car_dataframe
 
-	def calculate_car_swap_location(
+	def create_new_swapped_tree_entry(
 		self,
 		car_to_swap_index: int,
 		tree_to_replace_with_index: int,
 		tree_dataframe: DataFrame,
 		car_dataframe: DataFrame
 	):
+		"""
+		Computes a new entry for a tree copied to where there is currently a car.
+		:param car_to_swap_index: The car to paste a tree on
+		:param tree_to_replace_with_index: The tree to paste onto the car
+		:param tree_dataframe: The dataframe of tree detections
+		:param car_dataframe: The dataframe of car detections
+		:return: A new entry containing a tree copied to where the car was
+		"""
 
 		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]
 		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][2]
@@ -197,8 +223,12 @@ class ScenarioPipeline:
 
 		return new_entry
 
-	def combine_results(self, request):
-
+	def combine_results(self, request: Request) -> Scenario:
+		"""
+		Combines the results of the made modifications that are part of the Scenario.
+		:param request: The request
+		:return: The resulting Scenario.
+		"""
 		scenario_path = self.request_manager.get_image_root().joinpath("scenarios")
 		scenario_path.mkdir(parents=True, exist_ok=True)
 
@@ -254,13 +284,13 @@ class ScenarioPipeline:
 
 		self.changes_pd = pd.DataFrame(columns=["xmin", "ymin", "xmax", "ymax", "score", "label"])
 
-		self.tree_panda = None
-		self.car_panda = None
+		self.trees = None
+		self.cars = None
 
 		for (feature, information) in self.scenarios_to_create:
-			if feature == ScenarioType.MORE_TREES:
+			if feature == ScenarioModificationType.MORE_TREES:
 				self.add_more_trees(request=request, trees_to_add=information)
-			if feature == ScenarioType.SWAP_CARS:
+			if feature == ScenarioModificationType.SWAP_CARS:
 				self.swap_cars_with_trees(request=request, cars_to_swap=information)
 
 		new_scenario = self.combine_results(request)

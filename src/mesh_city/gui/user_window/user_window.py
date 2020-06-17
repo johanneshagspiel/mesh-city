@@ -1,3 +1,7 @@
+"""
+See :class:`.UserWindow`
+"""
+
 from tkinter import Button, CHAR, END, Entry, Label, messagebox, Text, Toplevel
 
 from mesh_city.user.image_provider_entity import ImageProviderEntity
@@ -5,6 +9,9 @@ from mesh_city.util.input_util import InputUtil
 
 
 class UserWindow:
+	"""
+	A window that shows the user all the necessary information and also allows the user to changes things such as quota.
+	"""
 
 	def __init__(self, master, application, main_screen):
 		"""
@@ -13,6 +20,7 @@ class UserWindow:
 		:param application: the global application context
 		:param main_screen: the main screen of the application
 		"""
+		self.new_name_entry = None
 		self.main_screen = main_screen
 		self.master = master
 		self.application = application
@@ -37,7 +45,6 @@ class UserWindow:
 		self.name_label = Label(self.top, text=self.user_entity.name)
 		self.name_label.grid(row=0, columnspan=2)
 		self.pot_delete_list.append(self.name_label)
-
 		self.change_name_button = Button(
 			self.top, text="Change name", command=self.change_name, bg="white"
 		)
@@ -45,10 +52,10 @@ class UserWindow:
 		self.pot_delete_list.append(self.change_name_button)
 		self.provider_number = 0
 
-		temp_text = "\nYour image provider:"
+		imagery_provider_description = "\nYour image provider:"
 		if len(self.user_entity.image_providers.keys()) > 1:
-			temp_text = "\nYour image providers:"
-		self.top_label = Label(self.top, text=temp_text)
+			imagery_provider_description = "\nYour image providers:"
+		self.top_label = Label(self.top, text=imagery_provider_description)
 		self.top_label.grid(row=2, columnspan=2)
 
 		counter = 3
@@ -56,13 +63,13 @@ class UserWindow:
 		for name, image_provider in self.user_entity.image_providers.items():
 			self.count += 1
 
-			self.temp_name_label = Label(self.top, text=name)
-			self.temp_name_label.grid(row=counter, column=0, sticky="w")
-			self.pot_delete_list.append(self.temp_name_label)
+			self.name_label = Label(self.top, text=name)
+			self.name_label.grid(row=counter, column=0, sticky="w")
+			self.pot_delete_list.append(self.name_label)
 			counter += 1
 
-			temp_api_text = "API Key: "
-			self.temp_api_label = Label(self.top, text=temp_api_text)
+			api_description = "API Key: "
+			self.temp_api_label = Label(self.top, text=api_description)
 			self.temp_api_label.grid(row=counter, column=0, sticky="w")
 			self.pot_delete_list.append(self.temp_api_label)
 
@@ -132,6 +139,10 @@ class UserWindow:
 		self.pot_delete_list.append(self.additional_provider_button)
 
 	def add_another_provider(self):
+		"""
+		Provides the user with a form to fill in fields for a new provider.
+		:return:
+		"""
 		self.provider_number += 1
 
 		self.top_label["text"] = "Please fill in all the fields"
@@ -142,20 +153,20 @@ class UserWindow:
 
 		temp_name = str("Google Maps ") + str(self.count)
 		self.count += 1
-		self.temp_name_label = Label(self.top, text=temp_name)
-		self.temp_name_label.grid(row=self.end, column=0)
+		self.name_label = Label(self.top, text=temp_name)
+		self.name_label.grid(row=self.end, column=0)
 		self.end += 1
 
-		self.api_key = Label(self.top, text="API Key")
-		self.api_key.grid(row=self.end, column=0)
+		api_key_label = Label(self.top, text="API Key")
+		api_key_label.grid(row=self.end, column=0)
 
 		self.map_providers.append(Entry(self.top))
 		self.map_providers_size += 1
 		self.map_providers[self.map_providers_size].grid(row=self.end, column=1, columnspan=2)
 		self.end += 1
 
-		self.quota = Label(self.top, text="Monthly Quota")
-		self.quota.grid(row=self.end, column=0)
+		quota_label = Label(self.top, text="Monthly Quota")
+		quota_label.grid(row=self.end, column=0)
 
 		self.map_providers.append(Entry(self.top))
 		self.map_providers_size += 1
@@ -171,78 +182,101 @@ class UserWindow:
 		self.confirm_button.grid(row=self.end, column=1)
 
 	def change_quota(self, old_quota, usage, name):
+		"""
+		Changes the quota to a new value
+		:param old_quota: The old quota value
+		:param usage: The current usage
+		:param name: The name of the imagery provider
+		:return:
+		"""
 		for element in self.pot_delete_list:
 			element.grid_forget()
 		self.top_label.grid_forget()
 
-		temp_old_quota = Label(self.top, text="Old Quota: ")
-		temp_old_quota.grid(row=0, column=0, sticky="w")
+		old_quota_label = Label(self.top, text="Old Quota: ")
+		old_quota_label.grid(row=0, column=0, sticky="w")
 
-		temp_old_quota_amount = Label(self.top, text=old_quota)
-		temp_old_quota_amount.grid(row=0, column=1)
+		Label(self.top, text=old_quota).grid(row=0, column=1)
 
-		temp_current_usage = Label(self.top, text="Current Usage: ")
-		temp_current_usage.grid(row=1, column=0, sticky="w")
+		Label(self.top, text="Current Usage: ").grid(row=1, column=0, sticky="w")
 
-		self.temp_current_usage_amount = Label(self.top, text=usage)
-		self.temp_current_usage_amount.grid(row=1, column=1)
+		self.current_usage_amount = Label(self.top, text=usage)
+		self.current_usage_amount.grid(row=1, column=1)
 
-		temp_new_quota = Label(self.top, text="New Quota: ")
-		temp_new_quota.grid(row=2, column=0, sticky="w")
+		Label(self.top, text="New Quota: ").grid(row=2, column=0, sticky="w")
 
-		self.temp_new_quota_entry = Entry(self.top)
-		self.temp_new_quota_entry.grid(row=2, column=1)
+		self.new_quota_entry = Entry(self.top)
+		self.new_quota_entry.grid(row=2, column=1)
 
-		temp_new_quota_button = Button(
+		new_quota_button = Button(
 			self.top,
 			text="Confirm",
-			command=lambda: self.change_quota_confirm(self.temp_new_quota_entry.get(), name),
+			command=lambda: self.change_quota_confirm(self.new_quota_entry.get(), name),
 			bg="white"
 		)
-		temp_new_quota_button.grid(row=3, columnspan=2)
+		new_quota_button.grid(row=3, columnspan=2)
 
 	def change_quota_confirm(self, new_quota, name):
+		"""
+		Checks new quota value and either prompts the user to fix their input or updates the quota and closes
+		the GUI element.
+		:param new_quota: The new quota value.
+		:param name: The name of the provider.
+		:return:
+		"""
 		if new_quota == "" or (InputUtil.is_float(new_quota) is False):
 			messagebox.showinfo("Input Error", "Quota must be a number")
-			self.temp_new_quota_entry.delete(0, 'end')
-		elif float(new_quota) <= float(self.temp_current_usage_amount["text"]):
+			self.new_quota_entry.delete(0, 'end')
+		elif float(new_quota) <= float(self.current_usage_amount["text"]):
 			messagebox.showinfo("Input Error", "New quota can not be lower than current usage")
-			self.temp_new_quota_entry.delete(0, 'end')
+			self.new_quota_entry.delete(0, 'end')
 		else:
 			self.user_entity.image_providers[name].quota = new_quota
 			self.application.log_manager.write_log(self.user_entity)
 			self.top.destroy()
 
 	def change_name(self):
+		"""
+		Prompts the user to enter a new name for the user.
+		:return:
+		"""
 		for element in self.pot_delete_list:
 			element.grid_forget()
 		self.top_label.grid_forget()
 
-		temp_new_name = Label(self.top, text="New Name: ")
-		temp_new_name.grid(row=0, column=0)
+		new_name_label = Label(self.top, text="New Name: ")
+		new_name_label.grid(row=0, column=0)
 
-		self.temp_new_name_entry = Entry(self.top)
-		self.temp_new_name_entry.grid(row=0, column=1)
+		self.new_name_entry = Entry(self.top)
+		self.new_name_entry.grid(row=0, column=1)
 
-		temp_new_name_button = Button(
+		new_name_button = Button(
 			self.top,
 			text="Confirm",
-			command=lambda: self.change_name_confirm(self.temp_new_name_entry.get()),
+			command=lambda: self.change_name_confirm(self.new_name_entry.get()),
 			bg="white"
 		)
-		temp_new_name_button.grid(row=1, columnspan=2)
+		new_name_button.grid(row=1, columnspan=2)
 
 	def change_name_confirm(self, new_name):
+		"""
+		Checks the new user name and changes the user name if the input checks out.
+		:param new_name: The new name that was entered by the user
+		:return:
+		"""
 		if new_name == "":
 			messagebox.showinfo("Input Error", "Name must be filled out")
-			self.temp_new_name_entry.delete(0, 'end')
+			self.new_name_entry.delete(0, 'end')
 		else:
 			self.application.log_manager.change_name(self.user_entity.name, new_name)
 			self.user_entity.name = new_name
 			self.top.destroy()
 
 	def add_providers(self):
-
+		"""
+		Adds imagery providers and checks if their values are correct.
+		:return:
+		"""
 		wrong_entry_list = []
 
 		for counter, entry in enumerate(self.map_providers):
@@ -265,20 +299,20 @@ class UserWindow:
 
 			image_provider_entity_dic = {}
 
-			temp_counter = self.provider_number_start + 1
+			counter = self.provider_number_start + 1
 			for number in range(0, self.map_providers_size, 2):
-				temp_api_key = self.map_providers[number].get()
+				api_key = self.map_providers[number].get()
 				number += 1
-				temp_quota = self.map_providers[number].get()
+				quota = self.map_providers[number].get()
 				number += 1
-				temp_name = "Google Maps " + str(temp_counter)
-				image_provider_entity_dic[temp_name] = ImageProviderEntity(
+				name = "Google Maps " + str(counter)
+				image_provider_entity_dic[name] = ImageProviderEntity(
 					file_handler=self.application.file_handler,
 					type_map_provider="Google Maps",
-					api_key=temp_api_key,
-					quota=temp_quota
+					api_key=api_key,
+					quota=quota
 				)
-				temp_counter += 1
+				counter += 1
 
 			for name, value in image_provider_entity_dic.items():
 				self.user_entity.image_providers[name] = value

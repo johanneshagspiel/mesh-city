@@ -134,16 +134,25 @@ class RequestExporter:
 			)
 
 	def export_request_scenarios(
-		self, request: Request, scenario_mask: List[Scenario], export_directory: Path
+		self, scenario_list: List[Scenario], export_directory: Path
 	) -> None:
+		"""
+		Exports 
+		:param scenario_list: 
+		:param export_directory: 
+		:return: 
+		"""
 		export_directory.mkdir(parents=True, exist_ok=True)
-		for scenario in scenario_mask:
-			self.export_scenario(
-				request=request, scenario=scenario, export_directory=export_directory
-			)
+		for scenario in scenario_list:
+			self.export_scenario(scenario=scenario, export_directory=export_directory)
 
-	def export_scenario(self, request: Request, scenario: Scenario, export_directory: Path) -> None:
-
+	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
+		"""
+		Exports a scenario to a given directory
+		:param scenario: The scenario to export
+		:param export_directory: The directory to export the scenario to
+		:return:
+		"""
 		if isinstance(scenario, Scenario):
 			origin_path = scenario.scenario_path
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())

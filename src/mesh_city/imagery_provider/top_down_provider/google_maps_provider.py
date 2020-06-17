@@ -12,7 +12,6 @@ from requests import get, Response
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
-
 # TODO add documentation explaining the mathematics of this class
 
 
@@ -69,15 +68,15 @@ class GoogleMapsProvider(TopDownProvider):
 			response = get(
 				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%sx%s&scale=%s&format=%s&maptype=%s&key=%s"
 				% (
-					str(latitude),
-					str(longitude),
-					str(zoom),
-					str(width),
-					str(height),
-					str(scale),
-					file_format,
-					map_type,
-					self.image_provider_entity.api_key,
+				str(latitude),
+				str(longitude),
+				str(zoom),
+				str(width),
+				str(height),
+				str(scale),
+				file_format,
+				map_type,
+				self.image_provider_entity.api_key,
 				)
 			)
 

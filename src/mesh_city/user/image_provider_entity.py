@@ -94,6 +94,10 @@ class ImageProviderEntity(LogEntity):
 		}
 
 	def increment_usage(self):
+		"""
+		Increments the usage
+		:return:
+		"""
 		old_usage = self.usage["total"]
 		temp_cost = PriceTableUtil.one_increase(old_usage)
 		temp_new_total = old_usage + temp_cost

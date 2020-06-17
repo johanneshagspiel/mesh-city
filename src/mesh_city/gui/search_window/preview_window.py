@@ -1,3 +1,4 @@
+# pylint: disable=W0201,W0640
 """
 A module containing the preview window
 """
@@ -7,7 +8,6 @@ from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.price_table_util import PriceTableUtil
 
 
-# pylint: disable=W0201
 class PreviewWindow:
 	"""
 	The preview window class is the gui element that shows the user how much a request would cost
@@ -249,7 +249,11 @@ class PreviewWindow:
 		PreviewWindow(self.master, self.application, self.main_screen, self.coordinates)
 		self.top.destroy()
 
-	def confirm_download(self):
+	def confirm_download(self) -> None:
+		"""
+		Prompts the user to confirm that they want to download the images and make the requests.
+		:return: None
+		"""
 		self.top_label.configure(text="Are you sure you want to proceed?")
 		self.top_label.grid(row=0, column=0, columnspan=3)
 
