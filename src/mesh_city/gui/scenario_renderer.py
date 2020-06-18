@@ -46,10 +46,13 @@ class ScenarioRenderer:
 		).convert("RGBA")
 		buildings = scenario.buildings.copy(deep=True)
 		if scenario.buildings is not None:
-			result_image = self.render_shrubbery(base_image=result_image, buildings=buildings,
-			                                     scaling=scaling)
+			result_image = self.render_shrubbery(
+				base_image=result_image, buildings=buildings, scaling=scaling
+			)
 		if scenario.trees is not None:
-			result_image = self.render_trees(base_image=result_image,trees=scenario.trees,scaling=scaling)
+			result_image = self.render_trees(
+				base_image=result_image, trees=scenario.trees, scaling=scaling
+			)
 		return result_image
 
 	def render_shrubbery(self, base_image: Image, buildings: GeoDataFrame, scaling=1) -> Image:
@@ -64,29 +67,23 @@ class ScenarioRenderer:
 			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
 		)
 		green_overlay = np.asarray(self.overlay_image)
-		vertical_tiles = math.ceil(base_image.width / self.overlay_image.height)
-		horizontal_tiles = math.ceil(base_image.height / self.overlay_image.width)
+		vertical_tiles = math.ceil(base_image.height / self.overlay_image.height)
+		horizontal_tiles = math.ceil(base_image.width / self.overlay_image.width)
 		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
-		cropped_overlay = tiled_overlay[0:base_image.width, 0:base_image.height]
-		mask_base = Image.new(
-			'RGB',
-			(
-				base_image.width,
-				base_image.height
-			), (0, 0, 0)
-		)
+		cropped_overlay = tiled_overlay[0:base_image.height, 0:base_image.width]
+		mask_base = Image.new('RGB', (base_image.width, base_image.height), (0, 0, 0))
 		draw = ImageDraw.Draw(mask_base)
-		for (index, (polygon, label)) in enumerate(
-			zip(buildings["geometry"], buildings["label"])):
+		for (index, (polygon, label)) in enumerate(zip(buildings["geometry"], buildings["label"])):
 			if label == "Shrubbery":
 				vertices = list(zip(*polygon.exterior.coords.xy))
-				draw.polygon(
-					xy=vertices, fill=(255, 255, 255)
-				)
+				draw.polygon(xy=vertices, fill=(255, 255, 255))
 		final_mask = np.asarray(mask_base).astype(float) / 255
+		print(final_mask.shape)
+		print(cropped_overlay.shape)
 		final_overlay = cv2.multiply(final_mask, cropped_overlay, dtype=cv2.CV_32F)
-		masked_numpy_base = cv2.multiply(1 - final_mask, np.asarray(base_image.convert("RGB")),
-		                                 dtype=cv2.CV_32F)
+		masked_numpy_base = cv2.multiply(
+			1 - final_mask, np.asarray(base_image.convert("RGB")), dtype=cv2.CV_32F
+		)
 		new_base_image_numpy = cv2.add(masked_numpy_base, final_overlay, dtype=cv2.CV_8UC3)
 		return Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
 

@@ -41,14 +41,12 @@ class ScenarioPipeline:
 	what type of things it should change.
 	"""
 
-	def __init__(
-		self,
-		scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]]
-	):
+	def __init__(self, scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]]):
 		self.scenarios_to_create = scenarios_to_create
 
-	def paint_buildings_green(self, building_dataframe,
-	                          buildings_to_make_green: int) -> GeoDataFrame:
+	def paint_buildings_green(
+		self, building_dataframe, buildings_to_make_green: int
+	) -> GeoDataFrame:
 		"""
 		Labels a certain number of polygons as Shrubbery, which is later used to paint parts of the buildings green.
 		:param building_dataframe:
@@ -57,7 +55,7 @@ class ScenarioPipeline:
 		"""
 		np.random.shuffle(building_dataframe.values)
 		shrubbery_dataframe = building_dataframe.head(buildings_to_make_green)
-		shrubbery_dataframe.loc[:,"label"] = "Shrubbery"
+		shrubbery_dataframe.loc[:, "label"] = "Shrubbery"
 		new_building_dataframe = building_dataframe.iloc[buildings_to_make_green:]
 		final_dataframe = shrubbery_dataframe.append(new_building_dataframe, ignore_index=True)
 		return final_dataframe
@@ -78,18 +76,26 @@ class ScenarioPipeline:
 				source_tree_index, neighbour_tree_index, filtered_trees
 			)
 			new_trees.append(
-				(new_xmin, new_ymin, new_xmax, new_ymax,
-				 filtered_trees.loc[source_tree_index, ["score"]], "AddedTree", source_tree_index))
+				(
+				new_xmin,
+				new_ymin,
+				new_xmax,
+				new_ymax,
+				filtered_trees.loc[source_tree_index, ["score"]],
+				"AddedTree",
+				source_tree_index
+				)
+			)
 
-		new_trees_df = pd.DataFrame(new_trees,
-		                            columns=["xmin", "ymin", "xmax", "ymax", "score", "label",
-		                                     "source_index"])
+		new_trees_df = pd.DataFrame(
+			new_trees, columns=["xmin", "ymin", "xmax", "ymax", "score", "label", "source_index"]
+		)
 		tree_dataframe = tree_dataframe.append(new_trees_df, ignore_index=True)
 		return tree_dataframe
 
-	def swap_cars_with_trees(self, car_dataframe: DataFrame, tree_dataframe: DataFrame,
-	                         cars_to_swap: int) -> Tuple[
-		DataFrame, DataFrame]:
+	def swap_cars_with_trees(
+		self, car_dataframe: DataFrame, tree_dataframe: DataFrame, cars_to_swap: int
+	) -> Tuple[DataFrame, DataFrame]:
 		"""
 		Swaps a given number of cars with trees.
 		:param request:
@@ -105,7 +111,8 @@ class ScenarioPipeline:
 				car_index, tree_to_replace_with_index, tree_dataframe, car_dataframe
 			)
 			changes_list.append(
-				(new_xmin, new_ymin, new_xmax, new_ymax, tree_to_replace_with_index))
+				(new_xmin, new_ymin, new_xmax, new_ymax, tree_to_replace_with_index)
+			)
 		replaced_cars = car_dataframe.head(cars_to_swap)
 		replaced_cars.loc[:, "source_index"] = -1
 		replaced_cars.loc[:, ["xmin", "ymin", "xmax", "ymax", "source_index"]] = changes_list
@@ -224,30 +231,32 @@ class ScenarioPipeline:
 		tree_dataframe = None
 		buildings_dataframe = None
 		if request.has_layer_of_type(CarsLayer):
-			car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path,
-			                            index_col=0)
+			car_dataframe = pd.read_csv(
+				request.get_layer_of_type(CarsLayer).detections_path, index_col=0
+			)
 		if request.has_layer_of_type(TreesLayer):
-			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path,
-			                             index_col=0)
+			tree_dataframe = pd.read_csv(
+				request.get_layer_of_type(TreesLayer).detections_path, index_col=0
+			)
 			tree_dataframe.loc[:, "source_index"] = -1
 		if request.has_layer_of_type(BuildingsLayer):
 			buildings_dataframe = gpd.read_file(
-				request.get_layer_of_type(BuildingsLayer).detections_path)
+				request.get_layer_of_type(BuildingsLayer).detections_path
+			)
 
 		for (feature, information) in self.scenarios_to_create:
 			if feature == ScenarioModificationType.MORE_TREES:
-				tree_dataframe = self.add_more_trees(tree_dataframe=tree_dataframe,
-				                                     trees_to_add=information)
+				tree_dataframe = self.add_more_trees(
+					tree_dataframe=tree_dataframe, trees_to_add=information
+				)
 			if feature == ScenarioModificationType.SWAP_CARS:
 				tree_dataframe, car_dataframe = self.swap_cars_with_trees(
 					car_dataframe=car_dataframe, tree_dataframe=tree_dataframe,
 					cars_to_swap=information)
 			if feature == ScenarioModificationType.PAINT_BUILDINGS_GREEN:
 				buildings_dataframe = self.paint_buildings_green(
-					building_dataframe=buildings_dataframe, buildings_to_make_green=information)
+					building_dataframe=buildings_dataframe, buildings_to_make_green=information
+				)
 		return Scenario(
-			cars=car_dataframe,
-			trees=tree_dataframe,
-			buildings=buildings_dataframe,
-			request=request
+			cars=car_dataframe, trees=tree_dataframe, buildings=buildings_dataframe, request=request
 		)

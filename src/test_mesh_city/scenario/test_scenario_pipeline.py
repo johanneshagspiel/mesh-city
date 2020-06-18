@@ -22,22 +22,18 @@ class TestScenarioPipeline(unittest.TestCase):
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)
 		filtered_df = scenario.buildings.loc[scenario.buildings['label'] == "Shrubbery"]
-		self.assertEqual(2,len(filtered_df))
+		self.assertEqual(2, len(filtered_df))
 
 	def test_swap_cars_scenario(self):
-		pipeline = ScenarioPipeline(
-			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 3)]
-		)
+		pipeline = ScenarioPipeline(scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 3)])
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)
 		filtered_df = scenario.trees.loc[scenario.trees['label'] == "SwappedCar"]
-		self.assertEqual(3,len(filtered_df))
+		self.assertEqual(3, len(filtered_df))
 
 	def test_more_tree_scenario(self):
-		pipeline = ScenarioPipeline(
-			scenarios_to_create=[(ScenarioModificationType.MORE_TREES, 4)]
-		)
+		pipeline = ScenarioPipeline(scenarios_to_create=[(ScenarioModificationType.MORE_TREES, 4)])
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)
 		filtered_df = scenario.trees.loc[scenario.trees['label'] == "AddedTree"]
-		self.assertEqual(4,len(filtered_df))
+		self.assertEqual(4, len(filtered_df))

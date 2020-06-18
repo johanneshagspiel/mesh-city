@@ -12,8 +12,7 @@ class ScenarioSchema:
 	"""
 
 	def __init__(
-		self,
-		parameterized_modifications: Sequence[Tuple[ScenarioModificationType, Any]] = None
+		self, parameterized_modifications: Sequence[Tuple[ScenarioModificationType, Any]] = None
 	):
 		if parameterized_modifications:
 			self.__parameterized_modifications = parameterized_modifications

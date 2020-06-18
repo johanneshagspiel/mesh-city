@@ -14,11 +14,7 @@ class Scenario:
 	"""
 
 	def __init__(
-		self,
-		trees: DataFrame,
-		cars: DataFrame,
-		buildings: GeoDataFrame,
-		request: Request
+		self, trees: DataFrame, cars: DataFrame, buildings: GeoDataFrame, request: Request
 	) -> None:
 		self.trees = trees
 		self.cars = cars

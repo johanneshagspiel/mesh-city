@@ -4,8 +4,8 @@ The module containing the eco window
 import math
 from tkinter import Button, Entry, Label, Scale, Toplevel
 
-import pandas as pd
 import geopandas as gpd
+import pandas as pd
 
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
@@ -153,7 +153,6 @@ class EcoWindow:
 		confirm_button.grid(row=grid_index, columnspan=3)
 		self.to_forget.append(confirm_button)
 
-
 	def cleanup_paint_buildings(self):
 		"""
 		Adds a step corresponding to painting some buildings green.
@@ -164,7 +163,6 @@ class EcoWindow:
 
 		self.scenario_list.append((ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add))
 		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
-
 
 	def add_more_trees(self):
 		"""
@@ -302,6 +300,5 @@ class EcoWindow:
 		self.top.destroy()
 
 		self.application.create_scenario(
-			request=self.application.current_request,
-			scenarios_to_create=self.scenario_list
+			request=self.application.current_request, scenarios_to_create=self.scenario_list
 		)

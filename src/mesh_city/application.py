@@ -33,7 +33,8 @@ class Application:
 	def __init__(self):
 		self.file_handler = FileHandler()
 		self.overlay_image = Image.open(
-			self.file_handler.folder_overview["resource_path"].joinpath("trees-overlay.png"))
+			self.file_handler.folder_overview["resource_path"].joinpath("trees-overlay.png")
+		)
 		self.log_manager = LogManager(file_handler=self.file_handler)
 		self.request_maker = None
 		self.user_entity = None
@@ -237,7 +238,7 @@ class Application:
 		:return: None
 		"""
 		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
-		canvas_image = scenario_renderer.render_scenario(scenario=scenario,scaling=1)
+		canvas_image = scenario_renderer.render_scenario(scenario=scenario, scaling=16)
 		self.main_screen.set_canvas_image(canvas_image)
 
 		text_to_show = self.get_statistics(element_list=[scenario])

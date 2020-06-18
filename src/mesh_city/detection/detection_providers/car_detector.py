@@ -61,25 +61,23 @@ class CarDetector:
 
 			# all outputs are float32 numpy arrays, so convert types as appropriate
 			output_dict['num_detections'] = int(output_dict['num_detections'][0])
-			output_dict['detection_classes'] = output_dict['detection_classes'][0].astype(
-				np.int64
-			)
+			output_dict['detection_classes'] = output_dict['detection_classes'][0].astype(np.int64)
 			output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
 			output_dict['detection_scores'] = output_dict['detection_scores'][0]
 			if 'detection_masks' in output_dict:
 				output_dict['detection_masks'] = output_dict['detection_masks'][0]
 		detection_data = []
 		for (bounding_box,
-		     probability) in zip(output_dict['detection_boxes'], output_dict['detection_scores']):
+			probability) in zip(output_dict['detection_boxes'], output_dict['detection_scores']):
 			if probability > 0.99:
 				detection_data.append(
 					(
-						bounding_box[1] * 1024,
-						bounding_box[0] * 1024,
-						bounding_box[3] * 1024,
-						bounding_box[2] * 1024,
-						probability,
-						"Car"
+					bounding_box[1] * 1024,
+					bounding_box[0] * 1024,
+					bounding_box[3] * 1024,
+					bounding_box[2] * 1024,
+					probability,
+					"Car"
 					)
 				)
 		dataframe = pd.DataFrame(

@@ -10,13 +10,10 @@ class ScenarioBuilder:
 	what type of things it should change.
 	"""
 
-	def __init__(
-		self,
-	):
+	def __init__(self, ):
 		pass
 
 	def get_possible_scenarios(self, request: Request):
 		layer_set = set()
 		for layer in request.layers:
 			layer_set.add(type(layer))
-
