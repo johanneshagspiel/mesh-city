@@ -167,9 +167,7 @@ class RequestExporter:
 		:param layer: the layer that you want to export
 		:return: a path to the to be exported layer
 		"""
-		if layer.detections_export_path is None:
-			return self.create_export_csv(request, layer)
-		return layer.detections_export_path
+		return self.create_export_csv(request, layer)
 
 	def create_export_csv(self, request: Request, layer: Layer):
 		"""
@@ -188,7 +186,7 @@ class RequestExporter:
 
 		detections_export_path = self.request_manager.get_image_root().joinpath(label)
 		detections_export_path.mkdir(parents=True, exist_ok=True)
-		layer.detections_export_path = detections_export_path.joinpath(
+		detections_export_path = detections_export_path.joinpath(
 			"detections_" + str(request.request_id) + "_export.csv"
 		)
 
@@ -210,9 +208,9 @@ class RequestExporter:
 					csv_data['label'].append(label)
 					csv_data['generated'].append(0)
 
-		pd.DataFrame(csv_data).to_csv(str(layer.detections_export_path), index=False)
+		pd.DataFrame(csv_data).to_csv(str(detections_export_path), index=False)
 
-		return layer.detections_export_path
+		return detections_export_path
 
 	def export_request_scenarios(
 		self, scenario_list: List[Scenario], export_directory: Path
