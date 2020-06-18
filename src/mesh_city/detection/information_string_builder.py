@@ -102,17 +102,8 @@ class InformationStringBuilder:
 		:param scenario: A Scenario instance
 		:return: An informative string about this Scenario
 		"""
-		count_trees_added = 0
-		count_cars_swapped = 0
-
-		with open(str(scenario.information_path), newline='') as csv_file:
-			csv_reader = csv.reader(csv_file, delimiter=',')
-			for (index, row) in enumerate(csv_reader):
-				if len(row) > 0 and index > 0:
-					if row[6] == "AddedTree":
-						count_trees_added += 1
-					if row[6] == "SwappedCar":
-						count_cars_swapped += 1
+		count_trees_added = len(scenario.trees.loc[scenario.trees['label'] == "AddedTree"])
+		count_cars_swapped = len(scenario.trees.loc[scenario.trees['label'] == "SwappedCar"])
 		result_string = ""
 		if count_trees_added > 0:
 			result_string += "Trees added: " + str(count_trees_added) + "\n"

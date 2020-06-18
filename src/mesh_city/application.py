@@ -237,7 +237,7 @@ class Application:
 		:return: None
 		"""
 		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
-		canvas_image = scenario_renderer.render_scenario(scenario=scenario)
+		canvas_image = scenario_renderer.render_scenario(scenario=scenario,scaling=1)
 		self.main_screen.set_canvas_image(canvas_image)
 
 		text_to_show = self.get_statistics(element_list=[scenario])
