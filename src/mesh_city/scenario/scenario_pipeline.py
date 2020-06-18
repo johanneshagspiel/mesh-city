@@ -49,7 +49,6 @@ class ScenarioPipeline:
 		name: str = None
 	):
 		self.overlay_path = overlay_path
-		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
 		self.base_image = None
@@ -67,7 +66,7 @@ class ScenarioPipeline:
 		"""
 		np.random.shuffle(building_dataframe.values)
 		shrubbery_dataframe = building_dataframe.head(buildings_to_make_green)
-		shrubbery_dataframe["label"] = "Shrubbery"
+		shrubbery_dataframe.loc[:,"label"] = "Shrubbery"
 		new_building_dataframe = building_dataframe.iloc[buildings_to_make_green:]
 		final_dataframe = shrubbery_dataframe.append(new_building_dataframe, ignore_index=True)
 		return final_dataframe
@@ -102,7 +101,7 @@ class ScenarioPipeline:
 	                         cars_to_swap: int) -> Tuple[
 		DataFrame, DataFrame]:
 		"""
-
+		Swaps a given number of cars with trees.
 		:param request:
 		:param cars_to_swap:
 		:return:
