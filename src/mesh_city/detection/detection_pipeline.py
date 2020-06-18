@@ -3,6 +3,7 @@ A module containing the pipeline class which is responsible for moving images to
 detection algorithm in a form and frequency that they require and then moving the results to the
 appropriate classes to create useful information in the form of overlays.
 """
+import json
 import time
 from enum import Enum
 from typing import List, Sequence
@@ -122,8 +123,12 @@ class DetectionPipeline:
 			zfact=1.0,
 			origin=(0, 0)
 		)
-		dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
-
+		if not dataframe.empty:
+			dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
+		else:
+			empty_geojson = {"type": "FeatureCollection", "features": []}
+			with open(detection_file_path, 'w') as json_file:
+				json.dump(empty_geojson, json_file)
 		return BuildingsLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
