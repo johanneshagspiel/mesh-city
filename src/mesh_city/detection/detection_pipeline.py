@@ -170,7 +170,7 @@ class DetectionPipeline:
 			self.state["current_tile"] = counter
 			self.state["current_time_detection"] = time_needed_download
 			self.notify_observers()
-
+		car_detector.close()
 		concat_result = pd.concat(frames).reset_index(drop=True)
 		concat_result.to_csv(detections_path)
 

@@ -44,7 +44,7 @@ class CarDetector:
 				if tensor_name in all_tensor_names:
 					self.tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
 
-	def close_session(self):
+	def close(self):
 		self.session.close()
 
 	def detect_cars(self, image):
