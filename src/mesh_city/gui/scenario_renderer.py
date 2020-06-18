@@ -2,9 +2,13 @@
 See :class:`.ScenarioRenderer`
 """
 import pandas as pd
-from pandas import DataFrame
+import numpy as np
+import copy
+import math
+import cv2
 from PIL import Image, ImageDraw, ImageOps
 
+from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.scenario.scenario import Scenario

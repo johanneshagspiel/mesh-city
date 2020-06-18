@@ -134,34 +134,6 @@ class RequestManager:
 							detections_path=building_detections_path
 							)
 						)
-					scenarios = self.__images_root.joinpath("scenarios")
-					if scenarios.exists():
-						pattern_scenario_to_request = "request" + str(request.request_id) + "*"
-						file_paths = sorted(scenarios.glob(pattern_scenario_to_request))
-						for file_path in file_paths:
-							if os.path.splitext(Path(file_path))[1] != ".csv" and os.path.splitext(
-								Path(file_path)
-							)[1] != ".png":
-								scenario_name = Path(file_path).name.split("_")[1]
-								information_path = Path(
-									str(os.path.splitext(Path(file_path))[0]) + ".csv"
-								)
-								picture_path = Path(
-									str(os.path.splitext(Path(file_path))[0]) + ".png"
-								)
-								scenario_path = Path(
-									str(os.path.splitext(Path(file_path))[0]) + ".gif"
-								)
-								request.add_scenario(
-									Scenario(
-									scenario_name=scenario_name,
-									width=request.num_of_horizontal_images,
-									height=request.num_of_vertical_images,
-									scenario_path=scenario_path,
-									information_path=information_path,
-									picture_path=picture_path
-									)
-								)
 
 					self.add_request(request=request)
 
