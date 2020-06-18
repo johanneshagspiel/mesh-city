@@ -159,7 +159,7 @@ class EcoWindow:
 		:return:
 		"""
 		increase_percentage = self.buildings_to_paint_green_scale.get() * 0.01
-		trees_to_add = math.ceil((self.buildings_gdf.shape[0] - 1) * increase_percentage)
+		trees_to_add = math.ceil((self.buildings_gdf.shape[0]) * increase_percentage)
 
 		self.scenario_list.append((ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add))
 		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)

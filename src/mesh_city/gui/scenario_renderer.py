@@ -10,7 +10,6 @@ from geopandas import GeoDataFrame
 from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
-from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.image_util import ImageUtil

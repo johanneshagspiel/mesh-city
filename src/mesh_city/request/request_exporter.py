@@ -112,8 +112,9 @@ class RequestExporter:
 				driver='GeoJSON', filename=export_directory.joinpath(rel_path)
 			)
 
+	@staticmethod
 	def create_world_file(
-		self, path: Path, latitude: float, longitude: float, zoom: int, width: int, height: int
+		path: Path, latitude: float, longitude: float, zoom: int, width: int, height: int
 	):
 		"""
 		Method that creates a world file for an image. World files have the same name as the image,
@@ -211,34 +212,3 @@ class RequestExporter:
 		pd.DataFrame(csv_data).to_csv(str(detections_export_path), index=False)
 
 		return detections_export_path
-
-	def export_request_scenarios(
-		self, scenario_list: List[Scenario], export_directory: Path
-	) -> None:
-		"""
-		Exports
-		:param scenario_list:
-		:param export_directory:
-		:return:
-		"""
-		export_directory.mkdir(parents=True, exist_ok=True)
-		for scenario in scenario_list:
-			self.export_scenario(scenario=scenario, export_directory=export_directory)
-
-	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
-		"""
-		Exports a scenario to a given directory
-		:param scenario: The scenario to export
-		:param export_directory: The directory to export the scenario to
-		:return:
-		"""
-		if isinstance(scenario, Scenario):
-			origin_path_gif = scenario.scenario_path
-			rel_path_gif = origin_path_gif.relative_to(self.request_manager.get_image_root())
-			export_directory.joinpath(rel_path_gif.parent).mkdir(parents=True, exist_ok=True)
-			copyfile(origin_path_gif, export_directory.joinpath(rel_path_gif))
-
-			picture_path = scenario.picture_path
-			rel_path_picture = picture_path.relative_to(self.request_manager.get_image_root())
-			export_directory.joinpath(rel_path_picture.parent).mkdir(parents=True, exist_ok=True)
-			copyfile(picture_path, export_directory.joinpath(rel_path_picture))
