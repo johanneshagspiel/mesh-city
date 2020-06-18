@@ -1,113 +1,53 @@
 """
-See :class:`.ScenarioPipeline`
-
-source for the part of creating an elipse mask for the trees:
-source: Nadia Alramli
-url: https://stackoverflow.com/questions/890051/how-do-i-generate-circular-thumbnails-with-pil
+See :class:`.ScenarioRenderer`
 """
-
-import copy
-import math
-import random
-from enum import Enum
-from pathlib import Path
-from typing import Any, Sequence, Tuple
-
-import cv2
-import geopandas as gpd
-import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
-from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.request.entities.request import Request
-from mesh_city.request.layers.buildings_layer import BuildingsLayer
-from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
-from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.request_manager import RequestManager
 from mesh_city.scenario.scenario import Scenario
+from mesh_city.util.image_util import ImageUtil
 
 
-class ScenarioModificationType(Enum):
-	"""
-	Enum class representing types of modifications that can be part of a scenario.
-	"""
-	MORE_TREES = 0
-	SWAP_CARS = 1
-	PAINT_BUILDINGS_GREEN = 2
-
-
-class ScenarioPipeline:
+class ScenarioRenderer:
 	"""
 	A class used to create scenario's from requests whose behaviour can be customized by specifying
 	what type of things it should change.
 	"""
 
-	def __init__(
-		self,
-		request_manager: RequestManager,
-		scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]],
-		overlay_path: Path,
-		name: str = None
-	):
-		self.overlay_path = overlay_path
-		self.request_manager = request_manager
-		self.scenarios_to_create = scenarios_to_create
-		self.name = name
-		self.trees = None
-		self.cars = None
-		self.base_image = None
-		self.images_to_add = None
-		self.changes_pd = None
-		self.observers = []
-		self.state = {}
+	def render_scenario(self, scenario: Scenario, request: Request,
+	                    scaling: int = 1):
+		"""
+		Composites a rendering of a scenario
+		:param scenario: The scenario to render
+		:param request: The request the scenario is based of
+		:param scaling: A scaling factor for low-resolution rendering
+		:return: An image representation of the layer.
+		"""
+		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		images = []
+		for tile in tiles:
+			large_image = Image.open(tile.path).convert("RGBA")
+			width, height = large_image.size
+			images.append(large_image.resize((round(width / scaling), round(height / scaling))))
+		base_image = ImageUtil.concat_image_grid(
+			width=request.num_of_horizontal_images,
+			height=request.num_of_vertical_images,
+			images=images
+		).convert("RGBA")
 
-	def paint_buildings_green(self, request: Request, buildings_to_make_green: int,
-	                          scaling: int = 1):
-		buildings_layer = request.get_layer_of_type(BuildingsLayer)
-		building_dataframe = gpd.read_file(buildings_layer.detections_path)
-		building_dataframe.geometry = building_dataframe.geometry.scale(
-			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
-		)
-		# to make shuffling deterministic for now
-		np.random.seed(42)
-		# changes buildings to shrubbery patches in the
-		np.random.shuffle(building_dataframe.values)
-		shrubbery_dataframe = building_dataframe.head(buildings_to_make_green)
-		shrubbery_dataframe["label"] = "Shrubbery"
-
-		green_overlay = np.asarray(Image.open(str(self.overlay_path)).convert("RGB"))
-		vertical_tiles = math.ceil(request.num_of_vertical_images * 2 / scaling)
-		horizontal_tiles = math.ceil(request.num_of_horizontal_images * 2 / scaling)
-		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
-		cropped_overlay = tiled_overlay[0:self.base_image.width, 0:self.base_image.height]
-		new_building_dataframe = building_dataframe.iloc[buildings_to_make_green:]
-		final_dataframe = shrubbery_dataframe.append(new_building_dataframe, ignore_index = True)
-		print(final_dataframe)
-		mask_base = Image.new(
-			'RGB',
-			(
-				self.base_image.width,
-				self.base_image.height
-			), (0, 0, 0)
-		)
-		draw = ImageDraw.Draw(mask_base)
-		for (index, (polygon,label)) in enumerate(zip(final_dataframe["geometry"], final_dataframe["label"])):
-			if label == "Shrubbery":
-				vertices = list(zip(*polygon.exterior.coords.xy))
-				draw.polygon(
-					xy=vertices, fill=(255, 255, 255)
+		result_image = base_image
+		for (index, mask) in enumerate(layer_mask):
+			if mask:
+				result_image = Image.alpha_composite(
+					im1=result_image,
+					im2=RequestRenderer.create_image_from_layer(
+						request=request, layer_index=index, scaling=scaling
+					)
 				)
-		final_mask = np.asarray(mask_base).astype(float) / 255
-		final_overlay = cv2.multiply(final_mask, cropped_overlay, dtype=cv2.CV_32F)
-		masked_numpy_base = cv2.multiply(1 - final_mask, np.asarray(self.base_image.convert("RGB")),
-		                                 dtype=cv2.CV_32F)
-		new_base_image_numpy = cv2.add(masked_numpy_base, final_overlay, dtype=cv2.CV_8UC3)
-		self.base_image = Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
-		temp_to_add_image = copy.deepcopy(self.base_image)
-		self.images_to_add.append(temp_to_add_image)
+		return result_image
 
 	def add_more_trees(self, request: Request, trees_to_add: int, scaling: int = 1):
 		"""
@@ -194,16 +134,6 @@ class ScenarioPipeline:
 			car_to_swap_axis_name = car_dataframe.iloc[car_to_swap_index_temp][0]
 			tree_to_replace_with_index = random.randint(1, len(tree_dataframe) - 1)
 
-			new_entry = self.create_new_swapped_tree_entry(
-				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
-			)
-
-			temp_index = len(self.changes_pd)
-			self.changes_pd.loc[temp_index] = new_entry
-
-			temp = car_dataframe.drop(car_to_swap_axis_name)
-			car_dataframe = temp
-
 			tree_area_to_cut = (
 				tree_dataframe.iloc[tree_to_replace_with_index][1] / scaling,  # xmin
 				tree_dataframe.iloc[tree_to_replace_with_index][2] / scaling,  # ymin
@@ -220,9 +150,17 @@ class ScenarioPipeline:
 			tree_image = ImageOps.fit(tree_image_cropped, mask.size, centering=(0.5, 0.5))
 			tree_image.putalpha(mask)
 
+			new_entry = self.create_new_swapped_tree_entry(
+				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
+			)
 
+			temp_index = len(self.changes_pd)
+			self.changes_pd.loc[temp_index] = new_entry
 
-			coordinate = ((int(new_entry[0]/scaling), int(new_entry[3]/scaling)))
+			temp = car_dataframe.drop(car_to_swap_axis_name)
+			car_dataframe = temp
+
+			coordinate = ((int(new_entry[0] / scaling), int(new_entry[3] / scaling)))
 			self.base_image.alpha_composite(tree_image, dest=coordinate)
 
 			temp_to_add_image = copy.deepcopy(self.base_image)
@@ -389,7 +327,7 @@ class ScenarioPipeline:
 			picture_path=scenario_file_path_png
 		)
 
-	def process(self, request: Request, scaling = 16) -> Scenario:
+	def process(self, request: Request, scaling=16) -> Scenario:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
 		returns a list of detection layers corresponding to the detections_to_run variable.
@@ -418,9 +356,11 @@ class ScenarioPipeline:
 			if feature == ScenarioModificationType.MORE_TREES:
 				self.add_more_trees(request=request, trees_to_add=information, scaling=scaling)
 			if feature == ScenarioModificationType.SWAP_CARS:
-				self.swap_cars_with_trees(request=request, cars_to_swap=information, scaling=scaling)
+				self.swap_cars_with_trees(request=request, cars_to_swap=information,
+				                          scaling=scaling)
 			if feature == ScenarioModificationType.PAINT_BUILDINGS_GREEN:
-				self.paint_buildings_green(request=request, buildings_to_make_green=information, scaling=scaling)
+				self.paint_buildings_green(request=request, buildings_to_make_green=information,
+				                           scaling=scaling)
 		new_scenario = self.combine_results(request)
 
 		return new_scenario
