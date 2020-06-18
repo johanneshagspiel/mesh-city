@@ -188,24 +188,8 @@ class ScenarioPipeline:
 			)
 			changes_list.append((new_xmin, new_ymin, new_xmax, new_ymax,tree_to_replace_with_index))
 		replaced_cars = car_dataframe.head(cars_to_swap)
-		print(replaced_cars)
 		replaced_cars[["xmin","ymin","xmax","ymax","tree_index"]]=changes_list
 		replaced_cars["label"] = "SwappedCar"
-		print(replaced_cars)
-
-		# pylint: disable=W0612
-		for car in range(0, cars_to_swap):
-			car_to_swap_index_temp = random.randint(1, len(car_dataframe) - 1)
-			tree_to_replace_with_index = random.randint(1, len(tree_dataframe) - 1)
-
-			new_xmin, new_ymin, new_xmax, new_ymax = self.create_new_swapped_tree_entry(
-				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
-			)
-			new_entry = [
-				new_xmin, new_ymin, new_xmax, new_ymax,
-				tree_dataframe.iloc[tree_to_replace_with_index][5],
-				"SwappedCar"
-			]
 		for index, row in replaced_cars.iterrows():
 			tree_xmin = int(tree_dataframe.loc[row['tree_index'],["xmin"]]/scaling)
 			tree_ymin = int(tree_dataframe.loc[row['tree_index'],["ymin"]]/scaling)
@@ -229,7 +213,7 @@ class ScenarioPipeline:
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
-			self.state["current_frame"] = car + 1
+			self.state["current_frame"] = index + 1
 			self.notify_observers()
 
 	def create_new_swapped_tree_entry(
