@@ -49,6 +49,38 @@ class ScenarioRenderer:
 				)
 		return result_image
 
+	def paint_buildings_green(self):
+		# composes an image based on the new dataframe
+		green_overlay_img = Image.open(str(self.overlay_path)).convert("RGB")
+		green_overlay = np.asarray(green_overlay_img)
+		vertical_tiles = math.ceil(self.base_image.width / green_overlay_img.height)
+		horizontal_tiles = math.ceil(self.base_image.height / green_overlay_img.width)
+		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
+		cropped_overlay = tiled_overlay[0:self.base_image.width, 0:self.base_image.height]
+		mask_base = Image.new(
+			'RGB',
+			(
+				self.base_image.width,
+				self.base_image.height
+			), (0, 0, 0)
+		)
+		draw = ImageDraw.Draw(mask_base)
+		for (index, (polygon, label)) in enumerate(
+			zip(final_dataframe["geometry"], final_dataframe["label"])):
+			if label == "Shrubbery":
+				vertices = list(zip(*polygon.exterior.coords.xy))
+				draw.polygon(
+					xy=vertices, fill=(255, 255, 255)
+				)
+		final_mask = np.asarray(mask_base).astype(float) / 255
+		final_overlay = cv2.multiply(final_mask, cropped_overlay, dtype=cv2.CV_32F)
+		masked_numpy_base = cv2.multiply(1 - final_mask, np.asarray(self.base_image.convert("RGB")),
+		                                 dtype=cv2.CV_32F)
+		new_base_image_numpy = cv2.add(masked_numpy_base, final_overlay, dtype=cv2.CV_8UC3)
+		self.base_image = Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
+		temp_to_add_image = copy.deepcopy(self.base_image)
+		self.images_to_add.append(temp_to_add_image)
+
 	def add_more_trees(self, request: Request, trees_to_add: int, scaling: int = 1):
 		"""
 		Adds more trees to the image based on the detected trees
@@ -56,17 +88,6 @@ class ScenarioRenderer:
 		:param trees_to_add: how many trees to add
 		:return:
 		"""
-		if self.trees is None:
-			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
-		else:
-			tree_dataframe = self.trees
-
-		# pylint: disable=W0612
-		self.state["scenario_type"] = "Adding more trees"
-		self.state["total_frames"] = trees_to_add
-		self.state["current_frame"] = 1
-		self.notify_observers()
-
 		for tree in range(0, trees_to_add):
 			source_tree_index = random.randint(1, len(tree_dataframe) - 1)
 			destination_tree_index = random.randint(1, len(tree_dataframe) - 1)
@@ -103,8 +124,6 @@ class ScenarioRenderer:
 			self.state["current_frame"] = tree + 1
 			self.notify_observers()
 
-		self.trees = tree_dataframe
-
 	def swap_cars_with_trees(self, request: Request, cars_to_swap: int, scaling: int = 1):
 		"""
 		Modifies the
@@ -112,34 +131,13 @@ class ScenarioRenderer:
 		:param cars_to_swap:
 		:return:
 		"""
+		for index, row in replaced_cars.iterrows():
+			tree_xmin = int(tree_dataframe.loc[row['source_index'], ["xmin"]] / scaling)
+			tree_ymin = int(tree_dataframe.loc[row['source_index'], ["ymin"]] / scaling)
+			tree_xmax = int(tree_dataframe.loc[row['source_index'], ["xmax"]] / scaling)
+			tree_ymax = int(tree_dataframe.loc[row['source_index'], ["ymax"]] / scaling)
 
-		if self.cars is None:
-			car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path)
-		else:
-			car_dataframe = self.cars
-
-		if self.trees is None:
-			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
-		else:
-			tree_dataframe = self.trees
-
-		self.state["scenario_type"] = "Swapping cars with trees"
-		self.state["total_frames"] = cars_to_swap
-		self.state["current_frame"] = 1
-		self.notify_observers()
-
-		# pylint: disable=W0612
-		for car in range(0, cars_to_swap):
-			car_to_swap_index_temp = random.randint(1, len(car_dataframe) - 1)
-			car_to_swap_axis_name = car_dataframe.iloc[car_to_swap_index_temp][0]
-			tree_to_replace_with_index = random.randint(1, len(tree_dataframe) - 1)
-
-			tree_area_to_cut = (
-				tree_dataframe.iloc[tree_to_replace_with_index][1] / scaling,  # xmin
-				tree_dataframe.iloc[tree_to_replace_with_index][2] / scaling,  # ymin
-				tree_dataframe.iloc[tree_to_replace_with_index][3] / scaling,  # xmax
-				tree_dataframe.iloc[tree_to_replace_with_index][4] / scaling,  # ymax
-			)
+			tree_area_to_cut = (tree_xmin, tree_ymin, tree_xmax, tree_ymax)
 
 			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
 
@@ -150,134 +148,14 @@ class ScenarioRenderer:
 			tree_image = ImageOps.fit(tree_image_cropped, mask.size, centering=(0.5, 0.5))
 			tree_image.putalpha(mask)
 
-			new_entry = self.create_new_swapped_tree_entry(
-				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
-			)
-
-			temp_index = len(self.changes_pd)
-			self.changes_pd.loc[temp_index] = new_entry
-
-			temp = car_dataframe.drop(car_to_swap_axis_name)
-			car_dataframe = temp
-
-			coordinate = ((int(new_entry[0] / scaling), int(new_entry[3] / scaling)))
+			coordinate = ((int(row["xmin"] / scaling), int(row["ymin"] / scaling)))
 			self.base_image.alpha_composite(tree_image, dest=coordinate)
 
 			temp_to_add_image = copy.deepcopy(self.base_image)
 			self.images_to_add.append(temp_to_add_image)
 
-			self.state["current_frame"] = car + 1
+			self.state["current_frame"] = index + 1
 			self.notify_observers()
-
-		self.trees = tree_dataframe
-		self.cars = car_dataframe
-
-	def create_new_swapped_tree_entry(
-		self,
-		car_to_swap_index: int,
-		tree_to_replace_with_index: int,
-		tree_dataframe: DataFrame,
-		car_dataframe: DataFrame
-	):
-		"""
-		Computes a new entry for a tree copied to where there is currently a car.
-		:param car_to_swap_index: The car to paste a tree on
-		:param tree_to_replace_with_index: The tree to paste onto the car
-		:param tree_dataframe: The dataframe of tree detections
-		:param car_dataframe: The dataframe of car detections
-		:return: A new entry containing a tree copied to where the car was
-		"""
-		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]
-		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][2]
-		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][3]
-		tree_ymax = tree_dataframe.iloc[tree_to_replace_with_index][4]
-
-		tree_distance_center_max_x = (tree_xmax - tree_xmin) / 2
-		tree_distance_center_max_y = (tree_ymax - tree_ymin) / 2
-
-		car_xmin = car_dataframe.iloc[car_to_swap_index][1]
-		car_ymin = car_dataframe.iloc[car_to_swap_index][2]
-		car_xmax = car_dataframe.iloc[car_to_swap_index][3]
-		car_ymax = car_dataframe.iloc[car_to_swap_index][4]
-
-		car_center_x = car_xmin + ((car_xmax - car_xmin) / 2)
-		car_center_y = car_ymin + ((car_ymax - car_ymin) / 2)
-
-		new_xmin = car_center_x - tree_distance_center_max_x
-		new_xmax = car_center_x + tree_distance_center_max_x
-		new_ymin = car_center_y - tree_distance_center_max_y
-		new_ymax = car_center_y + tree_distance_center_max_y
-
-		if new_xmin < 0:
-			to_add = (-1) * new_xmin
-			new_xmin = new_xmin + to_add
-			new_xmax = new_xmax + to_add
-
-		if new_ymin < 0:
-			to_add = (-1) * new_ymin
-			new_ymin = new_ymin + to_add
-			new_ymax = new_ymax + to_add
-
-		new_entry = [
-			new_xmin,
-			new_ymin,
-			new_xmax,
-			new_ymax,
-			tree_dataframe.iloc[tree_to_replace_with_index][5],
-			"SwappedCar"
-		]
-
-		return new_entry
-
-	# pylint: disable=W0613
-	def calculate_new_location_tree_addition(self, what_to_place, where_to_place, tree_dataframe):
-		"""
-		The algorithm to decide where to place a new tree. Currently just moves the tree 5 units
-		down and to the right
-		:param what_to_place: the tree to place
-		:param where_to_place: the location adjacent to which to place it at
-		:return: where to place the tree
-		"""
-		old_xmin = tree_dataframe.iloc[what_to_place][1]
-		old_ymin = tree_dataframe.iloc[what_to_place][2]
-		old_xmax = tree_dataframe.iloc[what_to_place][3]
-		old_ymax = tree_dataframe.iloc[what_to_place][4]
-
-		where_xmin = tree_dataframe.iloc[where_to_place][1]
-		where_ymin = tree_dataframe.iloc[where_to_place][2]
-		where_xmax = tree_dataframe.iloc[where_to_place][3]
-		where_ymax = tree_dataframe.iloc[where_to_place][4]
-
-		where_center_x = where_xmin + ((where_xmax - where_xmin) / 2)
-		where_center_y = where_ymin + ((where_ymax - where_ymin) / 2)
-
-		y_offset = random.uniform(-50, 50)
-		x_offset = random.uniform(-50, 50)
-
-		new_center_y = where_center_y + y_offset
-		new_center_x = where_center_x + x_offset
-
-		new_xmin = new_center_x + ((old_xmax - old_xmin) / 2)
-		new_xmax = new_center_x + ((old_xmax - old_xmin) / 2)
-		new_ymin = new_center_y + ((old_ymax - old_ymin) / 2)
-		new_ymax = new_center_y + ((old_ymax - old_ymin) / 2)
-
-		if new_xmin < 0:
-			to_add = (-1) * new_xmin
-			new_xmin = new_xmin + to_add
-			new_xmax = new_xmax + to_add
-
-		if new_ymin < 0:
-			to_add = (-1) * new_ymin
-			new_ymin = new_ymin + to_add
-			new_ymax = new_ymax + to_add
-
-		new_entry = [
-			new_xmin, new_ymin, new_xmax, new_ymax, tree_dataframe.iloc[what_to_place][5],
-			"AddedTree"
-		]
-
-		return new_entry
 
 	def combine_results(self, request: Request) -> Scenario:
 		"""
