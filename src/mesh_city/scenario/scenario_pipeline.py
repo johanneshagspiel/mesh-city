@@ -56,11 +56,8 @@ class ScenarioPipeline:
 		self.request_manager = request_manager
 		self.scenarios_to_create = scenarios_to_create
 		self.name = name
-		self.trees = None
-		self.cars = None
 		self.base_image = None
 		self.images_to_add = None
-		self.changes_pd = None
 		self.observers = []
 		self.state = {}
 
@@ -72,20 +69,20 @@ class ScenarioPipeline:
 			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
 		)
 		# to make shuffling deterministic for now
-		np.random.seed(42)
-		# changes buildings to shrubbery patches in the
+
+		# changes buildings to shrubbery patches in the dataframe
 		np.random.shuffle(building_dataframe.values)
 		shrubbery_dataframe = building_dataframe.head(buildings_to_make_green)
 		shrubbery_dataframe["label"] = "Shrubbery"
+		new_building_dataframe = building_dataframe.iloc[buildings_to_make_green:]
+		final_dataframe = shrubbery_dataframe.append(new_building_dataframe, ignore_index=True)
 
+		# composes an image based on the new dataframe
 		green_overlay = np.asarray(Image.open(str(self.overlay_path)).convert("RGB"))
 		vertical_tiles = math.ceil(request.num_of_vertical_images * 2 / scaling)
 		horizontal_tiles = math.ceil(request.num_of_horizontal_images * 2 / scaling)
 		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
 		cropped_overlay = tiled_overlay[0:self.base_image.width, 0:self.base_image.height]
-		new_building_dataframe = building_dataframe.iloc[buildings_to_make_green:]
-		final_dataframe = shrubbery_dataframe.append(new_building_dataframe, ignore_index = True)
-		print(final_dataframe)
 		mask_base = Image.new(
 			'RGB',
 			(
@@ -94,7 +91,8 @@ class ScenarioPipeline:
 			), (0, 0, 0)
 		)
 		draw = ImageDraw.Draw(mask_base)
-		for (index, (polygon,label)) in enumerate(zip(final_dataframe["geometry"], final_dataframe["label"])):
+		for (index, (polygon, label)) in enumerate(
+			zip(final_dataframe["geometry"], final_dataframe["label"])):
 			if label == "Shrubbery":
 				vertices = list(zip(*polygon.exterior.coords.xy))
 				draw.polygon(
@@ -172,44 +170,49 @@ class ScenarioPipeline:
 		:param cars_to_swap:
 		:return:
 		"""
-
-		if self.cars is None:
-			car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path)
-		else:
-			car_dataframe = self.cars
-
-		if self.trees is None:
-			tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path)
-		else:
-			tree_dataframe = self.trees
-
 		self.state["scenario_type"] = "Swapping cars with trees"
 		self.state["total_frames"] = cars_to_swap
 		self.state["current_frame"] = 1
 		self.notify_observers()
 
+		car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path,index_col=0)
+		tree_dataframe = pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path,index_col=0)
+		np.random.seed(42)
+		np.random.shuffle(car_dataframe.values)
+		car_dataframe["tree_index"] = -1
+		changes_list = []
+		for car_index in range(0,cars_to_swap):
+			tree_to_replace_with_index = np.random.randint(1, len(tree_dataframe) - 1)
+			new_xmin, new_ymin, new_xmax, new_ymax = self.create_new_swapped_tree_entry(
+				car_index, tree_to_replace_with_index, tree_dataframe, car_dataframe
+			)
+			changes_list.append((new_xmin, new_ymin, new_xmax, new_ymax,tree_to_replace_with_index))
+		replaced_cars = car_dataframe.head(cars_to_swap)
+		print(replaced_cars)
+		replaced_cars[["xmin","ymin","xmax","ymax","tree_index"]]=changes_list
+		replaced_cars["label"] = "SwappedCar"
+		print(replaced_cars)
+
 		# pylint: disable=W0612
 		for car in range(0, cars_to_swap):
 			car_to_swap_index_temp = random.randint(1, len(car_dataframe) - 1)
-			car_to_swap_axis_name = car_dataframe.iloc[car_to_swap_index_temp][0]
 			tree_to_replace_with_index = random.randint(1, len(tree_dataframe) - 1)
 
-			new_entry = self.create_new_swapped_tree_entry(
+			new_xmin, new_ymin, new_xmax, new_ymax = self.create_new_swapped_tree_entry(
 				car_to_swap_index_temp, tree_to_replace_with_index, tree_dataframe, car_dataframe
 			)
+			new_entry = [
+				new_xmin, new_ymin, new_xmax, new_ymax,
+				tree_dataframe.iloc[tree_to_replace_with_index][5],
+				"SwappedCar"
+			]
+		for index, row in replaced_cars.iterrows():
+			tree_xmin = int(tree_dataframe.loc[row['tree_index'],["xmin"]]/scaling)
+			tree_ymin = int(tree_dataframe.loc[row['tree_index'],["ymin"]]/scaling)
+			tree_xmax= int(tree_dataframe.loc[row['tree_index'],["xmax"]]/scaling)
+			tree_ymax = int(tree_dataframe.loc[row['tree_index'],["ymax"]]/scaling)
 
-			temp_index = len(self.changes_pd)
-			self.changes_pd.loc[temp_index] = new_entry
-
-			temp = car_dataframe.drop(car_to_swap_axis_name)
-			car_dataframe = temp
-
-			tree_area_to_cut = (
-				tree_dataframe.iloc[tree_to_replace_with_index][1] / scaling,  # xmin
-				tree_dataframe.iloc[tree_to_replace_with_index][2] / scaling,  # ymin
-				tree_dataframe.iloc[tree_to_replace_with_index][3] / scaling,  # xmax
-				tree_dataframe.iloc[tree_to_replace_with_index][4] / scaling,  # ymax
-			)
+			tree_area_to_cut = (tree_xmin,tree_ymin,tree_xmax,tree_ymax)
 
 			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
 
@@ -220,9 +223,7 @@ class ScenarioPipeline:
 			tree_image = ImageOps.fit(tree_image_cropped, mask.size, centering=(0.5, 0.5))
 			tree_image.putalpha(mask)
 
-
-
-			coordinate = ((int(new_entry[0]/scaling), int(new_entry[3]/scaling)))
+			coordinate = ((int(row["xmin"] / scaling), int(row["ymin"] / scaling)))
 			self.base_image.alpha_composite(tree_image, dest=coordinate)
 
 			temp_to_add_image = copy.deepcopy(self.base_image)
@@ -230,9 +231,6 @@ class ScenarioPipeline:
 
 			self.state["current_frame"] = car + 1
 			self.notify_observers()
-
-		self.trees = tree_dataframe
-		self.cars = car_dataframe
 
 	def create_new_swapped_tree_entry(
 		self,
@@ -249,18 +247,18 @@ class ScenarioPipeline:
 		:param car_dataframe: The dataframe of car detections
 		:return: A new entry containing a tree copied to where the car was
 		"""
-		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][1]
-		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][2]
-		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][3]
-		tree_ymax = tree_dataframe.iloc[tree_to_replace_with_index][4]
+		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][0]
+		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][1]
+		tree_xmax = tree_dataframe.iloc[tree_to_replace_with_index][2]
+		tree_ymax = tree_dataframe.iloc[tree_to_replace_with_index][3]
 
 		tree_distance_center_max_x = (tree_xmax - tree_xmin) / 2
 		tree_distance_center_max_y = (tree_ymax - tree_ymin) / 2
 
-		car_xmin = car_dataframe.iloc[car_to_swap_index][1]
-		car_ymin = car_dataframe.iloc[car_to_swap_index][2]
-		car_xmax = car_dataframe.iloc[car_to_swap_index][3]
-		car_ymax = car_dataframe.iloc[car_to_swap_index][4]
+		car_xmin = car_dataframe.iloc[car_to_swap_index][0]
+		car_ymin = car_dataframe.iloc[car_to_swap_index][1]
+		car_xmax = car_dataframe.iloc[car_to_swap_index][2]
+		car_ymax = car_dataframe.iloc[car_to_swap_index][3]
 
 		car_center_x = car_xmin + ((car_xmax - car_xmin) / 2)
 		car_center_y = car_ymin + ((car_ymax - car_ymin) / 2)
@@ -280,16 +278,7 @@ class ScenarioPipeline:
 			new_ymin = new_ymin + to_add
 			new_ymax = new_ymax + to_add
 
-		new_entry = [
-			new_xmin,
-			new_ymin,
-			new_xmax,
-			new_ymax,
-			tree_dataframe.iloc[tree_to_replace_with_index][5],
-			"SwappedCar"
-		]
-
-		return new_entry
+		return new_xmin, new_ymin, new_xmax, new_ymax,
 
 	# pylint: disable=W0613
 	def calculate_new_location_tree_addition(self, what_to_place, where_to_place, tree_dataframe):
@@ -389,7 +378,7 @@ class ScenarioPipeline:
 			picture_path=scenario_file_path_png
 		)
 
-	def process(self, request: Request, scaling = 16) -> Scenario:
+	def process(self, request: Request, scaling=16) -> Scenario:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
 		returns a list of detection layers corresponding to the detections_to_run variable.
@@ -418,9 +407,11 @@ class ScenarioPipeline:
 			if feature == ScenarioModificationType.MORE_TREES:
 				self.add_more_trees(request=request, trees_to_add=information, scaling=scaling)
 			if feature == ScenarioModificationType.SWAP_CARS:
-				self.swap_cars_with_trees(request=request, cars_to_swap=information, scaling=scaling)
+				self.swap_cars_with_trees(request=request, cars_to_swap=information,
+				                          scaling=scaling)
 			if feature == ScenarioModificationType.PAINT_BUILDINGS_GREEN:
-				self.paint_buildings_green(request=request, buildings_to_make_green=information, scaling=scaling)
+				self.paint_buildings_green(request=request, buildings_to_make_green=information,
+				                           scaling=scaling)
 		new_scenario = self.combine_results(request)
 
 		return new_scenario
