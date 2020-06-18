@@ -64,13 +64,14 @@ class ScenarioPipeline:
 		self.observers = []
 		self.state = {}
 
-	def paint_buildings_green(self, request: Request, buildings_to_make_green: int, scaling=1):
+	def paint_buildings_green(self, request: Request, buildings_to_make_green: int,
+	                          scaling: int = 1):
 		buildings_layer = request.get_layer_of_type(BuildingsLayer)
 		green_overlay = np.asarray(Image.open(str(self.overlay_path)).convert("RGB"))
 		vertical_tiles = math.ceil(request.num_of_vertical_images * 2 / scaling)
 		horizontal_tiles = math.ceil(request.num_of_horizontal_images * 2 / scaling)
 		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
-		cropped_overlay = tiled_overlay[0:self.base_image.width,0:self.base_image.height]
+		cropped_overlay = tiled_overlay[0:self.base_image.width, 0:self.base_image.height]
 		building_dataframe = gpd.read_file(buildings_layer.detections_path)
 		building_dataframe.geometry = building_dataframe.geometry.scale(
 			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
@@ -93,11 +94,11 @@ class ScenarioPipeline:
 		masked_numpy_base = cv2.multiply(1 - final_mask, np.asarray(self.base_image.convert("RGB")),
 		                                 dtype=cv2.CV_32F)
 		new_base_image_numpy = cv2.add(masked_numpy_base, final_overlay, dtype=cv2.CV_8UC3)
-		self.base_image = Image.fromarray(new_base_image_numpy.astype(np.uint8))
+		self.base_image = Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
 		temp_to_add_image = copy.deepcopy(self.base_image)
 		self.images_to_add.append(temp_to_add_image)
 
-	def add_more_trees(self, request: Request, trees_to_add: int):
+	def add_more_trees(self, request: Request, trees_to_add: int, scaling: int = 1):
 		"""
 		Adds more trees to the image based on the detected trees
 		:param request: the request for which to add more trees to
@@ -120,10 +121,10 @@ class ScenarioPipeline:
 			destination_tree_index = random.randint(1, len(tree_dataframe) - 1)
 
 			tree_area_to_cut = (
-				float(tree_dataframe.iloc[source_tree_index][1]),  # xmin
-				float(tree_dataframe.iloc[source_tree_index][2]),  # ymin
-				float(tree_dataframe.iloc[source_tree_index][3]),  # xmax
-				float(tree_dataframe.iloc[source_tree_index][4]),  # ymax
+				float(tree_dataframe.iloc[source_tree_index][1]) / scaling,  # xmin
+				float(tree_dataframe.iloc[source_tree_index][2]) / scaling,  # ymin
+				float(tree_dataframe.iloc[source_tree_index][3]) / scaling,  # xmax
+				float(tree_dataframe.iloc[source_tree_index][4]) / scaling,  # ymax
 			)
 
 			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
@@ -142,7 +143,7 @@ class ScenarioPipeline:
 			temp_index = len(self.changes_pd)
 			self.changes_pd.loc[temp_index] = new_entry
 
-			coordinate = ((int(new_entry[0]), int(new_entry[3])))
+			coordinate = ((int(new_entry[0] / scaling), int(new_entry[3] / scaling)))
 
 			self.base_image.alpha_composite(source_tree_image, dest=coordinate)
 			temp_to_add_image = copy.deepcopy(self.base_image)
@@ -153,7 +154,7 @@ class ScenarioPipeline:
 
 		self.trees = tree_dataframe
 
-	def swap_cars_with_trees(self, request: Request, cars_to_swap: int):
+	def swap_cars_with_trees(self, request: Request, cars_to_swap: int, scaling: int = 1):
 		"""
 		Modifies the
 		:param request:
@@ -183,10 +184,10 @@ class ScenarioPipeline:
 			tree_to_replace_with_index = random.randint(1, len(tree_dataframe) - 1)
 
 			tree_area_to_cut = (
-				tree_dataframe.iloc[tree_to_replace_with_index][1],  # xmin
-				tree_dataframe.iloc[tree_to_replace_with_index][2],  # ymin
-				tree_dataframe.iloc[tree_to_replace_with_index][3],  # xmax
-				tree_dataframe.iloc[tree_to_replace_with_index][4],  # ymax
+				tree_dataframe.iloc[tree_to_replace_with_index][1] / scaling,  # xmin
+				tree_dataframe.iloc[tree_to_replace_with_index][2] / scaling,  # ymin
+				tree_dataframe.iloc[tree_to_replace_with_index][3] / scaling,  # xmax
+				tree_dataframe.iloc[tree_to_replace_with_index][4] / scaling,  # ymax
 			)
 
 			tree_image_cropped = self.base_image.crop(box=tree_area_to_cut)
@@ -208,7 +209,7 @@ class ScenarioPipeline:
 			temp = car_dataframe.drop(car_to_swap_axis_name)
 			car_dataframe = temp
 
-			coordinate = ((int(new_entry[0]), int(new_entry[3])))
+			coordinate = ((int(new_entry[0]/scaling), int(new_entry[3]/scaling)))
 			self.base_image.alpha_composite(tree_image, dest=coordinate)
 
 			temp_to_add_image = copy.deepcopy(self.base_image)
@@ -375,7 +376,7 @@ class ScenarioPipeline:
 			picture_path=scenario_file_path_png
 		)
 
-	def process(self, request: Request) -> Scenario:
+	def process(self, request: Request, scaling = 16) -> Scenario:
 		"""
 		Processes a request that is assumed to have a GoogleLayer with imagery (errors otherwise) and
 		returns a list of detection layers corresponding to the detections_to_run variable.
@@ -390,7 +391,7 @@ class ScenarioPipeline:
 			)
 
 		self.base_image = RequestRenderer.create_image_from_layer(
-			request=request, layer_index=0, scaling=1
+			request=request, layer_index=0, scaling=scaling
 		)
 		self.images_to_add = []
 		self.images_to_add.append(self.base_image)
@@ -402,11 +403,11 @@ class ScenarioPipeline:
 
 		for (feature, information) in self.scenarios_to_create:
 			if feature == ScenarioModificationType.MORE_TREES:
-				self.add_more_trees(request=request, trees_to_add=information)
+				self.add_more_trees(request=request, trees_to_add=information, scaling=scaling)
 			if feature == ScenarioModificationType.SWAP_CARS:
-				self.swap_cars_with_trees(request=request, cars_to_swap=information)
+				self.swap_cars_with_trees(request=request, cars_to_swap=information, scaling=scaling)
 			if feature == ScenarioModificationType.PAINT_BUILDINGS_GREEN:
-				self.paint_buildings_green(request=request, buildings_to_make_green=information)
+				self.paint_buildings_green(request=request, buildings_to_make_green=information, scaling=scaling)
 		new_scenario = self.combine_results(request)
 
 		return new_scenario

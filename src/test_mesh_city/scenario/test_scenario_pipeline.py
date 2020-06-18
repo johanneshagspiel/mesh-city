@@ -28,7 +28,7 @@ class TestScenarioPipeline(unittest.TestCase):
 	def test_swap_cars_scenario(self):
 		pipeline = ScenarioPipeline(
 			request_manager=self.request_manager,
-			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 4)],
+			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 3)],
 			overlay_path=FileHandler().folder_overview["resource_path"].joinpath(
 				"trees-overlay.png")
 		)
