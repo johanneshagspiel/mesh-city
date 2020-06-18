@@ -2,10 +2,12 @@
 See class description
 """
 import csv
+import geopandas as gpd
 from pathlib import Path
 from typing import Sequence, Union
 
 from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
@@ -33,8 +35,13 @@ class InformationStringBuilder:
 		'biodome': eco_name,
 		'latitude': latitude,
 		'longitude': longitude,
-		'carbon_storage': carbon_storage,
-		'temperature_delta': temperature_delta
+		'carbon_storage_tree': carbon_storage_tree,
+		'carbon_storage_rooftops': carbon_storage_rooftops,
+		'oxygen_emission_tree': oxygen_emission_tree,
+		'oxygen_emission_rooftop': oxygen_emission_rooftop,
+		'carbon_emission_car': carbon_emission_car,
+		'urban_cooling_tree': urban_cooling_tree,
+		'urban_cooling_rooftop': urban_cooling_rooftop
 		"""
 
 		info = []
@@ -78,12 +85,7 @@ class InformationStringBuilder:
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
 			request.y_grid_coord, 20)
 		point = {'latitude': latitude, 'longitude': longitude}
-
 		closest = GeoLocationUtil.closest(info, point)
-
-		print(latitude, longitude)
-		print('closest', closest)
-
 		return closest
 
 	def process_tree_layer(self, tree_layer: TreesLayer) -> int:
@@ -163,6 +165,12 @@ class InformationStringBuilder:
 				count_of_trees = self.process_tree_layer(tree_layer=element)
 			if isinstance(element, CarsLayer):
 				count_of_cars = self.process_cars_layer(cars_layer=element)
+			if isinstance(element, BuildingsLayer):
+				building_dataframe = gpd.read_file(element.detections_path)
+				for polygon in building_dataframe["geometry"]:
+					square_meters_of_rooftops += polygon.area
+				square_meters_of_rooftops *= GeoLocationUtil.calc_meters_per_px(latitude=latitude, zoom=20, image_resolution=1024)
+				print(square_meters_of_rooftops)
 			if isinstance(element, Scenario):
 				count_trees_added, count_cars_swapped = self.process_scenario(scenario=element)
 				count_of_trees += (count_trees_added + count_cars_swapped)
@@ -181,7 +189,7 @@ class InformationStringBuilder:
 		result_string += "FEATURES \n \n"
 		result_string += "Trees: " + str(count_of_trees) + "  " + str(count_cars_swapped) + "\n"
 		result_string += "Cars: " + str(count_of_cars) + "  " + str(-count_cars_swapped) + "\n"
-		result_string += "Rooftops: " + str(square_meters_of_rooftops) + "m2" + "\n \n"
+		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
 		result_string += "Biomass. \nCO2 storage:\n"
