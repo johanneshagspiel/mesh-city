@@ -190,7 +190,7 @@ class InformationStringBuilder:
 		result_string += "FEATURES \n \n"
 		result_string += "Trees: " + str(count_of_trees) + "  " + str(count_cars_swapped) + "\n"
 		result_string += "Cars: " + str(count_of_cars) + "  " + str(-count_cars_swapped) + "\n"
-		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n \n"
+		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n"
 		result_string += "Rooftops Greenified: " + str(int(square_meters_of_rooftops * percentage_of_rooftops_greenified)) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
