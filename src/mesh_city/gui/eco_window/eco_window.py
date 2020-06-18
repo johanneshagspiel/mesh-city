@@ -303,6 +303,5 @@ class EcoWindow:
 
 		self.application.create_scenario(
 			request=self.application.current_request,
-			scenarios_to_create=self.scenario_list,
-			name=name
+			scenarios_to_create=self.scenario_list
 		)

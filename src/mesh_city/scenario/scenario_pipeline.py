@@ -43,18 +43,9 @@ class ScenarioPipeline:
 
 	def __init__(
 		self,
-		request_manager: RequestManager,
-		scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]],
-		overlay_path: Path,
-		name: str = None
+		scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]]
 	):
-		self.overlay_path = overlay_path
 		self.scenarios_to_create = scenarios_to_create
-		self.name = name
-		self.base_image = None
-		self.images_to_add = None
-		self.observers = []
-		self.state = {}
 
 	def paint_buildings_green(self, building_dataframe,
 	                          buildings_to_make_green: int) -> GeoDataFrame:
@@ -94,7 +85,6 @@ class ScenarioPipeline:
 		                            columns=["xmin", "ymin", "xmax", "ymax", "score", "label",
 		                                     "source_index"])
 		tree_dataframe = tree_dataframe.append(new_trees_df, ignore_index=True)
-		print(tree_dataframe)
 		return tree_dataframe
 
 	def swap_cars_with_trees(self, car_dataframe: DataFrame, tree_dataframe: DataFrame,
@@ -258,5 +248,6 @@ class ScenarioPipeline:
 		return Scenario(
 			cars=car_dataframe,
 			trees=tree_dataframe,
-			buildings=buildings_dataframe
+			buildings=buildings_dataframe,
+			request=request
 		)

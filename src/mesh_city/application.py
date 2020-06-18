@@ -12,6 +12,7 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionT
 from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
+from mesh_city.gui.scenario_renderer import ScenarioRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.layer import Layer
@@ -20,7 +21,6 @@ from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.request_observer import RequestObserver
 from mesh_city.scenario.scenario import Scenario
-from mesh_city.scenario.scenario_observer import ScenarioObserver
 from mesh_city.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
@@ -32,10 +32,13 @@ class Application:
 
 	def __init__(self):
 		self.file_handler = FileHandler()
+		self.overlay_image = Image.open(
+			self.file_handler.folder_overview["resource_path"].joinpath("trees-overlay.png"))
 		self.log_manager = LogManager(file_handler=self.file_handler)
 		self.request_maker = None
 		self.user_entity = None
 		self.current_request = None
+		self.current_scenario = None
 		self.request_manager = self.get_request_manager()
 		self.request_observer = None
 		self.main_screen = None
@@ -87,7 +90,7 @@ class Application:
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 
-	def create_scenario(self, request: RequestManager, scenarios_to_create, name=None):
+	def create_scenario(self, request: Request, scenarios_to_create):
 		"""
 		Creates a scenario based on a request
 		:param request: A Request
@@ -95,17 +98,9 @@ class Application:
 		:param name:
 		:return:
 		"""
-		scenario_observer = ScenarioObserver(self.main_screen.master)
-		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager, scenarios_to_create=scenarios_to_create, name=name,
-			overlay_path=self.file_handler.folder_overview["resource_path"].joinpath("trees-overlay.png")
-		)
-		pipeline.attach_observer(scenario_observer)
-		new_scenario = pipeline.process(request)
-		pipeline.detach_observer(scenario_observer)
-		self.current_request.add_scenario(new_scenario)
-
-		self.load_scenario_onscreen(name=new_scenario.scenario_name)
+		pipeline = ScenarioPipeline(scenarios_to_create=scenarios_to_create)
+		self.current_scenario = pipeline.process(request)
+		self.load_scenario_onscreen(scenario=self.current_scenario)
 
 	def make_location_request(self, latitude: float, longitude: float, name: str = None) -> None:
 		"""
@@ -228,7 +223,6 @@ class Application:
 	def load_request_onscreen(self, request: Request) -> None:
 		"""
 		Loads a request on screen.
-
 		:param request: The request to load on screen.
 		:return: None
 		"""
@@ -236,16 +230,17 @@ class Application:
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.delete_text()
 
-	def load_scenario_onscreen(self, name: str) -> None:
+	def load_scenario_onscreen(self, scenario: Scenario) -> None:
 		"""
-		Loads a named scenario of the current request
-		:param name: The name of a scenario of the current request.
+		Shows a given scenario on screen.
+		:param scenario: The scenario to load on screen
 		:return: None
 		"""
-		canvas_image = Image.open(self.current_request.scenarios[name].picture_path)
+		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
+		canvas_image = scenario_renderer.render_scenario(scenario=scenario)
 		self.main_screen.set_canvas_image(canvas_image)
 
-		text_to_show = self.get_statistics(element_list=[self.current_request.scenarios[name]])
+		text_to_show = self.get_statistics(element_list=[scenario])
 		self.main_screen.update_text(text_to_show)
 
 	def process_finished_request(self, request: Request) -> None:
