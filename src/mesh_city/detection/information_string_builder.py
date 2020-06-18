@@ -159,6 +159,7 @@ class InformationStringBuilder:
 		count_of_cars = 0
 		square_meters_of_rooftops = 0
 		count_cars_swapped = 0
+		percentage_of_rooftops_greenified = 0
 
 		for element in element_list:
 			if isinstance(element, TreesLayer):
@@ -179,7 +180,7 @@ class InformationStringBuilder:
 		total_carbon_storage = (count_of_trees * carbon_storage_tree) + (square_meters_of_rooftops * carbon_storage_rooftops)
 		total_oxygen_emission = (count_of_trees * oxygen_emission_tree) + (square_meters_of_rooftops * oxygen_emission_rooftop)
 		total_carbon_emission = count_of_cars * carbon_emission_car
-		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (square_meters_of_rooftops * urban_cooling_rooftop)
+		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (square_meters_of_rooftops * percentage_of_rooftops_greenified * urban_cooling_rooftop)
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"
@@ -190,6 +191,7 @@ class InformationStringBuilder:
 		result_string += "Trees: " + str(count_of_trees) + "  " + str(count_cars_swapped) + "\n"
 		result_string += "Cars: " + str(count_of_cars) + "  " + str(-count_cars_swapped) + "\n"
 		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n \n"
+		result_string += "Rooftops Greenified: " + str(int(square_meters_of_rooftops * percentage_of_rooftops_greenified)) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
 		result_string += "Biomass. \nCO2 storage:\n"
