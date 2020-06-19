@@ -241,7 +241,8 @@ class ScenarioPipeline:
 			buildings_dataframe = gpd.read_file(
 				request.get_layer_of_type(BuildingsLayer).detections_path
 			)
-			buildings_dataframe["label"] = ""
+			if "label" not in buildings_dataframe.columns:
+				buildings_dataframe["label"] = ""
 
 		for (feature, information) in self.modification_list:
 			if feature == ScenarioModificationType.MORE_TREES:
