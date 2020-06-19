@@ -104,8 +104,21 @@ class ScenarioRenderer:
 			new_height = int(row["ymax"] - row["ymin"])
 			resized_crop = tree_crops[crop_index].resize((new_width, new_height))
 			x_coord, y_coord = (int(row["xmin"] / scaling), int(row["ymin"] / scaling))
-			if not(x_coord<-new_width or y_coord<-new_height or x_coord>base_image.width or y_coord>base_image.height):
-				source_image.alpha_composite(resized_crop, dest=(x_coord,y_coord))
+			if not (x_coord<-new_width or y_coord<-new_height or x_coord>base_image.width or y_coord>base_image.height):
+				# corrected box to paste crop in
+				dest_xmin = 0 if x_coord<0 else x_coord
+				dest_ymin = 0 if y_coord<0 else y_coord
+				dest_xmax = base_image.width if x_coord+new_width>base_image.width else x_coord+new_width
+				dest_ymax = base_image.height if y_coord+new_height>base_image.height else y_coord+new_height
+				corrected_width = dest_xmax-dest_xmin
+				corrected_height = dest_ymax-dest_ymin
+				# corrected rectangle to take from source crop
+				source_xmin = dest_xmin-x_coord
+				source_ymin = dest_ymin-y_coord
+				source_xmax = source_xmin + corrected_width
+				source_ymax = source_ymin + corrected_height
+				resized_crop = resized_crop.crop(box=(source_xmin,source_ymin,source_xmax,source_ymax))
+				source_image.alpha_composite(resized_crop, dest=(dest_xmin,dest_ymin))
 		return source_image
 
 	@staticmethod
