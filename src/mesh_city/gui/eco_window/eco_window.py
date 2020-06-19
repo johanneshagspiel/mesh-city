@@ -78,7 +78,7 @@ class EcoWindow:
 			self.step_counter = 1
 			self.to_forget = []
 			self.important_widgets = []
-			self.scenario_list = []
+			self.modification_list = []
 
 			self.step_one_text_label = Label(self.top, text="Step 1")
 			self.step_one_text_label.grid(row=1, column=0)
@@ -161,7 +161,7 @@ class EcoWindow:
 		increase_percentage = self.buildings_to_paint_green_scale.get() * 0.01
 		trees_to_add = math.ceil((self.buildings_gdf.shape[0]) * increase_percentage)
 
-		self.scenario_list.append((ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add))
+		self.modification_list.append((ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add))
 		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
 
 	def add_more_trees(self):
@@ -220,7 +220,7 @@ class EcoWindow:
 		increase_percentage = self.increase_trees.get() * 0.01
 		trees_to_add = math.ceil((self.tree_layer_panda.shape[0] - 1) * increase_percentage)
 
-		self.scenario_list.append((ScenarioModificationType.MORE_TREES, trees_to_add))
+		self.modification_list.append((ScenarioModificationType.MORE_TREES, trees_to_add))
 		self.add_another_step(ScenarioModificationType.MORE_TREES, trees_to_add)
 
 	def cleanup_swap_cars(self):
@@ -237,7 +237,7 @@ class EcoWindow:
 			cars_to_swap = self.car_layer_panda.shape[0] - 1
 			self.important_widgets.remove(self.swap_items_button)
 
-		self.scenario_list.append((ScenarioModificationType.SWAP_CARS, cars_to_swap))
+		self.modification_list.append((ScenarioModificationType.SWAP_CARS, cars_to_swap))
 		self.add_another_step(ScenarioModificationType.SWAP_CARS, cars_to_swap)
 
 	def add_another_step(self, scenario_type, scenario_info):
@@ -300,5 +300,5 @@ class EcoWindow:
 		self.top.destroy()
 
 		self.application.create_scenario(
-			request=self.application.current_request, scenarios_to_create=self.scenario_list
+			request=self.application.current_request, modification_list=self.modification_list
 		)

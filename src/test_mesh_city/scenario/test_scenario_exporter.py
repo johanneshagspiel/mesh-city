@@ -20,7 +20,7 @@ class TestScenarioExporter(unittest.TestCase):
 
 	def test_get_tree_crops(self):
 		pipeline = ScenarioPipeline(
-			scenarios_to_create=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]
+			modification_list=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]
 		)
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)
@@ -34,7 +34,7 @@ class TestScenarioExporter(unittest.TestCase):
 		self.assertEqual(len(tree_crops), 10)
 
 	def test_replace_cars(self):
-		pipeline = ScenarioPipeline(scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 2)])
+		pipeline = ScenarioPipeline(modification_list=[(ScenarioModificationType.SWAP_CARS, 2)])
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)
 		overlay_image = Image.open(
@@ -49,7 +49,7 @@ class TestScenarioExporter(unittest.TestCase):
 
 	def test_paint_buildings_scenario(self):
 		pipeline = ScenarioPipeline(
-			scenarios_to_create=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]
+			modification_list=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]
 		)
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)

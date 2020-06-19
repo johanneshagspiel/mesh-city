@@ -92,15 +92,15 @@ class Application:
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 
-	def create_scenario(self, request: Request, scenarios_to_create):
+	def create_scenario(self, request: Request, modification_list):
 		"""
 		Creates a scenario based on a request
 		:param request: A Request
-		:param scenarios_to_create: A para
+		:param modification_list: A para
 		:param name:
 		:return:
 		"""
-		pipeline = ScenarioPipeline(scenarios_to_create=scenarios_to_create)
+		pipeline = ScenarioPipeline(modification_list=modification_list)
 		self.current_scenario = pipeline.process(request)
 		self.load_scenario_onscreen(scenario=self.current_scenario)
 

@@ -39,8 +39,8 @@ class ScenarioPipeline:
 	what type of things it should change.
 	"""
 
-	def __init__(self, scenarios_to_create: Sequence[Tuple[ScenarioModificationType, Any]]):
-		self.scenarios_to_create = scenarios_to_create
+	def __init__(self, modification_list: Sequence[Tuple[ScenarioModificationType, Any]]):
+		self.modification_list = modification_list
 
 	def paint_buildings_green(
 		self, building_dataframe, buildings_to_make_green: int
@@ -241,8 +241,9 @@ class ScenarioPipeline:
 			buildings_dataframe = gpd.read_file(
 				request.get_layer_of_type(BuildingsLayer).detections_path
 			)
+			buildings_dataframe["label"] = ""
 
-		for (feature, information) in self.scenarios_to_create:
+		for (feature, information) in self.modification_list:
 			if feature == ScenarioModificationType.MORE_TREES:
 				tree_dataframe = self.add_more_trees(
 					tree_dataframe=tree_dataframe, trees_to_add=information
