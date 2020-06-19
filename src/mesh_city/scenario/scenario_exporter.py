@@ -4,6 +4,8 @@ See :class:`.ScenarioExporter`
 import math
 from pathlib import Path
 
+import pandas as pd
+from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
 from mesh_city.gui.scenario_renderer import ScenarioRenderer
@@ -51,7 +53,7 @@ class ScenarioExporter:
 					self.request_manager.get_tile_from_grid(
 					x_coord=tile_x_offset + tile_xmin, y_coord=tile_y_offset + tile_ymin
 					).path
-				).convert("RGB")
+				).convert("RGBA")
 				tree_image_cropped = tile_image.crop(box=(rel_xmin, rel_ymin, rel_xmax, rel_ymax))
 				mask = Image.new('L', tree_image_cropped.size, 0)
 				draw = ImageDraw.Draw(mask)
@@ -60,12 +62,23 @@ class ScenarioExporter:
 					tree_image_cropped, mask.size, centering=(0.5, 0.5)
 				)
 				source_tree_image.putalpha(mask)
-				tree_crops.append(source_tree_image)
+				tree_crops.append(source_tree_image.convert("RGBA"))
 				if len(tree_crops) == ScenarioExporter.MAX_SOURCE_TREES:
 					break
 		return tree_crops
 
-	def export_detection_files(self, scenario: Scenario, export_directory: Path):
+	def get_exportable_detections(self, detections: DataFrame, tile_x_nw, tile_y_nw) -> DataFrame:
+		export_data = []
+		for (_, row) in detections.iterrows():
+			xmin, ymin = float(row["xmin"]), float(row["ymin"])
+			xmax, ymax = float(row["xmax"]), float(row["ymax"])
+			latitude, longitude = GeoLocationUtil.pixel_to_geo_coor(
+				tile_x_nw, tile_y_nw, xmin, ymin, xmax, ymax
+			)
+			export_data.append((latitude, longitude, row["label"]))
+		return pd.DataFrame(export_data, columns=["latitude", "longitude", "label"])
+
+	def export_building_detections(self, scenario: Scenario, export_directory: Path):
 		pass
 
 	def export_rendering(self, scenario: Scenario, export_directory: Path):
@@ -77,7 +90,7 @@ class ScenarioExporter:
 		if scenario.buildings is not None:
 			tree_crops = self.get_tree_crops(scenario=scenario)
 		for tile in image_layer.tiles:
-			result_image = Image.open(tile.path).convert("RGB")
+			result_image = Image.open(tile.path).convert("RGBA")
 			origin_path = tile.path
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
@@ -131,4 +144,27 @@ class ScenarioExporter:
 		:return: None
 		"""
 		self.export_rendering(scenario=scenario, export_directory=export_directory)
-		self.export_detection_files(scenario=scenario, export_directory=export_directory)
+		if scenario.trees is not None:
+			exportable_trees = self.get_exportable_detections(
+				detections=scenario.trees,
+				tile_x_nw=scenario.request.x_grid_coord,
+				tile_y_nw=scenario.request.y_grid_coord
+			)
+			exportable_trees["generated"] = exportable_trees["label"].apply(
+				lambda str: 0 if str == "Tree" else 1
+			)
+			exportable_trees.to_csv(export_directory.joinpath("trees.csv"), index=False)
+		if scenario.cars is not None:
+			exportable_cars = self.get_exportable_detections(
+				detections=scenario.cars,
+				tile_x_nw=scenario.request.x_grid_coord,
+				tile_y_nw=scenario.request.y_grid_coord
+			)
+			exportable_cars.to_csv(export_directory.joinpath("cars.csv"), index=False)
+		if scenario.buildings is not None:
+			exportable_buildings = RequestExporter.prepare_geodataframe(
+				request=scenario.request, geo_dataframe=scenario.buildings
+			)
+			exportable_buildings.to_file(
+				driver='GeoJSON', filename=str(export_directory.joinpath("buildings.geojson"))
+			)

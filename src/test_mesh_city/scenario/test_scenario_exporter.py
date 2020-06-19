@@ -31,8 +31,7 @@ class TestScenarioExporter(unittest.TestCase):
 			request_manager=self.request_manager, overlay_image=overlay_image
 		)
 		tree_crops = exporter.get_tree_crops(scenario=scenario)
-		tree_crops[0].show()
-		tree_crops[5].show()
+		self.assertEqual(len(tree_crops), 10)
 
 	def test_replace_cars(self):
 		pipeline = ScenarioPipeline(scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 2)])

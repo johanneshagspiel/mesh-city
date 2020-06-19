@@ -8,6 +8,7 @@ from typing import List
 
 import geopandas as gpd
 import pandas as pd
+from geopandas import GeoDataFrame
 from shapely.geometry import Polygon
 
 from mesh_city.request.entities.request import Request
@@ -17,7 +18,6 @@ from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -92,25 +92,36 @@ class RequestExporter:
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			# translates pixel coordinates of geometry to tile values.
-			building_dataframe.geometry = building_dataframe.geometry.scale(
-				xfact=1 / 1024, yfact=1 / 1024, zfact=1.0, origin=(0, 0)
-			)
-			building_dataframe.geometry = building_dataframe.geometry.translate(
-				xoff=request.x_grid_coord, yoff=request.y_grid_coord, zoff=0
-			)
-			new_polygons = []
-
-			for polygon in building_dataframe["geometry"]:
-				original_coordinates = list(zip(*polygon.exterior.coords.xy))
-				new_coordinates = []
-				for x_cor, y_cor in original_coordinates:
-					latitude, longitude = GeoLocationUtil.tile_value_to_degree(x_cor, y_cor, request.zoom, False)
-					new_coordinates.append((longitude, latitude))
-				new_polygons.append(Polygon(new_coordinates))
-			world_coordinates_dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(new_polygons))
-			world_coordinates_dataframe.to_file(
+			RequestExporter.prepare_geodataframe(request=request,
+				geo_dataframe=building_dataframe).to_file(
 				driver='GeoJSON', filename=export_directory.joinpath(rel_path)
-			)
+				)
+
+	@staticmethod
+	def prepare_geodataframe(request: Request, geo_dataframe: GeoDataFrame) -> GeoDataFrame:
+		"""
+		Changes the units of GeoDataFrame from pixels relative to request imagery to degrees.
+		:param request: The request the dataframe belongs to.
+		:param geo_dataframe: The GeoDataFrame with the geometry that needs to be processed.
+		:return: A new geometry dataframe with degrees as unit.
+		"""
+		geo_dataframe.geometry = geo_dataframe.geometry.scale(
+			xfact=1 / 1024, yfact=1 / 1024, zfact=1.0, origin=(0, 0)
+		)
+		geo_dataframe.geometry = geo_dataframe.geometry.translate(
+			xoff=request.x_grid_coord, yoff=request.y_grid_coord, zoff=0
+		)
+		new_polygons = []
+
+		for polygon in geo_dataframe["geometry"]:
+			original_coordinates = list(zip(*polygon.exterior.coords.xy))
+			new_coordinates = []
+			for x_cor, y_cor in original_coordinates:
+				latitude, longitude = GeoLocationUtil.tile_value_to_degree(x_cor, y_cor,
+																			request.zoom, False)
+				new_coordinates.append((longitude, latitude))
+			new_polygons.append(Polygon(new_coordinates))
+		return gpd.GeoDataFrame(geometry=gpd.GeoSeries(new_polygons))
 
 	@staticmethod
 	def create_world_file(
