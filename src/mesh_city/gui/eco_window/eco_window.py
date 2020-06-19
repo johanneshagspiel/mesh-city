@@ -16,7 +16,7 @@ from mesh_city.scenario.scenario_pipeline import ScenarioModificationType
 
 class EcoWindow:
 	"""
-	Window showing all the options what the user can do to make the area downloaded more eco-friendly
+	Window showing all the options what the user can do to increase the number of trees in an area.
 	"""
 
 	def __init__(self, master, application, main_screen):
@@ -83,7 +83,7 @@ class EcoWindow:
 			self.step_one_text_label = Label(self.top, text="Step 1")
 			self.step_one_text_label.grid(row=1, column=0)
 
-			secondary_label_text = "How do you want to make this area more ecofriendly?"
+			secondary_label_text = "How do you want to increase the number of plants in this area?"
 			self.secondary_label = Label(self.top, text=secondary_label_text)
 			self.secondary_label.grid(row=1, column=1, columnspan=2)
 
@@ -126,19 +126,19 @@ class EcoWindow:
 			)
 
 		else:
-			self.top_label["text"] = "This area can not be made more eco-friendly"
+			self.top_label["text"] = "No more trees can be added to this area"
 			self.top_label.grid(row=0)
 
 	def paint_buildings_green(self):
 		"""
-		Asks the user how much of the buildings should be made green as a percentage.
+		Asks the user how much of the buildings should be covered by plants.
 		:return: None
 		"""
 		for widget in self.to_forget:
 			widget.grid_forget()
 		self.to_forget = []
 
-		self.secondary_label["text"] = "How much of the buildings should be made green?"
+		self.secondary_label["text"] = "How much of the buildings should be covered by plants?"
 
 		# pylint: disable=W0201
 		grid_index = self.step_counter + 1
@@ -155,7 +155,7 @@ class EcoWindow:
 
 	def cleanup_paint_buildings(self):
 		"""
-		Adds a step corresponding to painting some buildings green.
+		Adds a step corresponding to covering some buildings by plants
 		:return:
 		"""
 		increase_percentage = self.buildings_to_paint_green_scale.get() * 0.01
@@ -190,7 +190,7 @@ class EcoWindow:
 
 	def swap_cars_with_trees(self):
 		"""
-		Prompts the user to enter how much of the cars should be swapped by trees.
+		Prompts the user to enter how many of the cars should be swapped by trees.
 		:return: None
 		"""
 		for widget in self.to_forget:
@@ -267,7 +267,7 @@ class EcoWindow:
 			new_step_label = Label(self.top, text="Step " + str(self.step_counter))
 			new_step_label.grid(row=grid_index, column=0)
 
-			self.secondary_label["text"] = "How do you want to make this area more ecofriendly?"
+			self.secondary_label["text"] = "How do you want to increase the number of plants in this area?"
 			self.secondary_label.grid(row=grid_index, column=1, columnspan=2)
 
 			grid_index += 1
