@@ -4,7 +4,7 @@ See :class:`.ScenarioExporter`
 import math
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageOps
 
 from mesh_city.gui.scenario_renderer import ScenarioRenderer
 from mesh_city.request.layers.google_layer import GoogleLayer
@@ -26,7 +26,7 @@ class ScenarioExporter:
 
 	def get_tree_crops(self, scenario: Scenario):
 		"""
-		Fetches a number of images of trees from the images that make up a scenario. Assumes that not
+		Fetches a fixed number of images of trees from the images that make up a scenario. Assumes that not
 		every detected tree is located in two seperate tiles.
 		:param scenario:
 		:return:
@@ -49,8 +49,17 @@ class ScenarioExporter:
 				rel_ymax = ymax - tile_ymin * 1024
 				tile_image = Image.open(
 					self.request_manager.get_tile_from_grid(x_coord=tile_x_offset + tile_xmin,
-					                                        y_coord=tile_y_offset + tile_ymin).path)
-				tree_crops.append(tile_image.crop(box=(rel_xmin, rel_ymin, rel_xmax, rel_ymax)))
+					                                        y_coord=tile_y_offset + tile_ymin).path).convert("RGB")
+				tree_image_cropped = tile_image.crop(box=(rel_xmin, rel_ymin, rel_xmax, rel_ymax))
+				mask = Image.new('L', tree_image_cropped.size, 0)
+				draw = ImageDraw.Draw(mask)
+				draw.ellipse((0, 0) + tree_image_cropped.size, fill=255)
+				source_tree_image = ImageOps.fit(tree_image_cropped, mask.size,
+				                                 centering=(0.5, 0.5))
+				source_tree_image.putalpha(mask)
+				tree_crops.append(source_tree_image)
+				if len(tree_crops) == ScenarioExporter.MAX_SOURCE_TREES:
+					break
 		return tree_crops
 
 	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
@@ -66,9 +75,9 @@ class ScenarioExporter:
 		image_layer = request.get_layer_of_type(GoogleLayer)
 		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
 
-		source_trees = None
+		tree_crops = None
 		if scenario.buildings is not None:
-			source_trees = self.get_tree_crops(scenario=scenario)
+			tree_crops = self.get_tree_crops(scenario=scenario)
 		for tile in image_layer.tiles:
 			result_image = Image.open(tile.path).convert("RGB")
 			origin_path = tile.path
@@ -84,6 +93,13 @@ class ScenarioExporter:
 				                                                  buildings=buildings,
 				                                                  overlay_image=self.overlay_image,
 				                                                  scaling=1)
+			if scenario.trees is not None:
+				trees = scenario.trees.copy(deep=True)
+				trees["xmin"] -= x_offset
+				trees["ymin"] -= y_offset
+				trees["xmax"] -= x_offset
+				trees["ymax"] -= y_offset
+				result_image = scenario_renderer.render_trees_for_tile(base_image=result_image,trees=trees,tree_crops=tree_crops)
 			result_image.save(export_directory.joinpath(rel_path))
 			nw_latitude, nw_longitude = GeoLocationUtil.tile_value_to_degree(
 				x_cor_tile=tile.x_grid_coord + 0.5,
