@@ -138,8 +138,6 @@ class ScenarioRenderer:
 		"""
 		source_trees = trees.loc[trees['label'] == "Tree"]
 		trees_to_add = trees.loc[trees['label'] != "Tree"]
-		print(source_trees)
-		print(trees_to_add)
 		source_image = base_image.copy()
 		for (_, row) in trees_to_add.iterrows():
 			source_tree_index = row["source_index"]
