@@ -1,7 +1,6 @@
 """
 See :class:`.ScenarioRenderer`
 """
-import copy
 import math
 
 import cv2
@@ -45,16 +44,19 @@ class ScenarioRenderer:
 		).convert("RGBA")
 		buildings = scenario.buildings.copy(deep=True)
 		if scenario.buildings is not None:
-			result_image = self.render_shrubbery(
-				base_image=result_image, buildings=buildings, scaling=scaling
+			result_image = ScenarioRenderer.render_shrubbery(
+				base_image=result_image, buildings=buildings, overlay_image=self.overlay_image,
+				scaling=scaling
 			)
 		if scenario.trees is not None:
-			result_image = self.render_trees(
+			result_image = ScenarioRenderer.render_trees(
 				base_image=result_image, trees=scenario.trees, scaling=scaling
 			)
 		return result_image
 
-	def render_shrubbery(self, base_image: Image, buildings: GeoDataFrame, scaling=1) -> Image:
+	@staticmethod
+	def render_shrubbery(base_image: Image, buildings: GeoDataFrame, overlay_image: Image,
+	                     scaling=1) -> Image:
 		"""
 		Turns rooftops into shrubbery.
 		:param base_image: The base image
@@ -65,9 +67,9 @@ class ScenarioRenderer:
 		buildings.geometry = buildings.geometry.scale(
 			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
 		)
-		green_overlay = np.asarray(self.overlay_image)
-		vertical_tiles = math.ceil(base_image.height / self.overlay_image.height)
-		horizontal_tiles = math.ceil(base_image.width / self.overlay_image.width)
+		green_overlay = np.asarray(overlay_image)
+		vertical_tiles = math.ceil(base_image.height / overlay_image.height)
+		horizontal_tiles = math.ceil(base_image.width / overlay_image.width)
 		tiled_overlay = np.tile(green_overlay, (vertical_tiles, horizontal_tiles, 1))
 		cropped_overlay = tiled_overlay[0:base_image.height, 0:base_image.width]
 		mask_base = Image.new('RGB', (base_image.width, base_image.height), (0, 0, 0))
@@ -86,14 +88,14 @@ class ScenarioRenderer:
 		new_base_image_numpy = cv2.add(masked_numpy_base, final_overlay, dtype=cv2.CV_8UC3)
 		return Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
 
-	def render_trees(self, base_image: Image, trees: DataFrame, scaling: int = 1):
+	@staticmethod
+	def render_trees(base_image: Image, trees: DataFrame, scaling: int = 1):
 		"""
 		Adds more trees to the image based on the detected trees
 		:param request: the request for which to add more trees to
 		:param trees_to_add: how many trees to add
 		:return:
 		"""
-		print(trees)
 		source_trees = trees.loc[trees['label'] == "Tree"]
 		trees_to_add = trees.loc[trees['label'] != "Tree"]
 		source_image = base_image.copy()

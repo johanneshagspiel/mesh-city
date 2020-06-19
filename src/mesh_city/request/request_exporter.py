@@ -111,7 +111,6 @@ class RequestExporter:
 			world_coordinates_dataframe.to_file(
 				driver='GeoJSON', filename=export_directory.joinpath(rel_path)
 			)
-
 	@staticmethod
 	def create_world_file(
 		path: Path, latitude: float, longitude: float, zoom: int, width: int, height: int
