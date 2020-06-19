@@ -8,7 +8,6 @@ url: https://stackoverflow.com/questions/890051/how-do-i-generate-circular-thumb
 
 import random
 from enum import Enum
-from pathlib import Path
 from typing import Any, Sequence, Tuple
 
 import geopandas as gpd
@@ -22,7 +21,6 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.request.request_manager import RequestManager
 from mesh_city.scenario.scenario import Scenario
 
 
@@ -69,7 +67,7 @@ class ScenarioPipeline:
 		"""
 		filtered_trees = tree_dataframe[tree_dataframe['label'] == "Tree"]
 		new_trees = []
-		for tree_index in range(0, trees_to_add):
+		for _ in range(0, trees_to_add):
 			source_tree_index = np.random.randint(0, len(filtered_trees) - 1)
 			neighbour_tree_index = np.random.randint(0, len(filtered_trees) - 1)
 			new_xmin, new_ymin, new_xmax, new_ymax = self.calculate_new_location_tree_addition(
@@ -167,7 +165,7 @@ class ScenarioPipeline:
 			new_ymin = new_ymin + to_add
 			new_ymax = new_ymax + to_add
 
-		return new_xmin, new_ymin, new_xmax, new_ymax,
+		return new_xmin, new_ymin, new_xmax, new_ymax
 
 	# pylint: disable=W0613
 	def calculate_new_location_tree_addition(self, source_tree, neighbour_tree, tree_dataframe):

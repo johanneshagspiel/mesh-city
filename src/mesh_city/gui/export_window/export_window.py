@@ -74,6 +74,10 @@ class ExportWindow:
 			).grid(row=len(self.request_buttons) + 1, column=0)
 
 	def export_scenario(self):
+		"""
+		Temporary callback for exporting the current scenario of the application
+		:return: None
+		"""
 		export_directory = Path(filedialog.askdirectory())
 		self.application.export_scenario(
 			scenario=self.application.current_scenario, export_directory=export_directory

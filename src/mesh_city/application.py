@@ -235,8 +235,9 @@ class Application:
 		:param scenario: The scenario to load on screen
 		:return: None
 		"""
-		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
-		canvas_image = scenario_renderer.render_scenario(scenario=scenario, scaling=16)
+		canvas_image = ScenarioRenderer.render_scenario(
+			scenario=scenario, scaling=16, overlay_image=self.overlay_image
+		)
 		self.main_screen.set_canvas_image(canvas_image)
 
 		text_to_show = self.get_statistics(element_list=[scenario])

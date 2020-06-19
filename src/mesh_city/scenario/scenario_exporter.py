@@ -29,8 +29,9 @@ class ScenarioExporter:
 	def get_tree_crops(self, scenario: Scenario):
 		"""
 		Fetches a fixed number of images of trees from the images that make up a scenario. Assumes that not
-		every detected tree is located in two seperate tiles.
-		:param scenario:
+		every detected tree is located in two seperate tiles and that at least one such tree exists
+		to make the these crops be useful.
+		:param scenario: The scenario to get tree crops for. Note the assumptions above.
 		:return:
 		"""
 		trees = scenario.trees.copy(deep=True)
@@ -39,7 +40,7 @@ class ScenarioExporter:
 		tree_crops = []
 		tile_x_offset = scenario.request.x_grid_coord
 		tile_y_offset = scenario.request.y_grid_coord
-		for (index, row) in source_trees.iterrows():
+		for (_, row) in source_trees.iterrows():
 			xmin, ymin, xmax, ymax = row["xmin"], row["ymin"], row["xmax"], row["ymax"]
 			tile_xmin, tile_ymin = math.floor(row["xmin"] / 1024), math.floor(row["ymin"] / 1024)
 			tile_xmax, tile_ymax = math.floor(row["xmax"] / 1024), math.floor(row["ymax"] / 1024)
@@ -68,6 +69,14 @@ class ScenarioExporter:
 		return tree_crops
 
 	def get_exportable_detections(self, detections: DataFrame, tile_x_nw, tile_y_nw) -> DataFrame:
+		"""
+		Converts the detections that are defined by bounding boxes in pixel space to single points
+		in degrees (latitude, longitude)
+		:param detections: The detections to process
+		:param tile_x_nw: The x coordinate in tiles of the origin of the request
+		:param tile_y_nw: The y coordinate in tiles of the origin of the request
+		:return: The transformed detection dataframe.
+		"""
 		export_data = []
 		for (_, row) in detections.iterrows():
 			xmin, ymin = float(row["xmin"]), float(row["ymin"])
@@ -78,16 +87,18 @@ class ScenarioExporter:
 			export_data.append((latitude, longitude, row["label"]))
 		return pd.DataFrame(export_data, columns=["latitude", "longitude", "label"])
 
-	def export_building_detections(self, scenario: Scenario, export_directory: Path):
-		pass
-
-	def export_rendering(self, scenario: Scenario, export_directory: Path):
+	def export_rendering(self, scenario: Scenario, export_directory: Path) -> None:
+		"""
+		Exports a rendering of a given scenario to a directory.
+		:param scenario: The scenario to render
+		:param export_directory: The export directory
+		:return: None
+		"""
 		request = scenario.request
 		image_layer = request.get_layer_of_type(GoogleLayer)
-		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
 
 		tree_crops = None
-		if scenario.buildings is not None:
+		if scenario.trees is not None:
 			tree_crops = self.get_tree_crops(scenario=scenario)
 		for tile in image_layer.tiles:
 			result_image = Image.open(tile.path).convert("RGBA")
@@ -102,7 +113,12 @@ class ScenarioExporter:
 				trees["ymin"] -= y_offset
 				trees["xmax"] -= x_offset
 				trees["ymax"] -= y_offset
-				result_image = scenario_renderer.render_trees_for_tile(
+				if len(tree_crops) == 0:
+					raise ValueError(
+						"At least one cropped image of a tree is needed to render the trees, "
+						"none were given"
+					)
+				result_image = ScenarioRenderer.render_trees_for_tile(
 					base_image=result_image, trees=trees, tree_crops=tree_crops
 				)
 			if scenario.buildings is not None:
@@ -110,7 +126,7 @@ class ScenarioExporter:
 				buildings.geometry = buildings.geometry.translate(
 					xoff=-x_offset, yoff=-y_offset, zoff=0
 				)
-				result_image = scenario_renderer.render_shrubbery(
+				result_image = ScenarioRenderer.render_shrubbery(
 					base_image=result_image,
 					buildings=buildings,
 					overlay_image=self.overlay_image,
@@ -136,11 +152,9 @@ class ScenarioExporter:
 
 	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
 		"""
-		Exports a single layer from a request using methods specific to the type of the layer.
-
-		:param request: The request that contains the layer to be exported
-		:param index: The index of the layer that is to be exported.
-		:param export_directory:  The root of the directory layers should be exported to.
+		Exports a scenario to a certain directory.
+		:param scenario: The scenario to export
+		:param export_directory: The directory to export the scenario to.
 		:return: None
 		"""
 		self.export_rendering(scenario=scenario, export_directory=export_directory)

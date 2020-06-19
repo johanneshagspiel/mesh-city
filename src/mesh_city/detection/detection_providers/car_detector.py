@@ -45,6 +45,11 @@ class CarDetector:
 					self.tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
 
 	def close(self):
+		"""
+		Closes the tensorflow sesssion after all cars have been detected. The detector becomes
+		unusable by doing this.
+		:return:
+		"""
 		self.session.close()
 
 	def detect_cars(self, image):

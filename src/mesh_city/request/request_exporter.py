@@ -115,12 +115,13 @@ class RequestExporter:
 
 		for polygon in geo_dataframe["geometry"]:
 			original_coordinates = list(zip(*polygon.exterior.coords.xy))
-			new_coordinates = []
-			for x_cor, y_cor in original_coordinates:
-				latitude, longitude = GeoLocationUtil.tile_value_to_degree(x_cor, y_cor,
-																			request.zoom, False)
-				new_coordinates.append((longitude, latitude))
-			new_polygons.append(Polygon(new_coordinates))
+			new_coordinates = [
+				GeoLocationUtil.tile_value_to_degree(x_cor, y_cor, request.zoom, False)
+				for (x_cor, y_cor) in original_coordinates
+			]
+			new_polygons.append(
+				Polygon([(longitude, latitude) for (latitude, longitude) in new_coordinates])
+			)
 		return gpd.GeoDataFrame(geometry=gpd.GeoSeries(new_polygons))
 
 	@staticmethod

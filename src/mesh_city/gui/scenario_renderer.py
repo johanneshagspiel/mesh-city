@@ -19,14 +19,12 @@ class ScenarioRenderer:
 	This renders scenario's, either per-tile or to a single (scaled-down) image.
 	"""
 
-	def __init__(self, overlay_image: Image):
-		self.overlay_image = overlay_image
-
-	def render_scenario(self, scenario: Scenario, scaling: int = 16) -> Image:
+	@staticmethod
+	def render_scenario(scenario: Scenario, overlay_image: Image, scaling: int = 16) -> Image:
 		"""
-		Composites a rendering of a scenario
+		Composites a rendering of a scenario based on the modified detection files.
 		:param scenario: The scenario to render
-		:param scaling: A scaling factor for low-resolution rendering
+		:param scaling: A scaling factor for varying the resolution of the rendered image.
 		:return: An image representation of the layer.
 		"""
 		request = scenario.request
@@ -50,7 +48,7 @@ class ScenarioRenderer:
 			result_image = ScenarioRenderer.render_shrubbery(
 				base_image=result_image,
 				buildings=buildings,
-				overlay_image=self.overlay_image,
+				overlay_image=overlay_image,
 				scaling=scaling
 			)
 		return result_image
@@ -60,11 +58,11 @@ class ScenarioRenderer:
 		base_image: Image, buildings: GeoDataFrame, overlay_image: Image, scaling=1
 	) -> Image:
 		"""
-		Turns rooftops into shrubbery.
+		Renders patches of shrubbery on buildings on a base image as specified in the buildings dataframe
 		:param base_image: The base image
 		:param buildings: A dataframe with building polygons
-		:param scaling: A scaling factor
-		:return:
+		:param scaling: A scaling factor for varying the resolution of the rendered image.
+		:return: The resulting image
 		"""
 		buildings.geometry = buildings.geometry.scale(
 			xfact=1 / scaling, yfact=1 / scaling, zfact=1.0, origin=(0, 0)
@@ -76,7 +74,7 @@ class ScenarioRenderer:
 		cropped_overlay = tiled_overlay[0:base_image.height, 0:base_image.width]
 		mask_base = Image.new('RGB', (base_image.width, base_image.height), (0, 0, 0))
 		draw = ImageDraw.Draw(mask_base)
-		for (index, (polygon, label)) in enumerate(zip(buildings["geometry"], buildings["label"])):
+		for (_, (polygon, label)) in enumerate(zip(buildings["geometry"], buildings["label"])):
 			if label == "Shrubbery":
 				vertices = list(zip(*polygon.exterior.coords.xy))
 				draw.polygon(xy=vertices, fill=(255, 255, 255))
@@ -89,16 +87,18 @@ class ScenarioRenderer:
 		return Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
 
 	@staticmethod
-	def render_trees_for_tile(base_image: Image, trees: DataFrame, tree_crops: [Image]):
+	def render_trees_for_tile(base_image: Image, trees: DataFrame, tree_crops: [Image]) -> Image:
 		"""
-		Adds new trees to the image using a provided list of cropped and preprocessed images of trees.
-		:param request: the request for which to add more trees to
-		:param trees_to_add: how many trees to add
-		:return:
+		Renders trees on top of a tile image based on new trees in a dataframe.
+		A collection of cropped images from other tiles is used to render the new trees.
+		:param base_image: The image to render the trees onto
+		:param trees: A dataframe containing all the trees
+		:param tree_crops: A collection of processed images of tree to use for rendering new trees.
+		:return: The resulting image
 		"""
 		trees_to_add = trees.loc[trees['label'] != "Tree"]
 		source_image = base_image.copy()
-		for (index, row) in trees_to_add.iterrows():
+		for (_, row) in trees_to_add.iterrows():
 			new_width = int(row["xmax"] - row["xmin"])
 			new_height = int(row["ymax"] - row["ymin"])
 			x_coord, y_coord = (int(row["xmin"]), int(row["ymin"]))
@@ -129,15 +129,17 @@ class ScenarioRenderer:
 	@staticmethod
 	def render_trees(base_image: Image, trees: DataFrame, scaling: int = 1):
 		"""
-		Adds more trees to the image based on the detected trees
-		:param request: the request for which to add more trees to
-		:param trees_to_add: how many trees to add
-		:return:
+		Renders trees on top of a base image based on new trees in a dataframe.
+		Other trees on the base image are used to render these new trees.
+		:param base_image: The image to render the trees onto
+		:param trees: A dataframe containing all the trees
+		:param scaling: A scaling factor for varying the resolution of the rendered image.
+		:return: The resulting image
 		"""
 		source_trees = trees.loc[trees['label'] == "Tree"]
 		trees_to_add = trees.loc[trees['label'] != "Tree"]
 		source_image = base_image.copy()
-		for (index, row) in trees_to_add.iterrows():
+		for (_, row) in trees_to_add.iterrows():
 			source_tree_index = row["source_index"]
 			tree_area_to_cut = (
 				float(source_trees.iloc[source_tree_index][0]) / scaling,
