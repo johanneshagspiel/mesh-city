@@ -16,7 +16,7 @@ from mesh_city.scenario.scenario_pipeline import ScenarioModificationType
 
 class EcoWindow:
 	"""
-	Window showing all the options what the user can do to make the area downloaded more eco-friendly
+	Window showing all the options what the user can do to increase the number of trees in an area.
 	"""
 
 	def __init__(self, master, application, main_screen):
