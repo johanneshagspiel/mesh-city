@@ -21,16 +21,12 @@ class FileHandler:
 			self.root = Path(__file__).parents[1]
 
 		self.folder_overview = {
-			"resource_path":
-			Path.joinpath(self.root, 'resources'),
-			"image_path":
-			Path.joinpath(self.root, 'resources', 'images'),
-			"users.json":
-			Path.joinpath(self.root, 'resources', 'user', 'users.json'),
-			"biome_index":
-			Path.joinpath(self.root, 'resources', 'mvrdv', 'PlanetPainter_BiomeIndex.csv'),
-			"MVRDV":
-			Path.joinpath(self.root, 'resources', 'mvrdv', 'mvrdv_logo.png')
+			"resource_path": self.root.joinpath("resources"),
+			"image_path": self.root.joinpath("resources", "images"),
+			"users.json": self.root.joinpath("resources", "user", "users.json"),
+			"biome_index": self.root.joinpath("resources", "mvrdv", "PlanetPainter_BiomeIndex.csv"),
+			"MVRDV": self.root.joinpath("resources", "mvrdv", "mvrdv_logo.png"),
+			"fonts": self.root.joinpath("resources", "fonts")
 		}
 		# initiated with a CoordinateOverview, coordinate_overview.grid is a json file
 		self.coordinate_overview = None
