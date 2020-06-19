@@ -68,8 +68,8 @@ class ScenarioPipeline:
 		filtered_trees = tree_dataframe[tree_dataframe['label'] == "Tree"]
 		new_trees = []
 		for _ in range(0, trees_to_add):
-			source_tree_index = np.random.randint(0, len(filtered_trees) - 1)
-			neighbour_tree_index = np.random.randint(0, len(filtered_trees) - 1)
+			source_tree_index = np.random.randint(0, len(filtered_trees))
+			neighbour_tree_index = np.random.randint(0, len(filtered_trees))
 			new_xmin, new_ymin, new_xmax, new_ymax = self.calculate_new_location_tree_addition(
 				source_tree_index, neighbour_tree_index, filtered_trees
 			)
@@ -104,7 +104,7 @@ class ScenarioPipeline:
 		np.random.shuffle(car_dataframe.values)
 		changes_list = []
 		for car_index in range(0, cars_to_swap):
-			tree_to_replace_with_index = np.random.randint(1, len(tree_dataframe) - 1)
+			tree_to_replace_with_index = np.random.randint(0, len(tree_dataframe))
 			new_xmin, new_ymin, new_xmax, new_ymax = self.create_new_swapped_tree_entry(
 				car_index, tree_to_replace_with_index, tree_dataframe, car_dataframe
 			)
