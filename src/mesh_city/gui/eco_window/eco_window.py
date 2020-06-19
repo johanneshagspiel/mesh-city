@@ -161,7 +161,9 @@ class EcoWindow:
 		increase_percentage = self.buildings_to_paint_green_scale.get() * 0.01
 		trees_to_add = math.ceil((self.buildings_gdf.shape[0]) * increase_percentage)
 
-		self.modification_list.append((ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add))
+		self.modification_list.append(
+			(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
+		)
 		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
 
 	def add_more_trees(self):
@@ -267,7 +269,8 @@ class EcoWindow:
 			new_step_label = Label(self.top, text="Step " + str(self.step_counter))
 			new_step_label.grid(row=grid_index, column=0)
 
-			self.secondary_label["text"] = "How do you want to increase the number of plants in this area?"
+			self.secondary_label["text"
+								] = "How do you want to increase the number of plants in this area?"
 			self.secondary_label.grid(row=grid_index, column=1, columnspan=2)
 
 			grid_index += 1

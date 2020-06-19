@@ -39,12 +39,12 @@ class ScenarioRenderer:
 			height=request.num_of_vertical_images,
 			images=images
 		).convert("RGBA")
-		buildings = scenario.buildings.copy(deep=True)
 		if scenario.trees is not None:
 			result_image = ScenarioRenderer.render_trees(
 				base_image=result_image, trees=scenario.trees, scaling=scaling
 			)
 		if scenario.buildings is not None:
+			buildings = scenario.buildings.copy(deep=True)
 			result_image = ScenarioRenderer.render_shrubbery(
 				base_image=result_image,
 				buildings=buildings,
@@ -138,6 +138,8 @@ class ScenarioRenderer:
 		"""
 		source_trees = trees.loc[trees['label'] == "Tree"]
 		trees_to_add = trees.loc[trees['label'] != "Tree"]
+		print(source_trees)
+		print(trees_to_add)
 		source_image = base_image.copy()
 		for (_, row) in trees_to_add.iterrows():
 			source_tree_index = row["source_index"]

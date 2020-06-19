@@ -99,18 +99,23 @@ class InformationStringBuilder:
 			count_of_cars = len(pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path))
 		if request.has_layer_of_type(BuildingsLayer):
 			building_dataframe = gpd.read_file(
-				request.get_layer_of_type(BuildingsLayer).detections_path)
+				request.get_layer_of_type(BuildingsLayer).detections_path
+			)
 			for polygon in building_dataframe["geometry"]:
 				square_meters_of_rooftops += polygon.area
-			square_meters_of_rooftops *= GeoLocationUtil.calc_meters_per_px(latitude=latitude,
-			                                                                zoom=20,
-			                                                                image_resolution=1024) ** 2
+			square_meters_of_rooftops *= GeoLocationUtil.calc_meters_per_px(
+				latitude=latitude, zoom=20, image_resolution=1024
+			)**2
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
-		                                                           request.y_grid_coord,
-		                                                           20)
-		return self.process(latitude=latitude,longitude=longitude, count_of_trees=count_of_trees,
-		                    count_of_cars=count_of_cars,
-		                    square_meters_of_rooftops=square_meters_of_rooftops)
+																	request.y_grid_coord,
+																	20)
+		return self.process(
+			latitude=latitude,
+			longitude=longitude,
+			count_of_trees=count_of_trees,
+			count_of_cars=count_of_cars,
+			square_meters_of_rooftops=square_meters_of_rooftops
+		)
 
 	def process_scenario(self, scenario: Scenario) -> str:
 		count_of_trees = 0
@@ -131,11 +136,11 @@ class InformationStringBuilder:
 			count_of_cars = len(scenario.cars)
 		if scenario.buildings is not None:
 			green_area = 0
-			pixel_area_to_m2 = GeoLocationUtil.calc_meters_per_px(latitude=latitude,
-			                                                                zoom=20,
-			                                                                image_resolution=1024) ** 2
-			for polygon in scenario.buildings.loc[scenario.buildings['label'] == "Shrubbery"].geometry:
-				print(polygon)
+			pixel_area_to_m2 = GeoLocationUtil.calc_meters_per_px(
+				latitude=latitude, zoom=20, image_resolution=1024
+			)**2
+			for polygon in scenario.buildings.loc[scenario.buildings['label'] == "Shrubbery"
+													].geometry:
 				green_area += polygon.area
 			for polygon in scenario.buildings.geometry:
 				square_meters_of_rooftops += polygon.area
@@ -144,26 +149,38 @@ class InformationStringBuilder:
 			green_area *= pixel_area_to_m2
 
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(scenario.request.x_grid_coord,
-		                                                           scenario.request.y_grid_coord,
-		                                                           20)
-		return self.process(latitude=latitude, longitude=longitude, count_of_trees=count_of_trees,
-		                    count_of_cars=count_of_cars+count_cars_swapped,
-		                    square_meters_of_rooftops=square_meters_of_rooftops,
-		                    count_cars_swapped=count_cars_swapped,
-		                    count_trees_added=count_trees_added,
-		                    fraction_rooftops_greenified=percentage_of_rooftops_greenified)
+																	scenario.request.y_grid_coord,
+																	20)
+		return self.process(
+			latitude=latitude,
+			longitude=longitude,
+			count_of_trees=count_of_trees,
+			count_of_cars=count_of_cars + count_cars_swapped,
+			square_meters_of_rooftops=square_meters_of_rooftops,
+			count_cars_swapped=count_cars_swapped,
+			count_trees_added=count_trees_added,
+			fraction_rooftops_greenified=percentage_of_rooftops_greenified
+		)
 
-	def process(self, latitude, longitude, count_of_trees: int, count_of_cars: int,
-	            square_meters_of_rooftops: int,
-	            count_cars_swapped: int = 0, count_trees_added: int = 0,
-	            fraction_rooftops_greenified: float = 0) -> str:
+	def process(
+		self,
+		latitude,
+		longitude,
+		count_of_trees: int,
+		count_of_cars: int,
+		square_meters_of_rooftops: int,
+		count_cars_swapped: int = 0,
+		count_trees_added: int = 0,
+		fraction_rooftops_greenified: float = 0
+	) -> str:
 		"""
 		Processes a list of elements that can be either Layers or Scenarios
 		:param element_list: The list of Layers and/or Scenarios
 		:return: An information string with all the statistics of the request/scenario
 		"""
-		info_dict = self.get_tree_and_rooftop_co2_values(request_latitude=latitude,
-		                                                 request_longitude=longitude)
+		info_dict = self.get_tree_and_rooftop_co2_values(
+			request_latitude=latitude, request_longitude=longitude
+		)
 		eco_name = info_dict['biodome']
 		carbon_storage_tree = info_dict['carbon_storage_tree']
 		carbon_storage_rooftops = info_dict['carbon_storage_rooftops']
@@ -175,13 +192,14 @@ class InformationStringBuilder:
 
 		count_of_trees += (count_trees_added + count_cars_swapped)
 		count_of_cars += -count_cars_swapped
-		total_carbon_storage = (count_of_trees * carbon_storage_tree) + (
-			square_meters_of_rooftops * carbon_storage_rooftops)
-		total_oxygen_emission = (count_of_trees * oxygen_emission_tree) + (
-			square_meters_of_rooftops * oxygen_emission_rooftop)
+		total_carbon_storage = (count_of_trees *
+			carbon_storage_tree) + (square_meters_of_rooftops * carbon_storage_rooftops)
+		total_oxygen_emission = (count_of_trees *
+			oxygen_emission_tree) + (square_meters_of_rooftops * oxygen_emission_rooftop)
 		total_carbon_emission = count_of_cars * carbon_emission_car
 		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (
-			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop)
+			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop
+		)
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"
@@ -193,7 +211,8 @@ class InformationStringBuilder:
 		result_string += "Cars: " + str(count_of_cars) + "  -" + str(count_cars_swapped) + "\n"
 		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n"
 		result_string += "Rooftops Greenified: " + str(
-			int(square_meters_of_rooftops * fraction_rooftops_greenified)) + "m2" + "\n \n"
+			int(square_meters_of_rooftops * fraction_rooftops_greenified)
+		) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
 		result_string += "Biomass. \nCO2 storage:\n"
