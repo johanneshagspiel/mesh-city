@@ -18,6 +18,18 @@ class TestScenarioExporter(unittest.TestCase):
 		self.request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
 		self.request_manager.load_data()
 
+	def test_get_tree_crops(self):
+		pipeline = ScenarioPipeline(
+			scenarios_to_create=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]
+		)
+		request = self.request_manager.get_request_by_id(0)
+		scenario = pipeline.process(request)
+		overlay_image = Image.open(self.file_handler.folder_overview["resource_path"].joinpath("test-overlay.png")).convert("RGB")
+		exporter = ScenarioExporter(request_manager=self.request_manager,overlay_image=overlay_image)
+		tree_crops = exporter.get_tree_crops(scenario=scenario)
+		for tree_crop in tree_crops:
+			tree_crop.show()
+
 	def test_paint_buildings_scenario(self):
 		pipeline = ScenarioPipeline(
 			scenarios_to_create=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]

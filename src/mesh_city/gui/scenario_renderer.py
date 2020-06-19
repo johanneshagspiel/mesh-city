@@ -89,6 +89,36 @@ class ScenarioRenderer:
 		return Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
 
 	@staticmethod
+	def render_trees_for_tile(base_image: Image, trees: DataFrame, scaling: int = 1):
+		"""
+		Adds more trees to the image based on the detected trees
+		:param request: the request for which to add more trees to
+		:param trees_to_add: how many trees to add
+		:return:
+		"""
+		source_trees = trees.loc[trees['label'] == "Tree"]
+		trees_to_add = trees.loc[trees['label'] != "Tree"]
+		source_image = base_image.copy()
+		for (index, row) in trees_to_add.iterrows():
+			source_tree_index = row["source_index"]
+			tree_area_to_cut = (
+				float(source_trees.iloc[source_tree_index][0]) / scaling,
+				float(source_trees.iloc[source_tree_index][1]) / scaling,
+				float(source_trees.iloc[source_tree_index][2]) / scaling,
+				float(source_trees.iloc[source_tree_index][3]) / scaling,
+			)
+			tree_image_cropped = source_image.crop(box=tree_area_to_cut)
+			mask = Image.new('L', tree_image_cropped.size, 0)
+			draw = ImageDraw.Draw(mask)
+			draw.ellipse((0, 0) + tree_image_cropped.size, fill=255)
+			source_tree_image = ImageOps.fit(tree_image_cropped, mask.size, centering=(0.5, 0.5))
+			source_tree_image.putalpha(mask)
+
+			coordinate = ((int(row["xmin"] / scaling), int(row["ymin"] / scaling)))
+			base_image.alpha_composite(source_tree_image, dest=coordinate)
+		return base_image
+
+	@staticmethod
 	def render_trees(base_image: Image, trees: DataFrame, scaling: int = 1):
 		"""
 		Adds more trees to the image based on the detected trees
