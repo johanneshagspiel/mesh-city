@@ -124,6 +124,7 @@ class DetectionPipeline:
 			origin=(0, 0)
 		)
 		if not dataframe.empty:
+			dataframe["label"] = "Building"
 			dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
 		else:
 			empty_geojson = {"type": "FeatureCollection", "features": []}
@@ -161,7 +162,7 @@ class DetectionPipeline:
 
 			x_offset = (tile.x_grid_coord - request.x_grid_coord) * DetectionPipeline.TILE_SIZE
 			y_offset = (tile.y_grid_coord - request.y_grid_coord) * DetectionPipeline.TILE_SIZE
-			np_image = np.asarray(Image.open(tile.path).convert("RGB"))
+			np_image = np.asarray(Image.open(tile.path).convert("RGB").resize((256, 256)))
 			image_np_expanded = np.expand_dims(np_image, axis=0)
 			result = car_detector.detect_cars(image_np_expanded)
 			result["xmin"] += x_offset
@@ -174,7 +175,7 @@ class DetectionPipeline:
 			self.state["current_tile"] = counter
 			self.state["current_time_detection"] = time_needed_download
 			self.notify_observers()
-
+		car_detector.close()
 		concat_result = pd.concat(frames).reset_index(drop=True)
 		concat_result.to_csv(detections_path)
 
@@ -258,7 +259,7 @@ class DetectionPipeline:
 
 	def detach_observer(self, observer):
 		"""
-		Detaches a observer from the request maker and gets rid of its gui element
+		Detaches a observer from the detection pipeline and gets rid of its gui
 		:param observer: the observer to detach
 		:return:
 		"""
@@ -267,7 +268,7 @@ class DetectionPipeline:
 
 	def notify_observers(self):
 		"""
-		Notifies all observers about a change in the state of the request maker
+		Notifies all observers about a change in the state of the detection pipeline
 		:return:
 		"""
 		for observer in self.observers:

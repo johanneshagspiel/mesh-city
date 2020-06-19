@@ -1,19 +1,22 @@
 """
 See :class:`.Scenario`
 """
-from pathlib import Path
+
+from geopandas import GeoDataFrame
+from pandas import DataFrame
+
+from mesh_city.request.entities.request import Request
 
 
 class Scenario:
 	"""
-	An the base scenario class.
+	A class storing modified dataframes created from detected features.
 	"""
 
 	def __init__(
-		self, scenario_name: str, width: int, height: int, scenario_path: Path, information_path: Path
+		self, trees: DataFrame, cars: DataFrame, buildings: GeoDataFrame, request: Request
 	) -> None:
-		self.scenario_name = scenario_name
-		self.width = width
-		self.height = height
-		self.scenario_path = scenario_path
-		self.information_path = information_path
+		self.trees = trees
+		self.cars = cars
+		self.buildings = buildings
+		self.request = request

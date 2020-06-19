@@ -37,7 +37,7 @@ class TestPipeline(unittest.TestCase):
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
 		car_dataframe = pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path)
-		self.assertGreaterEqual(len(car_dataframe), 5)
+		self.assertGreaterEqual(len(car_dataframe), 3)
 
 	def test_building_detection(self):
 		pipeline = DetectionPipeline(

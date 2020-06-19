@@ -12,7 +12,6 @@ from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
-from mesh_city.scenario.scenario import Scenario
 
 
 class RequestManager:
@@ -134,27 +133,6 @@ class RequestManager:
 							detections_path=building_detections_path
 							)
 						)
-					scenarios = self.__images_root.joinpath("scenarios")
-					if scenarios.exists():
-						pattern_scenario_to_request = "request" + str(request.request_id) + "*"
-						file_paths = sorted(scenarios.glob(pattern_scenario_to_request))
-						# pattern_only_gifs = "*.gif"
-						# file_paths = sorted(file_paths_request.glob(pattern_only_gifs))
-						for file_path in file_paths:
-							if os.path.splitext(Path(file_path))[1] != ".csv":
-								scenario_name = Path(file_path).name.split("_")[1]
-								information_path = str(
-									os.path.splitext(Path(file_path))[0]
-								) + ".csv"
-								request.add_scenario(
-									Scenario(
-									scenario_name=scenario_name,
-									width=request.num_of_horizontal_images,
-									height=request.num_of_vertical_images,
-									scenario_path=file_path,
-									information_path=information_path
-									)
-								)
 
 					self.add_request(request=request)
 

@@ -15,18 +15,25 @@ class TestScenarioPipeline(unittest.TestCase):
 		self.request_manager = RequestManager(self.file_handler.folder_overview["image_path"])
 		self.request_manager.load_data()
 
-	def test_swap_cars_scenario(self):
+	def test_paint_buildings_scenario(self):
 		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager,
-			scenarios_to_create=[(ScenarioModificationType.SWAP_CARS, 4)]
+			modification_list=[(ScenarioModificationType.PAINT_BUILDINGS_GREEN, 2)]
 		)
 		request = self.request_manager.get_request_by_id(0)
-		pipeline.process(request)
+		scenario = pipeline.process(request)
+		filtered_df = scenario.buildings.loc[scenario.buildings['label'] == "Shrubbery"]
+		self.assertEqual(2, len(filtered_df))
+
+	def test_swap_cars_scenario(self):
+		pipeline = ScenarioPipeline(modification_list=[(ScenarioModificationType.SWAP_CARS, 3)])
+		request = self.request_manager.get_request_by_id(0)
+		scenario = pipeline.process(request)
+		filtered_df = scenario.trees.loc[scenario.trees['label'] == "SwappedCar"]
+		self.assertEqual(3, len(filtered_df))
 
 	def test_more_tree_scenario(self):
-		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager,
-			scenarios_to_create=[(ScenarioModificationType.MORE_TREES, 4)]
-		)
+		pipeline = ScenarioPipeline(modification_list=[(ScenarioModificationType.MORE_TREES, 4)])
 		request = self.request_manager.get_request_by_id(0)
-		pipeline.process(request)
+		scenario = pipeline.process(request)
+		filtered_df = scenario.trees.loc[scenario.trees['label'] == "AddedTree"]
+		self.assertEqual(4, len(filtered_df))
