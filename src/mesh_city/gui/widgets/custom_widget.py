@@ -2,6 +2,8 @@ from abc import ABC
 from tkinter import Canvas, Misc
 from typing import Dict, Any
 
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+
 
 class CustomWidget(Canvas, ABC):
 

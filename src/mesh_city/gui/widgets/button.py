@@ -1,6 +1,9 @@
 from tkinter import Misc, PIESLICE, ALL
 from typing import Dict, Any
 
+from mesh_city.gui.widgets.custom_widget import CustomWidget
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+
 
 class Button(CustomWidget):
 
