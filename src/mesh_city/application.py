@@ -44,6 +44,8 @@ class Application:
 		self.request_manager = self.get_request_manager()
 		self.request_observer = None
 		self.main_screen = None
+		bio_path = self.file_handler.folder_overview['biome_index']
+		self.info_builder = InformationStringBuilder(bio_path)
 
 	def get_main_screen(self) -> MainScreen:
 		"""
@@ -186,7 +188,8 @@ class Application:
 		for (index, element) in enumerate(layer_mask):
 			if element is True:
 				layer_list.append(self.current_request.layers[index])
-		text_to_show = self.get_statistics(element_list=layer_list)
+
+		text_to_show = self.info_builder.process_request(request=self.current_request)
 		self.main_screen.update_text(text_to_show)
 
 	def export_request_layers(
@@ -227,7 +230,8 @@ class Application:
 		"""
 		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
 		self.main_screen.set_canvas_image(canvas_image)
-		self.main_screen.delete_text()
+		text_to_show = self.info_builder.process_request(request=self.current_request)
+		self.main_screen.update_text(text_to_show)
 
 	def load_scenario_onscreen(self, scenario: Scenario) -> None:
 		"""
@@ -240,7 +244,7 @@ class Application:
 		)
 		self.main_screen.set_canvas_image(canvas_image)
 
-		text_to_show = self.get_statistics(element_list=[scenario])
+		text_to_show = self.info_builder.process_scenario(scenario=self.current_scenario)
 		self.main_screen.update_text(text_to_show)
 
 	def process_finished_request(self, request: Request) -> None:
@@ -255,17 +259,6 @@ class Application:
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
-
-	def get_statistics(self, element_list: Sequence[Union[Layer, Scenario]]):
-		"""
-		Method which can be called to count, analyse and create some statistics of the detections
-		saved in layers of the active request.
-		:return:
-		"""
-		bio_path = self.file_handler.folder_overview['biome_index']
-		info_gen = InformationStringBuilder(bio_path, self.current_request)
-
-		return info_gen.process(element_list=element_list)
 
 	def start(self):
 		"""

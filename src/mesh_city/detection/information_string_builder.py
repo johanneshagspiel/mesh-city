@@ -2,14 +2,14 @@
 See class description
 """
 import csv
-import geopandas as gpd
 from pathlib import Path
-from typing import Sequence, Union
+
+import geopandas as gpd
+import pandas as pd
 
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
@@ -21,11 +21,10 @@ class InformationStringBuilder:
 	saved in layers of a request.
 	"""
 
-	def __init__(self, bio_path: Path, request: Request):
+	def __init__(self, bio_path: Path):
 		self.bio_path = bio_path
-		self.request = request
 
-	def get_tree_and_rooftop_co2_values(self, request: Request) -> dict:
+	def get_tree_and_rooftop_co2_values(self, request_latitude, request_longitude) -> dict:
 		"""
 		Analyses the biome information csv and the coordinates of the current request so that it
 		returns the point in the PlanetPainter_BiomIndex.csv file, closest to the coordinates of the
@@ -81,80 +80,91 @@ class InformationStringBuilder:
 						'urban_cooling_rooftop': urban_cooling_rooftop
 					}
 					info.append(dictionary)
-
-		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
-			request.y_grid_coord, 20)
-		point = {'latitude': latitude, 'longitude': longitude}
+		point = {'latitude': request_latitude, 'longitude': request_longitude}
 		closest = GeoLocationUtil.closest(info, point)
 		return closest
 
-	def process_tree_layer(self, tree_layer: TreesLayer) -> int:
-		"""
-		Generates information for a TreesLayer
-		:param tree_layer: The TreesLayer to generate information for
-		:return: An information string about the TreesLayer
-		"""
-		count = 0
-		with open(str(tree_layer.detections_path), newline='') as csv_file:
-			csv_reader = csv.reader(csv_file, delimiter=',')
-			for (index, row) in enumerate(csv_reader):
-				if len(row) > 0 and index > 0:
-					count += 1
-		return count
+	def process_request(self, request: Request) -> str:
+		count_of_trees = 0
+		count_of_cars = 0
+		square_meters_of_rooftops = 0
 
-	def process_cars_layer(self, cars_layer: CarsLayer) -> int:
-		"""
-		Generates information for a CarsLayer
-		:param cars_layer: The CarsLayer to generate information for
-		:return: An information string about the CarsLayer
-		"""
-		count = 0
-		with open(str(cars_layer.detections_path), newline='') as csv_file:
-			csv_reader = csv.reader(csv_file, delimiter=',')
-			for (index, row) in enumerate(csv_reader):
-				if len(row) > 0 and index > 0:
-					count += 1
-		return count
+		latitude, longitude = GeoLocationUtil.tile_value_to_degree(
+			request.x_grid_coord,
+			request.y_grid_coord,
+			20)
+		if request.has_layer_of_type(TreesLayer):
+			count_of_trees = len(pd.read_csv(request.get_layer_of_type(TreesLayer).detections_path))
+		if request.has_layer_of_type(CarsLayer):
+			count_of_cars = len(pd.read_csv(request.get_layer_of_type(CarsLayer).detections_path))
+		if request.has_layer_of_type(BuildingsLayer):
+			building_dataframe = gpd.read_file(
+				request.get_layer_of_type(BuildingsLayer).detections_path)
+			for polygon in building_dataframe["geometry"]:
+				square_meters_of_rooftops += polygon.area
+			square_meters_of_rooftops *= GeoLocationUtil.calc_meters_per_px(latitude=latitude,
+			                                                                zoom=20,
+			                                                                image_resolution=1024) ** 2
+		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
+		                                                           request.y_grid_coord,
+		                                                           20)
+		return self.process(latitude=latitude,longitude=longitude, count_of_trees=count_of_trees,
+		                    count_of_cars=count_of_cars,
+		                    square_meters_of_rooftops=square_meters_of_rooftops)
 
-	def process_scenario(self, scenario: Scenario) -> (int, int):
-		"""
-		Process a given scenario by turning it into an informative string.
-		:param scenario: A Scenario instance
-		:return: An informative string about this Scenario
-		"""
+	def process_scenario(self, scenario: Scenario) -> str:
+		count_of_trees = 0
+		count_of_cars = 0
 		count_trees_added = 0
+		square_meters_of_rooftops = 0
 		count_cars_swapped = 0
+		percentage_of_rooftops_greenified = 0
+		latitude, longitude = GeoLocationUtil.tile_value_to_degree(
+			scenario.request.x_grid_coord,
+			scenario.request.y_grid_coord,
+			20)
+		if scenario.trees is not None:
+			count_cars_swapped = len(scenario.trees.loc[scenario.trees['label'] == "SwappedCar"])
+			count_trees_added = len(scenario.trees.loc[scenario.trees['label'] == "AddedTree"])
+			count_of_trees = len(scenario.trees.loc[scenario.trees['label'] == "Tree"])
+		if scenario.cars is not None:
+			count_of_cars = len(scenario.cars)
+		if scenario.buildings is not None:
+			green_area = 0
+			pixel_area_to_m2 = GeoLocationUtil.calc_meters_per_px(latitude=latitude,
+			                                                                zoom=20,
+			                                                                image_resolution=1024) ** 2
+			for polygon in scenario.buildings.loc[scenario.buildings['label'] == "Shrubbery"].geometry:
+				print(polygon)
+				green_area += polygon.area
+			for polygon in scenario.buildings.geometry:
+				square_meters_of_rooftops += polygon.area
+			percentage_of_rooftops_greenified = green_area / square_meters_of_rooftops
+			square_meters_of_rooftops *= pixel_area_to_m2
+			green_area *= pixel_area_to_m2
 
-		with open(str(scenario.information_path), newline='') as csv_file:
-			csv_reader = csv.reader(csv_file, delimiter=',')
-			for (index, row) in enumerate(csv_reader):
-				if len(row) > 0 and index > 0:
-					if row[6] == "AddedTree":
-						count_trees_added += 1
-					if row[6] == "SwappedCar":
-						count_cars_swapped += 1
-		return count_trees_added, count_cars_swapped
-		count_trees_added = len(scenario.trees.loc[scenario.trees['label'] == "AddedTree"])
-		count_cars_swapped = len(scenario.trees.loc[scenario.trees['label'] == "SwappedCar"])
-		result_string = ""
-		if count_trees_added > 0:
-			result_string += "Trees added: " + str(count_trees_added) + "\n"
-		if count_cars_swapped > 0:
-			result_string += "Cars swapped with trees: " + str(count_cars_swapped) + "\n"
-		return result_string
+		latitude, longitude = GeoLocationUtil.tile_value_to_degree(scenario.request.x_grid_coord,
+		                                                           scenario.request.y_grid_coord,
+		                                                           20)
+		return self.process(latitude=latitude, longitude=longitude, count_of_trees=count_of_trees,
+		                    count_of_cars=count_of_cars+count_cars_swapped,
+		                    square_meters_of_rooftops=square_meters_of_rooftops,
+		                    count_cars_swapped=count_cars_swapped,
+		                    count_trees_added=count_trees_added,
+		                    fraction_rooftops_greenified=percentage_of_rooftops_greenified)
 
-	def process(self, element_list: Sequence[Union[Layer, Scenario]]) -> str:
+	def process(self, latitude, longitude, count_of_trees: int, count_of_cars: int,
+	            square_meters_of_rooftops: int,
+	            count_cars_swapped: int = 0, count_trees_added: int = 0,
+	            fraction_rooftops_greenified: float = 0) -> str:
 		"""
 		Processes a list of elements that can be either Layers or Scenarios
 		:param element_list: The list of Layers and/or Scenarios
 		:return: An information string with all the statistics of the request/scenario
 		"""
-		info_dict = self.get_tree_and_rooftop_co2_values(self.request)
+		info_dict = self.get_tree_and_rooftop_co2_values(request_latitude=latitude,
+		                                                 request_longitude=longitude)
 		eco_name = info_dict['biodome']
-		latitude, longitude = GeoLocationUtil.tile_value_to_degree(
-			self.request.x_grid_coord,
-			self.request.y_grid_coord,
-			20)
 		carbon_storage_tree = info_dict['carbon_storage_tree']
 		carbon_storage_rooftops = info_dict['carbon_storage_rooftops']
 		oxygen_emission_tree = info_dict['oxygen_emission_tree']
@@ -163,32 +173,15 @@ class InformationStringBuilder:
 		urban_cooling_tree = info_dict['urban_cooling_tree']
 		urban_cooling_rooftop = info_dict['urban_cooling_rooftop']
 
-		count_of_trees = 0
-		count_of_cars = 0
-		square_meters_of_rooftops = 0
-		count_cars_swapped = 0
-		percentage_of_rooftops_greenified = 0
-
-		for element in element_list:
-			if isinstance(element, TreesLayer):
-				count_of_trees = self.process_tree_layer(tree_layer=element)
-			if isinstance(element, CarsLayer):
-				count_of_cars = self.process_cars_layer(cars_layer=element)
-			if isinstance(element, BuildingsLayer):
-				building_dataframe = gpd.read_file(element.detections_path)
-				for polygon in building_dataframe["geometry"]:
-					square_meters_of_rooftops += polygon.area
-				square_meters_of_rooftops *= GeoLocationUtil.calc_meters_per_px(latitude=latitude, zoom=20, image_resolution=1024)
-				print(square_meters_of_rooftops)
-			if isinstance(element, Scenario):
-				count_trees_added, count_cars_swapped = self.process_scenario(scenario=element)
-				count_of_trees += (count_trees_added + count_cars_swapped)
-				count_of_cars += -count_cars_swapped
-
-		total_carbon_storage = (count_of_trees * carbon_storage_tree) + (square_meters_of_rooftops * carbon_storage_rooftops)
-		total_oxygen_emission = (count_of_trees * oxygen_emission_tree) + (square_meters_of_rooftops * oxygen_emission_rooftop)
+		count_of_trees += (count_trees_added + count_cars_swapped)
+		count_of_cars += -count_cars_swapped
+		total_carbon_storage = (count_of_trees * carbon_storage_tree) + (
+			square_meters_of_rooftops * carbon_storage_rooftops)
+		total_oxygen_emission = (count_of_trees * oxygen_emission_tree) + (
+			square_meters_of_rooftops * oxygen_emission_rooftop)
 		total_carbon_emission = count_of_cars * carbon_emission_car
-		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (square_meters_of_rooftops * percentage_of_rooftops_greenified * urban_cooling_rooftop)
+		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (
+			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop)
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"
@@ -196,10 +189,11 @@ class InformationStringBuilder:
 		result_string += str(eco_name) + "\n \n"
 
 		result_string += "FEATURES \n \n"
-		result_string += "Trees: " + str(count_of_trees) + "  " + str(count_cars_swapped) + "\n"
-		result_string += "Cars: " + str(count_of_cars) + "  " + str(-count_cars_swapped) + "\n"
+		result_string += "Trees: " + str(count_of_trees) + "  +" + str(count_cars_swapped) + "\n"
+		result_string += "Cars: " + str(count_of_cars) + "  -" + str(count_cars_swapped) + "\n"
 		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n"
-		result_string += "Rooftops Greenified: " + str(int(square_meters_of_rooftops * percentage_of_rooftops_greenified)) + "m2" + "\n \n"
+		result_string += "Rooftops Greenified: " + str(
+			int(square_meters_of_rooftops * fraction_rooftops_greenified)) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
 		result_string += "Biomass. \nCO2 storage:\n"
