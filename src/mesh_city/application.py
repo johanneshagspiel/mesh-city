@@ -12,6 +12,7 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionT
 from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
+from mesh_city.gui.scenario_renderer import ScenarioRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.layer import Layer
@@ -20,22 +21,26 @@ from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.request.request_observer import RequestObserver
 from mesh_city.scenario.scenario import Scenario
+from mesh_city.scenario.scenario_exporter import ScenarioExporter
 from mesh_city.scenario.scenario_pipeline import ScenarioPipeline
 from mesh_city.util.file_handler import FileHandler
 
 
 class Application:
 	"""
-	For the application to work, you will need to have
-	``resources/images/request_0/0_tile_0_0/concat_image_request_10_tile_0_0.png``
+	The main application class. Encapsulates the program's state and acts as a type of hub.
 	"""
 
 	def __init__(self):
 		self.file_handler = FileHandler()
+		self.overlay_image = Image.open(
+			self.file_handler.folder_overview["resource_path"].joinpath("trees-overlay.png")
+		)
 		self.log_manager = LogManager(file_handler=self.file_handler)
 		self.request_maker = None
 		self.user_entity = None
 		self.current_request = None
+		self.current_scenario = None
 		self.request_manager = self.get_request_manager()
 		self.request_observer = None
 		self.main_screen = None
@@ -87,21 +92,17 @@ class Application:
 		for new_layer in new_layers:
 			self.current_request.add_layer(new_layer)
 
-	def create_scenario(self, request: RequestManager, scenarios_to_create, name=None):
+	def create_scenario(self, request: Request, modification_list):
 		"""
 		Creates a scenario based on a request
 		:param request: A Request
-		:param scenarios_to_create: A para
+		:param modification_list: A para
 		:param name:
 		:return:
 		"""
-		pipeline = ScenarioPipeline(
-			request_manager=self.request_manager, scenarios_to_create=scenarios_to_create, name=name
-		)
-		new_scenario = pipeline.process(request)
-		self.current_request.add_scenario(new_scenario)
-
-		self.load_scenario_onscreen(name=new_scenario.scenario_name)
+		pipeline = ScenarioPipeline(modification_list=modification_list)
+		self.current_scenario = pipeline.process(request)
+		self.load_scenario_onscreen(scenario=self.current_scenario)
 
 	def make_location_request(self, latitude: float, longitude: float, name: str = None) -> None:
 		"""
@@ -205,26 +206,22 @@ class Application:
 			request=request, layer_mask=layer_mask, export_directory=export_directory
 		)
 
-	def export_request_scenarios(
-		self, scenario_list: Sequence[Scenario], export_directory: Path
-	) -> None:
+	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
 		"""
 		Exports scenario's certain requests belonging to a request to an export directory.
-		:param request: The request to export scenarios for
-		:param scenario_list: Which scenario's to export
-		:param export_directory: The directory to export scenario's to
+		:param scenario: Which scenario to export
+		:param export_directory: The directory to export the scenario to
 		:return:
 		"""
 
-		request_exporter = RequestExporter(request_manager=self.request_manager)
-		request_exporter.export_request_scenarios(
-			scenario_list=scenario_list, export_directory=export_directory
+		request_exporter = ScenarioExporter(
+			request_manager=self.request_manager, overlay_image=self.overlay_image
 		)
+		request_exporter.export_scenario(scenario=scenario, export_directory=export_directory)
 
 	def load_request_onscreen(self, request: Request) -> None:
 		"""
 		Loads a request on screen.
-
 		:param request: The request to load on screen.
 		:return: None
 		"""
@@ -232,16 +229,18 @@ class Application:
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.delete_text()
 
-	def load_scenario_onscreen(self, name: str) -> None:
+	def load_scenario_onscreen(self, scenario: Scenario) -> None:
 		"""
-		Loads a named scenario of the current request
-		:param name: The name of a scenario of the current request.
+		Shows a given scenario on screen.
+		:param scenario: The scenario to load on screen
 		:return: None
 		"""
-		canvas_image = Image.open(self.current_request.scenarios[name].scenario_path)
-		self.main_screen.set_gif(canvas_image)
+		canvas_image = ScenarioRenderer.render_scenario(
+			scenario=scenario, scaling=16, overlay_image=self.overlay_image
+		)
+		self.main_screen.set_canvas_image(canvas_image)
 
-		text_to_show = self.get_statistics(element_list=[self.current_request.scenarios[name]])
+		text_to_show = self.get_statistics(element_list=[scenario])
 		self.main_screen.update_text(text_to_show)
 
 	def process_finished_request(self, request: Request) -> None:
@@ -270,7 +269,7 @@ class Application:
 
 	def start(self):
 		"""
-		Creates a mainscreen UI element and passes self as application context.
+		Creates a MainScreen UI element and passes self as application context.
 
 		:return: None
 		"""

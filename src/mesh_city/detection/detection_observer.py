@@ -3,8 +3,10 @@ The module containing the detection observer
 """
 from tkinter import Label, Toplevel
 
+from mesh_city.util.observer import Observer
 
-class DetectionObserver:
+
+class DetectionObserver(Observer):
 	"""
 	This class both observers request maker and acts as a progress bar indicating how far the download has progresed
 	"""
@@ -14,6 +16,8 @@ class DetectionObserver:
 		The initialization method
 		:param master: the master tkinter object
 		"""
+		super().__init__()
+
 		self.total_tiles = 0
 		self.current_tile = 0
 		self.current_time_detection = 0
@@ -35,16 +39,16 @@ class DetectionObserver:
 
 		self.top_label.update()
 
-	def update(self, detection_pipeline):
+	def update(self, observee):
 		"""
 		Method called by the observee to indicate that a state has changed. It means that another tile has been detected
-		:param detection_pipeline:
+		:param detection_pipeline: the detection pipeline to observer
 		:return:
 		"""
-		self.total_tiles = detection_pipeline.state["total_tiles"]
-		self.current_tile = detection_pipeline.state["current_tile"]
-		self.current_time_detection = detection_pipeline.state["current_time_detection"]
-		self.detection_type = detection_pipeline.state["detection_type"]
+		self.total_tiles = observee.state["total_tiles"]
+		self.current_tile = observee.state["current_tile"]
+		self.current_time_detection = observee.state["current_time_detection"]
+		self.detection_type = observee.state["detection_type"]
 
 		if self.detection_type != self.previous_detection_type:
 			self.missing_tiles = 0

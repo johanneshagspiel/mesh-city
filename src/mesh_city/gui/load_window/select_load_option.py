@@ -46,15 +46,6 @@ class SelectLoadOption:
 			self.to_forget_list.append(load_request_button)
 			counter += 1
 
-		if len(self.application.current_request.scenarios) > 0:
-			self.top_label["text"] = "What do you want to load?"
-			load_scenario_button = Button(
-				self.top, text="Previous scenario", command=self.ask_for_scenario, bg="white"
-			)
-			load_scenario_button.grid(row=counter)
-			self.to_forget_list.append(load_scenario_button)
-			counter += 1
-
 	def load_request(self):
 		"""
 		Opens the load window where the user can select which request to load

@@ -32,10 +32,10 @@ class InformationStringBuilder:
 		request
 		:param request: The Request to create the information dictionary for.
 		:return: a dictionary with the following fields with info:
-		'biodome': eco_name,
+		e'biodome': eco_name,
 		'latitude': latitude,
 		'longitude': longitude,
-		'carbon_storage_tree': carbon_storage_tree,
+		'carbon_storage_tre': carbon_storage_tree,
 		'carbon_storage_rooftops': carbon_storage_rooftops,
 		'oxygen_emission_tree': oxygen_emission_tree,
 		'oxygen_emission_rooftop': oxygen_emission_rooftop,
@@ -134,6 +134,14 @@ class InformationStringBuilder:
 					if row[6] == "SwappedCar":
 						count_cars_swapped += 1
 		return count_trees_added, count_cars_swapped
+		count_trees_added = len(scenario.trees.loc[scenario.trees['label'] == "AddedTree"])
+		count_cars_swapped = len(scenario.trees.loc[scenario.trees['label'] == "SwappedCar"])
+		result_string = ""
+		if count_trees_added > 0:
+			result_string += "Trees added: " + str(count_trees_added) + "\n"
+		if count_cars_swapped > 0:
+			result_string += "Cars swapped with trees: " + str(count_cars_swapped) + "\n"
+		return result_string
 
 	def process(self, element_list: Sequence[Union[Layer, Scenario]]) -> str:
 		"""
