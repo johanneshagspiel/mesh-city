@@ -81,7 +81,7 @@ class RequestExporter:
 					height=1024
 				)
 		if isinstance(layer, (TreesLayer, CarsLayer)):
-			origin_path = self.get_export_csv(request, layer)
+			origin_path = self.create_export_csv(request, layer)
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			copyfile(origin_path, export_directory.joinpath(rel_path))
@@ -111,6 +111,7 @@ class RequestExporter:
 			world_coordinates_dataframe.to_file(
 				driver='GeoJSON', filename=export_directory.joinpath(rel_path)
 			)
+
 	@staticmethod
 	def create_world_file(
 		path: Path, latitude: float, longitude: float, zoom: int, width: int, height: int
@@ -158,16 +159,6 @@ class RequestExporter:
 				str(m_north_of_0)
 				]
 			)
-
-	def get_export_csv(self, request: Request, layer: Layer):
-		"""
-		Method method which checks if there already exists a file for CSV exportation, and otherwise
-		calls a method to create a new one.
-		:param request: The request that contains the layer to be exported
-		:param layer: the layer that you want to export
-		:return: a path to the to be exported layer
-		"""
-		return self.create_export_csv(request, layer)
 
 	def create_export_csv(self, request: Request, layer: Layer):
 		"""

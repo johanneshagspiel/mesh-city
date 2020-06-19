@@ -206,9 +206,7 @@ class Application:
 			request=request, layer_mask=layer_mask, export_directory=export_directory
 		)
 
-	def export_scenario(
-		self, scenario: Scenario, export_directory: Path
-	) -> None:
+	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
 		"""
 		Exports scenario's certain requests belonging to a request to an export directory.
 		:param scenario: Which scenario to export
@@ -216,10 +214,10 @@ class Application:
 		:return:
 		"""
 
-		request_exporter = ScenarioExporter(request_manager=self.request_manager,overlay_image=self.overlay_image)
-		request_exporter.export_scenario(
-			scenario=scenario, export_directory=export_directory
+		request_exporter = ScenarioExporter(
+			request_manager=self.request_manager, overlay_image=self.overlay_image
 		)
+		request_exporter.export_scenario(scenario=scenario, export_directory=export_directory)
 
 	def load_request_onscreen(self, request: Request) -> None:
 		"""

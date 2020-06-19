@@ -71,11 +71,13 @@ class ExportWindow:
 				height=3,
 				command=self.export_scenario,
 				bg="white"
-			).grid(row=len(self.request_buttons)+1,column=0)
+			).grid(row=len(self.request_buttons) + 1, column=0)
 
 	def export_scenario(self):
 		export_directory = Path(filedialog.askdirectory())
-		self.application.export_scenario(scenario=self.application.current_scenario,export_directory=export_directory)
+		self.application.export_scenario(
+			scenario=self.application.current_scenario, export_directory=export_directory
+		)
 		self.top.destroy()
 
 	def load_request(self, request):

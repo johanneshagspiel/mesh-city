@@ -33,5 +33,5 @@ class RequestExporterTest(unittest.TestCase):
 	def test_get_export_csv(self):
 		self.assertEqual(
 			self.image_root.joinpath("trees", "detections_0_export.csv"),
-			self.request_exporter.get_export_csv(self.request, self.trees_layer)
+			self.request_exporter.create_export_csv(self.request, self.layer)
 		)

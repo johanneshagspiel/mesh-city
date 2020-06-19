@@ -2,7 +2,6 @@
 See :class:`.ScenarioRenderer`
 """
 import math
-from typing import Sequence
 
 import cv2
 import numpy as np
@@ -17,8 +16,7 @@ from mesh_city.util.image_util import ImageUtil
 
 class ScenarioRenderer:
 	"""
-	A class used to create scenario's from requests whose behaviour can be customized by specifying
-	what type of things it should change.
+	This renders scenario's, either per-tile or to a single (scaled-down) image.
 	"""
 
 	def __init__(self, overlay_image: Image):
@@ -44,20 +42,23 @@ class ScenarioRenderer:
 			images=images
 		).convert("RGBA")
 		buildings = scenario.buildings.copy(deep=True)
-		if scenario.buildings is not None:
-			result_image = ScenarioRenderer.render_shrubbery(
-				base_image=result_image, buildings=buildings, overlay_image=self.overlay_image,
-				scaling=scaling
-			)
 		if scenario.trees is not None:
 			result_image = ScenarioRenderer.render_trees(
 				base_image=result_image, trees=scenario.trees, scaling=scaling
 			)
+		if scenario.buildings is not None:
+			result_image = ScenarioRenderer.render_shrubbery(
+				base_image=result_image,
+				buildings=buildings,
+				overlay_image=self.overlay_image,
+				scaling=scaling
+			)
 		return result_image
 
 	@staticmethod
-	def render_shrubbery(base_image: Image, buildings: GeoDataFrame, overlay_image: Image,
-	                     scaling=1) -> Image:
+	def render_shrubbery(
+		base_image: Image, buildings: GeoDataFrame, overlay_image: Image, scaling=1
+	) -> Image:
 		"""
 		Turns rooftops into shrubbery.
 		:param base_image: The base image
@@ -88,8 +89,7 @@ class ScenarioRenderer:
 		return Image.fromarray(new_base_image_numpy.astype(np.uint8)).convert("RGBA")
 
 	@staticmethod
-	def render_trees_for_tile(base_image: Image, trees: DataFrame, tree_crops: [Image],
-	                            scaling: int = 1):
+	def render_trees_for_tile(base_image: Image, trees: DataFrame, tree_crops: [Image]):
 		"""
 		Adds new trees to the image using a provided list of cropped and preprocessed images of trees.
 		:param request: the request for which to add more trees to
@@ -99,26 +99,31 @@ class ScenarioRenderer:
 		trees_to_add = trees.loc[trees['label'] != "Tree"]
 		source_image = base_image.copy()
 		for (index, row) in trees_to_add.iterrows():
-			crop_index = row["source_index"] % len(tree_crops)
 			new_width = int(row["xmax"] - row["xmin"])
 			new_height = int(row["ymax"] - row["ymin"])
-			resized_crop = tree_crops[crop_index].resize((new_width, new_height))
-			x_coord, y_coord = (int(row["xmin"] / scaling), int(row["ymin"] / scaling))
-			if not (x_coord<-new_width or y_coord<-new_height or x_coord>base_image.width or y_coord>base_image.height):
+			x_coord, y_coord = (int(row["xmin"]), int(row["ymin"]))
+			if not (
+				x_coord < -new_width or y_coord < -new_height or x_coord > base_image.width or
+				y_coord > base_image.height
+			):
+				crop_index = row["source_index"] % len(tree_crops)
+				resized_crop = tree_crops[crop_index].resize((new_width, new_height))
 				# corrected box to paste crop in
-				dest_xmin = 0 if x_coord<0 else x_coord
-				dest_ymin = 0 if y_coord<0 else y_coord
-				dest_xmax = base_image.width if x_coord+new_width>base_image.width else x_coord+new_width
-				dest_ymax = base_image.height if y_coord+new_height>base_image.height else y_coord+new_height
-				corrected_width = dest_xmax-dest_xmin
-				corrected_height = dest_ymax-dest_ymin
+				dest_xmin = 0 if x_coord < 0 else x_coord
+				dest_ymin = 0 if y_coord < 0 else y_coord
+				dest_xmax = base_image.width if x_coord + new_width > base_image.width else x_coord + new_width
+				dest_ymax = base_image.height if y_coord + new_height > base_image.height else y_coord + new_height
+				corrected_width = dest_xmax - dest_xmin
+				corrected_height = dest_ymax - dest_ymin
 				# corrected rectangle to take from source crop
-				source_xmin = dest_xmin-x_coord
-				source_ymin = dest_ymin-y_coord
+				source_xmin = dest_xmin - x_coord
+				source_ymin = dest_ymin - y_coord
 				source_xmax = source_xmin + corrected_width
 				source_ymax = source_ymin + corrected_height
-				resized_crop = resized_crop.crop(box=(source_xmin,source_ymin,source_xmax,source_ymax))
-				source_image.alpha_composite(resized_crop, dest=(dest_xmin,dest_ymin))
+				resized_crop = resized_crop.crop(
+					box=(source_xmin, source_ymin, source_xmax, source_ymax)
+				)
+				source_image.alpha_composite(resized_crop, dest=(dest_xmin, dest_ymin))
 		return source_image
 
 	@staticmethod

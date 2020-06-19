@@ -48,29 +48,27 @@ class ScenarioExporter:
 				rel_xmax = xmax - tile_xmin * 1024
 				rel_ymax = ymax - tile_ymin * 1024
 				tile_image = Image.open(
-					self.request_manager.get_tile_from_grid(x_coord=tile_x_offset + tile_xmin,
-					                                        y_coord=tile_y_offset + tile_ymin).path).convert("RGB")
+					self.request_manager.get_tile_from_grid(
+					x_coord=tile_x_offset + tile_xmin, y_coord=tile_y_offset + tile_ymin
+					).path
+				).convert("RGB")
 				tree_image_cropped = tile_image.crop(box=(rel_xmin, rel_ymin, rel_xmax, rel_ymax))
 				mask = Image.new('L', tree_image_cropped.size, 0)
 				draw = ImageDraw.Draw(mask)
 				draw.ellipse((0, 0) + tree_image_cropped.size, fill=255)
-				source_tree_image = ImageOps.fit(tree_image_cropped, mask.size,
-				                                 centering=(0.5, 0.5))
+				source_tree_image = ImageOps.fit(
+					tree_image_cropped, mask.size, centering=(0.5, 0.5)
+				)
 				source_tree_image.putalpha(mask)
 				tree_crops.append(source_tree_image)
 				if len(tree_crops) == ScenarioExporter.MAX_SOURCE_TREES:
 					break
 		return tree_crops
 
-	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
-		"""
-		Exports a single layer from a request using methods specific to the type of the layer.
+	def export_detection_files(self, scenario: Scenario, export_directory: Path):
+		pass
 
-		:param request: The request that contains the layer to be exported
-		:param index: The index of the layer that is to be exported.
-		:param export_directory:  The root of the directory layers should be exported to.
-		:return: None
-		"""
+	def export_rendering(self, scenario: Scenario, export_directory: Path):
 		request = scenario.request
 		image_layer = request.get_layer_of_type(GoogleLayer)
 		scenario_renderer = ScenarioRenderer(overlay_image=self.overlay_image)
@@ -85,21 +83,26 @@ class ScenarioExporter:
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
 			x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
 			y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-			if scenario.buildings is not None:
-				buildings = scenario.buildings.copy(deep=True)
-				buildings.geometry = buildings.geometry.translate(xoff=-x_offset, yoff=-y_offset,
-				                                                  zoff=0)
-				result_image = scenario_renderer.render_shrubbery(base_image=result_image,
-				                                                  buildings=buildings,
-				                                                  overlay_image=self.overlay_image,
-				                                                  scaling=1)
 			if scenario.trees is not None:
 				trees = scenario.trees.copy(deep=True)
 				trees["xmin"] -= x_offset
 				trees["ymin"] -= y_offset
 				trees["xmax"] -= x_offset
 				trees["ymax"] -= y_offset
-				result_image = scenario_renderer.render_trees_for_tile(base_image=result_image,trees=trees,tree_crops=tree_crops)
+				result_image = scenario_renderer.render_trees_for_tile(
+					base_image=result_image, trees=trees, tree_crops=tree_crops
+				)
+			if scenario.buildings is not None:
+				buildings = scenario.buildings.copy(deep=True)
+				buildings.geometry = buildings.geometry.translate(
+					xoff=-x_offset, yoff=-y_offset, zoff=0
+				)
+				result_image = scenario_renderer.render_shrubbery(
+					base_image=result_image,
+					buildings=buildings,
+					overlay_image=self.overlay_image,
+					scaling=1
+				)
 			result_image.save(export_directory.joinpath(rel_path))
 			nw_latitude, nw_longitude = GeoLocationUtil.tile_value_to_degree(
 				x_cor_tile=tile.x_grid_coord + 0.5,
@@ -117,3 +120,15 @@ class ScenarioExporter:
 				width=1024,
 				height=1024
 			)
+
+	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
+		"""
+		Exports a single layer from a request using methods specific to the type of the layer.
+
+		:param request: The request that contains the layer to be exported
+		:param index: The index of the layer that is to be exported.
+		:param export_directory:  The root of the directory layers should be exported to.
+		:return: None
+		"""
+		self.export_rendering(scenario=scenario, export_directory=export_directory)
+		self.export_detection_files(scenario=scenario, export_directory=export_directory)
