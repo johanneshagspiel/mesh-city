@@ -4,9 +4,8 @@ See :class:`.SearchWindowLocationArea`
 
 from tkinter import Entry, Label, messagebox, Toplevel, W
 
-from mesh_city.gui.widgets.button import Button as CButton
-
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 from mesh_city.util.input_util import InputUtil
@@ -29,7 +28,7 @@ class SearchWindowLocationArea:
 		self.master = master
 		self.value = ""
 		self.application = application
-		top = self.top = Toplevel(master)
+		self.top = Toplevel(master)
 
 		self.top.config(padx=4)
 		self.top.config(pady=4)
@@ -39,42 +38,40 @@ class SearchWindowLocationArea:
 		self.content = Container(WidgetGeometry(565, 270, 0, 0), self.top, background="white")
 		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
 
-		Label(self.content, text="Which area are you interested in downloading ?", **layer_label_style,
-		      ).place(width=560, height=40, x=0, y=0)
+		Label(
+			self.content, text="Which area are you interested in downloading ?", **layer_label_style,
+		).place(width=560, height=40, x=0, y=0)
 
-		Label(self.content, text="Min Latitude: ",
-		      **layer_label_style,
-		      ).place(width=200, height=40, x=0, y=40)
+		Label(self.content, text="Min Latitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=40)
 
 		self.min_lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
 		self.min_lat_entry.place(width=360, height=40, x=200, y=40)
 
-		Label(self.content, text="Min Longitude: ",
-		      **layer_label_style,
-		      ).place(width=200, height=40, x=0, y=80)
+		Label(self.content, text="Min Longitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=80)
 
-		self.min_long_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.min_long_entry = Entry(
+			self.content, width=20, bg="grey", font=("Eurostile LT Std", 18)
+		)
 		self.min_long_entry.place(width=360, height=40, x=200, y=80)
 
-		Label(self.content, text="Max Latitude: ",
-		      **layer_label_style,
-		      ).place(width=200, height=40, x=0, y=120)
+		Label(self.content, text="Max Latitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=120)
 
 		self.max_lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
 		self.max_lat_entry.place(width=360, height=40, x=200, y=120)
 
-		Label(self.content, text="Max Longitude: ",
-		      **layer_label_style,
-		      ).place(width=200, height=40, x=0, y=160)
+		Label(self.content, text="Max Longitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=160)
 
-		self.max_long_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.max_long_entry = Entry(
+			self.content, width=20, bg="grey", font=("Eurostile LT Std", 18)
+		)
 		self.max_long_entry.place(width=360, height=40, x=200, y=160)
 
 		CButton(
-			WidgetGeometry(200, 50, 170, 210),
-			"Confirm",
-			lambda _: self.cleanup(),
-			self.content,
+			WidgetGeometry(200, 50, 170, 210), "Confirm", lambda _: self.cleanup(), self.content,
 		)
 
 	def cleanup(self):

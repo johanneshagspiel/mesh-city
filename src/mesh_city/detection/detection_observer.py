@@ -1,11 +1,12 @@
 """
 The module containing the detection observer
 """
-from tkinter import Label, Toplevel, W
+from tkinter import Label, Toplevel
 
-from mesh_city.util.observer import Observer
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+from mesh_city.util.observer import Observer
+
 
 class DetectionObserver(Observer):
 	"""
@@ -35,20 +36,18 @@ class DetectionObserver(Observer):
 		self.top.grab_set()
 
 		self.top.geometry("%dx%d+%d+%d" % (560, 145, 0, 0))
-		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white",
-		                     "anchor": "center"}
+		layer_label_style = {
+			"font": ("Eurostile LT Std", 18), "background": "white", "anchor": "center"
+		}
 
 		self.content = Container(WidgetGeometry(550, 135, 5, 5), self.top, background="white")
 
-		self.top_label = Label(self.content, text="Warming up the algorithms.",
-		                       **layer_label_style
-		                       )
+		self.top_label = Label(self.content, text="Warming up the algorithms.", **layer_label_style)
 		self.top_label.place(width=550, height=40, x=10, y=0)
 
+		self.time_remaining_label = Label(self.content, text="", **layer_label_style)
 
-		self.time_remaining_label = Label(self.content, text="",  **layer_label_style)
-
-		self.tiles_to_detect = Label(self.content, text="",  **layer_label_style)
+		self.tiles_to_detect = Label(self.content, text="", **layer_label_style)
 
 		self.top_label.update()
 

@@ -4,13 +4,12 @@ A module containing the export window class
 """
 
 from pathlib import Path
-from tkinter import Button, Checkbutton, filedialog, IntVar, Label, Toplevel, W, CENTER
+from tkinter import CENTER, Checkbutton, filedialog, IntVar, Label, Toplevel, W
 
 from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.scrollable_container import ScrollableContainer
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
-
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
@@ -41,37 +40,51 @@ class ExportWindow:
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 
 		self.top.geometry("%dx%d+%d+%d" % (490, 270, 0, 0))
-		self.layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
+		self.layer_label_style = {
+			"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W
+		}
 
 		self.content = Container(WidgetGeometry(480, 260, 0, 0), self.top, background="white")
 
-		self.top_label = Label(self.content, text="Which request do you want to export?",
-		                       **self.layer_label_style, justify=CENTER
-		                       )
+		self.top_label = Label(
+			self.content,
+			text="Which request do you want to export?",
+			**self.layer_label_style,
+			justify=CENTER
+		)
 		self.top_label.place(width=460, height=40, x=10, y=0)
 
-		self.scrollable_content = ScrollableContainer(WidgetGeometry(470, 200, 0, 50), self.content,
-		                                              background="white")
+		self.scrollable_content = ScrollableContainer(
+			WidgetGeometry(470, 200, 0, 50), self.content, background="white"
+		)
 
 		active_request_id = self.application.current_request.request_id
 		temp_text = "Active Request: " + self.application.current_request.name
 		self.request_buttons = []
 
 		self.request_buttons.append(
-			self.scrollable_content.add_row(lambda parent: CButton(
-				WidgetGeometry(400, 50, 20, 0),
-				temp_text,
-				lambda _: self.load_request(self.application.current_request),
-				parent)))
+			self.scrollable_content.add_row(
+			lambda parent: CButton(
+			WidgetGeometry(400, 50, 20, 0),
+			temp_text,
+			lambda _: self.load_request(self.application.current_request),
+			parent
+			)
+			)
+		)
 
 		for request in self.application.request_manager.requests:
 			if request.request_id != active_request_id:
 				self.request_buttons.append(
-					self.scrollable_content.add_row(lambda parent: CButton(
-						WidgetGeometry(400, 50, 20, 0),
-						request.name,
-						lambda _: self.load_request(request),
-						parent)))
+					self.scrollable_content.add_row(
+					lambda parent: CButton(
+					WidgetGeometry(400, 50, 20, 0),
+					request.name,
+					lambda _: self.load_request(request),
+					parent
+					)
+					)
+				)
 
 		# if self.application.current_scenario is not None:
 		# 	Button(
@@ -119,16 +132,18 @@ class ExportWindow:
 				text = "Car detections CSV"
 			elif isinstance(layer, BuildingsLayer):
 				text = "Building detections GeoJSON"
-			temp_button = Checkbutton(self.content, text=text, **self.layer_label_style,
-				variable=self.int_variable_list_layers[position])
+			temp_button = Checkbutton(
+				self.content,
+				text=text,
+				**self.layer_label_style,
+				variable=self.int_variable_list_layers[position]
+			)
 			temp_button.place(width=460, height=40, x=10, y=index)
 			index += 40
 
 		CButton(
-			WidgetGeometry(300, 50, 75, index),
-			"Confirm",
-			lambda _: self.cleanup(request),
-			self.top)
+			WidgetGeometry(300, 50, 75, index), "Confirm", lambda _: self.cleanup(request), self.top
+		)
 
 	def cleanup(self, request):
 		"""
