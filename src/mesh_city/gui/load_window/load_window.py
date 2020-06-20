@@ -63,7 +63,6 @@ class LoadWindow:
 		:return: nothing
 		"""
 		self.application.set_current_request(request=request)
-		self.main_screen.delete_text()
 		self.main_screen.render_dynamic_widgets()
 
 		self.top.destroy()

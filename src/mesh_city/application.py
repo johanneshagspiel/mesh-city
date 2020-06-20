@@ -126,6 +126,22 @@ class Application:
 
 		self.log_manager.write_log(self.user_entity)
 
+	@staticmethod
+	def compute_appropriate_scaling(request: Request):
+		"""
+		Computes an appropriate scaling to use for rendering requests and scenario's
+		:param request: The request to compute an appropriate scaling for
+		:return: A scaling that should allow fast rendering of scenario's
+		"""
+		area_in_tiles = request.num_of_vertical_images * request.num_of_horizontal_images
+		# A base scaling
+		scaling = 4
+		# Further lowering of resolution depending on the resolution of the request
+		while area_in_tiles > 12:
+			area_in_tiles /= 4
+			scaling *= 2
+		return scaling
+
 	def make_area_request(
 		self,
 		bottom_latitude: float,
@@ -180,7 +196,7 @@ class Application:
 		:return: None
 		"""
 
-		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask)
+		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask, scaling=Application.compute_appropriate_scaling(request))
 		self.main_screen.set_canvas_image(canvas_image)
 
 		layer_list = []
@@ -227,7 +243,9 @@ class Application:
 		:param request: The request to load on screen.
 		:return: None
 		"""
-		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0, scaling=4)
+		canvas_image = RequestRenderer.create_image_from_layer(
+			request=request, layer_index=0, scaling=Application.compute_appropriate_scaling(request)
+		)
 		self.main_screen.set_canvas_image(canvas_image)
 		text_to_show = self.info_builder.process_request(request=self.current_request)
 		self.main_screen.update_text(text_to_show)
@@ -239,7 +257,9 @@ class Application:
 		:return: None
 		"""
 		canvas_image = ScenarioRenderer.render_scenario(
-			scenario=scenario, scaling=4, overlay_image=self.overlay_image
+			scenario=scenario,
+			scaling=Application.compute_appropriate_scaling(scenario.request),
+			overlay_image=self.overlay_image
 		)
 		self.main_screen.set_canvas_image(canvas_image)
 

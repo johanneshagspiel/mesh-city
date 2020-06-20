@@ -1,10 +1,10 @@
 class WidgetGeometry:
 
-    def __init__(self, width: int, height: int, x_position: int, y_position: int):
-        assert width > 0
-        assert height > 0
+	def __init__(self, width: int, height: int, x_position: int, y_position: int):
+		assert width > 0
+		assert height > 0
 
-        self.width: int = width
-        self.height: int = height
-        self.x_position: int = x_position
-        self.y_position: int = y_position
+		self.width: int = width
+		self.height: int = height
+		self.x_position: int = x_position
+		self.y_position: int = y_position

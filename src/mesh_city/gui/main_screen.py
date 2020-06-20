@@ -74,34 +74,43 @@ class MainScreen:
 		self.left_container = Container(WidgetGeometry(350, 900, 0, 0), self.content)
 		self.right_container = Container(WidgetGeometry(350, 900, 1250, 0), self.content)
 
-		CButton(WidgetGeometry(200, 50, 75, 50), "search", lambda _: self.search_window(), self.left_container)
-		CButton(WidgetGeometry(200, 50, 75, 120), "load", lambda _: self.load_window(), self.left_container)
+		CButton(
+			WidgetGeometry(200, 50, 75, 50),
+			"search",
+			lambda _: self.search_window(),
+			self.left_container
+		)
+		CButton(
+			WidgetGeometry(200, 50, 75, 120),
+			"load",
+			lambda _: self.load_window(),
+			self.left_container
+		)
 		# CButton(WidgetGeometry(200, 50, 75, 600), "detect", lambda _: self.detect_window(), self.left_container)
 		# CButton(WidgetGeometry(200, 50, 75, 290), "layers", lambda _: self.layers_window(), self.left_container)
-		CButton(WidgetGeometry(200, 50, 75, 380), "scenarios", lambda _: self.eco_window(), self.left_container)
-		CButton(WidgetGeometry(200, 50, 75, 480), "export", lambda _: self.export_window(), self.left_container)
+		CButton(
+			WidgetGeometry(200, 50, 75, 380),
+			"scenarios",
+			lambda _: self.eco_window(),
+			self.left_container
+		)
+		CButton(
+			WidgetGeometry(200, 50, 75, 480),
+			"export",
+			lambda _: self.export_window(),
+			self.left_container
+		)
 
 		self.layers_container = Container(
-			WidgetGeometry(250, 140, 50, 220),
-			master=self.left_container,
-			background="white",
+			WidgetGeometry(250, 140, 50, 220), master=self.left_container, background="white",
 		)
 		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
-		Label(
-			self.layers_container,
-			text="trees",
-			**layer_label_style,
-		).place(width=100, height=40, x=0, y=0)
-		Label(
-			self.layers_container,
-			text="buildings",
-			**layer_label_style,
-		).place(width=100, height=40, x=0, y=50)
-		Label(
-			self.layers_container,
-			text="cars",
-			**layer_label_style,
-		).place(width=100, height=40, x=0, y=100)
+		Label(self.layers_container, text="trees", **layer_label_style,
+				).place(width=100, height=40, x=0, y=0)
+		Label(self.layers_container, text="buildings", **layer_label_style,
+				).place(width=100, height=40, x=0, y=50)
+		Label(self.layers_container, text="cars", **layer_label_style,
+				).place(width=100, height=40, x=0, y=100)
 
 		self.information_general = Text(self.right_container, wrap=WORD, borderwidth=0)
 		self.information_general.configure(font=("Eurostile LT Std", 12))
@@ -110,7 +119,7 @@ class MainScreen:
 		self.information_general.bind("<Double-1>", lambda event: "break")
 		self.information_general.bind("<Button-1>", lambda event: "break")
 		self.information_general.config(cursor="")
-		self.information_general.place(width=250, height=400, x=50, y=50)
+		self.information_general.place(width=250, height=750, x=50, y=50)
 
 		self.gif_image = None
 		self.trees_detect_button = None
@@ -216,10 +225,7 @@ class MainScreen:
 			)
 
 	def _run_detection(self, type: DetectionType) -> None:
-		self.application.run_detection(
-			request=self.application.current_request,
-			to_detect=[type],
-		)
+		self.application.run_detection(request=self.application.current_request, to_detect=[type], )
 		self.render_dynamic_widgets()
 
 	def _load_layers(self) -> None:
@@ -236,8 +242,7 @@ class MainScreen:
 
 		layer_mask: List[bool] = [(layer in self.active_layers) for layer in detected_layers]
 		self.application.load_request_specific_layers(
-			request=self.application.current_request,
-			layer_mask=layer_mask,
+			request=self.application.current_request, layer_mask=layer_mask,
 		)
 
 		self.render_dynamic_widgets()

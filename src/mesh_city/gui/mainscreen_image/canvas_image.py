@@ -30,14 +30,12 @@ class CanvasImage:
 		self.__filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
 		self.__previous_state = 0  # previous state of the keyboard
 		# Create ImageFrame in placeholder widget
-		self.__imframe = tk.Frame(placeholder, background="black")  # placeholder of the ImageFrame object
+		self.__imframe = tk.Frame(
+			placeholder, background="black"
+		)  # placeholder of the ImageFrame object
 		# Create canvas and bind it with scrollbars. Public for outer classes
 		self.canvas = tk.Canvas(
-			self.__imframe,
-			width=900,
-			height=900,
-			highlightthickness=0,
-			background="black",
+			self.__imframe, width=900, height=900, highlightthickness=0, background="black",
 		)
 		self.canvas.grid(row=0, column=0, sticky='nswe')
 		self.canvas.update()  # wait till canvas is created
