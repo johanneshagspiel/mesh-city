@@ -228,7 +228,7 @@ class Application:
 		:param request: The request to load on screen.
 		:return: None
 		"""
-		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
+		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0, scaling=4)
 		self.main_screen.set_canvas_image(canvas_image)
 		self.main_screen.delete_text()
 
@@ -243,6 +243,7 @@ class Application:
 
 		text_to_show = self.get_statistics(element_list=[self.current_request.scenarios[name]])
 		self.main_screen.update_text(text_to_show)
+		self.main_screen.render_dynamic_widgets()
 
 	def process_finished_request(self, request: Request) -> None:
 		"""

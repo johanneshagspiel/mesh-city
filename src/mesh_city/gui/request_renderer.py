@@ -21,7 +21,7 @@ class RequestRenderer:
 	"""
 
 	@staticmethod
-	def render_request(request: Request, layer_mask: List[bool], scaling=16) -> Image:
+	def render_request(request: Request, layer_mask: List[bool], scaling=4) -> Image:
 		"""
 		Composites a rendering of a selected number of layers of a request.
 		:param request: The request to create an image for

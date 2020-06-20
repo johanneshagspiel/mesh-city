@@ -4,7 +4,7 @@ See :class:`.RequestExporter`
 import csv
 from pathlib import Path
 from shutil import copyfile
-from typing import List
+from typing import List, Sequence
 
 import geopandas as gpd
 import pandas as pd
@@ -215,7 +215,7 @@ class RequestExporter:
 		return layer.detections_export_path
 
 	def export_request_scenarios(
-		self, scenario_list: List[Scenario], export_directory: Path
+		self, scenario_list: Sequence[Scenario], export_directory: Path
 	) -> None:
 		"""
 		Exports

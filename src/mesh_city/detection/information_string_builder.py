@@ -63,9 +63,6 @@ class InformationStringBuilder:
 
 		closest = GeoLocationUtil.closest(info, point)
 
-		print(latitude, longitude)
-		print('closest', closest)
-
 		return closest
 
 	def process_tree_layer(self, tree_layer: TreesLayer) -> str:

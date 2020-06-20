@@ -13,6 +13,7 @@ class Button(CustomWidget):
         self,
         geometry: WidgetGeometry,
         text: str,
+	    on_click: Any = None,
         master: Misc = None,
         show: bool = True,
         cnf: Dict[Any, Any] = {},
@@ -21,6 +22,7 @@ class Button(CustomWidget):
         super().__init__(geometry, master, show, cnf, **kw)
 
         self.text = text
+        self.on_click = on_click
 
         self._draw_items("#EEEEEE")
 
@@ -28,6 +30,8 @@ class Button(CustomWidget):
         self.bind("<Leave>", lambda e: self._draw_items("#EEEEEE"))
         self.bind("<ButtonPress-1>", lambda e: self._draw_items("#424242", "white"))
         self.bind("<ButtonRelease-1>", lambda e: self._draw_items("black", "white"))
+
+        self.bind("<ButtonPress-1>", self.on_click)
 
     def _draw_items(self, color: str, text_color: str = "black") -> None:
         corner_diameter = self.CORNER_RADIUS * 2

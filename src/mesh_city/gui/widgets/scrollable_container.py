@@ -6,9 +6,9 @@ from tkinter import Canvas, Misc, NW, BOTH, Y, RIGHT, LEFT, SCROLL, UNITS, ALL, 
 from tkinter.ttk import Scrollbar
 from typing import Dict, Any, Callable
 
-from scratchpad.container import Container
-from scratchpad.custom_widget import CustomWidget
-from scratchpad.widget_geometry import WidgetGeometry
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.custom_widget import CustomWidget
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 
 class ScrollableContainer(Container):

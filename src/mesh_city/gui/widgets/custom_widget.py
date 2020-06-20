@@ -38,3 +38,7 @@ class CustomWidget(Canvas, ABC):
 
     def hide(self) -> None:
         self.place_forget()
+
+    def redraw(self) -> None:
+        self.hide()
+        self.show()

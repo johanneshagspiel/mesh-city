@@ -3,14 +3,13 @@ A module containing the canvas image class. Taken from stackoverflow
 author: FooBar167
 source: https://stackoverflow.com/questions/41656176/tkinter-canvas-zoom-move-pan
 """
+
 import math
 import tkinter as tk
 import warnings
 from tkinter import ttk
 
 from PIL import Image, ImageTk
-
-from mesh_city.gui.mainscreen_image.auto_scrollbar import AutoScrollbar
 
 
 # pylint: disable=invalid-name, W0107, W0613, W0612, R1705
@@ -31,25 +30,17 @@ class CanvasImage:
 		self.__filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
 		self.__previous_state = 0  # previous state of the keyboard
 		# Create ImageFrame in placeholder widget
-		self.__imframe = ttk.Frame(placeholder)  # placeholder of the ImageFrame object
-		# Vertical and horizontal scrollbars for canvas
-		hbar = AutoScrollbar(self.__imframe, orient='horizontal')
-		vbar = AutoScrollbar(self.__imframe, orient='vertical')
-		hbar.grid(row=1, column=0, sticky='we')
-		vbar.grid(row=0, column=1, sticky='ns')
+		self.__imframe = tk.Frame(placeholder, background="black")  # placeholder of the ImageFrame object
 		# Create canvas and bind it with scrollbars. Public for outer classes
 		self.canvas = tk.Canvas(
 			self.__imframe,
-			width=646,
-			height=646,
+			width=900,
+			height=900,
 			highlightthickness=0,
-			xscrollcommand=hbar.set,
-			yscrollcommand=vbar.set
+			background="black",
 		)
 		self.canvas.grid(row=0, column=0, sticky='nswe')
 		self.canvas.update()  # wait till canvas is created
-		hbar.configure(command=self.__scroll_x)  # bind scrollbars to the canvas
-		vbar.configure(command=self.__scroll_y)
 
 		# Bind events to the Canvas
 		self.canvas.bind('<Configure>', lambda event: self.__show_image())  # canvas is resized
@@ -99,6 +90,9 @@ class CanvasImage:
 		self.container = self.canvas.create_rectangle((0, 0, self.imwidth, self.imheight), width=0)
 		self.__show_image()  # show image on the canvas
 		self.canvas.focus_set()  # set focus on the canvas
+
+		self.canvas.configure(cursor="fleur")
+		self.__imframe.place(width=900, height=900, x=350, y=0)
 
 	def smaller(self):
 		""" Resize image proportionally and return smaller image """

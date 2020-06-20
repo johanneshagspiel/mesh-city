@@ -49,7 +49,7 @@ class DetectionPipeline:
 		self,
 		file_handler: FileHandler,
 		request_manager: RequestManager,
-		detections_to_run: List[DetectionType]
+		detections_to_run: Sequence[DetectionType]
 	):
 		"""
 		The initialization method.
