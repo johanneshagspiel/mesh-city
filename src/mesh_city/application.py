@@ -3,7 +3,7 @@ See :class:`.Application`
 """
 
 from pathlib import Path
-from typing import List, Sequence, Union
+from typing import List, Sequence
 
 from PIL import Image
 
@@ -15,7 +15,6 @@ from mesh_city.gui.request_renderer import RequestRenderer
 from mesh_city.gui.scenario_renderer import ScenarioRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
-from mesh_city.request.layers.layer import Layer
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
