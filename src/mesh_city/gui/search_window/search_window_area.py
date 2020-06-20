@@ -2,9 +2,13 @@
 See :class:`.SearchWindowLocationArea`
 """
 
-from tkinter import Button, Entry, Label, messagebox, Toplevel
+from tkinter import Entry, Label, messagebox, Toplevel, W
+
+from mesh_city.gui.widgets.button import Button as CButton
 
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 from mesh_city.util.input_util import InputUtil
 
 
@@ -30,27 +34,48 @@ class SearchWindowLocationArea:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		Label(top, text="Which area are you interested in downloading ?").grid(row=0, column=3)
+		self.top.geometry("%dx%d+%d+%d" % (575, 280, 0, 0))
 
-		self.min_lat = Label(top, text="Min Latitude:")
-		self.min_lat.grid(row=1, column=1)
-		self.min_log = Label(top, text="Min Longitude:")
-		self.min_log.grid(row=2, column=1)
-		self.max_lat = Label(top, text="Max Latitude:")
-		self.max_lat.grid(row=3, column=1)
-		self.max_log = Label(top, text="Max Longitude:")
-		self.max_log.grid(row=4, column=1)
+		self.content = Container(WidgetGeometry(565, 270, 0, 0), self.top, background="white")
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
 
-		self.min_lat_entry = Entry(top, width=20)
-		self.min_lat_entry.grid(row=1, column=3)
-		self.min_long_entry = Entry(top, width=20)
-		self.min_long_entry.grid(row=2, column=3)
-		self.max_lat_entry = Entry(top, width=20)
-		self.max_lat_entry.grid(row=3, column=3)
-		self.max_long_entry = Entry(top, width=20)
-		self.max_long_entry.grid(row=4, column=3)
+		Label(self.content, text="Which area are you interested in downloading ?", **layer_label_style,
+		      ).place(width=560, height=40, x=0, y=0)
 
-		Button(top, text="Search", command=self.cleanup, bg="white").grid(row=5, column=3)
+		Label(self.content, text="Min Latitude: ",
+		      **layer_label_style,
+		      ).place(width=200, height=40, x=0, y=40)
+
+		self.min_lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.min_lat_entry.place(width=360, height=40, x=200, y=40)
+
+		Label(self.content, text="Min Longitude: ",
+		      **layer_label_style,
+		      ).place(width=200, height=40, x=0, y=80)
+
+		self.min_long_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.min_long_entry.place(width=360, height=40, x=200, y=80)
+
+		Label(self.content, text="Max Latitude: ",
+		      **layer_label_style,
+		      ).place(width=200, height=40, x=0, y=120)
+
+		self.max_lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.max_lat_entry.place(width=360, height=40, x=200, y=120)
+
+		Label(self.content, text="Max Longitude: ",
+		      **layer_label_style,
+		      ).place(width=200, height=40, x=0, y=160)
+
+		self.max_long_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.max_long_entry.place(width=360, height=40, x=200, y=160)
+
+		CButton(
+			WidgetGeometry(200, 50, 170, 210),
+			"Confirm",
+			lambda _: self.cleanup(),
+			self.content,
+		)
 
 	def cleanup(self):
 		"""
@@ -60,6 +85,7 @@ class SearchWindowLocationArea:
 		list_entries = [
 			self.min_lat_entry, self.min_long_entry, self.max_lat_entry, self.max_long_entry,
 		]
+
 		wrong_counter_list = []
 
 		for counter, element in enumerate(list_entries, 0):
