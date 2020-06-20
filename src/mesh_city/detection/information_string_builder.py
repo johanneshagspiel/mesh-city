@@ -2,6 +2,7 @@
 See class description
 """
 import csv
+from math import floor, log10
 from pathlib import Path
 
 import geopandas as gpd
@@ -24,7 +25,7 @@ class InformationStringBuilder:
 	def __init__(self, bio_path: Path):
 		self.bio_path = bio_path
 
-	def get_tree_and_rooftop_co2_values(self, request_latitude, request_longitude) -> dict:
+	def get_csv_biome_info(self, request_latitude, request_longitude) -> dict:
 		"""
 		Analyses the biome information csv and the coordinates of the current request so that it
 		returns the point in the PlanetPainter_BiomIndex.csv file, closest to the coordinates of the
@@ -113,8 +114,8 @@ class InformationStringBuilder:
 				latitude=latitude, zoom=20, image_resolution=1024
 			)**2
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(request.x_grid_coord,
-																	request.y_grid_coord,
-																	20)
+			request.y_grid_coord,
+			20)
 		return self.process(
 			latitude=latitude,
 			longitude=longitude,
@@ -160,8 +161,8 @@ class InformationStringBuilder:
 			green_area *= pixel_area_to_m2
 
 		latitude, longitude = GeoLocationUtil.tile_value_to_degree(scenario.request.x_grid_coord,
-																	scenario.request.y_grid_coord,
-																	20)
+			scenario.request.y_grid_coord,
+			20)
 		return self.process(
 			latitude=latitude,
 			longitude=longitude,
@@ -196,9 +197,7 @@ class InformationStringBuilder:
 		:param fraction_rooftops_greenified: The fraction of shrubified rooftops
 		:return: An informative multiline string for use in the GUI
 		"""
-		info_dict = self.get_tree_and_rooftop_co2_values(
-			request_latitude=latitude, request_longitude=longitude
-		)
+		info_dict = self.get_csv_biome_info(request_latitude=latitude, request_longitude=longitude)
 		eco_name = info_dict['biodome']
 		carbon_storage_tree = info_dict['carbon_storage_tree']
 		carbon_storage_rooftops = info_dict['carbon_storage_rooftops']
@@ -218,6 +217,7 @@ class InformationStringBuilder:
 		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (
 			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop
 		)
+		total_urban_cooling = InformationStringBuilder.round_sig(total_urban_cooling, 5)
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"
@@ -234,13 +234,23 @@ class InformationStringBuilder:
 
 		result_string += "PERFORMANCE \n \n"
 		result_string += "Biomass. \nCO2 storage:\n"
-		result_string += str(total_carbon_storage) + " kg carbon " + "\n \n"
+		result_string += str(int(total_carbon_storage)) + " kg carbon " + "\n \n"
 
 		result_string += "Air Quality. \nO2/CO2 Emission:\n"
-		result_string += str(total_oxygen_emission) + " kg O2 " + "\n"
-		result_string += str(total_carbon_emission) + " kg CO2 " + "\n \n"
+		result_string += str(int(total_oxygen_emission)) + " kg O2 " + "\n"
+		result_string += str(int(total_carbon_emission)) + " kg CO2 " + "\n \n"
 
 		result_string += "Comfort. \nUrban Cooling:\n"
 		result_string += str(total_urban_cooling) + " degrees kelvin" + "\n \n"
 
 		return result_string
+
+	@staticmethod
+	def round_sig(number, sig=2):
+		"""
+		A simple helper function to round numbers to a certain number of decimal places.
+		:param number: number to round.
+		:param sig: number of significant digits.
+		:return: the number with the right number of significant digits
+		"""
+		return round(number, sig - int(floor(log10(abs(number)))) - 1)
