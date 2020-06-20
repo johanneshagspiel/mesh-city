@@ -1,9 +1,11 @@
 """
 The module containing the select load option window
 """
-from tkinter import Button, Label, Toplevel
-
+from tkinter import Button, Label, Toplevel, W
+from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 
 class SelectLoadOption:
@@ -29,20 +31,31 @@ class SelectLoadOption:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		self.temp_dict = {}
+		self.top.grab_set()
 
-		self.top_label = Label(self.top, text="There is nothing to load.")
-		self.top_label.grid(row=0)
+		self.top.geometry("%dx%d+%d+%d" % (340, 100, 0, 0))
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
+
+		self.content = Container(WidgetGeometry(330, 100, 0, 0), self.top, background="white")
+
+		self.top_label = Label(self.content, text="There is nothing to load.",
+		                       **layer_label_style,
+		                       )
+		self.top_label.place(width=330, height=40, x=10, y=0)
+
+		self.temp_dict = {}
 
 		counter = 1
 		self.to_forget_list = []
 
 		if len(self.application.request_manager.requests) > 1:
 			self.top_label["text"] = "What do you want to load?"
-			load_request_button = Button(
-				self.top, text="Previous request", command=self.load_request, bg="white"
-			)
-			load_request_button.grid(row=counter)
+
+			load_request_button = CButton(
+					WidgetGeometry(300, 50, 10, 40),
+					"Load Previous Request",
+					lambda _: self.load_request(),
+					self.top)
 			self.to_forget_list.append(load_request_button)
 			counter += 1
 
