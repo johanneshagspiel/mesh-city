@@ -29,7 +29,8 @@ class InformationStringBuilder:
 		Analyses the biome information csv and the coordinates of the current request so that it
 		returns the point in the PlanetPainter_BiomIndex.csv file, closest to the coordinates of the
 		request
-		:param request: The Request to create the information dictionary for.
+		:param request_latitude: The latitude to look up the values for.
+		:param request_longitude: The longitude to look up the values for.
 		:return: a dictionary with the following fields with info:
 		e'biodome': eco_name,
 		'latitude': latitude,
@@ -85,6 +86,11 @@ class InformationStringBuilder:
 		return closest
 
 	def process_request(self, request: Request) -> str:
+		"""
+		Processes a request to turn it into an information string.
+		:param request: The request to process
+		:return: A multiline string representing statistics about the request
+		"""
 		count_of_trees = 0
 		count_of_cars = 0
 		square_meters_of_rooftops = 0
@@ -118,6 +124,11 @@ class InformationStringBuilder:
 		)
 
 	def process_scenario(self, scenario: Scenario) -> str:
+		"""
+		Processes a scenario to turn it into an information string.
+		:param scenario: The scenario to process
+		:return: A multiline string representing statistics about the scenario
+		"""
 		count_of_trees = 0
 		count_of_cars = 0
 		count_trees_added = 0
@@ -174,9 +185,16 @@ class InformationStringBuilder:
 		fraction_rooftops_greenified: float = 0
 	) -> str:
 		"""
-		Processes a list of elements that can be either Layers or Scenarios
-		:param element_list: The list of Layers and/or Scenarios
-		:return: An information string with all the statistics of the request/scenario
+		Constructs a multiline information string based on a set of parameters.
+		:param latitude: The approximate latitude of the region described by the parameters
+		:param longitude: The approximate longitude of the region described by the parameters
+		:param count_of_trees: The number of trees in the region
+		:param count_of_cars: The number of cars in the region
+		:param square_meters_of_rooftops: The area of rooftops in square meters prior to shrubification
+		:param count_cars_swapped: The number of cars replaced by trees
+		:param count_trees_added: The number of trees added in addition to these car swappings
+		:param fraction_rooftops_greenified: The fraction of shrubified rooftops
+		:return: An informative multiline string for use in the GUI
 		"""
 		info_dict = self.get_tree_and_rooftop_co2_values(
 			request_latitude=latitude, request_longitude=longitude
