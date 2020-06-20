@@ -20,21 +20,25 @@ First install Pipenv using your package manager or Pip
 ```
 $ pip install pipenv
 ```
-Then install the dependencies:
-```
-$ pipenv sync --dev
-```
 Then start a shell inside the virtual environment:
 ```
 $ pipenv shell
 ```
-Then install the dependencies that don't work with Pipenv:
+Now run this command to install pytorch into the newly created virtual environment.
 ```
 (mesh-city) $ pip install -r requirements.txt
 ```
-Then install the dependencies that don't work with Pipenv:
+Some of the dependencies of this project are very hard to install from their source or using typical
+tools such as pip. Therefore binary wheels are included for 64-bit Windows that are compatible with Python 3.7, 
+which come from Christoph Gohlke's [repository of unofficial Windows binaries](https://www.lfd.uci.edu/~gohlke/pythonlibs/).
+There are other ways to install these for other configurations, but running the following command from the root of this project folder will install these
+on a compatible configuration.
 ```
 (mesh-city) $ pip install libs/rasterio-1.1.4-cp37-cp37m-win_amd64.whl libs/GDAL-3.0.4-cp37-cp37m-win_amd64.whl libs/Shapely-1.7.0-cp37-cp37m-win_amd64.whl libs/Rtree-0.9.4-cp37-cp37m-win_amd64.whl libs/Fiona-1.8.13-cp37-cp37m-win_amd64.whl
+```
+Next, the remaining dependencies that are specified in the pipfile are installed by running the following command.
+```
+$ pipenv sync --dev
 ```
 Now you can run the following to check your code for formatting and linting issues:
 ```
