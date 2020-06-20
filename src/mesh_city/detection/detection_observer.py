@@ -5,6 +5,7 @@ from tkinter import Label, Toplevel
 
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+from mesh_city.util.observable import Observable
 from mesh_city.util.observer import Observer
 
 
@@ -42,7 +43,7 @@ class DetectionObserver(Observer):
 
 		self.content = Container(WidgetGeometry(550, 135, 5, 5), self.top, background="white")
 
-		self.top_label = Label(self.content, text="Warming up the algorithms.", **layer_label_style)
+		self.top_label = Label(self.content, text="Initializing the algorithms", **layer_label_style)
 		self.top_label.place(width=550, height=40, x=10, y=0)
 
 		self.time_remaining_label = Label(self.content, text="", **layer_label_style)
@@ -51,16 +52,16 @@ class DetectionObserver(Observer):
 
 		self.top_label.update()
 
-	def update(self, observee):
+	def update(self, observable: Observable):
 		"""
 		Method called by the observee to indicate that a state has changed. It means that another tile has been detected
 		:param detection_pipeline: the detection pipeline to observer
 		:return:
 		"""
-		self.total_tiles = observee.state["total_tiles"]
-		self.current_tile = observee.state["current_tile"]
-		self.current_time_detection = observee.state["current_time_detection"]
-		self.detection_type = observee.state["detection_type"]
+		self.total_tiles = observable.observable_state["total_tiles"]
+		self.current_tile = observable.observable_state["current_tile"]
+		self.current_time_detection = observable.observable_state["current_time_detection"]
+		self.detection_type = observable.observable_state["detection_type"]
 
 		if self.detection_type != self.previous_detection_type:
 			self.missing_tiles = 0

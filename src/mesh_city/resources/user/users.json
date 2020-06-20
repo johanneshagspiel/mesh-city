@@ -4,9 +4,9 @@
             "type_map_provider": "Google Maps",
             "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
             "usage": {
-                "static_map": 0.68,
+                "static_map": 0.698,
                 "geocoding": 0,
-                "total": 0.68
+                "total": 0.698
             },
             "quota": 200.0,
             "date_reset": "2020-06-30"

@@ -37,7 +37,7 @@ class RequestObserver(Observer):
 
 		self.content = Container(WidgetGeometry(550, 135, 5, 5), self.top, background="white")
 
-		self.top_label = Label(self.content, text="Warming up the algorithms.", **layer_label_style)
+		self.top_label = Label(self.content, text="Initializing the algorithms", **layer_label_style)
 		self.top_label.place(width=550, height=40, x=10, y=0)
 
 		self.images_to_download_label = Label(self.content, text="", **layer_label_style)
@@ -46,15 +46,15 @@ class RequestObserver(Observer):
 		self.time_remaining_label = Label(self.content, text="", **layer_label_style)
 		self.time_remaining_label.place(width=550, height=40, x=10, y=100)
 
-	def update(self, observee):
+	def update(self, observable):
 		"""
-		Method called by the observee to indicate that a state has changed. It means that another image has been downloaded
+		Method called by the observable to indicate that a state has changed. It means that another image has been downloaded
 		:param request_maker:
 		:return:
 		"""
-		self.total_images = observee.state["total_images"]
-		self.current_image = observee.state["current_image"]
-		self.current_time_download = observee.state["current_time_download"]
+		self.total_images = observable.observable_state["total_images"]
+		self.current_image = observable.observable_state["current_image"]
+		self.current_time_download = observable.observable_state["current_time_download"]
 		self.update_estimated_time_to_finish()
 		self.update_gui()
 

@@ -27,6 +27,7 @@ from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.image_util import ImageUtil
+from mesh_city.util.observable import Observable
 
 
 class DetectionType(Enum):
@@ -38,19 +39,15 @@ class DetectionType(Enum):
 	CARS = 2
 
 
-class DetectionPipeline:
+class DetectionPipeline(Observable):
 	"""
 	A class responsible for moving data to the detection algorithm in a way they like and then
 	routing the results to the appropriate classes to create useful information.
 	"""
 	TILE_SIZE = 1024
 
-	def __init__(
-		self,
-		file_handler: FileHandler,
-		request_manager: RequestManager,
-		detections_to_run: Sequence[DetectionType]
-	):
+	def __init__(self, file_handler: FileHandler, request_manager: RequestManager,
+	             detections_to_run: Sequence[DetectionType]):
 		"""
 		The initialization method.
 
@@ -58,12 +55,10 @@ class DetectionPipeline:
 		:param detections_to_run: where to send the images to i.e. to detect trees
 		:param main_screen: the main screen of the application
 		"""
+		super().__init__()
 		self.file_handler = file_handler
 		self.detections_to_run = detections_to_run
 		self.request_manager = request_manager
-
-		self.observers = []
-		self.state = {}
 
 	def detect_buildings(self, request: Request) -> BuildingsLayer:
 		"""
@@ -74,7 +69,7 @@ class DetectionPipeline:
 		tiles = request.get_layer_of_type(GoogleLayer).tiles
 		building_detector = BuildingDetector(
 			nn_weights_path=self.file_handler.folder_overview["resource_path"].
-			joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
+				joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
 		)
 		building_detections_path = self.request_manager.get_image_root().joinpath("buildings")
 		building_detections_path.mkdir(parents=True, exist_ok=True)
@@ -97,10 +92,10 @@ class DetectionPipeline:
 		patches = image_tiler.create_tile_dictionary(concat_image)
 		mask_patches = {}
 
-		self.state["detection_type"] = "Buildings"
-		self.state["total_tiles"] = len(patches)
-		self.state["current_tile"] = 1
-		self.state["current_time_detection"] = 0
+		self.observable_state["detection_type"] = "Buildings"
+		self.observable_state["total_tiles"] = len(patches)
+		self.observable_state["current_tile"] = 1
+		self.observable_state["current_time_detection"] = 0
 		self.notify_observers()
 
 		for counter, key in enumerate(patches, 1):
@@ -109,8 +104,8 @@ class DetectionPipeline:
 			mask_patches[key] = building_detector.detect(image=patches[key])
 
 			time_needed_download = time.time() - start_time_download
-			self.state["current_tile"] = counter
-			self.state["current_time_detection"] = time_needed_download
+			self.observable_state["current_tile"] = counter
+			self.observable_state["current_time_detection"] = time_needed_download
 			self.notify_observers()
 
 		concat_mask = np.uint8(image_tiler.construct_image_from_tiles(mask_patches))
@@ -151,10 +146,10 @@ class DetectionPipeline:
 		)
 		frames = []
 
-		self.state["detection_type"] = "Cars"
-		self.state["total_tiles"] = len(tiles)
-		self.state["current_tile"] = 1
-		self.state["current_time_detection"] = 0
+		self.observable_state["detection_type"] = "Cars"
+		self.observable_state["total_tiles"] = len(tiles)
+		self.observable_state["current_tile"] = 1
+		self.observable_state["current_time_detection"] = 0
 		self.notify_observers()
 
 		for counter, tile in enumerate(tiles, 1):
@@ -172,8 +167,8 @@ class DetectionPipeline:
 			frames.append(result)
 
 			time_needed_download = time.time() - start_time_download
-			self.state["current_tile"] = counter
-			self.state["current_time_detection"] = time_needed_download
+			self.observable_state["current_tile"] = counter
+			self.observable_state["current_time_detection"] = time_needed_download
 			self.notify_observers()
 		car_detector.close()
 		concat_result = pd.concat(frames).reset_index(drop=True)
@@ -248,28 +243,3 @@ class DetectionPipeline:
 			if feature == DetectionType.CARS:
 				new_layers.append(self.detect_cars(request=request))
 		return new_layers
-
-	def attach_observer(self, observer):
-		"""
-		Attaches a observer to the request maker
-		:param observer: the observer to attach
-		:return: nothing
-		"""
-		self.observers.append(observer)
-
-	def detach_observer(self, observer):
-		"""
-		Detaches a observer from the detection pipeline and gets rid of its gui
-		:param observer: the observer to detach
-		:return:
-		"""
-		observer.destroy()
-		self.observers.remove(observer)
-
-	def notify_observers(self):
-		"""
-		Notifies all observers about a change in the state of the detection pipeline
-		:return:
-		"""
-		for observer in self.observers:
-			observer.update(self)
