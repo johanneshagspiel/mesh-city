@@ -2,7 +2,6 @@
 See class description
 """
 import csv
-from math import floor, log10
 from pathlib import Path
 
 import geopandas as gpd
@@ -217,7 +216,7 @@ class InformationStringBuilder:
 		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (
 			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop
 		)
-		total_urban_cooling = round(total_urban_cooling,5)
+		total_urban_cooling = round(total_urban_cooling, 5)
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"

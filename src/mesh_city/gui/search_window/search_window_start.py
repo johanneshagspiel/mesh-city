@@ -6,9 +6,9 @@ from tkinter import Label, Toplevel, W
 
 from mesh_city.gui.search_window.search_window_area import SearchWindowLocationArea
 from mesh_city.gui.search_window.search_window_location import SearchWindowLocation
+from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
-from mesh_city.gui.widgets.button import Button as CButton
 
 
 class SearchWindowStart:
@@ -39,8 +39,9 @@ class SearchWindowStart:
 		self.content = Container(WidgetGeometry(510, 190, 0, 0), self.top, background="white")
 		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
 
-		Label(self.content, text="What kind of search are you interested in ?", **layer_label_style,
-		      ).place(width=510, height=40, x=0, y=0)
+		Label(
+			self.content, text="What kind of search are you interested in ?", **layer_label_style,
+		).place(width=510, height=40, x=0, y=0)
 
 		CButton(
 			WidgetGeometry(200, 50, 150, 50),

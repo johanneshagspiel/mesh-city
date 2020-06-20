@@ -2,8 +2,9 @@
 The module containing the select load option window
 """
 from tkinter import Button, Label, Toplevel, W
-from mesh_city.gui.widgets.button import Button as CButton
+
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
@@ -38,9 +39,9 @@ class SelectLoadOption:
 
 		self.content = Container(WidgetGeometry(330, 100, 0, 0), self.top, background="white")
 
-		self.top_label = Label(self.content, text="There is nothing to load.",
-		                       **layer_label_style,
-		                       )
+		self.top_label = Label(
+			self.content, text="There is nothing to load.", **layer_label_style,
+		)
 		self.top_label.place(width=330, height=40, x=10, y=0)
 
 		self.temp_dict = {}
@@ -52,10 +53,11 @@ class SelectLoadOption:
 			self.top_label["text"] = "What do you want to load?"
 
 			load_request_button = CButton(
-					WidgetGeometry(300, 50, 10, 40),
-					"Load Previous Request",
-					lambda _: self.load_request(),
-					self.top)
+				WidgetGeometry(300, 50, 10, 40),
+				"Load Previous Request",
+				lambda _: self.load_request(),
+				self.top
+			)
 			self.to_forget_list.append(load_request_button)
 			counter += 1
 

@@ -2,21 +2,19 @@
 The module containing the eco window
 """
 import math
-from tkinter import Button, Entry, Label, Scale, Toplevel, W
+from tkinter import Entry, Label, Scale, Toplevel, W
 
 import geopandas as gpd
 import pandas as pd
 
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.scenario.scenario_pipeline import ScenarioModificationType
-
-from mesh_city.gui.widgets.button import Button as CButton
-from mesh_city.gui.widgets.container import Container
-from mesh_city.gui.widgets.scrollable_container import ScrollableContainer
-from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 
 class EcoWindow:
@@ -56,7 +54,9 @@ class EcoWindow:
 		self.top.grab_set()
 
 		self.top.geometry("%dx%d+%d+%d" % (900, 510, 0, 0))
-		self.layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
+		self.layer_label_style = {
+			"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W
+		}
 		self.scale_style = {"font": ("Eurostile LT Std", 18), "background": "white"}
 
 		self.content = Container(WidgetGeometry(890, 500, 0, 0), self.top, background="white")
@@ -99,9 +99,10 @@ class EcoWindow:
 			self.step_one_text_label.place(width=80, height=40, x=10, y=40)
 
 			secondary_label_text = "How do you want to increase the number of plants in this area?"
-			self.secondary_label = Label(self.content, text=secondary_label_text, **self.layer_label_style)
+			self.secondary_label = Label(
+				self.content, text=secondary_label_text, **self.layer_label_style
+			)
 			self.secondary_label.place(width=800, height=40, x=110, y=40)
-
 
 			counter = 10
 			if "Trees" in self.usable_layer:
@@ -137,8 +138,9 @@ class EcoWindow:
 		else:
 			self.top_label["text"] = "No more trees can be added to this area"
 
-		self.nick_name_label = Label(self.content, text="Scenario name: (Optional)",
-		                             **self.layer_label_style)
+		self.nick_name_label = Label(
+			self.content, text="Scenario name: (Optional)", **self.layer_label_style
+		)
 		self.name_entry = Entry(self.content, **self.scale_style)
 
 	def paint_buildings_green(self):
@@ -154,7 +156,9 @@ class EcoWindow:
 
 		# pylint: disable=W0201
 		grid_index = (self.step_counter + 1) * 40
-		self.buildings_to_paint_green_scale = Scale(self.content, from_=0, to=100, orient="horizontal", **self.scale_style)
+		self.buildings_to_paint_green_scale = Scale(
+			self.content, from_=0, to=100, orient="horizontal", **self.scale_style
+		)
 		self.buildings_to_paint_green_scale.place(width=870, height=100, x=10, y=grid_index)
 		self.to_forget.append(self.buildings_to_paint_green_scale)
 		grid_index += 110
@@ -163,7 +167,8 @@ class EcoWindow:
 			WidgetGeometry(100, 50, 350, grid_index),
 			"Confirm",
 			lambda _: self.cleanup_paint_buildings(),
-			self.content)
+			self.content
+		)
 
 		self.to_forget.append(confirm_button)
 
@@ -193,7 +198,9 @@ class EcoWindow:
 
 		# pylint: disable=W0201
 		grid_index = (self.step_counter + 1) * 40
-		self.increase_trees = Scale(self.content, from_=0, to=100, orient="horizontal", **self.scale_style)
+		self.increase_trees = Scale(
+			self.content, from_=0, to=100, orient="horizontal", **self.scale_style
+		)
 		self.increase_trees.place(width=870, height=100, x=10, y=grid_index)
 		self.to_forget.append(self.increase_trees)
 		grid_index += 110
@@ -202,7 +209,8 @@ class EcoWindow:
 			WidgetGeometry(100, 50, 350, grid_index),
 			"Confirm",
 			lambda _: self.cleanup_more_trees(),
-			self.content)
+			self.content
+		)
 
 		self.to_forget.append(confirm_button)
 
@@ -219,8 +227,9 @@ class EcoWindow:
 
 		# pylint: disable=W0201
 		grid_index = (self.step_counter + 1) * 40
-		self.trees_for_cars = Scale(self.content, from_=0, to=100,
-		                                            orient="horizontal", **self.scale_style)
+		self.trees_for_cars = Scale(
+			self.content, from_=0, to=100, orient="horizontal", **self.scale_style
+		)
 		self.trees_for_cars.place(width=870, height=100, x=10, y=grid_index)
 		self.to_forget.append(self.trees_for_cars)
 		grid_index += 110
@@ -229,7 +238,8 @@ class EcoWindow:
 			WidgetGeometry(100, 50, 350, grid_index),
 			"Confirm",
 			lambda _: self.cleanup_swap_cars(),
-			self.content)
+			self.content
+		)
 
 		self.to_forget.append(confirm_button)
 
@@ -289,7 +299,9 @@ class EcoWindow:
 
 		if self.step_counter < 5:
 			self.step_counter += 1
-			new_step_label = Label(self.top, text="Step " + str(self.step_counter), **self.layer_label_style)
+			new_step_label = Label(
+				self.top, text="Step " + str(self.step_counter), **self.layer_label_style
+			)
 			new_step_label.place(width=80, height=40, x=10, y=grid_index)
 
 			self.secondary_label["text"
@@ -343,7 +355,8 @@ class EcoWindow:
 			WidgetGeometry(100, 50, 350, grid_index),
 			"Confirm",
 			lambda _: self.cleanup(),
-			self.content)
+			self.content
+		)
 		self.to_forget.append(confirm_button)
 
 	def cleanup(self):
