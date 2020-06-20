@@ -100,11 +100,11 @@ class ScenarioPipeline:
 		:param cars_to_swap:
 		:return:
 		"""
-		np.random.seed(42)
 		np.random.shuffle(car_dataframe.values)
+		filtered_trees = tree_dataframe[tree_dataframe['label'] == "Tree"]
 		changes_list = []
 		for car_index in range(0, cars_to_swap):
-			tree_to_replace_with_index = np.random.randint(0, len(tree_dataframe))
+			tree_to_replace_with_index = np.random.randint(0, len(filtered_trees))
 			new_xmin, new_ymin, new_xmax, new_ymax = self.create_new_swapped_tree_entry(
 				car_index, tree_to_replace_with_index, tree_dataframe, car_dataframe
 			)
