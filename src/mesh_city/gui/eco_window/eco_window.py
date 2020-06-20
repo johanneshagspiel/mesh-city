@@ -2,7 +2,7 @@
 The module containing the eco window
 """
 import math
-from tkinter import Button, Entry, Label, Scale, Toplevel
+from tkinter import Button, Entry, Label, Scale, Toplevel, W
 
 import geopandas as gpd
 import pandas as pd
@@ -12,6 +12,11 @@ from mesh_city.request.layers.cars_layer import CarsLayer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.scenario.scenario_pipeline import ScenarioModificationType
+
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.scrollable_container import ScrollableContainer
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 
 class EcoWindow:
@@ -35,6 +40,8 @@ class EcoWindow:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
+		self.cars_enabled = True
+
 		detected_layers = []
 		for layer in self.application.current_request.layers:
 			if isinstance(layer, GoogleLayer):
@@ -46,88 +53,93 @@ class EcoWindow:
 			if isinstance(layer, BuildingsLayer):
 				detected_layers.append("Buildings")
 
-		self.top_label = Label(self.top, text="")
-		self.top_label.grid(row=0)
+		self.top.grab_set()
 
-		usable_layers = []
+		self.top.geometry("%dx%d+%d+%d" % (900, 510, 0, 0))
+		self.layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
+		self.scale_style = {"font": ("Eurostile LT Std", 18), "background": "white"}
+
+		self.content = Container(WidgetGeometry(890, 500, 0, 0), self.top, background="white")
+
+		self.top_label = Label(self.content, text="", **self.layer_label_style)
+		self.top_label["anchor"] = "center"
+		self.top_label.place(width=890, height=40, x=0, y=0)
+
+		self.usable_layer = []
 
 		if "Trees" in detected_layers:
 			self.tree_layer_panda = pd.read_csv(
 				self.application.current_request.get_layer_of_type(TreesLayer).detections_path
 			)
 			if self.tree_layer_panda.shape[0] > 1:
-				usable_layers.append("Trees")
+				self.usable_layer.append("Trees")
 		if "Cars" in detected_layers:
 			self.car_layer_panda = pd.read_csv(
 				self.application.current_request.get_layer_of_type(CarsLayer).detections_path
 			)
 			if self.car_layer_panda.shape[0] > 1:
-				usable_layers.append("Cars")
+				self.usable_layer.append("Cars")
 				self.max_amount_cars_swapable = self.car_layer_panda.shape[0] - 1
 		if "Buildings" in detected_layers:
 			self.buildings_gdf = gpd.read_file(
 				self.application.current_request.get_layer_of_type(BuildingsLayer).detections_path
 			)
 			if self.buildings_gdf.shape[0] > 1:
-				usable_layers.append("Buildings")
+				self.usable_layer.append("Buildings")
 
-		if "Trees" in usable_layers or "Buildings" in usable_layers:
+		if "Trees" in self.usable_layer or "Buildings" in self.usable_layer:
 			self.top_label["text"] = "Scenario Creator"
-			self.top_label.grid(row=0, column=0, columnspan=3)
 
 			self.step_counter = 1
 			self.to_forget = []
 			self.important_widgets = []
 			self.modification_list = []
 
-			self.step_one_text_label = Label(self.top, text="Step 1")
-			self.step_one_text_label.grid(row=1, column=0)
+			self.step_one_text_label = Label(self.content, text="Step 1", **self.layer_label_style)
+			self.step_one_text_label.place(width=80, height=40, x=10, y=40)
 
 			secondary_label_text = "How do you want to increase the number of plants in this area?"
-			self.secondary_label = Label(self.top, text=secondary_label_text)
-			self.secondary_label.grid(row=1, column=1, columnspan=2)
+			self.secondary_label = Label(self.content, text=secondary_label_text, **self.layer_label_style)
+			self.secondary_label.place(width=800, height=40, x=110, y=40)
 
-			counter = 0
 
-			if "Trees" in usable_layers:
-				self.increase_amount_button = Button(
-					self.top, text="Add more Trees", command=self.add_more_trees, bg="white"
+			counter = 10
+			if "Trees" in self.usable_layer:
+				self.increase_amount_button = CButton(
+					WidgetGeometry(270, 50, counter, 80),
+					"Add more Trees",
+					lambda _: self.add_more_trees(),
+					self.content,
 				)
-				self.increase_amount_button.grid(row=2, column=counter)
 				self.to_forget.append(self.increase_amount_button)
-				self.important_widgets.append(self.increase_amount_button)
-				counter += 1
+				counter += 300
 
-			if "Cars" and "Trees" in detected_layers:
-				self.swap_items_button = Button(
-					self.top,
-					text="Swap Cars with Trees",
-					command=self.swap_cars_with_trees,
-					bg="white"
+			if "Cars" and "Trees" in self.usable_layer and self.cars_enabled:
+				self.swap_items_button = CButton(
+					WidgetGeometry(270, 50, counter, 80),
+					"Swap Cars with Trees",
+					lambda _: self.swap_cars_with_trees(),
+					self.content,
 				)
-				self.swap_items_button.grid(row=2, column=counter)
 				self.to_forget.append(self.swap_items_button)
-				self.important_widgets.append(self.swap_items_button)
-				counter += 1
+				counter += 300
 
-			if "Buildings" in usable_layers:
-				self.cover_buildings_button = Button(
-					self.top, text="Cover Buildings", command=self.paint_buildings_green, bg="white"
+			if "Buildings" in self.usable_layer:
+				self.cover_buildings_button = CButton(
+					WidgetGeometry(270, 50, counter, 80),
+					"Cover Buildings",
+					lambda _: self.paint_buildings_green(),
+					self.content,
 				)
-				self.cover_buildings_button.grid(row=2, column=counter)
 				self.to_forget.append(self.cover_buildings_button)
-				self.important_widgets.append(self.cover_buildings_button)
-				counter += 1
-
-			self.nick_name_label = Label(self.top, text="Scenario name: \n(Optional)")
-			self.name_entry = Entry(self.top)
-			self.confirm_button = Button(
-				self.top, text="Create Scenario", command=self.cleanup, bg="white"
-			)
+				counter += 300
 
 		else:
 			self.top_label["text"] = "No more trees can be added to this area"
-			self.top_label.grid(row=0)
+
+		self.nick_name_label = Label(self.content, text="Scenario name: (Optional)",
+		                             **self.layer_label_style)
+		self.name_entry = Entry(self.content, **self.scale_style)
 
 	def paint_buildings_green(self):
 		"""
@@ -135,22 +147,24 @@ class EcoWindow:
 		:return: None
 		"""
 		for widget in self.to_forget:
-			widget.grid_forget()
+			widget.place_forget()
 		self.to_forget = []
 
 		self.secondary_label["text"] = "How much of the buildings should be covered by plants?"
 
 		# pylint: disable=W0201
-		grid_index = self.step_counter + 1
-		self.buildings_to_paint_green_scale = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.buildings_to_paint_green_scale.grid(row=grid_index, columnspan=3)
+		grid_index = (self.step_counter + 1) * 40
+		self.buildings_to_paint_green_scale = Scale(self.content, from_=0, to=100, orient="horizontal", **self.scale_style)
+		self.buildings_to_paint_green_scale.place(width=870, height=100, x=10, y=grid_index)
 		self.to_forget.append(self.buildings_to_paint_green_scale)
-		grid_index += 1
+		grid_index += 110
 
-		confirm_button = Button(
-			self.top, text="Confirm", command=self.cleanup_paint_buildings, bg="white"
-		)
-		confirm_button.grid(row=grid_index, columnspan=3)
+		confirm_button = CButton(
+			WidgetGeometry(100, 50, 350, grid_index),
+			"Confirm",
+			lambda _: self.cleanup_paint_buildings(),
+			self.content)
+
 		self.to_forget.append(confirm_button)
 
 	def cleanup_paint_buildings(self):
@@ -172,22 +186,24 @@ class EcoWindow:
 		:return: None
 		"""
 		for widget in self.to_forget:
-			widget.grid_forget()
+			widget.place_forget()
 		self.to_forget = []
 
 		self.secondary_label["text"] = "How many trees do you want to add in percentage?"
 
 		# pylint: disable=W0201
-		grid_index = self.step_counter + 1
-		self.increase_trees = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.increase_trees.grid(row=grid_index, columnspan=3)
+		grid_index = (self.step_counter + 1) * 40
+		self.increase_trees = Scale(self.content, from_=0, to=100, orient="horizontal", **self.scale_style)
+		self.increase_trees.place(width=870, height=100, x=10, y=grid_index)
 		self.to_forget.append(self.increase_trees)
-		grid_index += 1
+		grid_index += 110
 
-		confirm_button = Button(
-			self.top, text="Confirm", command=self.cleanup_more_trees, bg="white"
-		)
-		confirm_button.grid(row=grid_index, columnspan=3)
+		confirm_button = CButton(
+			WidgetGeometry(100, 50, 350, grid_index),
+			"Confirm",
+			lambda _: self.cleanup_more_trees(),
+			self.content)
+
 		self.to_forget.append(confirm_button)
 
 	def swap_cars_with_trees(self):
@@ -196,22 +212,25 @@ class EcoWindow:
 		:return: None
 		"""
 		for widget in self.to_forget:
-			widget.grid_forget()
+			widget.place_forget()
 		self.to_forget = []
 
 		self.secondary_label["text"] = "How many cars do you want to swap with trees in percentage?"
 
 		# pylint: disable=W0201
-		grid_index = self.step_counter + 1
-		self.trees_for_cars = Scale(self.top, from_=0, to=100, orient="horizontal")
-		self.trees_for_cars.grid(row=grid_index, columnspan=3)
+		grid_index = (self.step_counter + 1) * 40
+		self.trees_for_cars = Scale(self.content, from_=0, to=100,
+		                                            orient="horizontal", **self.scale_style)
+		self.trees_for_cars.place(width=870, height=100, x=10, y=grid_index)
 		self.to_forget.append(self.trees_for_cars)
-		grid_index += 1
+		grid_index += 110
 
-		confirm_button = Button(
-			self.top, text="Confirm", command=self.cleanup_swap_cars, bg="white"
-		)
-		confirm_button.grid(row=grid_index, columnspan=3)
+		confirm_button = CButton(
+			WidgetGeometry(100, 50, 350, grid_index),
+			"Confirm",
+			lambda _: self.cleanup_swap_cars(),
+			self.content)
+
 		self.to_forget.append(confirm_button)
 
 	def cleanup_more_trees(self):
@@ -237,7 +256,7 @@ class EcoWindow:
 
 		if self.max_amount_cars_swapable < 0:
 			cars_to_swap = self.car_layer_panda.shape[0] - 1
-			self.important_widgets.remove(self.swap_items_button)
+			self.cars_enabled = False
 
 		self.modification_list.append((ScenarioModificationType.SWAP_CARS, cars_to_swap))
 		self.add_another_step(ScenarioModificationType.SWAP_CARS, cars_to_swap)
@@ -250,7 +269,7 @@ class EcoWindow:
 		:return: None
 		"""
 		for widget in self.to_forget:
-			widget.grid_forget()
+			widget.place_forget()
 		self.to_forget = []
 
 		scenario_text = ""
@@ -258,38 +277,74 @@ class EcoWindow:
 			scenario_text = "Add " + str(scenario_info) + " trees"
 		if scenario_type is ScenarioModificationType.SWAP_CARS:
 			scenario_text = "Swap " + str(scenario_info) + " cars with trees"
+		if scenario_type is ScenarioModificationType.PAINT_BUILDINGS_GREEN:
+			scenario_text = "Paint " + str(scenario_info) + " buildings green"
 
-		step_info_label = Label(self.top, text=scenario_text)
-		step_info_label.grid(row=self.step_counter, column=1)
+		grid_index = self.step_counter * 40
 
-		grid_index = self.step_counter + 1
+		step_info_label = Label(self.content, text=scenario_text, **self.layer_label_style)
+		step_info_label.place(width=800, height=40, x=110, y=grid_index)
+
+		grid_index += 40
 
 		if self.step_counter < 5:
 			self.step_counter += 1
-			new_step_label = Label(self.top, text="Step " + str(self.step_counter))
-			new_step_label.grid(row=grid_index, column=0)
+			new_step_label = Label(self.top, text="Step " + str(self.step_counter), **self.layer_label_style)
+			new_step_label.place(width=80, height=40, x=10, y=grid_index)
 
 			self.secondary_label["text"
 								] = "How do you want to increase the number of plants in this area?"
-			self.secondary_label.grid(row=grid_index, column=1, columnspan=2)
+			self.secondary_label.place(width=800, height=40, x=110, y=grid_index)
 
-			grid_index += 1
-			for counter, widget in enumerate(self.important_widgets):
-				widget.grid(row=grid_index, column=counter)
-				self.to_forget.append(widget)
+			grid_index += 40
+			counter = 10
+			if "Trees" in self.usable_layer:
+				self.increase_amount_button = CButton(
+					WidgetGeometry(270, 50, counter, grid_index),
+					"Add more Trees",
+					lambda _: self.add_more_trees(),
+					self.content,
+				)
+				self.to_forget.append(self.increase_amount_button)
+				counter += 300
+
+			if "Cars" and "Trees" in self.usable_layer and self.cars_enabled:
+				self.swap_items_button = CButton(
+					WidgetGeometry(270, 50, counter, grid_index),
+					"Swap Cars with Trees",
+					lambda _: self.swap_cars_with_trees(),
+					self.content,
+				)
+				self.to_forget.append(self.swap_items_button)
+				counter += 300
+
+			if "Buildings" in self.usable_layer:
+				self.cover_buildings_button = CButton(
+					WidgetGeometry(270, 50, counter, grid_index),
+					"Cover Buildings",
+					lambda _: self.paint_buildings_green(),
+					self.content,
+				)
+				self.to_forget.append(self.cover_buildings_button)
+				counter += 300
+
 		else:
-			self.secondary_label.grid_forget()
+			self.secondary_label.place_forget()
 
-		grid_index += 1
-		self.nick_name_label.grid(row=grid_index, column=0)
+		grid_index += 60
+		self.nick_name_label.place(width=350, height=40, x=10, y=grid_index)
 		self.to_forget.append(self.nick_name_label)
 
-		self.name_entry.grid(row=grid_index, column=1)
+		self.name_entry.place(width=530, height=40, x=350, y=grid_index)
 		self.to_forget.append(self.name_entry)
 
-		grid_index += 1
-		self.confirm_button.grid(row=grid_index, column=1)
-		self.to_forget.append(self.confirm_button)
+		grid_index += 60
+		confirm_button = CButton(
+			WidgetGeometry(100, 50, 350, grid_index),
+			"Confirm",
+			lambda _: self.cleanup(),
+			self.content)
+		self.to_forget.append(confirm_button)
 
 	def cleanup(self):
 		"""

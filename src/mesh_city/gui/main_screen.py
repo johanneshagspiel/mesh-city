@@ -95,6 +95,13 @@ class MainScreen:
 			self.left_container,
 		)
 
+		CButton(
+			WidgetGeometry(200, 50, 75, 580),
+			"user",
+			lambda _: self.user_window(),
+			self.left_container,
+		)
+
 		self.layers_container = Container(
 			WidgetGeometry(250, 140, 50, 220), master=self.left_container, background="white",
 		)

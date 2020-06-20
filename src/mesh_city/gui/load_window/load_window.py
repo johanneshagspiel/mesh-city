@@ -42,8 +42,9 @@ class LoadWindow:
 		                       )
 		self.top_label.place(width=470, height=40, x=0, y=0)
 
-		self.scrollable_content = ScrollableContainer(WidgetGeometry(480, 190, 0, 50), self.content, background="white")
+		self.scrollable_content = ScrollableContainer(WidgetGeometry(480, 140, 0, 50), self.content, background="white")
 
+		element_added = 0
 
 		if self.application.current_request is not None:
 			active_request_id = self.application.current_request.request_id
@@ -55,6 +56,7 @@ class LoadWindow:
 						request.name,
 						lambda _, request=request: self.load_request(request),
 						parent))
+					element_added+=1
 		else:
 			for request in self.application.request_manager.requests:
 				self.scrollable_content.add_row(lambda parent: CButton(
@@ -62,6 +64,7 @@ class LoadWindow:
 					request.name,
 					lambda _, request=request: self.load_request(request),
 					parent))
+				element_added += 1
 
 
 	def load_request(self, request):
