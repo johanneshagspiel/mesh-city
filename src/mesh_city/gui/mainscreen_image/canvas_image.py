@@ -34,7 +34,7 @@ class CanvasImage:
 		)  # placeholder of the ImageFrame object
 		# Create canvas and bind it with scrollbars. Public for outer classes
 		self.canvas = tk.Canvas(
-			self.__imframe, width=900, height=900, highlightthickness=0, background="grey",
+			self.__imframe, width=900, height=900, highlightthickness=0, background="#333333",
 		)
 		self.canvas.grid(row=0, column=0, sticky='nswe')
 		self.canvas.update()  # wait till canvas is created
