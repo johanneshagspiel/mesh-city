@@ -68,7 +68,7 @@ class EcoWindow:
 			self.buildings_gdf = gpd.read_file(
 				self.application.current_request.get_layer_of_type(BuildingsLayer).detections_path
 			)
-			if self.tree_layer_panda.shape[0] > 1:
+			if self.buildings_gdf.shape[0] > 1:
 				usable_layers.append("Buildings")
 
 		if "Trees" in usable_layers or "Buildings" in usable_layers:
@@ -302,3 +302,4 @@ class EcoWindow:
 		self.application.create_scenario(
 			request=self.application.current_request, modification_list=self.modification_list
 		)
+		self.main_screen.render_dynamic_widgets()

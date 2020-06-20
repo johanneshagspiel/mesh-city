@@ -236,7 +236,7 @@ class Application:
 		:return: None
 		"""
 		canvas_image = ScenarioRenderer.render_scenario(
-			scenario=scenario, scaling=16, overlay_image=self.overlay_image
+			scenario=scenario, scaling=4, overlay_image=self.overlay_image
 		)
 		self.main_screen.set_canvas_image(canvas_image)
 
