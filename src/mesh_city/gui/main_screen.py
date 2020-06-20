@@ -46,9 +46,10 @@ class MainScreen:
 		self.application = application
 		self.master = Tk()
 
-		self.master.title("Mesh City")
+		self.master.title("Planet Painter")
 		self.master.geometry("%dx%d+%d+%d" % (1600, 900, 160, 56))
 		self.master.resizable(width=False, height=False)
+		self.master.iconbitmap(True, self.application.file_handler.folder_overview["icon"])
 
 		for file in self.application.file_handler.folder_overview["fonts"].glob("*"):
 			load_font(file)
@@ -64,8 +65,8 @@ class MainScreen:
 		self.content = Container(WidgetGeometry(1600, 900, 0, 0), self.master, background="black")
 
 		self.canvas_image: Optional[CanvasImage] = None
-		mvrdv_path: Path = self.application.file_handler.folder_overview["MVRDV"]
-		self.set_canvas_image(Image.open(mvrdv_path))
+		logo_path: Path = self.application.file_handler.folder_overview["logo"]
+		self.set_canvas_image(Image.open(logo_path))
 
 		self.left_container = Container(WidgetGeometry(350, 900, 0, 0), self.content)
 		self.right_container = Container(WidgetGeometry(350, 900, 1250, 0), self.content)

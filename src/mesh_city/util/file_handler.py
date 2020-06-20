@@ -25,8 +25,9 @@ class FileHandler:
 			"image_path": self.root.joinpath("resources", "images"),
 			"users.json": self.root.joinpath("resources", "user", "users.json"),
 			"biome_index": self.root.joinpath("resources", "mvrdv", "PlanetPainter_BiomeIndex.csv"),
-			"MVRDV": self.root.joinpath("resources", "mvrdv", "mvrdv_logo.png"),
-			"fonts": self.root.joinpath("resources", "fonts")
+			"logo": self.root.joinpath("resources", "mvrdv", "planet_painter_logo.png"),
+			"fonts": self.root.joinpath("resources", "fonts"),
+			"icon": self.root.joinpath("resources", "mvrdv", "planet_painter_icon.ico"),
 		}
 		# initiated with a CoordinateOverview, coordinate_overview.grid is a json file
 		self.coordinate_overview = None
