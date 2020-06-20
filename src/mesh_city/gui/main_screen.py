@@ -4,7 +4,7 @@ See :class:`.MainScreen`
 
 from pathlib import Path
 from tkinter import DISABLED, END, Label, mainloop, NORMAL, Text, Tk, W, WORD
-from typing import List
+from typing import List, Optional, Union
 
 from PIL import Image
 
@@ -59,15 +59,11 @@ class MainScreen:
 		)
 		self.application.set_user_entity(users["John"])
 
-		self.active_layers = []
-		self.generated_content = []
+		self.active_layers: List[str] = []
 
 		self.content = Container(WidgetGeometry(1600, 900, 0, 0), self.master, background="black")
 
-		self.left_container = None
-		self.right_container = None
-
-		self.canvas_image = None
+		self.canvas_image: Optional[CanvasImage] = None
 		mvrdv_path: Path = self.application.file_handler.folder_overview["MVRDV"]
 		self.set_canvas_image(Image.open(mvrdv_path))
 
@@ -78,27 +74,25 @@ class MainScreen:
 			WidgetGeometry(200, 50, 75, 50),
 			"search",
 			lambda _: self.search_window(),
-			self.left_container
+			self.left_container,
 		)
 		CButton(
 			WidgetGeometry(200, 50, 75, 120),
 			"load",
 			lambda _: self.load_window(),
-			self.left_container
+			self.left_container,
 		)
-		# CButton(WidgetGeometry(200, 50, 75, 600), "detect", lambda _: self.detect_window(), self.left_container)
-		# CButton(WidgetGeometry(200, 50, 75, 290), "layers", lambda _: self.layers_window(), self.left_container)
 		CButton(
 			WidgetGeometry(200, 50, 75, 380),
 			"scenarios",
 			lambda _: self.eco_window(),
-			self.left_container
+			self.left_container,
 		)
 		CButton(
 			WidgetGeometry(200, 50, 75, 480),
 			"export",
 			lambda _: self.export_window(),
-			self.left_container
+			self.left_container,
 		)
 
 		self.layers_container = Container(
@@ -121,13 +115,13 @@ class MainScreen:
 		self.information_general.config(cursor="")
 		self.information_general.place(width=250, height=750, x=50, y=50)
 
-		self.gif_image = None
-		self.trees_detect_button = None
-		self.buildings_detect_button = None
-		self.cars_detect_button = None
-		self.trees_layer_button = None
-		self.buildings_layer_button = None
-		self.cars_layer_button = None
+		self.gif_image: Optional[GifImage] = None
+		self.trees_detect_button: Optional[LayerButton] = None
+		self.buildings_detect_button: Optional[LayerButton] = None
+		self.cars_detect_button: Optional[LayerButton] = None
+		self.trees_layer_button: Optional[LayerButton] = None
+		self.buildings_layer_button: Optional[LayerButton] = None
+		self.cars_layer_button: Optional[LayerButton] = None
 
 	def run(self) -> None:
 		"""
@@ -266,49 +260,49 @@ class MainScreen:
 
 		self._load_layers()
 
-	def export_window(self):
+	def export_window(self) -> None:
 		"""
 		Creates an export window
 		:return: None
 		"""
 		ExportWindow(master=self.master, application=self.application, main_screen=self)
 
-	def layers_window(self):
+	def layers_window(self) -> None:
 		"""
 		Creates a layers window object
 		:return: None
 		"""
 		LayersWindow(self.master, self.application, self)
 
-	def load_window(self):
+	def load_window(self) -> None:
 		"""
 		Creates a load request window object
 		:return: None
 		"""
 		SelectLoadOption(self.master, self.application, self)
 
-	def search_window(self):
+	def search_window(self) -> None:
 		"""
 		Creates a search window object
 		:return: None
 		"""
 		SearchWindowStart(self.master, self.application, self)
 
-	def detect_window(self):
+	def detect_window(self) -> None:
 		"""
 		Creates a detect window object
 		:return: None
 		"""
 		DetectionWindow(self.master, self.application)
 
-	def user_window(self):
+	def user_window(self) -> None:
 		"""
 		Creates a UserWindow object
 		:return: None
 		"""
 		UserWindow(master=self.master, application=self.application, main_screen=self)
 
-	def eco_window(self):
+	def eco_window(self) -> None:
 		"""
 		Creates an EcoWindow object
 		:return: None
@@ -324,7 +318,7 @@ class MainScreen:
 			self.canvas_image.destroy()
 		self.canvas_image = CanvasImage(self.content, image)
 
-	def set_gif(self, image):
+	def set_gif(self, image) -> None:
 		"""
 		Places a gif image on the main screen.
 		:param image:
@@ -345,7 +339,7 @@ class MainScreen:
 		self.information_general.insert(END, "")
 		self.information_general.configure(state=DISABLED)
 
-	def update_text(self, text_to_show):
+	def update_text(self, text_to_show: str) -> None:
 		"""
 		Method to update the text field on the main screen
 		:return: None
@@ -355,7 +349,7 @@ class MainScreen:
 		self.information_general.insert(END, text_to_show)
 		self.information_general.configure(state=DISABLED)
 
-	def start_up(self):
+	def start_up(self) -> Union[TutorialWindow, LoadWindow]:
 		"""
 		Method called when starting the application. Creates either tutorial window or load screen
 		:return: None

@@ -127,7 +127,7 @@ class Application:
 		self.log_manager.write_log(self.user_entity)
 
 	@staticmethod
-	def compute_appropriate_scaling(request: Request):
+	def compute_appropriate_scaling(request: Request) -> int:
 		"""
 		Computes an appropriate scaling to use for rendering requests and scenario's
 		:param request: The request to compute an appropriate scaling for
@@ -135,7 +135,7 @@ class Application:
 		"""
 		area_in_tiles = request.num_of_vertical_images * request.num_of_horizontal_images
 		# A base scaling
-		scaling = 2
+		scaling: int = 2
 		# Further lowering of resolution depending on the resolution of the request
 		while area_in_tiles > 9:
 			area_in_tiles /= 4

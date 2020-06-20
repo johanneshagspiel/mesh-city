@@ -217,7 +217,7 @@ class InformationStringBuilder:
 		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (
 			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop
 		)
-		total_urban_cooling = InformationStringBuilder.round_sig(total_urban_cooling, 5)
+		total_urban_cooling = round(total_urban_cooling,5)
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"
@@ -244,13 +244,3 @@ class InformationStringBuilder:
 		result_string += str(total_urban_cooling) + " Kelvin" + "\n \n"
 
 		return result_string
-
-	@staticmethod
-	def round_sig(number, sig=2):
-		"""
-		A simple helper function to round numbers to a certain number of decimal places.
-		:param number: number to round.
-		:param sig: number of significant digits.
-		:return: the number with the right number of significant digits
-		"""
-		return round(number, sig - int(floor(log10(abs(number)))) - 1)
