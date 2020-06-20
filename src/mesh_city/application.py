@@ -135,9 +135,9 @@ class Application:
 		"""
 		area_in_tiles = request.num_of_vertical_images * request.num_of_horizontal_images
 		# A base scaling
-		scaling = 4
+		scaling = 2
 		# Further lowering of resolution depending on the resolution of the request
-		while area_in_tiles > 12:
+		while area_in_tiles > 9:
 			area_in_tiles /= 4
 			scaling *= 2
 		return scaling
