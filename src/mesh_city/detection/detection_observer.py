@@ -1,10 +1,11 @@
 """
 The module containing the detection observer
 """
-from tkinter import Label, Toplevel
+from tkinter import Label, Toplevel, W
 
 from mesh_city.util.observer import Observer
-
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 class DetectionObserver(Observer):
 	"""
@@ -31,11 +32,23 @@ class DetectionObserver(Observer):
 		self.master = master
 		self.top = Toplevel(master)
 
-		self.top_label = Label(self.top, text="Warming up the algorithms")
-		self.top_label.grid(row=0, column=0)
-		self.time_remaining_label = Label(self.top, text="")
+		self.top.grab_set()
 
-		self.tiles_to_detect = Label(self.top, text="")
+		self.top.geometry("%dx%d+%d+%d" % (560, 145, 0, 0))
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white",
+		                     "anchor": "center"}
+
+		self.content = Container(WidgetGeometry(550, 135, 5, 5), self.top, background="white")
+
+		self.top_label = Label(self.content, text="Warming up the algorithms.",
+		                       **layer_label_style
+		                       )
+		self.top_label.place(width=550, height=40, x=10, y=0)
+
+
+		self.time_remaining_label = Label(self.content, text="",  **layer_label_style)
+
+		self.tiles_to_detect = Label(self.content, text="",  **layer_label_style)
 
 		self.top_label.update()
 
@@ -76,8 +89,8 @@ class DetectionObserver(Observer):
 		:return:
 		"""
 
-		self.tiles_to_detect.grid(row=1, column=0)
-		self.time_remaining_label.grid(row=2, column=0)
+		self.tiles_to_detect.place(width=550, height=40, x=10, y=50)
+		self.time_remaining_label.place(width=550, height=40, x=10, y=100)
 
 		top_label_text = "Currently detecting: " + self.detection_type
 		self.top_label["text"] = top_label_text
