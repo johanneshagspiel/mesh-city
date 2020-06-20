@@ -298,7 +298,7 @@ class PreviewWindow:
 			self.usage_left_label.grid(row=counter, column=2)
 			counter += 1
 
-		self.nick_name_label = Label(self.top, text="Request name: \n(Optionl)")
+		self.nick_name_label = Label(self.top, text="Request name: \n(Optional)")
 		self.nick_name_label.grid(row=counter, column=0)
 
 		self.name_entry = Entry(self.top)

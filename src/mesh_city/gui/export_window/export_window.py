@@ -63,6 +63,26 @@ class ExportWindow:
 				)
 		for (index, request_button) in enumerate(self.request_buttons):
 			request_button.grid(row=index + 1, column=0)
+		if self.application.current_scenario is not None:
+			Button(
+				self.top,
+				text="Export current scenario",
+				width=20,
+				height=3,
+				command=self.export_scenario,
+				bg="white"
+			).grid(row=len(self.request_buttons) + 1, column=0)
+
+	def export_scenario(self):
+		"""
+		Temporary callback for exporting the current scenario of the application
+		:return: None
+		"""
+		export_directory = Path(filedialog.askdirectory())
+		self.application.export_scenario(
+			scenario=self.application.current_scenario, export_directory=export_directory
+		)
+		self.top.destroy()
 
 	def load_request(self, request):
 		"""
@@ -94,16 +114,6 @@ class ExportWindow:
 				variable=self.int_variable_list_layers[index]).grid(row=index + 1)
 			next_start = index + 1
 
-		self.int_variable_list_scenarios = []
-		self.scenario_name_list = []
-		for (index, scenario) in enumerate(request.scenarios.values()):
-			self.int_variable_list_scenarios.append(IntVar())
-			text = scenario.scenario_name
-			self.scenario_name_list.append(text)
-			Checkbutton(self.top, text=text,
-				variable=self.int_variable_list_scenarios[index]).grid(row=next_start + 1)
-			next_start += 1
-
 		Button(self.top, text="Confirm", command=lambda: self.cleanup(request),
 			bg="white").grid(row=next_start + 1)
 
@@ -119,24 +129,11 @@ class ExportWindow:
 				has_export_layer = True
 			layer_mask.append(element.get() == 1)
 
-		has_export_scenario = False
-		scenario_mask = []
-		for (index, element) in enumerate(self.int_variable_list_scenarios):
-			if element.get() == 1:
-				has_export_scenario = True
-				scenario_mask.append(
-					self.application.current_request.scenarios[self.scenario_name_list[index]]
-				)
-
-		if has_export_layer or has_export_scenario:
+		if has_export_layer:
 			export_directory = Path(filedialog.askdirectory())
 			if has_export_layer:
 				self.application.export_request_layers(
 					request=request, layer_mask=layer_mask, export_directory=export_directory
-				)
-			if has_export_scenario:
-				self.application.export_request_scenarios(
-					scenario_list=scenario_mask, export_directory=export_directory
 				)
 
 		self.top.destroy()
