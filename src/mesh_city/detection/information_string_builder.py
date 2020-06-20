@@ -241,7 +241,7 @@ class InformationStringBuilder:
 		result_string += str(int(total_carbon_emission)) + " kg CO2 " + "\n \n"
 
 		result_string += "Comfort. \nUrban Cooling:\n"
-		result_string += str(total_urban_cooling) + " degrees kelvin" + "\n \n"
+		result_string += str(total_urban_cooling) + " Kelvin" + "\n \n"
 
 		return result_string
 
