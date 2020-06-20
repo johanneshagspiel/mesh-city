@@ -31,6 +31,7 @@ class ExportWindow:
 		self.top = Toplevel(master)
 		self.top.config(padx=4)
 		self.top.config(pady=4)
+		self.top.grab_set()
 
 		self.image_path = self.application.file_handler.folder_overview['image_path']
 
@@ -136,4 +137,5 @@ class ExportWindow:
 					request=request, layer_mask=layer_mask, export_directory=export_directory
 				)
 
+		self.top.grab_release()
 		self.top.destroy()
