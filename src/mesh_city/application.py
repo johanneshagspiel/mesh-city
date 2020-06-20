@@ -196,7 +196,11 @@ class Application:
 		:return: None
 		"""
 
-		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask, scaling=Application.compute_appropriate_scaling(request))
+		canvas_image = RequestRenderer.render_request(
+			request=request,
+			layer_mask=layer_mask,
+			scaling=Application.compute_appropriate_scaling(request)
+		)
 		self.main_screen.set_canvas_image(canvas_image)
 
 		layer_list = []

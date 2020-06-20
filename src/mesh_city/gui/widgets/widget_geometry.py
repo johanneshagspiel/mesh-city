@@ -1,4 +1,12 @@
+"""
+This module defines
+"""
+
+
 class WidgetGeometry:
+	"""
+	A WidgetGeometry struct for storing positional information about widgets.
+	"""
 
 	def __init__(self, width: int, height: int, x_position: int, y_position: int):
 		assert width > 0

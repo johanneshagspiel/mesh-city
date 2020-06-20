@@ -143,7 +143,10 @@ class MainScreen:
 		mainloop()
 
 	def render_dynamic_widgets(self) -> None:
-		# Trees detect button logic
+		"""
+		Updates dynamic widgets to reflect events such as new features being detected.
+		:return: None
+		"""
 		if self.trees_detect_button is not None:
 			self.trees_detect_button.destroy()
 			self.trees_detect_button = None
@@ -224,8 +227,16 @@ class MainScreen:
 				master=self.layers_container,
 			)
 
-	def _run_detection(self, type: DetectionType) -> None:
-		self.application.run_detection(request=self.application.current_request, to_detect=[type], )
+	def _run_detection(self, detection_type: DetectionType) -> None:
+		"""
+		Forwards a detection event to the application and updates the dynamic widgets after this
+		has finished.
+		:param detection_type: The type of detection to run
+		:return: None
+		"""
+		self.application.run_detection(
+			request=self.application.current_request, to_detect=[detection_type],
+		)
 		self.render_dynamic_widgets()
 
 	def _load_layers(self) -> None:
@@ -315,7 +326,7 @@ class MainScreen:
 
 	def set_gif(self, image):
 		"""
-
+		Places a gif image on the main screen.
 		:param image:
 		:return:
 		"""

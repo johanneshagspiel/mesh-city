@@ -1,6 +1,8 @@
-# The contents of this file are adapted from
-# https://github.com/ifwe/digsby/blob/f5fe00244744aa131e07f09348d10563f3d8fa99/digsby/src/gui/native/win/winfonts.py#L15
-
+"""
+A helper module for loading custom font files for Tkinter on Windows.
+The contents of this file are adapted from
+https://github.com/ifwe/digsby/blob/f5fe00244744aa131e07f09348d10563f3d8fa99/digsby/src/gui/native/win/winfonts.py#L15
+"""
 import platform
 from ctypes import byref, create_unicode_buffer, windll
 from pathlib import Path

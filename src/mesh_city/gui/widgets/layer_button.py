@@ -1,3 +1,6 @@
+"""
+This moduel defines a type of button that is used in the GUI to show which layers are on screen.
+"""
 from tkinter import Misc
 from typing import Any, Dict
 
@@ -6,6 +9,9 @@ from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 
 class LayerButton(Button):
+	"""
+	This class is a type of button that is used in the GUI to show which layers are on screen.
+	"""
 
 	def __init__(
 		self,
@@ -16,9 +22,11 @@ class LayerButton(Button):
 		on_click: Any = None,
 		master: Misc = None,
 		show: bool = True,
-		cnf: Dict[Any, Any] = {},
+		cnf: Dict[Any, Any] = None,
 		**kw,
 	) -> None:
+		if cnf is None:
+			cnf = {}
 		super().__init__(geometry, text, on_click, master, show, cnf, **kw)
 
 		self.text = text

@@ -1,13 +1,12 @@
 """
-A module containing the canvas image class. Taken from stackoverflow
-author: FooBar167
+A module containing the canvas image class. Derived from the following StackOverflow post:
 source: https://stackoverflow.com/questions/41656176/tkinter-canvas-zoom-move-pan
+author: FooBar167
 """
 
 import math
 import tkinter as tk
 import warnings
-from tkinter import ttk
 
 from PIL import Image, ImageTk
 
@@ -202,9 +201,15 @@ class CanvasImage:
 				self.__image.tile = [self.__tile]
 				image = self.__image.crop((int(x1 / self.imscale), 0, int(x2 / self.imscale), h))
 			else:  # show normal image
-				image = self.__pyramid[max(0, self.__curr_img)].crop(  # crop current img from pyramid
-					(int(x1 / self.__scale), int(y1 / self.__scale),
-					int(x2 / self.__scale), int(y2 / self.__scale)))
+				image = self.__pyramid[max(0, self.__curr_img)].crop(
+					# crop current img from pyramid
+					(
+					int(x1 / self.__scale),
+					int(y1 / self.__scale),
+					int(x2 / self.__scale),
+					int(y2 / self.__scale)
+					)
+				)
 			#
 			imagetk = ImageTk.PhotoImage(image.resize((int(x2 - x1), int(y2 - y1)), self.__filter))
 			imageid = self.canvas.create_image(
@@ -213,7 +218,7 @@ class CanvasImage:
 				anchor='nw',
 				image=imagetk
 			)
-			#self.canvas.lower(imageid)  # set image into background
+			# self.canvas.lower(imageid)  # set image into background
 			self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
 	def __move_from(self, event):

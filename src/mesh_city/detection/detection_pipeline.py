@@ -6,7 +6,7 @@ appropriate classes to create useful information in the form of overlays.
 import json
 import time
 from enum import Enum
-from typing import List, Sequence
+from typing import Sequence
 
 import geopandas as gpd
 import numpy as np
