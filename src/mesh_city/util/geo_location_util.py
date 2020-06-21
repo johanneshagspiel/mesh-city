@@ -3,6 +3,7 @@ See :class:`.GeoLocationUtil`
 """
 
 import math
+from math import asin, cos, sqrt
 
 from pyproj import Transformer
 
@@ -297,3 +298,75 @@ class GeoLocationUtil:
 		pixels_per_unit_y_direction = (sw_geo_y - nw_geo_y) / image_height
 
 		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
+
+	@staticmethod
+	def geo_distance(latitude1, longitude1, latitude2, longitude2):
+		"""
+		Method to calculate the distance between to geographical locations
+		:param latitude1: Latitude of first coordinate
+		:param longitude1: Longitude of first coordinate
+		:param latitude2: Latitude of second coordinate
+		:param longitude2: Longitude of second coordinate
+		:return: the distance in meters
+		"""
+		# derived from
+		# https://stackoverflow.com/questions/41336756/find-the-closest-latitude-and-longitude
+		p_value = 0.017453292519943295
+		a_value = 0.5 - cos((latitude2 - latitude1) * p_value) / 2 + cos(latitude1 *
+			p_value) * cos(latitude2 * p_value) * (1 - cos((longitude2 - longitude1) * p_value)) / 2
+		return 12742 * asin(sqrt(a_value))
+
+	@staticmethod
+	def closest(data, point):
+		"""
+		Method to analyse a dictionary of points and find which of those is the closest to the input
+		point
+		:param data: a dictionary with at least the fields 'latitude' and 'longitude'
+		:param point: the point you want to find is closest to the point in the dictionary
+		:return: the closest point
+		"""
+		return min(
+			data,
+			key=lambda dic_point: GeoLocationUtil.geo_distance(
+			point['latitude'], point['longitude'], dic_point['latitude'], dic_point['longitude']
+			)
+		)
+
+	@staticmethod
+	def pixel_to_geo_coor(
+		image_grid_x,
+		image_grid_y,
+		xmin,
+		ymin,
+		xmax,
+		ymax,
+		image_width=1024,
+		image_height=1024,
+		zoom=20
+	):
+		"""
+		Method that transforms the position of a bounding box on an image, into pixel corodinaetes
+		and then into geographical coordinates
+		:param image_grid_x: the x coordinate of the grid position (aka. the Northwest corner) of the
+		image
+		:param image_grid_y: the y coordinate of the grid position (aka. the Northwest corner) of the
+		image
+		:param xmin:
+		:param ymin:
+		:param xmax:
+		:param ymax:
+		:param image_width:
+		:param image_height:
+		:param zoom: the zoom level, regarding the zoom level of the tile corresponding to the image
+		:return: a tuple (latitude, longitude) in geographical coordinates (EPSG:4326)
+		"""
+		px_x = xmin + ((xmax - xmin) / 2)
+		px_y = ymin + ((ymax - ymin) / 2)
+
+		image_grid_x_offset = px_x / image_width
+		image_grid_y_offset = px_y / image_height
+
+		image_grid_x += image_grid_x_offset
+		image_grid_y += image_grid_y_offset
+
+		return GeoLocationUtil.tile_value_to_degree(image_grid_x, image_grid_y, zoom, False)

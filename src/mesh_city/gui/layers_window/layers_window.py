@@ -4,10 +4,10 @@ main_screen image such as an indication where all the trees are
 """
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
-from mesh_city.request.buildings_layer import BuildingsLayer
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.image_layer import ImageLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class LayersWindow:
@@ -31,7 +31,7 @@ class LayersWindow:
 
 		detected_layers = []
 		for layer in self.application.current_request.layers:
-			if isinstance(layer, GoogleLayer):
+			if isinstance(layer, ImageLayer):
 				detected_layers.append("Google Maps")
 			if isinstance(layer, TreesLayer):
 				detected_layers.append("Trees")
@@ -72,10 +72,15 @@ class LayersWindow:
 		:return: nothing (but it updates the image on the main screen)
 		"""
 		layer_mask = []
+		active_layers = []
 		for (index, element) in enumerate(self.temp_int_var_list):
 			layer_mask.append(False)
 			if element.get() == 1:
 				layer_mask[index] = True
+				active_layers.append(self.check_box_list[index].cget("text"))
+
+		self.main_screen.active_layers = active_layers
 		self.application.load_request_specific_layers(
 			request=self.application.current_request, layer_mask=layer_mask
 		)
+		self.top.destroy()

@@ -28,7 +28,6 @@ class GoogleMapsProvider(TopDownProvider):
 		self.name = "Google Maps"
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
-		self.geo_location_util = GeoLocationUtil()
 
 	def get_and_store_location(
 		self,
@@ -84,7 +83,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 		with open(to_store, "wb") as output:
 			output.write(response.content)
-
+		self.image_provider_entity.increment_usage()
 		get_image = Image.open(to_store)
 		left = self.padding
 		upper = self.padding
@@ -104,21 +103,17 @@ class GoogleMapsProvider(TopDownProvider):
 		"""
 		Returns a geographical location based on an address name.
 
-		:param name:
-		:return:
+		:param name: The adress name
+		:return: The location corresponding to the adress name
 		"""
-
-		result = googlemaps.client.geocode(client=self.client, address=name)
-		print(result)
+		return googlemaps.client.geocode(client=self.client, address=name)
 
 	def get_name_from_location(self, latitude, longitude):
 		"""
-		Returns an address name based on tile_information.
+		Returns an address name based on a coordinate.
 
-		:param latitude:
-		:param longitude:
-		:return:
+		:param latitude: The latitude of the coordinate
+		:param longitude: The longitude of the coordinate
+		:return: The adress name corresponding to the location
 		"""
-
-		result = googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))
-		print(result)
+		return googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))

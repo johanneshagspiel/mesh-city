@@ -3,24 +3,27 @@
 See :class:`.RequestMaker`
 """
 
+import time
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
+from mesh_city.request.entities.request import Request
+from mesh_city.request.entities.tile import Tile
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.request.tile import Tile
 from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.observable import Observable
 
 
-class RequestMaker:
+class RequestMaker(Observable):
 	"""
 	This class makes requests to the TopDownProvider it is provided with and populates the grid system
-	of its RequestManager.
+	of its RequestManager with images retrieved from this provider.
 	"""
 
 	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None):
+		super().__init__()
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
 
@@ -117,6 +120,7 @@ class RequestMaker:
 		left_longitude: float,
 		top_latitude: float,
 		right_longitude: float,
+		name: str = None,
 		zoom: Any = None
 	) -> Request:
 		"""
@@ -140,12 +144,19 @@ class RequestMaker:
 			right_longitude=right_longitude,
 			zoom=zoom
 		)
+
+		self.observable_state["total_images"] = len(coordinates)
+		self.observable_state["current_image"] = 1
+		self.observable_state["current_time_download"] = 0
+		self.notify_observers()
+
 		tiles = []
 		folder = Path.joinpath(self.request_manager.get_image_root(), "google_maps")
 		folder.mkdir(parents=True, exist_ok=True)
 		min_x = None
 		min_y = None
-		for (x_cor_tile, y_cor_tile) in coordinates:
+		for counter, (x_cor_tile, y_cor_tile) in enumerate(coordinates, 1):
+			start_time_download = time.time()
 			if min_x is None:
 				min_x = x_cor_tile
 				min_y = y_cor_tile
@@ -153,16 +164,26 @@ class RequestMaker:
 			min_y = min(min_y, y_cor_tile)
 			request_result = self.make_single_request(x_cor_tile, y_cor_tile, folder, zoom)
 			tiles.append(request_result)
+			time_needed_download = time.time() - start_time_download
+
+			self.observable_state["current_image"] = counter
+			self.observable_state["current_time_download"] = time_needed_download
+			self.notify_observers()
+
+		request_id = self.request_manager.get_new_request_id()
+		if name is None:
+			name = "Request_" + str(request_id)
 		request = Request(
 			x_grid_coord=min_x,
 			y_grid_coord=min_y,
-			request_id=self.request_manager.get_new_request_id(),
+			request_id=request_id,
+			name=name,
 			num_of_horizontal_images=width,
 			num_of_vertical_images=height,
 			zoom=zoom
 		)
 		request.add_layer(
-			GoogleLayer(
+			ImageLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
 			tiles=tiles
@@ -190,7 +211,9 @@ class RequestMaker:
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
 		return self.calculate_coordinates_for_rectangle(bottom, left, top, right, zoom)
 
-	def make_location_request(self, latitude: float, longitude: float, zoom: Any = None) -> Request:
+	def make_location_request(
+		self, latitude: float, longitude: float, name: str = None, zoom: Any = None
+	) -> Request:
 		"""
 		Creates a request with a GoogleLayer populated with tiles retrieved using the top down provider
 		by first calculating a 3x3 section of tiles around a given point defined by a latitude and
@@ -201,10 +224,9 @@ class RequestMaker:
 		:param zoom: The zoom level, can be None
 		:return: The request object with a populated GoogleLayer
 		"""
-
 		zoom = self.check_zoom(zoom)
 		bottom, left, top, right = RequestMaker.compute_3x3_area(latitude, longitude, zoom)
-		return self.make_area_request(bottom, left, top, right, zoom)
+		return self.make_area_request(bottom, left, top, right, zoom=zoom, name=name)
 
 	def calculate_coordinates_for_rectangle(
 		self,
@@ -260,7 +282,7 @@ class RequestMaker:
 		coordinates_list = sorted(coordinates_list, key=lambda coordinate: coordinate[1])
 		return coordinates_list, num_of_images_horizontal, num_of_images_vertical
 
-	def count_uncached_tiles(self, coordinates: List[Tuple[int, int]]) -> int:
+	def count_images_to_download(self, coordinates: List[Tuple[int, int]]) -> int:
 		"""
 		Computes how many new tiles will have to be downloaded from the provider.
 

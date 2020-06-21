@@ -2,18 +2,33 @@
 See :class:`.MainScreen`
 """
 
-from tkinter import Button, END, Frame, mainloop, Text, Tk, WORD
+from pathlib import Path
+from tkinter import DISABLED, END, Label, mainloop, NORMAL, Text, Tk, W, WORD
+from typing import List, Optional, Union
 
-import numpy as np
 from PIL import Image
 
-from mesh_city.gui.canvas_image.canvas_image import CanvasImage
+from mesh_city.detection.detection_pipeline import DetectionType
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
+from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
 from mesh_city.gui.layers_window.layers_window import LayersWindow
+from mesh_city.gui.load_font import load_font
 from mesh_city.gui.load_window.load_window import LoadWindow
+from mesh_city.gui.load_window.select_load_option import SelectLoadOption
+from mesh_city.gui.mainscreen_image.canvas_image import CanvasImage
+from mesh_city.gui.mainscreen_image.gif_image import GifImage
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
-from mesh_city.gui.start_window.start_window import StartWindow
+from mesh_city.gui.tutorial_window.tutorial_window import TutorialWindow
+from mesh_city.gui.user_window.user_window import UserWindow
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.layer_button import LayerButton
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.image_layer import ImageLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class MainScreen:
@@ -22,7 +37,7 @@ class MainScreen:
 	can do on the map such as loading requests or looking at different layers
 	"""
 
-	def __init__(self, application):
+	def __init__(self, application) -> None:
 		"""
 		Setting up the main screen
 		:param application: the global application context
@@ -31,174 +46,323 @@ class MainScreen:
 		self.application = application
 		self.master = Tk()
 
-		self.master.title("Mesh City")
-		self.master.geometry("910x665")
+		self.master.title("Planet Painter")
+		self.master.geometry("%dx%d+%d+%d" % (1600, 900, 160, 56))
+		self.master.resizable(width=False, height=False)
+		self.master.iconbitmap(True, self.application.file_handler.folder_overview["icon"])
 
-		self.master.withdraw()
-		self.window = StartWindow(self.master, application)
-		self.master.wait_window(self.window.top)
-		self.master.deiconify()
+		for file in self.application.file_handler.folder_overview["fonts"].glob("*"):
+			load_font(file)
 
-		self.active_layers = []
-		self.generated_content = []
-
-		self.padding_x = 60
-		self.padding_y = 5
-		self.image_height = 646
-		self.image_width = 646
-
-		self.left_bar = Frame(self.master, width=52, height=665, background="white")
-		self.left_bar.grid(row=0, column=0, sticky='nsew')
-		self.left_bar.grid_propagate(0)
-
-		self.search_button = Button(
-			self.left_bar, text="Search", width=6, height=3, command=self.search_window, bg="grey"
+		users = self.application.log_manager.read_log(
+			path=self.application.file_handler.folder_overview["users.json"],
+			type_document="users.json",
 		)
-		self.search_button.grid(row=0, column=0)
+		self.application.set_user_entity(users["John"])
 
-		self.load_button = Button(
-			self.left_bar, text="Load", width=6, height=3, command=self.load_window, bg="grey"
+		self.active_layers: List[str] = []
+
+		self.content = Container(WidgetGeometry(1600, 900, 0, 0), self.master, background="black")
+
+		self.canvas_image: Optional[CanvasImage] = None
+		logo_path: Path = self.application.file_handler.folder_overview["logo"]
+		self.set_canvas_image(Image.open(logo_path))
+
+		self.left_container = Container(WidgetGeometry(350, 900, 0, 0), self.content)
+		self.right_container = Container(WidgetGeometry(350, 900, 1250, 0), self.content)
+
+		CButton(
+			WidgetGeometry(200, 50, 75, 50),
+			"search",
+			lambda _: self.search_window(),
+			self.left_container,
 		)
-		self.load_button.grid(row=1, column=0)
-
-		self.detect_button = Button(
-			self.left_bar, text="Detect", width=6, height=3, command=self.detect_window, bg="grey"
+		CButton(
+			WidgetGeometry(200, 50, 75, 120),
+			"load",
+			lambda _: self.load_window(),
+			self.left_container,
 		)
-		self.detect_button.grid(row=2, column=0)
-
-		self.layers_button = Button(
-			self.left_bar, text="Layers", width=6, height=3, command=self.layers_window, bg="grey"
+		CButton(
+			WidgetGeometry(200, 50, 75, 380),
+			"scenarios",
+			lambda _: self.eco_window(),
+			self.left_container,
 		)
-		self.layers_button.grid(row=3, column=0)
-
-		self.eco_button = Button(
-			self.left_bar, text="Eco", width=6, height=3, command=None, bg="grey"
+		CButton(
+			WidgetGeometry(200, 50, 75, 480),
+			"export",
+			lambda _: self.export_window(),
+			self.left_container,
 		)
-		self.eco_button.grid(row=4, column=0)
 
-		self.export_button = Button(
-			self.left_bar, text="Export", width=6, height=3, command=self.export_window, bg="grey"
+		CButton(
+			WidgetGeometry(200, 50, 75, 580),
+			"user",
+			lambda _: self.user_window(),
+			self.left_container,
 		)
-		self.export_button.grid(row=5, column=0)
 
-		self.user_button = Button(
-			self.left_bar, text="User", width=6, height=3, command=None, bg="grey"
+		self.layers_container = Container(
+			WidgetGeometry(250, 140, 50, 220), master=self.left_container, background="white",
 		)
-		self.user_button.grid(row=6, column=0)
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
+		Label(self.layers_container, text="trees", **layer_label_style,
+				).place(width=100, height=40, x=0, y=0)
+		Label(self.layers_container, text="buildings", **layer_label_style,
+				).place(width=100, height=40, x=0, y=50)
+		Label(self.layers_container, text="cars", **layer_label_style,
+				).place(width=100, height=40, x=0, y=100)
 
-		self.set_canvas_image(self.create_placeholder_image())
-
-		self.right_frame = Frame(self.master, width=185, background="white")
-		self.right_frame.grid(row=0, column=2, sticky='nsew')
-		self.right_frame.grid_propagate(0)
-
-		self.information_general = Text(self.right_frame, width=26, height=30, wrap=WORD)
-		self.information_general.configure(font=("TkDefaultFont", 9, "normal"))
-		self.information_general.grid(row=0, column=0, sticky="w")
-		self.information_general.insert(END, "General")
-		self.information_general.configure(state='disabled')
+		self.information_general = Text(self.right_container, wrap=WORD, borderwidth=0)
+		self.information_general.configure(font=("Eurostile LT Std", 12))
+		self.information_general.insert(END, "")
+		self.information_general.configure(state=DISABLED)
 		self.information_general.bind("<Double-1>", lambda event: "break")
 		self.information_general.bind("<Button-1>", lambda event: "break")
 		self.information_general.config(cursor="")
+		self.information_general.place(width=250, height=750, x=50, y=50)
 
-		self.information_selection = Text(self.right_frame, width=26, height=14, wrap=WORD)
-		self.information_selection.configure(font=("TkDefaultFont", 9, "normal"))
-		self.information_selection.grid(row=1, column=0, sticky="w")
-		self.information_selection.insert(END, "Selection")
-		self.information_selection.configure(state='disabled')
-		self.information_selection.bind("<Double-1>", lambda event: "break")
-		self.information_selection.bind("<Button-1>", lambda event: "break")
-		self.information_selection.config(cursor="")
+		self.gif_image: Optional[GifImage] = None
+		self.trees_detect_button: Optional[LayerButton] = None
+		self.buildings_detect_button: Optional[LayerButton] = None
+		self.cars_detect_button: Optional[LayerButton] = None
+		self.trees_layer_button: Optional[LayerButton] = None
+		self.buildings_layer_button: Optional[LayerButton] = None
+		self.cars_layer_button: Optional[LayerButton] = None
 
-		self.master.columnconfigure(1, weight=1)
-		self.master.rowconfigure(0, weight=1)
-		self.master.rowconfigure(1, weight=1)
-		self.master.rowconfigure(2, weight=1)
-
-	def run(self):
+	def run(self) -> None:
 		"""
 		Runs the main loop that updates the GUI and processes user input.
 		:return: None
 		"""
+
+		start_up_window = self.start_up()
+		self.master.wait_window(start_up_window.top)
+
+		self.render_dynamic_widgets()
+
 		mainloop()
 
-	def create_placeholder_image(self):
+	def render_dynamic_widgets(self) -> None:
 		"""
-		Creates a plane white placeholder image of 512x512 pixels
-		:return:
+		Updates dynamic widgets to reflect events such as new features being detected.
+		:return: None
 		"""
-		array = np.zeros([512, 512, 3], dtype=np.uint8)
-		array.fill(255)
-		return Image.fromarray(array)
+		if self.trees_detect_button is not None:
+			self.trees_detect_button.destroy()
+			self.trees_detect_button = None
+		if not self.application.current_request.has_layer_of_type(TreesLayer):
+			self.trees_detect_button = CButton(
+				WidgetGeometry(100, 40, 150, 0),
+				text="detect",
+				on_click=lambda _: self._run_detection(DetectionType.TREES),
+				master=self.layers_container,
+			)
 
-	def export_window(self):
+		# Buildings detect button logic
+		if self.buildings_detect_button is not None:
+			self.buildings_detect_button.destroy()
+			self.buildings_detect_button = None
+		if not self.application.current_request.has_layer_of_type(BuildingsLayer):
+			self.buildings_detect_button = CButton(
+				WidgetGeometry(100, 40, 150, 50),
+				text="detect",
+				on_click=lambda _: self._run_detection(DetectionType.BUILDINGS),
+				master=self.layers_container,
+			)
+
+		# Cars detect button logic
+		if self.cars_detect_button is not None:
+			self.cars_detect_button.destroy()
+			self.cars_detect_button = None
+		if not self.application.current_request.has_layer_of_type(CarsLayer):
+			self.cars_detect_button = CButton(
+				WidgetGeometry(100, 40, 150, 100),
+				text="detect",
+				on_click=lambda _: self._run_detection(DetectionType.CARS),
+				master=self.layers_container,
+			)
+
+		# Trees layer button logic
+		if self.trees_layer_button is not None:
+			self.trees_layer_button.destroy()
+			self.trees_layer_button = None
+		if self.application.current_request.has_layer_of_type(TreesLayer):
+			trees_layer_active = "Trees" in self.active_layers
+			self.trees_layer_button = LayerButton(
+				WidgetGeometry(80, 40, 170, 0),
+				text="on" if trees_layer_active else "off",
+				button_color="green" if trees_layer_active else "#EEEEEE",
+				text_color="white" if trees_layer_active else "black",
+				on_click=lambda _: self._set_layer_visibility("Trees", not trees_layer_active),
+				master=self.layers_container,
+			)
+
+		# Buildings layer button logic
+		if self.buildings_layer_button is not None:
+			self.buildings_layer_button.destroy()
+			self.buildings_layer_button = None
+		if self.application.current_request.has_layer_of_type(BuildingsLayer):
+			buildings_layer_active = "Buildings" in self.active_layers
+			self.buildings_layer_button = LayerButton(
+				WidgetGeometry(80, 40, 170, 50),
+				text="on" if buildings_layer_active else "off",
+				button_color="red" if buildings_layer_active else "#EEEEEE",
+				text_color="white" if buildings_layer_active else "black",
+				on_click=lambda _: self._set_layer_visibility("Buildings", not buildings_layer_active),
+				master=self.layers_container,
+			)
+
+		# Cars layer button logic
+		if self.cars_layer_button is not None:
+			self.cars_layer_button.destroy()
+			self.cars_layer_button = None
+		if self.application.current_request.has_layer_of_type(CarsLayer):
+			cars_layer_active = "Cars" in self.active_layers
+			self.cars_layer_button = LayerButton(
+				WidgetGeometry(80, 40, 170, 100),
+				text="on" if cars_layer_active else "off",
+				button_color="blue" if cars_layer_active else "#EEEEEE",
+				text_color="white" if cars_layer_active else "black",
+				on_click=lambda _: self._set_layer_visibility("Cars", not cars_layer_active),
+				master=self.layers_container,
+			)
+
+	def _run_detection(self, detection_type: DetectionType) -> None:
+		"""
+		Forwards a detection event to the application and updates the dynamic widgets after this
+		has finished.
+		:param detection_type: The type of detection to run
+		:return: None
+		"""
+		self.application.run_detection(
+			request=self.application.current_request, to_detect=[detection_type],
+		)
+		self.render_dynamic_widgets()
+
+	def _load_layers(self) -> None:
+		detected_layers: List[str] = []
+		for layer in self.application.current_request.layers:
+			if isinstance(layer, ImageLayer):
+				detected_layers.append("Google Maps")
+			if isinstance(layer, TreesLayer):
+				detected_layers.append("Trees")
+			if isinstance(layer, CarsLayer):
+				detected_layers.append("Cars")
+			if isinstance(layer, BuildingsLayer):
+				detected_layers.append("Buildings")
+
+		layer_mask: List[bool] = [(layer in self.active_layers) for layer in detected_layers]
+		self.application.load_request_specific_layers(
+			request=self.application.current_request, layer_mask=layer_mask,
+		)
+
+		self.render_dynamic_widgets()
+
+	def _set_layer_visibility(self, layer: str, layer_visible: bool) -> None:
+		if layer_visible and layer not in self.active_layers:
+			self.active_layers.append(layer)
+		elif not layer_visible and layer in self.active_layers:
+			self.active_layers.remove(layer)
+
+		self._load_layers()
+
+	def export_window(self) -> None:
 		"""
 		Creates an export window
-		:return: Nothing (creates an export window)
+		:return: None
 		"""
-		ExportWindow(self.master, self.application)
+		ExportWindow(master=self.master, application=self.application, main_screen=self)
 
-	def layers_window(self):
+	def layers_window(self) -> None:
 		"""
 		Creates a layers window object
-		:return: Nothing
+		:return: None
 		"""
 		LayersWindow(self.master, self.application, self)
 
-	def load_window(self):
+	def load_window(self) -> None:
 		"""
 		Creates a load request window object
-		:return: Nothing
+		:return: None
 		"""
-		LoadWindow(self.master, self.application, self)
+		SelectLoadOption(self.master, self.application, self)
 
-	def search_window(self):
+	def search_window(self) -> None:
 		"""
 		Creates a search window object
-		:return: Nothing
+		:return: None
 		"""
 		SearchWindowStart(self.master, self.application, self)
 
-	def detect_window(self):
+	def detect_window(self) -> None:
 		"""
 		Creates a detect window object
-		:return:
+		:return: None
 		"""
 		DetectionWindow(self.master, self.application)
 
-	def set_canvas_image(self, image):
+	def user_window(self) -> None:
+		"""
+		Creates a UserWindow object
+		:return: None
+		"""
+		UserWindow(master=self.master, application=self.application, main_screen=self)
+
+	def eco_window(self) -> None:
+		"""
+		Creates an EcoWindow object
+		:return: None
+		"""
+		EcoWindow(master=self.master, application=self.application, main_screen=self)
+
+	def set_canvas_image(self, image: Image) -> None:
 		"""
 		Calls methods needed to updates the image seen on the map
 		:return: Nothing
 		"""
-		self.new_canvas_image = CanvasImage(self.master, image)
-		self.new_canvas_image.grid(row=0, column=1, sticky='nsew')
+		if self.canvas_image is not None:
+			self.canvas_image.destroy()
+		self.canvas_image = CanvasImage(self.content, image)
+
+	def set_gif(self, image) -> None:
+		"""
+		Places a gif image on the main screen.
+		:param image:
+		:return:
+		"""
+		self.gif_image = GifImage(self.master)
+		self.gif_image.load(image)
+		# TODO: Position and size this one correctly
+		self.gif_image.place(width=900, height=900, x=350, y=0)
 
 	def delete_text(self):
 		"""
 		Method to delete all text in the right hand side general information text field
-		:return: nothing (the right hand side general information text field now says "General")
+		:return: None
 		"""
-		self.information_general.configure(state='normal')
-		self.information_general.delete('1.0', END)
-		self.information_general.insert(END, "General")
-		self.information_general.configure(state='disabled')
+		self.information_general.configure(state=NORMAL)
+		self.information_general.delete("1.0", END)
+		self.information_general.insert(END, "")
+		self.information_general.configure(state=DISABLED)
 
-	def update_text(self):
+	def update_text(self, text_to_show: str) -> None:
 		"""
 		Method to update the text field on the main screen
-		:return: nothing (new text is show on the mainscreen)
+		:return: None
 		"""
-		temp_info_path = next(
-			self.application.file_handler.folder_overview["active_information_path"].
-			glob("concat_information*")
-		)
-		temp_information_log = self.application.log_manager.read_log(temp_info_path, "information")
+		self.information_general.configure(state=NORMAL)
+		self.information_general.delete("1.0", END)
+		self.information_general.insert(END, text_to_show)
+		self.information_general.configure(state=DISABLED)
 
-		tree_amount = temp_information_log.information["Amount"] - 1
-		tree_amount_text = "Amount of trees detected:\n" + str(tree_amount)
+	def start_up(self) -> Union[TutorialWindow, LoadWindow]:
+		"""
+		Method called when starting the application. Creates either tutorial window or load screen
+		:return: None
+		"""
+		if len(self.application.request_manager.requests) == 0:
+			return TutorialWindow(self.master, self.application, self)
 
-		self.information_general.configure(state='normal')
-		self.information_general.delete('1.0', END)
-		self.information_general.insert(END, tree_amount_text)
-		self.information_general.configure(state='disabled')
+		return LoadWindow(self.master, self.application, self)

@@ -2,14 +2,18 @@
 See :class:`.SearchWindowLocationArea`
 """
 
-from tkinter import Button, Entry, Label, Toplevel
+from tkinter import Entry, Label, messagebox, Toplevel, W
 
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+from mesh_city.util.input_util import InputUtil
 
 
 class SearchWindowLocationArea:
 	"""
-	A pop-up type_of_detection GUI element that the user can fill in to make an area-type_of_detection request.
+	A pop-up type GUI element that the user can fill in to make an area-type request.
 	.. todo:: Make a pop-up class that this inherits from.
 	"""
 
@@ -24,98 +28,87 @@ class SearchWindowLocationArea:
 		self.master = master
 		self.value = ""
 		self.application = application
-		top = self.top = Toplevel(master)
+		self.top = Toplevel(master)
 
-		Label(top, text="Which area are you interested in downloading ?").grid(row=0, column=3)
+		self.top.config(padx=4)
+		self.top.config(pady=4)
 
-		self.min_lat = Label(top, text="Min Latitude:")
-		self.min_lat.grid(row=1, column=1)
-		self.min_log = Label(top, text="Min Longitude:")
-		self.min_log.grid(row=2, column=1)
-		self.max_lat = Label(top, text="Max Latitude:")
-		self.max_lat.grid(row=3, column=1)
-		self.max_log = Label(top, text="Max Longitude:")
-		self.max_log.grid(row=4, column=1)
+		self.top.geometry("%dx%d+%d+%d" % (575, 280, 0, 0))
 
-		self.min_lat_entry = Entry(top, width=20)
-		self.min_lat_entry.grid(row=1, column=3)
-		self.min_long_entry = Entry(top, width=20)
-		self.min_long_entry.grid(row=2, column=3)
-		self.max_lat_entry = Entry(top, width=20)
-		self.max_lat_entry.grid(row=3, column=3)
-		self.max_long_entry = Entry(top, width=20)
-		self.max_long_entry.grid(row=4, column=3)
+		self.content = Container(WidgetGeometry(565, 270, 0, 0), self.top, background="white")
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
 
-		self.temp_1 = Label(self.top, text="Please enter address information in this form:")
-		self.temp_1.grid(row=5, column=4)
-		self.temp_2 = Label(self.top, text="{house number} {street} {postcode} {city} {country}")
-		self.temp_2.grid(row=6, column=4)
+		Label(
+			self.content, text="Which area are you interested in downloading ?", **layer_label_style,
+		).place(width=560, height=40, x=0, y=0)
 
-		Button(top, text="Search", command=self.cleanup).grid(row=5, column=3)
+		Label(self.content, text="Min Latitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=40)
 
-		self.type_button_min = Button(
-			top, text="Address", command=lambda: self.change_search_type(True, "min")
+		self.min_lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.min_lat_entry.place(width=360, height=40, x=200, y=40)
+
+		Label(self.content, text="Min Longitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=80)
+
+		self.min_long_entry = Entry(
+			self.content, width=20, bg="grey", font=("Eurostile LT Std", 18)
 		)
-		self.type_button_min.grid(row=1, column=4)
+		self.min_long_entry.place(width=360, height=40, x=200, y=80)
 
-		self.type_button_max = Button(
-			top, text="Address", command=lambda: self.change_search_type(True, "max")
+		Label(self.content, text="Max Latitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=120)
+
+		self.max_lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.max_lat_entry.place(width=360, height=40, x=200, y=120)
+
+		Label(self.content, text="Max Longitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=160)
+
+		self.max_long_entry = Entry(
+			self.content, width=20, bg="grey", font=("Eurostile LT Std", 18)
 		)
-		self.type_button_max.grid(row=3, column=4)
+		self.max_long_entry.place(width=360, height=40, x=200, y=160)
 
-	def change_search_type(self, first_time, name):
-		"""
-		Changes the search type_of_detection from address-based to coordinate-based or the other way around.
-		:param first_time: A flag indicating whether this is the first time the type_of_detection button is pressed
-		:param name: The name indicating which of the points of the rectangle-defined area is to
-		have a different type_of_detection.
-		:return:
-		"""
-
-		if name == "min":
-			if self.min_lat["information_general"] == "Min Latitude:":
-				self.min_lat["information_general"] = "Address:"
-				self.min_long_entry.grid_forget()
-				self.type_button_min.configure(text="Coordinates")
-				self.min_log["information_general"] = ""
-				first_time = False
-
-			if (self.min_lat["information_general"] == "Address:") & first_time:
-				self.min_lat["information_general"] = "Min Latitude:"
-				self.min_long_entry.grid(row=2, column=3)
-				self.type_button_min.configure(text="Address")
-				self.min_log["information_general"] = "Min Longitude:"
-
-		if name == "max":
-			if self.max_lat["information_general"] == "Max Latitude:":
-				self.max_lat["information_general"] = "Address:"
-				self.max_long_entry.grid_forget()
-				self.type_button_max.configure(text="Coordinates")
-				self.max_log["information_general"] = ""
-				first_time = False
-
-			if (self.max_lat["information_general"] == "Address:") & first_time:
-				self.max_lat["information_general"] = "Max Latitude:"
-				self.max_long_entry.grid(row=4, column=3)
-				self.type_button_max.configure(text="Address")
-				self.max_log["information_general"] = "Max Longitude:"
+		CButton(
+			WidgetGeometry(200, 50, 170, 210), "Confirm", lambda _: self.cleanup(), self.content,
+		)
 
 	def cleanup(self):
 		"""
-		Makes the area-type_of_detection request and cleans up after itself by tearing down the GUI and
+		Makes the area-type request and cleans up after itself by tearing down the GUI and
 		effectively returning control to the main screen.
 		"""
-		self.value = [
-			float(self.min_lat_entry.get()),
-			float(self.min_long_entry.get()),
-			float(self.max_lat_entry.get()),
-			float(self.max_long_entry.get()),
+		list_entries = [
+			self.min_lat_entry, self.min_long_entry, self.max_lat_entry, self.max_long_entry,
 		]
 
-		PreviewWindow(
-			main_screen=self.main_screen,
-			master=self.master,
-			application=self.application,
-			coordinates=self.value
-		)
-		self.top.destroy()
+		wrong_counter_list = []
+
+		for counter, element in enumerate(list_entries, 0):
+			if InputUtil.is_float(element.get()) is False:
+				wrong_counter_list.append(counter)
+
+		if len(wrong_counter_list) > 0:
+			messagebox.showinfo(
+				"Input Error", "All entries must be filled out with correct coordinates"
+			)
+			for number in wrong_counter_list:
+				list_entries[number].delete(0, 'end')
+
+		else:
+			self.value = [
+				float(self.min_lat_entry.get()),
+				float(self.min_long_entry.get()),
+				float(self.max_lat_entry.get()),
+				float(self.max_long_entry.get()),
+			]
+
+			temp_window = PreviewWindow(
+				main_screen=self.main_screen,
+				master=self.master,
+				application=self.application,
+				coordinates=self.value
+			)
+			self.top.destroy()
+			self.main_screen.master.wait_window(temp_window.top)

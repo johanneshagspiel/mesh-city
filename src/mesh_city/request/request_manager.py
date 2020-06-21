@@ -6,12 +6,12 @@ import json
 import os
 from pathlib import Path
 
-from mesh_city.request.buildings_layer import BuildingsLayer
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
-from mesh_city.request.tile import Tile
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.request.entities.request import Request
+from mesh_city.request.entities.tile import Tile
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.image_layer import ImageLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class RequestManager:
@@ -68,7 +68,8 @@ class RequestManager:
 				"y_grid_coord": request.y_grid_coord,
 				"num_of_horizontal_images": request.num_of_horizontal_images,
 				"num_of_vertical_images": request.num_of_vertical_images,
-				"zoom": request.zoom
+				"zoom": request.zoom,
+				"name": request.name
 				}
 			)
 		with open(self.__images_root.joinpath("requests.json"), 'w') as fout:
@@ -93,7 +94,7 @@ class RequestManager:
 							tile_y = request.y_grid_coord + y_offset
 							tiles.append(self.get_tile_from_grid(tile_x, tile_y))
 					request.add_layer(
-						GoogleLayer(
+						ImageLayer(
 						width=request.num_of_horizontal_images,
 						height=request.num_of_vertical_images,
 						tiles=tiles
@@ -132,6 +133,7 @@ class RequestManager:
 							detections_path=building_detections_path
 							)
 						)
+
 					self.add_request(request=request)
 
 	def add_request(self, request: Request) -> None:
@@ -186,8 +188,8 @@ class RequestManager:
 		:return: None
 		"""
 
-		if request.has_layer_of_type(GoogleLayer):
-			google_layer = request.get_layer_of_type(GoogleLayer)
+		if request.has_layer_of_type(ImageLayer):
+			google_layer = request.get_layer_of_type(ImageLayer)
 			for tile in google_layer.tiles:
 				if not self.is_in_grid(tile.x_grid_coord, tile.y_grid_coord):
 					self.add_tile_to_grid(tile.x_grid_coord, tile.y_grid_coord, tile)

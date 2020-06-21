@@ -7,11 +7,11 @@ from typing import List
 import geopandas as gpd
 from PIL import Image, ImageDraw
 
-from mesh_city.request.buildings_layer import BuildingsLayer
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.google_layer import GoogleLayer
-from mesh_city.request.request import Request
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.request.entities.request import Request
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.image_layer import ImageLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.util.image_util import ImageUtil
 
 
@@ -21,7 +21,7 @@ class RequestRenderer:
 	"""
 
 	@staticmethod
-	def render_request(request: Request, layer_mask: List[bool], scaling=16) -> Image:
+	def render_request(request: Request, layer_mask: List[bool], scaling=4) -> Image:
 		"""
 		Composites a rendering of a selected number of layers of a request.
 		:param request: The request to create an image for
@@ -33,7 +33,7 @@ class RequestRenderer:
 			(
 			round(request.num_of_horizontal_images * 1024 / scaling),
 			round(request.num_of_vertical_images * 1024 / scaling)
-			), (255, 255, 255, 0)
+			), (255, 255, 255, 255)
 		)
 		result_image = base_image
 		for (index, mask) in enumerate(layer_mask):
@@ -55,7 +55,7 @@ class RequestRenderer:
 		:return: An image representation of the layer.
 		"""
 		layer = request.layers[layer_index]
-		if isinstance(layer, (TreesLayer, CarsLayer)):
+		if isinstance(layer, TreesLayer):
 			# TODO change image size depending on image size used for prediction
 			overlays = []
 			tree_overlay = Image.new(
@@ -75,11 +75,37 @@ class RequestRenderer:
 							(float(row[1]) / scaling, float(row[2]) / scaling),
 							(float(row[3]) / scaling, float(row[4]) / scaling)
 							),
-							outline="red"
+							outline=(34, 139, 34),
+							fill=(34, 139, 34, 50)
 						)
 				overlays.append(tree_overlay)
 			return tree_overlay
-		if isinstance(layer, GoogleLayer):
+		if isinstance(layer, CarsLayer):
+			# TODO change image size depending on image size used for prediction
+			overlays = []
+			car_overlay = Image.new(
+				'RGBA',
+				(
+				round(request.num_of_horizontal_images * 1024 / scaling),
+				round(request.num_of_vertical_images * 1024 / scaling)
+				), (255, 255, 255, 0)
+			)
+			draw = ImageDraw.Draw(car_overlay)
+			with open(layer.detections_path, newline='') as csvfile:
+				csv_reader = csv.reader(csvfile, delimiter=',')
+				for (index, row) in enumerate(csv_reader):
+					if len(row) > 0 and index > 0:
+						draw.rectangle(
+							xy=(
+							(float(row[1]) / scaling, float(row[2]) / scaling),
+							(float(row[3]) / scaling, float(row[4]) / scaling)
+							),
+							outline=(0, 0, 255),
+							fill=(0, 0, 255, 50)
+						)
+				overlays.append(car_overlay)
+			return car_overlay
+		if isinstance(layer, ImageLayer):
 			tiles = layer.tiles
 			images = []
 			for tile in tiles:

@@ -3,10 +3,10 @@ A module containing the detection screen
 """
 from tkinter import Button, Checkbutton, IntVar, Label, Toplevel
 
-from mesh_city.detection.pipeline import DetectionType
-from mesh_city.request.buildings_layer import BuildingsLayer
-from mesh_city.request.cars_layer import CarsLayer
-from mesh_city.request.trees_layer import TreesLayer
+from mesh_city.detection.detection_pipeline import DetectionType
+from mesh_city.request.layers.buildings_layer import BuildingsLayer
+from mesh_city.request.layers.cars_layer import CarsLayer
+from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class DetectionWindow:
@@ -99,9 +99,8 @@ class DetectionWindow:
 				selected_detections.append(
 					self.text_to_detection_type(self.check_box_list[index].cget("text"))
 				)
+		self.top.destroy()
 		if len(selected_detections) > 0:
-
 			self.application.run_detection(
 				request=self.application.current_request, to_detect=selected_detections
 			)
-		self.top.destroy()

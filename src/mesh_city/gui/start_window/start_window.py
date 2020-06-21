@@ -21,10 +21,13 @@ class StartWindow:
 
 		self.master = master
 		self.application = application
-		top = self.top = Toplevel(master)
+		self.top = Toplevel(master)
+
+		self.top.config(padx=4)
+		self.top.config(pady=4)
 
 		self.geometry = "200x200"
-		self.top_label = Label(top, text="With which account do you want to log in?")
+		self.top_label = Label(self.top, text="With which account do you want to log in?")
 		self.top_label.grid(row=0, column=1)
 
 		self.dic_users = self.application.log_manager.read_log(
@@ -41,7 +44,7 @@ class StartWindow:
 				width=20,
 				height=3,
 				command=lambda name_user=name_user: self.load_user(self.dic_users[name_user]),
-				bg="grey"
+				bg="white"
 			)
 			self.temp_name.grid(row=counter, column=1)
 			counter += 1
@@ -52,7 +55,7 @@ class StartWindow:
 			width=20,
 			height=3,
 			command=self.create_new_user,
-			bg="grey"
+			bg="white"
 		)
 		self.create_user.grid(row=counter, column=1)
 
