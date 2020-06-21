@@ -3,11 +3,13 @@ The module for the observer class
 """
 from abc import ABC, abstractmethod
 
-
 # pylint: disable=W0104,W0107
+from mesh_city.util.observable import Observable
+
+
 class Observer(ABC):
 	"""
-	The abstract observer class upon which all the oher observers are based on
+	The abstract observer class upon which all the oher observers are based
 	"""
 
 	def __init__(self):
@@ -17,18 +19,10 @@ class Observer(ABC):
 		pass
 
 	@abstractmethod
-	def update(self, observee):
+	def update(self, observable: Observable):
 		"""
-		What to do when the observee is updated
-		:param observee: the subject to observ
-		:return:
-		"""
-		None
-
-	@abstractmethod
-	def update_gui(self):
-		"""
-		How to update the gui
+		What to do when the observable is updated
+		:param observable: The observable that this observer is observing
 		:return:
 		"""
 		None

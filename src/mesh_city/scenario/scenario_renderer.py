@@ -9,7 +9,7 @@ from geopandas import GeoDataFrame
 from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.image_util import ImageUtil
 
@@ -23,12 +23,13 @@ class ScenarioRenderer:
 	def render_scenario(scenario: Scenario, overlay_image: Image, scaling: int = 16) -> Image:
 		"""
 		Composites a rendering of a scenario based on the modified detection files.
+		:param overlay_image: The overlay image to render on top of this
 		:param scenario: The scenario to render
 		:param scaling: A scaling factor for varying the resolution of the rendered image.
 		:return: An image representation of the layer.
 		"""
 		request = scenario.request
-		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		tiles = request.get_layer_of_type(ImageLayer).tiles
 		images = []
 		for tile in tiles:
 			large_image = Image.open(tile.path).convert("RGBA")

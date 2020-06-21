@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.util.image_util import ImageUtil
 
@@ -21,7 +21,7 @@ class RequestRenderer:
 	"""
 
 	@staticmethod
-	def render_request(request: Request, layer_mask: List[bool], scaling=16) -> Image:
+	def render_request(request: Request, layer_mask: List[bool], scaling=4) -> Image:
 		"""
 		Composites a rendering of a selected number of layers of a request.
 		:param request: The request to create an image for
@@ -105,7 +105,7 @@ class RequestRenderer:
 						)
 				overlays.append(car_overlay)
 			return car_overlay
-		if isinstance(layer, GoogleLayer):
+		if isinstance(layer, ImageLayer):
 			tiles = layer.tiles
 			images = []
 			for tile in tiles:

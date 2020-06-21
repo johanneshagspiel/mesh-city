@@ -10,30 +10,22 @@ from typing import Any, List, Optional, Tuple
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.entities.request import Request
 from mesh_city.request.entities.tile import Tile
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.geo_location_util import GeoLocationUtil
+from mesh_city.util.observable import Observable
 
 
-class RequestMaker:
+class RequestMaker(Observable):
 	"""
 	This class makes requests to the TopDownProvider it is provided with and populates the grid system
-	of its RequestManager.
+	of its RequestManager with images retrieved from this provider.
 	"""
 
-	def __init__(
-		self,
-		request_manager: RequestManager,
-		top_down_provider: TopDownProvider = None,
-		image_provider: ImageProviderEntity = None
-	):
+	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None):
+		super().__init__()
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
-		self.image_provider = image_provider
-
-		self.observers = []
-		self.state = {}
 
 	@staticmethod
 	def compute_3x3_area(latitude: float, longitude: float, zoom: int) -> Tuple[
@@ -120,7 +112,6 @@ class RequestMaker:
 			filename=file_name,
 			new_folder_path=folder_path,
 		)
-		self.image_provider.increment_usage()
 		return Tile(path=result_path, x_grid_coord=tile_x, y_grid_coord=tile_y)
 
 	def make_area_request(
@@ -154,9 +145,9 @@ class RequestMaker:
 			zoom=zoom
 		)
 
-		self.state["total_images"] = len(coordinates)
-		self.state["current_image"] = 1
-		self.state["current_time_download"] = 0
+		self.observable_state["total_images"] = len(coordinates)
+		self.observable_state["current_image"] = 1
+		self.observable_state["current_time_download"] = 0
 		self.notify_observers()
 
 		tiles = []
@@ -175,8 +166,8 @@ class RequestMaker:
 			tiles.append(request_result)
 			time_needed_download = time.time() - start_time_download
 
-			self.state["current_image"] = counter
-			self.state["current_time_download"] = time_needed_download
+			self.observable_state["current_image"] = counter
+			self.observable_state["current_time_download"] = time_needed_download
 			self.notify_observers()
 
 		request_id = self.request_manager.get_new_request_id()
@@ -192,7 +183,7 @@ class RequestMaker:
 			zoom=zoom
 		)
 		request.add_layer(
-			GoogleLayer(
+			ImageLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
 			tiles=tiles
@@ -291,7 +282,7 @@ class RequestMaker:
 		coordinates_list = sorted(coordinates_list, key=lambda coordinate: coordinate[1])
 		return coordinates_list, num_of_images_horizontal, num_of_images_vertical
 
-	def count_uncached_tiles(self, coordinates: List[Tuple[int, int]]) -> int:
+	def count_images_to_download(self, coordinates: List[Tuple[int, int]]) -> int:
 		"""
 		Computes how many new tiles will have to be downloaded from the provider.
 
@@ -304,28 +295,3 @@ class RequestMaker:
 			if not self.request_manager.is_in_grid(latitude, longitude):
 				counter += 1
 		return counter
-
-	def attach_observer(self, observer):
-		"""
-		Attaches a observer to the request maker
-		:param observer: the observer to attach
-		:return: nothing
-		"""
-		self.observers.append(observer)
-
-	def detach_observer(self, observer):
-		"""
-		Detaches a observer from the request maker and gets rid of its gui element
-		:param observer: the observer to detach
-		:return:
-		"""
-		observer.destroy()
-		self.observers.remove(observer)
-
-	def notify_observers(self):
-		"""
-		Notifies all observers about a change in the state of the request maker
-		:return:
-		"""
-		for observer in self.observers:
-			observer.update(self)

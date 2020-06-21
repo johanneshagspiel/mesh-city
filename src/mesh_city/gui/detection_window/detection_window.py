@@ -101,7 +101,6 @@ class DetectionWindow:
 				)
 		self.top.destroy()
 		if len(selected_detections) > 0:
-
 			self.application.run_detection(
 				request=self.application.current_request, to_detect=selected_detections
 			)

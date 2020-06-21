@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 
@@ -19,9 +19,7 @@ class TestRequestMaker(unittest.TestCase):
 		imagery_provider.get_and_store_location.return_value = "test_path"
 		image_provider = Mock()
 		image_provider.usage = {"total": 42, "static_map": 42}
-		self.request_maker = RequestMaker(
-			request_manager=self.request_manager, image_provider=image_provider
-		)
+		self.request_maker = RequestMaker(request_manager=self.request_manager)
 		self.request_maker.set_top_down_provider(imagery_provider)
 
 		self.location_input = (-22.824637, -43.242729)
@@ -41,11 +39,12 @@ class TestRequestMaker(unittest.TestCase):
 		request = self.request_maker.make_location_request(
 			self.two_coordinate_input[0], self.two_coordinate_input[1],
 		)
-		self.assertTrue(request.has_layer_of_type(GoogleLayer))
+		self.assertTrue(request.has_layer_of_type(ImageLayer))
 
 	def test_count_uncached_tiles(self):
 		self.assertEqual(
-			len(self.coordinate_list), self.request_maker.count_uncached_tiles(self.coordinate_list)
+			len(self.coordinate_list),
+			self.request_maker.count_images_to_download(self.coordinate_list)
 		)
 
 	def test_make_area_request(self):
@@ -55,7 +54,7 @@ class TestRequestMaker(unittest.TestCase):
 			self.two_coordinate_input[2],
 			self.two_coordinate_input[3]
 		)
-		self.assertTrue(request.has_layer_of_type(GoogleLayer))
+		self.assertTrue(request.has_layer_of_type(ImageLayer))
 
 	def test_calculate_coordinates_for_rectangle(self):
 		list_of_coordinates, _, _ = self.request_maker.calculate_coordinates_for_rectangle(

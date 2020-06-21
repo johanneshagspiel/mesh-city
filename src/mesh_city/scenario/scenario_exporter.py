@@ -8,11 +8,11 @@ import pandas as pd
 from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
-from mesh_city.gui.scenario_renderer import ScenarioRenderer
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.scenario.scenario import Scenario
+from mesh_city.scenario.scenario_renderer import ScenarioRenderer
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -95,7 +95,7 @@ class ScenarioExporter:
 		:return: None
 		"""
 		request = scenario.request
-		image_layer = request.get_layer_of_type(GoogleLayer)
+		image_layer = request.get_layer_of_type(ImageLayer)
 
 		tree_crops = None
 		if scenario.trees is not None:

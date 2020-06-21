@@ -4,7 +4,7 @@ See :class:`.RequestExporter`
 import csv
 from pathlib import Path
 from shutil import copyfile
-from typing import List
+from typing import List, Sequence
 
 import geopandas as gpd
 import pandas as pd
@@ -14,10 +14,11 @@ from shapely.geometry import Polygon
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
+from mesh_city.scenario.scenario import Scenario
 from mesh_city.util.geo_location_util import GeoLocationUtil
 
 
@@ -57,7 +58,7 @@ class RequestExporter:
 		"""
 
 		layer = request.layers[index]
-		if isinstance(layer, GoogleLayer):
+		if isinstance(layer, ImageLayer):
 			for tile in layer.tiles:
 				origin_path = tile.path
 				rel_path = origin_path.relative_to(self.request_manager.get_image_root())
@@ -214,3 +215,29 @@ class RequestExporter:
 		pd.DataFrame(csv_data).to_csv(str(detections_export_path), index=False)
 
 		return detections_export_path
+
+	def export_request_scenarios(
+		self, scenario_list: Sequence[Scenario], export_directory: Path
+	) -> None:
+		"""
+		Exports
+		:param scenario_list:
+		:param export_directory:
+		:return:
+		"""
+		export_directory.mkdir(parents=True, exist_ok=True)
+		for scenario in scenario_list:
+			self.export_scenario(scenario=scenario, export_directory=export_directory)
+
+	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
+		"""
+		Exports a scenario to a given directory
+		:param scenario: The scenario to export
+		:param export_directory: The directory to export the scenario to
+		:return:
+		"""
+		if isinstance(scenario, Scenario):
+			origin_path = scenario.scenario_path
+			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
+			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
+			copyfile(origin_path, export_directory.joinpath(rel_path))

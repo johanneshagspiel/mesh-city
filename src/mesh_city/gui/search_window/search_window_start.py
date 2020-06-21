@@ -2,10 +2,13 @@
 See :class:`.SearchWindowStart`
 """
 
-from tkinter import Button, Label, Toplevel
+from tkinter import Label, Toplevel, W
 
 from mesh_city.gui.search_window.search_window_area import SearchWindowLocationArea
 from mesh_city.gui.search_window.search_window_location import SearchWindowLocation
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 
 class SearchWindowStart:
@@ -31,12 +34,28 @@ class SearchWindowStart:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		Label(self.top,
-			text="What kind of search are you interested in ?").grid(row=0, columnspan=3)
-		Button(self.top, text="Area", command=self.button_area_callback,
-			bg="white").grid(row=1, columnspan=1)
-		Button(self.top, text="Location", command=self.button_location_callback,
-			bg="white").grid(row=1, columnspan=3)
+		self.top.geometry("%dx%d+%d+%d" % (520, 200, 0, 0))
+
+		self.content = Container(WidgetGeometry(510, 190, 0, 0), self.top, background="white")
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
+
+		Label(
+			self.content, text="What kind of search are you interested in ?", **layer_label_style,
+		).place(width=510, height=40, x=0, y=0)
+
+		CButton(
+			WidgetGeometry(200, 50, 150, 50),
+			"Area",
+			lambda _: self.button_area_callback(),
+			self.content,
+		)
+
+		CButton(
+			WidgetGeometry(200, 50, 150, 120),
+			"Location",
+			lambda _: self.button_location_callback(),
+			self.content,
+		)
 
 	def button_area_callback(self):
 		"""

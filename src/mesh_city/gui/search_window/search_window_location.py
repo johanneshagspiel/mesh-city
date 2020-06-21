@@ -1,9 +1,12 @@
 """
 See :class:`.SearchWindowLocation`
 """
-from tkinter import Button, Entry, Label, messagebox, Toplevel
+from tkinter import Entry, Label, messagebox, Toplevel, W
 
 from mesh_city.gui.search_window.preview_window import PreviewWindow
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 from mesh_city.util.input_util import InputUtil
 
 
@@ -24,43 +27,35 @@ class SearchWindowLocation:
 		self.master = master
 		self.value = ""
 		self.application = application
-		top = self.top = Toplevel(master)
+		self.top = Toplevel(master)
 
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		Label(top, text="Which location are you interested in downloading ?").grid(row=0, column=3)
+		self.top.geometry("%dx%d+%d+%d" % (575, 200, 0, 0))
 
-		self.latitude = Label(top, text="Latitude:")
-		self.latitude.grid(row=1, column=1)
-		self.longitude = Label(top, text="Longitude:")
-		self.longitude.grid(row=2, column=1)
+		self.content = Container(WidgetGeometry(565, 190, 0, 0), self.top, background="white")
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
 
-		self.lat_entry = Entry(top, width=20)
-		self.lat_entry.grid(row=1, column=3)
-		self.long_entry = Entry(top, width=20)
-		self.long_entry.grid(row=2, column=3)
+		Label(
+			self.content, text="Which area are you interested in downloading ?", **layer_label_style,
+		).place(width=560, height=40, x=0, y=0)
 
-		self.search_button = Button(top, text="Search", command=self.cleanup, bg="white")
-		self.search_button.grid(row=3, column=3)
+		Label(self.content, text="Latitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=40)
 
-	def change_search_type(self, first_time):
-		"""
-		Changes the search type from address-based to coordinate-based or the other way around.
-		:param first_time: A flag indicating whether this is the first time the type button is pressed
-		:return: None
-		"""
+		self.lat_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.lat_entry.place(width=360, height=40, x=200, y=40)
 
-		if self.latitude["information_general"] == "Latitude:":
-			self.latitude["information_general"] = "Address:"
-			self.long_entry.grid_forget()
-			self.longitude["information_general"] = ""
-			first_time = False
+		Label(self.content, text="Longitude: ", **layer_label_style,
+				).place(width=200, height=40, x=0, y=80)
 
-		if self.latitude["information_general"] == "Address:" and first_time:
-			self.latitude.config(text="Latitude:")
-			self.long_entry.grid(row=2, column=3)
-			self.longitude["information_general"] = "Longitude:"
+		self.long_entry = Entry(self.content, width=20, bg="grey", font=("Eurostile LT Std", 18))
+		self.long_entry.place(width=360, height=40, x=200, y=80)
+
+		CButton(
+			WidgetGeometry(200, 50, 170, 130), "Confirm", lambda _: self.cleanup(), self.content,
+		)
 
 	def cleanup(self):
 		"""

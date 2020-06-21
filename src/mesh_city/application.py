@@ -12,7 +12,6 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionT
 from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
-from mesh_city.gui.scenario_renderer import ScenarioRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
 from mesh_city.request.request_exporter import RequestExporter
@@ -22,6 +21,7 @@ from mesh_city.request.request_observer import RequestObserver
 from mesh_city.scenario.scenario import Scenario
 from mesh_city.scenario.scenario_exporter import ScenarioExporter
 from mesh_city.scenario.scenario_pipeline import ScenarioPipeline
+from mesh_city.scenario.scenario_renderer import ScenarioRenderer
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -41,6 +41,7 @@ class Application:
 		self.current_request = None
 		self.current_scenario = None
 		self.request_manager = self.get_request_manager()
+		self.request_maker = RequestMaker(request_manager=self.request_manager)
 		self.request_observer = None
 		self.main_screen = None
 		bio_path = self.file_handler.folder_overview['biome_index']
@@ -71,7 +72,6 @@ class Application:
 		"""
 
 		self.user_entity = user_entity
-		self.request_maker = RequestMaker(request_manager=self.request_manager)
 
 	def run_detection(self, request: Request, to_detect: Sequence[DetectionType]) -> None:
 		"""
@@ -125,6 +125,22 @@ class Application:
 		self.process_finished_request(request=finished_request)
 
 		self.log_manager.write_log(self.user_entity)
+
+	@staticmethod
+	def compute_appropriate_scaling(request: Request) -> int:
+		"""
+		Computes an appropriate scaling to use for rendering requests and scenario's
+		:param request: The request to compute an appropriate scaling for
+		:return: A scaling that should allow fast rendering of scenario's
+		"""
+		area_in_tiles = request.num_of_vertical_images * request.num_of_horizontal_images
+		# A base scaling
+		scaling: int = 2
+		# Further lowering of resolution depending on the resolution of the request
+		while area_in_tiles > 9:
+			area_in_tiles /= 4
+			scaling *= 2
+		return scaling
 
 	def make_area_request(
 		self,
@@ -180,7 +196,11 @@ class Application:
 		:return: None
 		"""
 
-		canvas_image = RequestRenderer.render_request(request=request, layer_mask=layer_mask)
+		canvas_image = RequestRenderer.render_request(
+			request=request,
+			layer_mask=layer_mask,
+			scaling=Application.compute_appropriate_scaling(request)
+		)
 		self.main_screen.set_canvas_image(canvas_image)
 
 		layer_list = []
@@ -190,6 +210,7 @@ class Application:
 
 		text_to_show = self.info_builder.process_request(request=self.current_request)
 		self.main_screen.update_text(text_to_show)
+		self.main_screen.render_dynamic_widgets()
 
 	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
@@ -227,10 +248,13 @@ class Application:
 		:param request: The request to load on screen.
 		:return: None
 		"""
-		canvas_image = RequestRenderer.create_image_from_layer(request=request, layer_index=0)
+		canvas_image = RequestRenderer.create_image_from_layer(
+			request=request, layer_index=0, scaling=Application.compute_appropriate_scaling(request)
+		)
 		self.main_screen.set_canvas_image(canvas_image)
 		text_to_show = self.info_builder.process_request(request=self.current_request)
 		self.main_screen.update_text(text_to_show)
+		self.main_screen.render_dynamic_widgets()
 
 	def load_scenario_onscreen(self, scenario: Scenario) -> None:
 		"""
@@ -239,12 +263,15 @@ class Application:
 		:return: None
 		"""
 		canvas_image = ScenarioRenderer.render_scenario(
-			scenario=scenario, scaling=16, overlay_image=self.overlay_image
+			scenario=scenario,
+			scaling=Application.compute_appropriate_scaling(scenario.request),
+			overlay_image=self.overlay_image
 		)
 		self.main_screen.set_canvas_image(canvas_image)
 
 		text_to_show = self.info_builder.process_scenario(scenario=self.current_scenario)
 		self.main_screen.update_text(text_to_show)
+		self.main_screen.render_dynamic_widgets()
 
 	def process_finished_request(self, request: Request) -> None:
 		"""
@@ -258,6 +285,7 @@ class Application:
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
+		self.main_screen.render_dynamic_widgets()
 
 	def start(self):
 		"""

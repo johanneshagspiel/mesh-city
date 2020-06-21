@@ -300,16 +300,16 @@ class GeoLocationUtil:
 		return pixels_per_unit_x_direction, pixels_per_unit_y_direction
 
 	@staticmethod
-	def distance(latitude1, longitude1, latitude2, longitude2):
+	def geo_distance(latitude1, longitude1, latitude2, longitude2):
 		"""
 		Method to calculate the distance between to geographical locations
-		:param latitude1:
-		:param longitude1:
-		:param latitude2:
-		:param longitude2:
+		:param latitude1: Latitude of first coordinate
+		:param longitude1: Longitude of first coordinate
+		:param latitude2: Latitude of second coordinate
+		:param longitude2: Longitude of second coordinate
 		:return: the distance in meters
 		"""
-		# TODO reference stack overflow:
+		# derived from
 		# https://stackoverflow.com/questions/41336756/find-the-closest-latitude-and-longitude
 		p_value = 0.017453292519943295
 		a_value = 0.5 - cos((latitude2 - latitude1) * p_value) / 2 + cos(latitude1 *
@@ -327,7 +327,7 @@ class GeoLocationUtil:
 		"""
 		return min(
 			data,
-			key=lambda dic_point: GeoLocationUtil.distance(
+			key=lambda dic_point: GeoLocationUtil.geo_distance(
 			point['latitude'], point['longitude'], dic_point['latitude'], dic_point['longitude']
 			)
 		)

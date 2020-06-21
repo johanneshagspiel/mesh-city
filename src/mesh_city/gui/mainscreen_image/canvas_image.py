@@ -1,16 +1,14 @@
 """
-A module containing the canvas image class. Taken from stackoverflow
-author: FooBar167
+A module containing the canvas image class. Derived from the following StackOverflow post:
 source: https://stackoverflow.com/questions/41656176/tkinter-canvas-zoom-move-pan
+author: FooBar167
 """
+
 import math
 import tkinter as tk
 import warnings
-from tkinter import ttk
 
 from PIL import Image, ImageTk
-
-from mesh_city.gui.mainscreen_image.auto_scrollbar import AutoScrollbar
 
 
 # pylint: disable=invalid-name, W0107, W0613, W0612, R1705
@@ -31,25 +29,15 @@ class CanvasImage:
 		self.__filter = Image.ANTIALIAS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
 		self.__previous_state = 0  # previous state of the keyboard
 		# Create ImageFrame in placeholder widget
-		self.__imframe = ttk.Frame(placeholder)  # placeholder of the ImageFrame object
-		# Vertical and horizontal scrollbars for canvas
-		hbar = AutoScrollbar(self.__imframe, orient='horizontal')
-		vbar = AutoScrollbar(self.__imframe, orient='vertical')
-		hbar.grid(row=1, column=0, sticky='we')
-		vbar.grid(row=0, column=1, sticky='ns')
+		self.__imframe = tk.Frame(
+			placeholder, background="#EEEEEE"
+		)  # placeholder of the ImageFrame object
 		# Create canvas and bind it with scrollbars. Public for outer classes
 		self.canvas = tk.Canvas(
-			self.__imframe,
-			width=646,
-			height=646,
-			highlightthickness=0,
-			xscrollcommand=hbar.set,
-			yscrollcommand=vbar.set
+			self.__imframe, width=900, height=900, highlightthickness=0, background="#EEEEEE",
 		)
 		self.canvas.grid(row=0, column=0, sticky='nswe')
 		self.canvas.update()  # wait till canvas is created
-		hbar.configure(command=self.__scroll_x)  # bind scrollbars to the canvas
-		vbar.configure(command=self.__scroll_y)
 
 		# Bind events to the Canvas
 		self.canvas.bind('<Configure>', lambda event: self.__show_image())  # canvas is resized
@@ -99,6 +87,9 @@ class CanvasImage:
 		self.container = self.canvas.create_rectangle((0, 0, self.imwidth, self.imheight), width=0)
 		self.__show_image()  # show image on the canvas
 		self.canvas.focus_set()  # set focus on the canvas
+
+		self.canvas.configure(cursor="fleur")
+		self.__imframe.place(width=900, height=900, x=350, y=0)
 
 	def smaller(self):
 		""" Resize image proportionally and return smaller image """
@@ -210,9 +201,15 @@ class CanvasImage:
 				self.__image.tile = [self.__tile]
 				image = self.__image.crop((int(x1 / self.imscale), 0, int(x2 / self.imscale), h))
 			else:  # show normal image
-				image = self.__pyramid[max(0, self.__curr_img)].crop(  # crop current img from pyramid
-					(int(x1 / self.__scale), int(y1 / self.__scale),
-					int(x2 / self.__scale), int(y2 / self.__scale)))
+				image = self.__pyramid[max(0, self.__curr_img)].crop(
+					# crop current img from pyramid
+					(
+					int(x1 / self.__scale),
+					int(y1 / self.__scale),
+					int(x2 / self.__scale),
+					int(y2 / self.__scale)
+					)
+				)
 			#
 			imagetk = ImageTk.PhotoImage(image.resize((int(x2 - x1), int(y2 - y1)), self.__filter))
 			imageid = self.canvas.create_image(
@@ -221,7 +218,7 @@ class CanvasImage:
 				anchor='nw',
 				image=imagetk
 			)
-			#self.canvas.lower(imageid)  # set image into background
+			# self.canvas.lower(imageid)  # set image into background
 			self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
 	def __move_from(self, event):

@@ -67,7 +67,6 @@ class BuildingDetector:
 		reshaped_result = result.reshape([512, 512])
 		# 512x512 numpy representation of the neural network output
 		unclipped_result = reshaped_result.detach().cpu().numpy()
-		# clips the output to the range 0-255 to avoid image artifacts
 		vec_thres = np.vectorize(BuildingDetector.threshold)
 		# Creates a binary classification numpy matrix by applying vectorized threshold function
 		filtered_result = vec_thres(unclipped_result)
