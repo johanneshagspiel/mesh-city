@@ -39,6 +39,7 @@ class EcoWindow:
 		self.top.config(pady=4)
 
 		self.cars_enabled = True
+		self.buildings_enabled = True
 
 		detected_layers = []
 		for layer in self.application.current_request.layers:
@@ -86,6 +87,7 @@ class EcoWindow:
 			)
 			if self.buildings_gdf.shape[0] > 1:
 				self.usable_layer.append("Buildings")
+				self.max_amount_buildings_coverable = self.buildings_gdf.shape[0]
 
 		if "Trees" in self.usable_layer or "Buildings" in self.usable_layer:
 			self.top_label["text"] = "Scenario Creator"
@@ -115,7 +117,7 @@ class EcoWindow:
 				self.to_forget.append(self.increase_amount_button)
 				counter += 300
 
-			if "Cars" and "Trees" in self.usable_layer and self.cars_enabled:
+			if "Cars" in self.usable_layer and "Trees" in self.usable_layer and self.cars_enabled:
 				self.swap_items_button = CButton(
 					WidgetGeometry(270, 50, counter, 80),
 					"Swap Cars with Trees",
@@ -125,7 +127,7 @@ class EcoWindow:
 				self.to_forget.append(self.swap_items_button)
 				counter += 300
 
-			if "Buildings" in self.usable_layer:
+			if "Buildings" in self.usable_layer and self.buildings_enabled:
 				self.cover_buildings_button = CButton(
 					WidgetGeometry(270, 50, counter, 80),
 					"Cover Buildings",
@@ -178,12 +180,18 @@ class EcoWindow:
 		:return:
 		"""
 		increase_percentage = self.buildings_to_paint_green_scale.get() * 0.01
-		trees_to_add = math.ceil((self.buildings_gdf.shape[0]) * increase_percentage)
+		buildings_to_cover = math.ceil((self.buildings_gdf.shape[0]) * increase_percentage)
+
+		self.max_amount_buildings_coverable -= buildings_to_cover
+
+		if self.max_amount_buildings_coverable <= 0:
+			buildings_to_cover = self.buildings_gdf.shape[0]
+			self.buildings_enabled = False
 
 		self.modification_list.append(
-			(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
+			(ScenarioModificationType.PAINT_BUILDINGS_GREEN, buildings_to_cover)
 		)
-		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, trees_to_add)
+		self.add_another_step(ScenarioModificationType.PAINT_BUILDINGS_GREEN, buildings_to_cover)
 
 	def add_more_trees(self):
 		"""
@@ -259,12 +267,12 @@ class EcoWindow:
 		creates a gif with additional trees on it and displays that on the mainscreen
 		:return: nothing (a gif is created, stored, logged and shown on the mainscreen)
 		"""
-		swap_percentag = self.trees_for_cars.get() * 0.01 + 1
+		swap_percentag = self.trees_for_cars.get() * 0.01
 		cars_to_swap = math.ceil((self.car_layer_panda.shape[0] - 1) * swap_percentag)
 
 		self.max_amount_cars_swapable -= cars_to_swap
 
-		if self.max_amount_cars_swapable < 0:
+		if self.max_amount_cars_swapable <= 0:
 			cars_to_swap = self.car_layer_panda.shape[0] - 1
 			self.cars_enabled = False
 
@@ -320,7 +328,7 @@ class EcoWindow:
 				self.to_forget.append(self.increase_amount_button)
 				counter += 300
 
-			if "Cars" and "Trees" in self.usable_layer and self.cars_enabled:
+			if "Cars" in self.usable_layer and "Trees" in self.usable_layer and self.cars_enabled:
 				self.swap_items_button = CButton(
 					WidgetGeometry(270, 50, counter, grid_index),
 					"Swap Cars with Trees",
@@ -330,7 +338,7 @@ class EcoWindow:
 				self.to_forget.append(self.swap_items_button)
 				counter += 300
 
-			if "Buildings" in self.usable_layer:
+			if "Buildings" in self.usable_layer and self.buildings_enabled:
 				self.cover_buildings_button = CButton(
 					WidgetGeometry(270, 50, counter, grid_index),
 					"Cover Buildings",

@@ -12,7 +12,6 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionT
 from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
-from mesh_city.scenario.scenario_renderer import ScenarioRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
 from mesh_city.request.request_exporter import RequestExporter
@@ -22,6 +21,7 @@ from mesh_city.request.request_observer import RequestObserver
 from mesh_city.scenario.scenario import Scenario
 from mesh_city.scenario.scenario_exporter import ScenarioExporter
 from mesh_city.scenario.scenario_pipeline import ScenarioPipeline
+from mesh_city.scenario.scenario_renderer import ScenarioRenderer
 from mesh_city.util.file_handler import FileHandler
 
 
@@ -210,6 +210,7 @@ class Application:
 
 		text_to_show = self.info_builder.process_request(request=self.current_request)
 		self.main_screen.update_text(text_to_show)
+		self.main_screen.render_dynamic_widgets()
 
 	def export_request_layers(
 		self, request: Request, layer_mask: List[bool], export_directory: Path
@@ -253,6 +254,7 @@ class Application:
 		self.main_screen.set_canvas_image(canvas_image)
 		text_to_show = self.info_builder.process_request(request=self.current_request)
 		self.main_screen.update_text(text_to_show)
+		self.main_screen.render_dynamic_widgets()
 
 	def load_scenario_onscreen(self, scenario: Scenario) -> None:
 		"""
@@ -283,6 +285,7 @@ class Application:
 		self.request_manager.add_request(request)
 		self.request_manager.serialize_requests()
 		self.set_current_request(request=request)
+		self.main_screen.render_dynamic_widgets()
 
 	def start(self):
 		"""

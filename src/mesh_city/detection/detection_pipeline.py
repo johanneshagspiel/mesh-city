@@ -46,8 +46,12 @@ class DetectionPipeline(Observable):
 	"""
 	TILE_SIZE = 1024
 
-	def __init__(self, file_handler: FileHandler, request_manager: RequestManager,
-	             detections_to_run: Sequence[DetectionType]):
+	def __init__(
+		self,
+		file_handler: FileHandler,
+		request_manager: RequestManager,
+		detections_to_run: Sequence[DetectionType]
+	):
 		"""
 		The initialization method.
 
@@ -69,7 +73,7 @@ class DetectionPipeline(Observable):
 		tiles = request.get_layer_of_type(GoogleLayer).tiles
 		building_detector = BuildingDetector(
 			nn_weights_path=self.file_handler.folder_overview["resource_path"].
-				joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
+			joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
 		)
 		building_detections_path = self.request_manager.get_image_root().joinpath("buildings")
 		building_detections_path.mkdir(parents=True, exist_ok=True)

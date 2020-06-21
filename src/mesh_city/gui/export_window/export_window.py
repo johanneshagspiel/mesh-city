@@ -73,6 +73,18 @@ class ExportWindow:
 			)
 		)
 
+		if self.application.current_scenario is not None:
+			self.request_buttons.append(
+				self.scrollable_content.add_row(
+				lambda parent: CButton(
+				WidgetGeometry(400, 50, 20, 0),
+				"Current scenario",
+				lambda _: self.export_scenario(),
+				parent
+				)
+				)
+			)
+
 		for request in self.application.request_manager.requests:
 			if request.request_id != active_request_id:
 				self.request_buttons.append(
@@ -85,16 +97,6 @@ class ExportWindow:
 					)
 					)
 				)
-
-		# if self.application.current_scenario is not None:
-		# 	Button(
-		# 		self.top,
-		# 		text="Export current scenario",
-		# 		width=20,
-		# 		height=3,
-		# 		command=self.export_scenario,
-		# 		bg="white"
-		# 	).grid(row=len(self.request_buttons) + 1, column=0)
 
 	def export_scenario(self):
 		"""

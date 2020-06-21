@@ -75,13 +75,13 @@ class ScenarioPipeline:
 			)
 			new_trees.append(
 				(
-					new_xmin,
-					new_ymin,
-					new_xmax,
-					new_ymax,
-					filtered_trees.loc[source_tree_index, ["score"]],
-					"AddedTree",
-					source_tree_index
+				new_xmin,
+				new_ymin,
+				new_xmax,
+				new_ymax,
+				filtered_trees.loc[source_tree_index, ["score"]],
+				"AddedTree",
+				source_tree_index
 				)
 			)
 

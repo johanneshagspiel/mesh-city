@@ -49,9 +49,7 @@ class TestScenarioExporter(unittest.TestCase):
 		)
 
 	def test_add_trees_scenario(self):
-		pipeline = ScenarioPipeline(
-			modification_list=[(ScenarioModificationType.MORE_TREES, 2)]
-		)
+		pipeline = ScenarioPipeline(modification_list=[(ScenarioModificationType.MORE_TREES, 2)])
 		request = self.request_manager.get_request_by_id(0)
 		scenario = pipeline.process(request)
 		overlay_image = Image.open(

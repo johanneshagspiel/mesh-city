@@ -19,9 +19,7 @@ class TestRequestMaker(unittest.TestCase):
 		imagery_provider.get_and_store_location.return_value = "test_path"
 		image_provider = Mock()
 		image_provider.usage = {"total": 42, "static_map": 42}
-		self.request_maker = RequestMaker(
-			request_manager=self.request_manager
-		)
+		self.request_maker = RequestMaker(request_manager=self.request_manager)
 		self.request_maker.set_top_down_provider(imagery_provider)
 
 		self.location_input = (-22.824637, -43.242729)
@@ -45,7 +43,8 @@ class TestRequestMaker(unittest.TestCase):
 
 	def test_count_uncached_tiles(self):
 		self.assertEqual(
-			len(self.coordinate_list), self.request_maker.count_images_to_download(self.coordinate_list)
+			len(self.coordinate_list),
+			self.request_maker.count_images_to_download(self.coordinate_list)
 		)
 
 	def test_make_area_request(self):

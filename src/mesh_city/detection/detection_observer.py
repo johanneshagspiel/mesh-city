@@ -35,8 +35,9 @@ class DetectionObserver(Observer):
 
 		self.content = Container(WidgetGeometry(550, 135, 5, 5), self.top, background="white")
 
-		self.top_label = Label(self.content, text="Initializing the algorithms",
-		                       **layer_label_style)
+		self.top_label = Label(
+			self.content, text="Initializing the algorithms", **layer_label_style
+		)
 		self.top_label.place(width=550, height=40, x=10, y=0)
 
 		self.time_remaining_label = Label(self.content, text="", **layer_label_style)
@@ -59,26 +60,32 @@ class DetectionObserver(Observer):
 		if detection_type != self.previous_detection_type:
 			self.duration_so_far = 0
 		self.duration_so_far += time_of_action
-		finish_time = self.compute_estimated_finish_time(number_of_actions=total_tiles,
-		                                                 number_of_actions_done=current_tile)
-		self.update_gui(detection_type=detection_type, current_tile=current_tile,
-		                total_tiles=total_tiles, finish_time_estimate=finish_time)
+		finish_time = self.compute_estimated_finish_time(
+			number_of_actions=total_tiles, number_of_actions_done=current_tile
+		)
+		self.update_gui(
+			detection_type=detection_type,
+			current_tile=current_tile,
+			total_tiles=total_tiles,
+			finish_time_estimate=finish_time
+		)
 		self.previous_detection_type = detection_type
 
-	def compute_estimated_finish_time(self, number_of_actions: int,
-	                                  number_of_actions_done: int) -> float:
+	def compute_estimated_finish_time(
+		self, number_of_actions: int, number_of_actions_done: int
+	) -> float:
 		"""
 		Computes an estimate for the finish time.
 		:param number_of_actions: The number of actions that have to be completed in total
 		:param number_of_actions_done: The number of actions that have been completed already
 		:return: An estimate of the finish time of the remaining actions
 		"""
-		return (number_of_actions - number_of_actions_done) * (
-			self.duration_so_far / number_of_actions_done
-		)
+		return (number_of_actions -
+			number_of_actions_done) * (self.duration_so_far / number_of_actions_done)
 
-	def update_gui(self, detection_type: str, current_tile: int, total_tiles: int,
-	               finish_time_estimate: float) -> None:
+	def update_gui(
+		self, detection_type: str, current_tile: int, total_tiles: int, finish_time_estimate: float
+	) -> None:
 		"""
 		Updates the GUI based on a set of numbers derived from an observed DetectionPipeline
 		:param detection_type: A string representation of what is being detected by the pipeline.
@@ -99,9 +106,7 @@ class DetectionObserver(Observer):
 		) + " tiles detected"
 		self.tiles_to_detect["text"] = images_to_download
 
-		time_remaining = "Time remaining: " + str(
-			round(finish_time_estimate, 2)
-		) + " seconds"
+		time_remaining = "Time remaining: " + str(round(finish_time_estimate, 2)) + " seconds"
 		self.time_remaining_label["text"] = time_remaining
 
 		self.top_label.update()
