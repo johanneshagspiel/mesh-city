@@ -10,7 +10,7 @@ from typing import Any, List, Optional, Tuple
 from mesh_city.imagery_provider.top_down_provider.top_down_provider import TopDownProvider
 from mesh_city.request.entities.request import Request
 from mesh_city.request.entities.tile import Tile
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.request_manager import RequestManager
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.observable import Observable
@@ -183,7 +183,7 @@ class RequestMaker(Observable):
 			zoom=zoom
 		)
 		request.add_layer(
-			GoogleLayer(
+			ImageLayer(
 			width=request.num_of_horizontal_images,
 			height=request.num_of_vertical_images,
 			tiles=tiles

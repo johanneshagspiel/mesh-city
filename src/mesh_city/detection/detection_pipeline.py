@@ -21,7 +21,7 @@ from mesh_city.detection.raster_vector_converter import RasterVectorConverter
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
@@ -70,7 +70,7 @@ class DetectionPipeline(Observable):
 		:param request: The request to detect buildings for.
 		:return: A BuildingsLayer
 		"""
-		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		tiles = request.get_layer_of_type(ImageLayer).tiles
 		building_detector = BuildingDetector(
 			nn_weights_path=self.file_handler.folder_overview["resource_path"].
 			joinpath("neural_networks/xdxd_spacenet4_solaris_weights.pth")
@@ -141,7 +141,7 @@ class DetectionPipeline(Observable):
 		:param request: The request to detect cars for.
 		:return: A CarsLayer
 		"""
-		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		tiles = request.get_layer_of_type(ImageLayer).tiles
 		car_detector = CarDetector()
 		tree_detections_path = self.request_manager.get_image_root().joinpath("cars")
 		tree_detections_path.mkdir(parents=True, exist_ok=True)
@@ -190,7 +190,7 @@ class DetectionPipeline(Observable):
 		:param request: The request to detect trees for.
 		:return: A TreesLayer
 		"""
-		tiles = request.get_layer_of_type(GoogleLayer).tiles
+		tiles = request.get_layer_of_type(ImageLayer).tiles
 		deep_forest = DeepForest()
 		tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
 		tree_detections_path.mkdir(parents=True, exist_ok=True)
@@ -235,7 +235,7 @@ class DetectionPipeline(Observable):
 		:return:
 		"""
 
-		if not request.has_layer_of_type(GoogleLayer):
+		if not request.has_layer_of_type(ImageLayer):
 			raise ValueError("The request to process should have imagery to detect features from")
 
 		new_layers = []

@@ -8,7 +8,7 @@ from mesh_city.request.entities.tile import Tile
 from mesh_city.request.layers.layer import Layer
 
 
-class GoogleLayer(Layer):
+class ImageLayer(Layer):
 	"""
 	A layer class representing the google imagery that was downloaded.
 	"""

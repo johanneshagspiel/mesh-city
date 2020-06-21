@@ -14,7 +14,7 @@ from shapely.geometry import Polygon
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
@@ -58,7 +58,7 @@ class RequestExporter:
 		"""
 
 		layer = request.layers[index]
-		if isinstance(layer, GoogleLayer):
+		if isinstance(layer, ImageLayer):
 			for tile in layer.tiles:
 				origin_path = tile.path
 				rel_path = origin_path.relative_to(self.request_manager.get_image_root())

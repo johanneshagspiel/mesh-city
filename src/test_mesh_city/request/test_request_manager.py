@@ -5,7 +5,7 @@ from pathlib import Path
 
 from mesh_city.request.entities.request import Request
 from mesh_city.request.entities.tile import Tile
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.request_manager import RequestManager
 
 
@@ -13,7 +13,7 @@ class TestRequestManager(unittest.TestCase):
 
 	def test_add_to_grid(self):
 		request_manager = RequestManager(image_root=Path(""))
-		google_layer = GoogleLayer(
+		google_layer = ImageLayer(
 			width=1, height=1, tiles=[Tile(path=Path("dummy_path"), x_grid_coord=0, y_grid_coord=0)]
 		)
 		request = Request(

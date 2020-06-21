@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 
@@ -39,7 +39,7 @@ class TestRequestMaker(unittest.TestCase):
 		request = self.request_maker.make_location_request(
 			self.two_coordinate_input[0], self.two_coordinate_input[1],
 		)
-		self.assertTrue(request.has_layer_of_type(GoogleLayer))
+		self.assertTrue(request.has_layer_of_type(ImageLayer))
 
 	def test_count_uncached_tiles(self):
 		self.assertEqual(
@@ -54,7 +54,7 @@ class TestRequestMaker(unittest.TestCase):
 			self.two_coordinate_input[2],
 			self.two_coordinate_input[3]
 		)
-		self.assertTrue(request.has_layer_of_type(GoogleLayer))
+		self.assertTrue(request.has_layer_of_type(ImageLayer))
 
 	def test_calculate_coordinates_for_rectangle(self):
 		list_of_coordinates, _, _ = self.request_maker.calculate_coordinates_for_rectangle(

@@ -28,7 +28,6 @@ class GoogleMapsProvider(TopDownProvider):
 		self.name = "Google Maps"
 		self.max_zoom = 20
 		self.max_side_resolution_image = 640
-		self.geo_location_util = GeoLocationUtil()
 
 	def get_and_store_location(
 		self,

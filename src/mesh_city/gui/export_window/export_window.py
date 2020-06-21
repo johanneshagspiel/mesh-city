@@ -12,7 +12,7 @@ from mesh_city.gui.widgets.scrollable_container import ScrollableContainer
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 
 
@@ -126,7 +126,7 @@ class ExportWindow:
 		for (position, layer) in enumerate(request.layers):
 			self.int_variable_list_layers.append(IntVar())
 			text = ""
-			if isinstance(layer, GoogleLayer):
+			if isinstance(layer, ImageLayer):
 				text = "Google Imagery"
 			elif isinstance(layer, TreesLayer):
 				text = "Tree detections CSV"

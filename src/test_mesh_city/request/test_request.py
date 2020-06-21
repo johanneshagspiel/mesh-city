@@ -5,14 +5,14 @@ from pathlib import Path
 
 from mesh_city.request.entities.request import Request
 from mesh_city.request.entities.tile import Tile
-from mesh_city.request.layers.google_layer import GoogleLayer
+from mesh_city.request.layers.google_layer import ImageLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 
 
 class TestRequest(unittest.TestCase):
 
 	def test_has_layer_of_type(self):
-		google_layer = GoogleLayer(
+		google_layer = ImageLayer(
 			width=1, height=1, tiles=[Tile(path=Path("dummy_path"), x_grid_coord=0, y_grid_coord=0)]
 		)
 		request = Request(
@@ -25,10 +25,10 @@ class TestRequest(unittest.TestCase):
 			layers=[google_layer],
 			name="test"
 		)
-		self.assertTrue(request.has_layer_of_type(GoogleLayer))
+		self.assertTrue(request.has_layer_of_type(ImageLayer))
 
 	def test_has_no_layer_of_type(self):
-		google_layer = GoogleLayer(
+		google_layer = ImageLayer(
 			width=1, height=1, tiles=[Tile(path=Path("dummy_path"), x_grid_coord=0, y_grid_coord=0)]
 		)
 		request = Request(
