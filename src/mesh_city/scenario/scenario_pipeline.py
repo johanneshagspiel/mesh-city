@@ -176,18 +176,18 @@ class ScenarioPipeline:
 		:param neighbour_tree: the location adjacent to which to place it at
 		:return: The bounding box
 		"""
-		old_xmin = tree_dataframe.iloc[source_tree][0]
-		old_ymin = tree_dataframe.iloc[source_tree][1]
-		old_xmax = tree_dataframe.iloc[source_tree][2]
-		old_ymax = tree_dataframe.iloc[source_tree][3]
+		src_xmin = tree_dataframe.loc[source_tree]["xmin"]
+		src_ymin = tree_dataframe.loc[source_tree]["ymin"]
+		src_xmax = tree_dataframe.loc[source_tree]["xmax"]
+		src_ymax = tree_dataframe.loc[source_tree]["ymax"]
 
-		where_xmin = tree_dataframe.iloc[neighbour_tree][0]
-		where_ymin = tree_dataframe.iloc[neighbour_tree][1]
-		where_xmax = tree_dataframe.iloc[neighbour_tree][2]
-		where_ymax = tree_dataframe.iloc[neighbour_tree][3]
+		dest_xmin = tree_dataframe.loc[neighbour_tree]["xmin"]
+		dest_ymin = tree_dataframe.loc[neighbour_tree]["ymin"]
+		dest_xmax = tree_dataframe.loc[neighbour_tree]["xmax"]
+		dest_ymax = tree_dataframe.loc[neighbour_tree]["ymax"]
 
-		where_center_x = where_xmin + ((where_xmax - where_xmin) / 2)
-		where_center_y = where_ymin + ((where_ymax - where_ymin) / 2)
+		where_center_x = dest_xmin + ((dest_xmax - dest_xmin) / 2)
+		where_center_y = dest_ymin + ((dest_ymax - dest_ymin) / 2)
 
 		y_offset = random.uniform(-50, 50)
 		x_offset = random.uniform(-50, 50)
@@ -195,10 +195,10 @@ class ScenarioPipeline:
 		new_center_y = where_center_y + y_offset
 		new_center_x = where_center_x + x_offset
 
-		new_xmin = new_center_x + ((old_xmax - old_xmin) / 2)
-		new_xmax = new_center_x + ((old_xmax - old_xmin) / 2)
-		new_ymin = new_center_y + ((old_ymax - old_ymin) / 2)
-		new_ymax = new_center_y + ((old_ymax - old_ymin) / 2)
+		new_xmin = new_center_x - ((src_xmax - src_xmin) / 2)
+		new_xmax = new_center_x + ((src_xmax - src_xmin) / 2)
+		new_ymin = new_center_y - ((src_ymax - src_ymin) / 2)
+		new_ymax = new_center_y + ((src_ymax - src_ymin) / 2)
 
 		if new_xmin < 0:
 			to_add = (-1) * new_xmin
