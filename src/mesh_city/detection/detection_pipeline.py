@@ -15,13 +15,13 @@ from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.car_detector import CarDetector
-from mesh_city.detection.detection_providers.deep_forest import DeepForest
+from mesh_city.detection.detection_providers.tree_detector import TreeDetector
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import ImageLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.layers.layer import Layer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.request.request_manager import RequestManager
@@ -191,7 +191,7 @@ class DetectionPipeline(Observable):
 		:return: A TreesLayer
 		"""
 		tiles = request.get_layer_of_type(ImageLayer).tiles
-		deep_forest = DeepForest()
+		deep_forest = TreeDetector()
 		tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
 		tree_detections_path.mkdir(parents=True, exist_ok=True)
 		detection_file_path = tree_detections_path.joinpath(

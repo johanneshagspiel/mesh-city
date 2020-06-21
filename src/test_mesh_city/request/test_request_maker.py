@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from mesh_city.request.layers.google_layer import ImageLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.request_maker import RequestMaker
 from mesh_city.request.request_manager import RequestManager
 

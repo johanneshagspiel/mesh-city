@@ -19,7 +19,7 @@ from pandas import DataFrame
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
 from mesh_city.request.layers.cars_layer import CarsLayer
-from mesh_city.request.layers.google_layer import ImageLayer
+from mesh_city.request.layers.image_layer import ImageLayer
 from mesh_city.request.layers.trees_layer import TreesLayer
 from mesh_city.scenario.scenario import Scenario
 
