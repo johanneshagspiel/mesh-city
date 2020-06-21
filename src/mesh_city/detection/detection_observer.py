@@ -20,16 +20,8 @@ class DetectionObserver(Observer):
 		:param master: the master tkinter object
 		"""
 		super().__init__()
-
-		self.total_tiles = 0
-		self.current_tile = 0
-		self.current_time_detection = 0
-		self.detection_type = ""
-
-		self.missing_tiles = 0
-		self.duration_so_far = 0
-		self.estimated_time_to_finish = 0
 		self.previous_detection_type = ""
+		self.duration_so_far = 0
 
 		self.master = master
 		self.top = Toplevel(master)
@@ -43,7 +35,8 @@ class DetectionObserver(Observer):
 
 		self.content = Container(WidgetGeometry(550, 135, 5, 5), self.top, background="white")
 
-		self.top_label = Label(self.content, text="Initializing the algorithms", **layer_label_style)
+		self.top_label = Label(self.content, text="Initializing the algorithms",
+		                       **layer_label_style)
 		self.top_label.place(width=550, height=40, x=10, y=0)
 
 		self.time_remaining_label = Label(self.content, text="", **layer_label_style)
@@ -55,53 +48,59 @@ class DetectionObserver(Observer):
 	def update(self, observable: Observable):
 		"""
 		Method called by the observee to indicate that a state has changed. It means that another tile has been detected
-		:param detection_pipeline: the detection pipeline to observer
+		:param observable: The observable this class has subscribed to
 		:return:
 		"""
-		self.total_tiles = observable.observable_state["total_tiles"]
-		self.current_tile = observable.observable_state["current_tile"]
-		self.current_time_detection = observable.observable_state["current_time_detection"]
-		self.detection_type = observable.observable_state["detection_type"]
+		total_tiles = observable.observable_state["total_tiles"]
+		current_tile = observable.observable_state["current_tile"]
+		time_of_action = observable.observable_state["current_time_detection"]
+		detection_type = observable.observable_state["detection_type"]
 
-		if self.detection_type != self.previous_detection_type:
-			self.missing_tiles = 0
+		if detection_type != self.previous_detection_type:
 			self.duration_so_far = 0
-			self.estimated_time_to_finish = 0
+		self.duration_so_far += time_of_action
+		finish_time = self.compute_estimated_finish_time(number_of_actions=total_tiles,
+		                                                 number_of_actions_done=current_tile)
+		self.update_gui(detection_type=detection_type, current_tile=current_tile,
+		                total_tiles=total_tiles, finish_time_estimate=finish_time)
+		self.previous_detection_type = detection_type
 
-		self.update_estimated_time_to_finish()
-		self.update_gui()
-		self.previous_detection_type = self.detection_type
-
-	def update_estimated_time_to_finish(self):
+	def compute_estimated_finish_time(self, number_of_actions: int,
+	                                  number_of_actions_done: int) -> float:
 		"""
-		Helper method to calculate the average time needed for the remaining detections
-		:return:
+		Computes an estimate for the finish time.
+		:param number_of_actions: The number of actions that have to be completed in total
+		:param number_of_actions_done: The number of actions that have been completed already
+		:return: An estimate of the finish time of the remaining actions
 		"""
-		self.missing_tiles = self.total_tiles - self.current_tile
-		self.duration_so_far += self.current_time_detection
-		self.estimated_time_to_finish = self.missing_tiles * (
-			self.duration_so_far / self.current_tile
+		return (number_of_actions - number_of_actions_done) * (
+			self.duration_so_far / number_of_actions_done
 		)
 
-	def update_gui(self):
+	def update_gui(self, detection_type: str, current_tile: int, total_tiles: int,
+	               finish_time_estimate: float) -> None:
 		"""
-		Once the observer has been notified of a change, the gui needs to be updated
-		:return:
+		Updates the GUI based on a set of numbers derived from an observed DetectionPipeline
+		:param detection_type: A string representation of what is being detected by the pipeline.
+		:param current_tile: Which tile out of the total number of tile is being processed
+		:param total_tiles: The total number of tiles that have to be processed by the pipeline.
+		:param finish_time_estimate: An estimate of the finish time
+		:return: None
 		"""
 
 		self.tiles_to_detect.place(width=550, height=40, x=10, y=50)
 		self.time_remaining_label.place(width=550, height=40, x=10, y=100)
 
-		top_label_text = "Currently detecting: " + self.detection_type
+		top_label_text = "Currently detecting: " + detection_type
 		self.top_label["text"] = top_label_text
 
-		images_to_download = "Progress: " + str(self.current_tile) + " out of " + str(
-			self.total_tiles
+		images_to_download = "Progress: " + str(current_tile) + " out of " + str(
+			total_tiles
 		) + " tiles detected"
 		self.tiles_to_detect["text"] = images_to_download
 
 		time_remaining = "Time remaining: " + str(
-			round(self.estimated_time_to_finish, 2)
+			round(finish_time_estimate, 2)
 		) + " seconds"
 		self.time_remaining_label["text"] = time_remaining
 

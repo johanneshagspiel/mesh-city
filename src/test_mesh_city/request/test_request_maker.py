@@ -20,7 +20,7 @@ class TestRequestMaker(unittest.TestCase):
 		image_provider = Mock()
 		image_provider.usage = {"total": 42, "static_map": 42}
 		self.request_maker = RequestMaker(
-			request_manager=self.request_manager, image_provider=image_provider
+			request_manager=self.request_manager
 		)
 		self.request_maker.set_top_down_provider(imagery_provider)
 
@@ -45,7 +45,7 @@ class TestRequestMaker(unittest.TestCase):
 
 	def test_count_uncached_tiles(self):
 		self.assertEqual(
-			len(self.coordinate_list), self.request_maker.count_uncached_tiles(self.coordinate_list)
+			len(self.coordinate_list), self.request_maker.count_images_to_download(self.coordinate_list)
 		)
 
 	def test_make_area_request(self):

@@ -8,7 +8,7 @@ import pandas as pd
 from pandas import DataFrame
 from PIL import Image, ImageDraw, ImageOps
 
-from mesh_city.gui.scenario_renderer import ScenarioRenderer
+from mesh_city.scenario.scenario_renderer import ScenarioRenderer
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_exporter import RequestExporter
 from mesh_city.request.request_manager import RequestManager

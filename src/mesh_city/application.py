@@ -12,7 +12,7 @@ from mesh_city.detection.detection_pipeline import DetectionPipeline, DetectionT
 from mesh_city.detection.information_string_builder import InformationStringBuilder
 from mesh_city.gui.main_screen import MainScreen
 from mesh_city.gui.request_renderer import RequestRenderer
-from mesh_city.gui.scenario_renderer import ScenarioRenderer
+from mesh_city.scenario.scenario_renderer import ScenarioRenderer
 from mesh_city.logs.log_manager import LogManager
 from mesh_city.request.entities.request import Request
 from mesh_city.request.request_exporter import RequestExporter
@@ -41,6 +41,7 @@ class Application:
 		self.current_request = None
 		self.current_scenario = None
 		self.request_manager = self.get_request_manager()
+		self.request_maker = RequestMaker(request_manager=self.request_manager)
 		self.request_observer = None
 		self.main_screen = None
 		bio_path = self.file_handler.folder_overview['biome_index']
@@ -71,7 +72,6 @@ class Application:
 		"""
 
 		self.user_entity = user_entity
-		self.request_maker = RequestMaker(request_manager=self.request_manager)
 
 	def run_detection(self, request: Request, to_detect: Sequence[DetectionType]) -> None:
 		"""

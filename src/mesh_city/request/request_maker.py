@@ -12,7 +12,6 @@ from mesh_city.request.entities.request import Request
 from mesh_city.request.entities.tile import Tile
 from mesh_city.request.layers.google_layer import GoogleLayer
 from mesh_city.request.request_manager import RequestManager
-from mesh_city.user.image_provider_entity import ImageProviderEntity
 from mesh_city.util.geo_location_util import GeoLocationUtil
 from mesh_city.util.observable import Observable
 
@@ -20,15 +19,13 @@ from mesh_city.util.observable import Observable
 class RequestMaker(Observable):
 	"""
 	This class makes requests to the TopDownProvider it is provided with and populates the grid system
-	of its RequestManager.
+	of its RequestManager with images retrieved from this provider.
 	"""
 
-	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None,
-	             image_provider: ImageProviderEntity = None):
+	def __init__(self, request_manager: RequestManager, top_down_provider: TopDownProvider = None):
 		super().__init__()
 		self.request_manager = request_manager
 		self.top_down_provider = top_down_provider
-		self.image_provider = image_provider
 
 	@staticmethod
 	def compute_3x3_area(latitude: float, longitude: float, zoom: int) -> Tuple[
@@ -115,7 +112,6 @@ class RequestMaker(Observable):
 			filename=file_name,
 			new_folder_path=folder_path,
 		)
-		self.image_provider.increment_usage()
 		return Tile(path=result_path, x_grid_coord=tile_x, y_grid_coord=tile_y)
 
 	def make_area_request(
@@ -286,7 +282,7 @@ class RequestMaker(Observable):
 		coordinates_list = sorted(coordinates_list, key=lambda coordinate: coordinate[1])
 		return coordinates_list, num_of_images_horizontal, num_of_images_vertical
 
-	def count_uncached_tiles(self, coordinates: List[Tuple[int, int]]) -> int:
+	def count_images_to_download(self, coordinates: List[Tuple[int, int]]) -> int:
 		"""
 		Computes how many new tiles will have to be downloaded from the provider.
 

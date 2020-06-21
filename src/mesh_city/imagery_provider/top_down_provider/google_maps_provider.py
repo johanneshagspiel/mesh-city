@@ -84,7 +84,7 @@ class GoogleMapsProvider(TopDownProvider):
 
 		with open(to_store, "wb") as output:
 			output.write(response.content)
-
+		self.image_provider_entity.increment_usage()
 		get_image = Image.open(to_store)
 		left = self.padding
 		upper = self.padding
@@ -114,7 +114,7 @@ class GoogleMapsProvider(TopDownProvider):
 		Returns an address name based on a coordinate.
 
 		:param latitude: The latitude of the coordinate
-		:param longitude: THe longitude of the coordinate
+		:param longitude: The longitude of the coordinate
 		:return: The adress name corresponding to the location
 		"""
 		return googlemaps.client.reverse_geocode(client=self.client, latlng=(latitude, longitude))

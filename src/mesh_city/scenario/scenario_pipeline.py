@@ -8,7 +8,7 @@ url: https://stackoverflow.com/questions/890051/how-do-i-generate-circular-thumb
 
 import random
 from enum import Enum
-from typing import Any, Sequence, Tuple
+from typing import Sequence, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -39,8 +39,8 @@ class ScenarioPipeline:
 	what type of things it should change.
 	"""
 
-	def __init__(self, modification_list: Sequence[Tuple[ScenarioModificationType, Any]]):
-		self.modification_list = modification_list
+	def __init__(self, modification_list: Sequence[Tuple[ScenarioModificationType, int]]):
+		self.__modification_list = modification_list
 
 	def paint_buildings_green(
 		self, building_dataframe, buildings_to_make_green: int
@@ -70,18 +70,18 @@ class ScenarioPipeline:
 		for _ in range(0, trees_to_add):
 			source_tree_index = np.random.randint(0, len(filtered_trees))
 			neighbour_tree_index = np.random.randint(0, len(filtered_trees))
-			new_xmin, new_ymin, new_xmax, new_ymax = self.calculate_new_location_tree_addition(
+			new_xmin, new_ymin, new_xmax, new_ymax = self.__compute_new_tree_bbox(
 				source_tree_index, neighbour_tree_index, filtered_trees
 			)
 			new_trees.append(
 				(
-				new_xmin,
-				new_ymin,
-				new_xmax,
-				new_ymax,
-				filtered_trees.loc[source_tree_index, ["score"]],
-				"AddedTree",
-				source_tree_index
+					new_xmin,
+					new_ymin,
+					new_xmax,
+					new_ymax,
+					filtered_trees.loc[source_tree_index, ["score"]],
+					"AddedTree",
+					source_tree_index
 				)
 			)
 
@@ -105,7 +105,7 @@ class ScenarioPipeline:
 		changes_list = []
 		for car_index in range(0, cars_to_swap):
 			tree_to_replace_with_index = np.random.randint(0, len(filtered_trees))
-			new_xmin, new_ymin, new_xmax, new_ymax = self.create_new_swapped_tree_entry(
+			new_xmin, new_ymin, new_xmax, new_ymax = self.__compute_swapped_car_bbox(
 				car_index, tree_to_replace_with_index, tree_dataframe, car_dataframe
 			)
 			changes_list.append(
@@ -119,20 +119,20 @@ class ScenarioPipeline:
 		tree_dataframe = tree_dataframe.append(replaced_cars, ignore_index=True)
 		return tree_dataframe, car_dataframe
 
-	def create_new_swapped_tree_entry(
+	def __compute_swapped_car_bbox(
 		self,
 		car_to_swap_index: int,
 		tree_to_replace_with_index: int,
 		tree_dataframe: DataFrame,
 		car_dataframe: DataFrame
-	):
+	) -> Tuple[float, float, float, float]:
 		"""
-		Computes a new entry for a tree copied to where there is currently a car.
+		Computes a new bounding box for a tree pasted where there is currently a car.
 		:param car_to_swap_index: The car to paste a tree on
 		:param tree_to_replace_with_index: The tree to paste onto the car
 		:param tree_dataframe: The dataframe of tree detections
 		:param car_dataframe: The dataframe of car detections
-		:return: A new entry containing a tree copied to where the car was
+		:return: The bounding box for the pasted tree
 		"""
 		tree_xmin = tree_dataframe.iloc[tree_to_replace_with_index][0]
 		tree_ymin = tree_dataframe.iloc[tree_to_replace_with_index][1]
@@ -168,13 +168,13 @@ class ScenarioPipeline:
 		return new_xmin, new_ymin, new_xmax, new_ymax
 
 	# pylint: disable=W0613
-	def calculate_new_location_tree_addition(self, source_tree, neighbour_tree, tree_dataframe):
+	def __compute_new_tree_bbox(self, source_tree, neighbour_tree, tree_dataframe) -> Tuple[
+		float, float, float, float]:
 		"""
-		The algorithm to decide where to place a new tree. Currently just moves the tree 5 units
-		down and to the right
+		Computes a bounding box for a tree pasted near another tree.
 		:param source_tree: the tree to place
 		:param neighbour_tree: the location adjacent to which to place it at
-		:return: where to place the tree
+		:return: The bounding box
 		"""
 		old_xmin = tree_dataframe.iloc[source_tree][0]
 		old_ymin = tree_dataframe.iloc[source_tree][1]
@@ -244,7 +244,7 @@ class ScenarioPipeline:
 			if "label" not in buildings_dataframe.columns:
 				buildings_dataframe["label"] = ""
 
-		for (feature, information) in self.modification_list:
+		for (feature, information) in self.__modification_list:
 			if feature == ScenarioModificationType.MORE_TREES:
 				tree_dataframe = self.add_more_trees(
 					tree_dataframe=tree_dataframe, trees_to_add=information

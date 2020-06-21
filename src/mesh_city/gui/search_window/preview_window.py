@@ -149,7 +149,7 @@ class PreviewWindow:
 				bottom_latitude=self.coordinates[0], left_longitude=self.coordinates[1],
 				top_latitude=self.coordinates[2], right_longitude=self.coordinates[3])
 
-		self.number_requests = self.application.request_maker.count_uncached_tiles(locations)
+		self.number_requests = self.application.request_maker.count_images_to_download(locations)
 		self.check_usage(image_provider_entity_name, image_provider_entity)
 
 	def check_usage(
