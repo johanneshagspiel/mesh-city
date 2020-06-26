@@ -9,9 +9,8 @@ class TreeDetector:
 	The class deepforest which contains a preliminary method to detect trees on an image.
 	"""
 
-	def __init__(self) -> None:
-		self.model = deepforest.deepforest()
-		self.model.use_release()
+	def __init__(self, nn_weights_path) -> None:
+		self.model = deepforest.deepforest(saved_model=nn_weights_path)
 
 	def detect(self, path):
 		"""

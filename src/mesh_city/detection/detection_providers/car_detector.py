@@ -15,17 +15,12 @@ class CarDetector:
 	The CarDetector class uses Tensorflow and a pre-trained model to detect cars from top-down imagery.
 	"""
 
-	def __init__(self) -> None:
-		# Path to frozen detection graph. This is the actual model that is used for the object detection.
-		frozen_graph_path = Path.joinpath(
-			Path(__file__).parents[2], "resources", "neural_networks", "car_inference_graph.pb"
-		)
-
+	def __init__(self, nn_weights_path) -> None:
 		# Loading a frozen Tensorflow model into memory
 		self.detection_graph = tf.Graph()
 		with self.detection_graph.as_default():
 			od_graph_def = tf.GraphDef()
-			with tf.gfile.GFile(str(frozen_graph_path), 'rb') as fid:
+			with tf.gfile.GFile(str(nn_weights_path), 'rb') as fid:
 				serialized_graph = fid.read()
 				od_graph_def.ParseFromString(serialized_graph)
 				tf.import_graph_def(od_graph_def, name='')
