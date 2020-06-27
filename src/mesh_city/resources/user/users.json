@@ -1,4 +1,15 @@
 {
-    "User": {
+    "John": {
+        "Google Maps 1": {
+            "type_map_provider": "Google Maps",
+            "api_key": "AIzaSyD9cfAeQKFniipqRUgkcYy1sAtGXJYxNF4",
+            "usage": {
+                "static_map": 0.018,
+                "geocoding": 0,
+                "total": 0.018
+            },
+            "quota": 100000000000.0,
+            "date_reset": "2020-06-30"
+        }
     }
 }
