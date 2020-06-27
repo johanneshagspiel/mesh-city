@@ -15,8 +15,8 @@ from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.car_detector import CarDetector
-from mesh_city.detection.detection_providers.tree_detector import TreeDetector
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
+from mesh_city.detection.detection_providers.tree_detector import TreeDetector
 from mesh_city.detection.raster_vector_converter import RasterVectorConverter
 from mesh_city.request.entities.request import Request
 from mesh_city.request.layers.buildings_layer import BuildingsLayer
@@ -142,7 +142,10 @@ class DetectionPipeline(Observable):
 		:return: A CarsLayer
 		"""
 		tiles = request.get_layer_of_type(ImageLayer).tiles
-		car_detector = CarDetector()
+		nn_weights_path = self.file_handler.folder_overview["resource_path"].joinpath(
+			"neural_networks", "car_inference_graph.pb"
+		)
+		car_detector = CarDetector(nn_weights_path=nn_weights_path)
 		tree_detections_path = self.request_manager.get_image_root().joinpath("cars")
 		tree_detections_path.mkdir(parents=True, exist_ok=True)
 		detections_path = tree_detections_path.joinpath(
@@ -191,7 +194,10 @@ class DetectionPipeline(Observable):
 		:return: A TreesLayer
 		"""
 		tiles = request.get_layer_of_type(ImageLayer).tiles
-		deep_forest = TreeDetector()
+		nn_weights_path = self.file_handler.folder_overview["resource_path"].joinpath(
+			"neural_networks", "NEON.h5"
+		)
+		deep_forest = TreeDetector(nn_weights_path=nn_weights_path)
 		tree_detections_path = self.request_manager.get_image_root().joinpath("trees")
 		tree_detections_path.mkdir(parents=True, exist_ok=True)
 		detection_file_path = tree_detections_path.joinpath(

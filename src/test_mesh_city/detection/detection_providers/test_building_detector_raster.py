@@ -8,6 +8,7 @@ from PIL import Image
 
 from mesh_city.detection.detection_providers.building_detector import BuildingDetector
 from mesh_city.detection.detection_providers.image_tiler import ImageTiler
+from mesh_city.util.file_handler import FileHandler
 from mesh_city.util.image_util import ImageUtil
 
 
@@ -29,9 +30,9 @@ def compute_image_similarity(image1, image2):
 class TestBuildingDetectorRaster(unittest.TestCase):
 
 	def setUp(self):
-		self.weights_path = Path(__file__).parents[2].joinpath(
-			"resources", "neural_networks", "xdxd_spacenet4_solaris_weights.pth"
-		)
+		self.file_handler = FileHandler()
+		self.weights_path = self.file_handler.folder_overview["resource_path"].joinpath(
+			"neural_networks", "xdxd_spacenet4_solaris_weights.pth")
 
 	def test_building_detection(self):
 		"""
@@ -41,9 +42,10 @@ class TestBuildingDetectorRaster(unittest.TestCase):
 		# TODO: Set up some type of test resource in the project structure to avoid things like this.
 		result_image = ImageUtil.greyscale_matrix_to_image(
 			building_detector.detect(
-			np.asarray(
-			Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize((512, 512))
-			)
+				np.asarray(
+					Image.open(Path(__file__).parents[0].joinpath("test-images/test1.png")).resize(
+						(512, 512))
+				)
 			)
 		)
 		ground_truth = Image.open(

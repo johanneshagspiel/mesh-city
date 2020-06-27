@@ -32,7 +32,7 @@ class TestPipeline(unittest.TestCase):
 
 	def test_car_detection(self):
 		pipeline = DetectionPipeline(
-			self.file_handler, self.request_manager, detections_to_run=[DetectionType.CARS]
+			FileHandler(), self.request_manager, detections_to_run=[DetectionType.CARS]
 		)
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
@@ -41,7 +41,7 @@ class TestPipeline(unittest.TestCase):
 
 	def test_building_detection(self):
 		pipeline = DetectionPipeline(
-			self.file_handler, self.request_manager, detections_to_run=[DetectionType.BUILDINGS]
+			FileHandler(), self.request_manager, detections_to_run=[DetectionType.BUILDINGS]
 		)
 		request = self.request_manager.get_request_by_id(0)
 		pipeline.process(request)
