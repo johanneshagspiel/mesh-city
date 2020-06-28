@@ -201,7 +201,6 @@ class InformationStringBuilder:
 		carbon_emission_car = info_dict['carbon_emission_car']
 
 		count_trees_added = (count_trees_added + count_cars_swapped)
-		count_cars_removed = -count_cars_swapped
 		total_carbon_storage = (count_of_trees *
 			carbon_storage_tree) + (square_meters_of_rooftops * carbon_storage_rooftops)
 		total_oxygen_emission = (count_of_trees *
