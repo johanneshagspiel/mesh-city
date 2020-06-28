@@ -75,8 +75,8 @@ class RequestRenderer:
 							(float(row[1]) / scaling, float(row[2]) / scaling),
 							(float(row[3]) / scaling, float(row[4]) / scaling)
 							),
-							outline=(34, 139, 34),
-							fill=(34, 139, 34, 50)
+							outline=(238, 47, 127),
+							fill=(238, 47, 127, 50),
 						)
 				overlays.append(tree_overlay)
 			return tree_overlay
@@ -100,8 +100,8 @@ class RequestRenderer:
 							(float(row[1]) / scaling, float(row[2]) / scaling),
 							(float(row[3]) / scaling, float(row[4]) / scaling)
 							),
-							outline=(0, 0, 255),
-							fill=(0, 0, 255, 50)
+							outline=(1, 171, 232),
+							fill=(1, 171, 232, 50),
 						)
 				overlays.append(car_overlay)
 			return car_overlay
@@ -134,7 +134,9 @@ class RequestRenderer:
 			draw = ImageDraw.Draw(building_overlay)
 			for polygon in building_dataframe["geometry"]:
 				draw.polygon(
-					xy=list(zip(*polygon.exterior.coords.xy)), fill=(255, 0, 0, 50), outline="red"
+					xy=list(zip(*polygon.exterior.coords.xy)),
+					fill=(255, 206, 52, 50),
+					outline=(255, 206, 52),
 				)
 			return building_overlay
 		raise ValueError("The overlay could not be created")

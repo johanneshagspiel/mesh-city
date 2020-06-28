@@ -193,7 +193,7 @@ class MainScreen:
 			self.trees_layer_button = LayerButton(
 				WidgetGeometry(80, 40, 170, 0),
 				text="on" if trees_layer_active else "off",
-				button_color="green" if trees_layer_active else "#EEEEEE",
+				button_color="#EE2F7F" if trees_layer_active else "#EEEEEE",
 				text_color="white" if trees_layer_active else "black",
 				on_click=lambda _: self._set_layer_visibility("Trees", not trees_layer_active),
 				master=self.layers_container,
@@ -208,7 +208,7 @@ class MainScreen:
 			self.buildings_layer_button = LayerButton(
 				WidgetGeometry(80, 40, 170, 50),
 				text="on" if buildings_layer_active else "off",
-				button_color="red" if buildings_layer_active else "#EEEEEE",
+				button_color="#FFCE34" if buildings_layer_active else "#EEEEEE",
 				text_color="white" if buildings_layer_active else "black",
 				on_click=lambda _: self._set_layer_visibility("Buildings", not buildings_layer_active),
 				master=self.layers_container,
@@ -223,7 +223,7 @@ class MainScreen:
 			self.cars_layer_button = LayerButton(
 				WidgetGeometry(80, 40, 170, 100),
 				text="on" if cars_layer_active else "off",
-				button_color="blue" if cars_layer_active else "#EEEEEE",
+				button_color="#01ABE8" if cars_layer_active else "#EEEEEE",
 				text_color="white" if cars_layer_active else "black",
 				on_click=lambda _: self._set_layer_visibility("Cars", not cars_layer_active),
 				master=self.layers_container,
