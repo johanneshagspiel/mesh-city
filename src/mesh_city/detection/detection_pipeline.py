@@ -212,7 +212,6 @@ class DetectionPipeline(Observable):
 				cut_x = horizontal_cut_size * horizontal_cut
 				if horizontal_cut == num_horizontal_cuts - 1:
 					horizontal_cut_size = request.num_of_horizontal_images - horizontal_cut * max_subgrid_dimension
-				print((cut_x,cut_y,horizontal_cut_size,vertical_cut_size))
 				cuts.append((cut_x+request.x_grid_coord,cut_y+request.y_grid_coord,horizontal_cut_size,vertical_cut_size))
 		return cuts
 

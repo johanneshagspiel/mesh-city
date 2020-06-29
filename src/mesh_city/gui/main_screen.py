@@ -145,6 +145,7 @@ class MainScreen:
 			self.active_layers.append("Buildings")
 		if self.application.current_request.has_layer_of_type(CarsLayer):
 			self.active_layers.append("Cars")
+		self._load_layers()
 		self.render_dynamic_widgets()
 
 		mainloop()
