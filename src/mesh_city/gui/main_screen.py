@@ -139,7 +139,12 @@ class MainScreen:
 
 		start_up_window = self.start_up()
 		self.master.wait_window(start_up_window.top)
-
+		if self.application.current_request.has_layer_of_type(TreesLayer):
+			self.active_layers.append("Trees")
+		if self.application.current_request.has_layer_of_type(BuildingsLayer):
+			self.active_layers.append("Buildings")
+		if self.application.current_request.has_layer_of_type(CarsLayer):
+			self.active_layers.append("Cars")
 		self.render_dynamic_widgets()
 
 		mainloop()
