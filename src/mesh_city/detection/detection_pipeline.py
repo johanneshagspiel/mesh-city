@@ -6,6 +6,7 @@ appropriate classes to create useful information in the form of overlays.
 import json
 import time
 from enum import Enum
+from math import ceil, floor
 from typing import Sequence
 
 import geopandas as gpd
@@ -80,51 +81,60 @@ class DetectionPipeline(Observable):
 		detection_file_path = building_detections_path.joinpath(
 			"detections_" + str(request.request_id) + ".geojson"
 		)
-		images = []
-
-		for tile in tiles:
-			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
-		# note: not sure how this will perform for large scale analysis!
-		concat = ImageUtil.concat_image_grid(
-			request.num_of_horizontal_images, request.num_of_vertical_images, images
-		)
-		width, height = concat.size
-		new_width, new_height = max(512, int(width / 6)), max(512, int(height / 6))
-		small_concat = concat.resize((new_width, new_height), Image.ANTIALIAS)
-		concat_image = np.asarray(small_concat)
-		image_tiler = ImageTiler(tile_width=512, tile_height=512)
-		patches = image_tiler.create_tile_dictionary(concat_image)
-		mask_patches = {}
+		cuts = self.compute_cuts(request)
 
 		self.observable_state["detection_type"] = "Buildings"
-		self.observable_state["total_tiles"] = len(patches)
+		self.observable_state["total_tiles"] = len(cuts)
 		self.observable_state["current_tile"] = 1
 		self.observable_state["current_time_detection"] = 0
 		self.notify_observers()
-
-		for counter, key in enumerate(patches, 1):
+		frames = []
+		for (counter, (cut_x,cut_y,cut_width,cut_height)) in enumerate(cuts, 1):
 			start_time_download = time.time()
+			x_offset = (cut_x-request.x_grid_coord) * DetectionPipeline.TILE_SIZE
+			y_offset = (cut_y-request.y_grid_coord) * DetectionPipeline.TILE_SIZE
+			images = []
+			for tile in tiles:
+				if tile.x_grid_coord>=cut_x and tile.x_grid_coord<cut_x+cut_width and tile.y_grid_coord>=cut_y and tile.y_grid_coord<cut_y+cut_height:
+					images.append(
+						Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
+			# note: not sure how this will perform for large scale analysis!
+			concat = ImageUtil.concat_image_grid(
+				cut_width, cut_height, images
+			)
+			width, height = concat.size
+			new_width, new_height = max(512, int(width / 6)), max(512, int(height / 6))
+			small_concat = concat.resize((new_width, new_height), Image.ANTIALIAS)
+			concat_image = np.asarray(small_concat)
+			image_tiler = ImageTiler(tile_width=512, tile_height=512)
+			patches = image_tiler.create_tile_dictionary(concat_image)
+			mask_patches = {}
 
-			mask_patches[key] = building_detector.detect(image=patches[key])
+			for key in patches:
+				start_time_download = time.time()
+				mask_patches[key] = building_detector.detect(image=patches[key])
 
+			concat_mask = np.uint8(image_tiler.construct_image_from_tiles(mask_patches))
+			r2v = RasterVectorConverter()
+			polygons = r2v.mask_to_vector(image=concat_mask)
+			dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
+			dataframe.geometry = dataframe.geometry.scale(
+				xfact=cut_width * 1024 / small_concat.width,
+				yfact=cut_height * 1024 / small_concat.height,
+				zfact=1.0,
+				origin=(0, 0)
+			)
+			dataframe.geometry = dataframe.geometry.translate(xoff=x_offset,yoff=y_offset,zoff=0)
+			frames.append(dataframe)
 			time_needed_download = time.time() - start_time_download
 			self.observable_state["current_tile"] = counter
 			self.observable_state["current_time_detection"] = time_needed_download
 			self.notify_observers()
 
-		concat_mask = np.uint8(image_tiler.construct_image_from_tiles(mask_patches))
-		r2v = RasterVectorConverter()
-		polygons = r2v.mask_to_vector(image=concat_mask)
-		dataframe = gpd.GeoDataFrame(geometry=gpd.GeoSeries(polygons))
-		dataframe.geometry = dataframe.geometry.scale(
-			xfact=request.num_of_horizontal_images * 1024 / small_concat.width,
-			yfact=request.num_of_vertical_images * 1024 / small_concat.height,
-			zfact=1.0,
-			origin=(0, 0)
-		)
-		if not dataframe.empty:
-			dataframe["label"] = "Building"
-			dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
+		concat_dataframe = pd.concat(frames).reset_index(drop=True)
+		if not concat_dataframe.empty:
+			concat_dataframe["label"] = "Building"
+			concat_dataframe.to_file(driver='GeoJSON', filename=detection_file_path)
 		else:
 			empty_geojson = {"type": "FeatureCollection", "features": []}
 			with open(detection_file_path, 'w') as json_file:
@@ -187,6 +197,24 @@ class DetectionPipeline(Observable):
 			detections_path=detections_path
 		)
 
+	def compute_cuts(self, request: Request):
+		max_subgrid_dimension = 16
+		num_vertical_cuts = ceil(request.num_of_vertical_images/max_subgrid_dimension)
+		num_horizontal_cuts = ceil(request.num_of_horizontal_images/max_subgrid_dimension)
+		cuts = []
+		for vertical_cut in range(num_vertical_cuts):
+			vertical_cut_size = max_subgrid_dimension
+			cut_y = vertical_cut_size * vertical_cut
+			if vertical_cut == num_vertical_cuts - 1:
+				vertical_cut_size = request.num_of_vertical_images - vertical_cut*max_subgrid_dimension
+			for horizontal_cut in range(num_horizontal_cuts):
+				horizontal_cut_size = max_subgrid_dimension
+				cut_x = horizontal_cut_size * horizontal_cut
+				if horizontal_cut == num_horizontal_cuts - 1:
+					horizontal_cut_size = request.num_of_horizontal_images - horizontal_cut * max_subgrid_dimension
+				cuts.append((cut_x+request.x_grid_coord,cut_y+request.y_grid_coord,horizontal_cut_size,vertical_cut_size))
+		return cuts
+
 	def detect_trees(self, request: Request) -> TreesLayer:
 		"""
 		Detects trees from a request's imagery.
@@ -203,28 +231,52 @@ class DetectionPipeline(Observable):
 		detection_file_path = tree_detections_path.joinpath(
 			"detections_" + str(request.request_id) + ".csv"
 		)
-		images = []
+		frames = []
+		cuts = self.compute_cuts(request)
+		self.observable_state["detection_type"] = "Trees"
+		self.observable_state["total_tiles"] = len(cuts)
+		self.observable_state["current_tile"] = 1
+		self.observable_state["current_time_detection"] = 0
+		self.notify_observers()
+		for (counter, (cut_x,cut_y,cut_width,cut_height)) in enumerate(cuts, 1):
+			start_time_download = time.time()
 
-		for tile in tiles:
-			images.append(Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
-		# note: not sure how this will perform for large scale analysis!
-		concat = ImageUtil.concat_image_grid(
-			request.num_of_horizontal_images, request.num_of_vertical_images, images
-		)
-		width, height = concat.size
-		small_concat = concat.resize((int(width / 3), int(height / 3)), Image.ANTIALIAS)
-		concat_scratch_path = tree_detections_path.joinpath(
-			"temp_" + str(request.request_id) + ".png"
-		)
-		small_concat.save(concat_scratch_path)
-		result = deep_forest.detect(path=concat_scratch_path)
-		concat_scratch_path.unlink()
-		result["xmin"] = result["xmin"] * 6
-		result["ymin"] = result["ymin"] * 6
-		result["xmax"] = result["xmax"] * 6
-		result["ymax"] = result["ymax"] * 6
+			x_offset = (cut_x-request.x_grid_coord) * DetectionPipeline.TILE_SIZE
+			y_offset = (cut_y-request.y_grid_coord) * DetectionPipeline.TILE_SIZE
 
-		result.to_csv(detection_file_path)
+			images = []
+			for tile in tiles:
+				if tile.x_grid_coord>=cut_x and tile.x_grid_coord<cut_x+cut_width and tile.y_grid_coord>=cut_y and tile.y_grid_coord<cut_y+cut_height:
+					images.append(
+						Image.open(tile.path).convert("RGB").resize((512, 512), Image.ANTIALIAS))
+			# note: not sure how this will perform for large scale analysis!
+			concat = ImageUtil.concat_image_grid(
+				cut_width, cut_height, images
+			)
+			width, height = concat.size
+			small_concat = concat.resize((int(width / 3), int(height / 3)), Image.ANTIALIAS)
+			concat_scratch_path = tree_detections_path.joinpath(
+				"temp_" + str(request.request_id) + ".png"
+			)
+			small_concat.save(concat_scratch_path)
+			result = deep_forest.detect(path=concat_scratch_path)
+			concat_scratch_path.unlink()
+			result["xmin"] = result["xmin"] * 6
+			result["ymin"] = result["ymin"] * 6
+			result["xmax"] = result["xmax"] * 6
+			result["ymax"] = result["ymax"] * 6
+			result["xmin"] += x_offset
+			result["ymin"] += y_offset
+			result["xmax"] += x_offset
+			result["ymax"] += y_offset
+			frames.append(result)
+
+			time_needed_download = time.time() - start_time_download
+			self.observable_state["current_tile"] = counter
+			self.observable_state["current_time_detection"] = time_needed_download
+			self.notify_observers()
+		concat_result = pd.concat(frames).reset_index(drop=True)
+		concat_result.to_csv(detection_file_path)
 
 		return TreesLayer(
 			width=request.num_of_horizontal_images,

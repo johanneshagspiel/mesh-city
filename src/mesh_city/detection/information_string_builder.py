@@ -57,8 +57,6 @@ class InformationStringBuilder:
 					oxygen_emission_tree = float(row[7].replace(',', '.'))
 					oxygen_emission_rooftop = float(row[8].replace(',', '.'))
 					carbon_emission_car = float(row[9].replace(',', '.'))
-					urban_cooling_tree = float(row[10].replace(',', '.'))
-					urban_cooling_rooftop = float(row[11].replace(',', '.'))
 
 					latitude = latitude.replace(',', '.', 1)
 					latitude = latitude.replace(',', '')
@@ -76,9 +74,7 @@ class InformationStringBuilder:
 						'carbon_storage_rooftops': carbon_storage_rooftops,
 						'oxygen_emission_tree': oxygen_emission_tree,
 						'oxygen_emission_rooftop': oxygen_emission_rooftop,
-						'carbon_emission_car': carbon_emission_car,
-						'urban_cooling_tree': urban_cooling_tree,
-						'urban_cooling_rooftop': urban_cooling_rooftop
+						'carbon_emission_car': carbon_emission_car
 					}
 					info.append(dictionary)
 		point = {'latitude': request_latitude, 'longitude': request_longitude}
@@ -203,20 +199,23 @@ class InformationStringBuilder:
 		oxygen_emission_tree = info_dict['oxygen_emission_tree']
 		oxygen_emission_rooftop = info_dict['oxygen_emission_rooftop']
 		carbon_emission_car = info_dict['carbon_emission_car']
-		urban_cooling_tree = info_dict['urban_cooling_tree']
-		urban_cooling_rooftop = info_dict['urban_cooling_rooftop']
 
-		count_of_trees += (count_trees_added + count_cars_swapped)
-		count_of_cars += -count_cars_swapped
-		total_carbon_storage = (count_of_trees *
-			carbon_storage_tree) + (square_meters_of_rooftops * carbon_storage_rooftops)
-		total_oxygen_emission = (count_of_trees *
-			oxygen_emission_tree) + (square_meters_of_rooftops * oxygen_emission_rooftop)
-		total_carbon_emission = count_of_cars * carbon_emission_car
-		total_urban_cooling = (count_of_trees * urban_cooling_tree) + (
-			square_meters_of_rooftops * fraction_rooftops_greenified * urban_cooling_rooftop
-		)
-		total_urban_cooling = round(total_urban_cooling, 5)
+		count_trees_added = (count_trees_added + count_cars_swapped)
+		area_of_green_rooftop = square_meters_of_rooftops * fraction_rooftops_greenified
+
+		count_of_co2_stored_added = (count_trees_added *
+			carbon_storage_tree) + (area_of_green_rooftop * carbon_storage_rooftops)
+		count_of_o2_emission_added = (count_trees_added *
+			oxygen_emission_tree) + (area_of_green_rooftop * oxygen_emission_rooftop)
+		count_of_co2_emission_added = count_cars_swapped * carbon_emission_car
+
+		total_count_of_trees = count_of_trees + count_trees_added
+		total_count_of_cars = count_of_cars - count_cars_swapped
+
+		detection_carbon_storage = (count_of_trees * carbon_storage_tree)
+		detection_oxygen_emission = (count_of_trees * oxygen_emission_tree)
+		detection_carbon_emission = count_of_cars * carbon_emission_car
+
 
 		result_string = "\n \n \n"
 		result_string += "LOCATION \n \n"
@@ -224,22 +223,22 @@ class InformationStringBuilder:
 		result_string += str(eco_name) + "\n \n"
 
 		result_string += "FEATURES \n \n"
-		result_string += "Trees: " + str(count_of_trees) + "  +" + str(count_cars_swapped) + "\n"
-		result_string += "Cars: " + str(count_of_cars) + "  -" + str(count_cars_swapped) + "\n"
+		result_string += "Trees: " + str(count_of_trees) + "  + " + str(count_trees_added) + "\n"
+		result_string += "Cars: " + str(count_of_cars) + "  - " + str(count_cars_swapped) + "\n"
 		result_string += "Rooftops: " + str(int(square_meters_of_rooftops)) + "m2" + "\n"
 		result_string += "Rooftops Greenified: " + str(
 			int(square_meters_of_rooftops * fraction_rooftops_greenified)
 		) + "m2" + "\n \n"
 
 		result_string += "PERFORMANCE \n \n"
-		result_string += "Biomass. \nCO2 storage:\n"
-		result_string += str(int(total_carbon_storage)) + " kg carbon " + "\n \n"
+		result_string += "Biomass stored in trees. \nCO2 storage:\n"
+		result_string += str(int(detection_carbon_storage)) + " kg carbon " + "\n"
+		result_string += "Added:  + " + str(int(count_of_co2_stored_added)) + "\n \n"
 
-		result_string += "Air Quality. \nO2/CO2 Emission:\n"
-		result_string += str(int(total_oxygen_emission)) + " kg O2 " + "\n"
-		result_string += str(int(total_carbon_emission)) + " kg CO2 " + "\n \n"
-
-		result_string += "Comfort. \nUrban Cooling:\n"
-		result_string += str(total_urban_cooling) + " Kelvin" + "\n \n"
+		result_string += "Air Quality. \nO2 (by trees) and CO2 (by cars) Emissions:\n"
+		result_string += str(int(detection_oxygen_emission)) + " kg O2 " + "\n"
+		result_string += "Added:  + " + str(int(count_of_o2_emission_added)) + "\n"
+		result_string += str(int(detection_carbon_emission)) + " kg CO2 " + "\n"
+		result_string += "Decreased:  - " + str(int(count_of_co2_emission_added)) + "\n \n"
 
 		return result_string

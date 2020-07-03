@@ -105,50 +105,51 @@ class ScenarioExporter:
 			origin_path = tile.path
 			rel_path = origin_path.relative_to(self.request_manager.get_image_root())
 			export_directory.joinpath(rel_path.parent).mkdir(parents=True, exist_ok=True)
-			x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
-			y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
-			if scenario.trees is not None:
-				trees = scenario.trees.copy(deep=True)
-				trees["xmin"] -= x_offset
-				trees["ymin"] -= y_offset
-				trees["xmax"] -= x_offset
-				trees["ymax"] -= y_offset
-				if len(tree_crops) == 0:
-					raise ValueError(
-						"At least one cropped image of a tree is needed to render the trees, "
-						"none were given"
+			if not export_directory.joinpath(rel_path).is_file():
+				x_offset = (tile.x_grid_coord - request.x_grid_coord) * 1024
+				y_offset = (tile.y_grid_coord - request.y_grid_coord) * 1024
+				if scenario.trees is not None:
+					trees = scenario.trees.copy(deep=True)
+					trees["xmin"] -= x_offset
+					trees["ymin"] -= y_offset
+					trees["xmax"] -= x_offset
+					trees["ymax"] -= y_offset
+					if len(tree_crops) == 0:
+						raise ValueError(
+							"At least one cropped image of a tree is needed to render the trees, "
+							"none were given"
+						)
+					result_image = ScenarioRenderer.render_trees_for_tile(
+						base_image=result_image, trees=trees, tree_crops=tree_crops
 					)
-				result_image = ScenarioRenderer.render_trees_for_tile(
-					base_image=result_image, trees=trees, tree_crops=tree_crops
+				if scenario.buildings is not None:
+					buildings = scenario.buildings.copy(deep=True)
+					buildings.geometry = buildings.geometry.translate(
+						xoff=-x_offset, yoff=-y_offset, zoff=0
+					)
+					result_image = ScenarioRenderer.render_shrubbery(
+						base_image=result_image,
+						buildings=buildings,
+						overlay_image=self.overlay_image,
+						scaling=1
+					)
+				result_image.save(export_directory.joinpath(rel_path))
+				nw_latitude, nw_longitude = GeoLocationUtil.tile_value_to_degree(
+					x_cor_tile=tile.x_grid_coord + 0.5,
+					y_cor_tile=tile.y_grid_coord + 0.5,
+					zoom=request.zoom,
+					get_centre=False
 				)
-			if scenario.buildings is not None:
-				buildings = scenario.buildings.copy(deep=True)
-				buildings.geometry = buildings.geometry.translate(
-					xoff=-x_offset, yoff=-y_offset, zoff=0
+				filename_no_extension = origin_path.stem
+				world_file_name = filename_no_extension + ".pgw"
+				RequestExporter.create_world_file(
+					path=export_directory.joinpath(rel_path.parent, world_file_name),
+					latitude=nw_latitude,
+					longitude=nw_longitude,
+					zoom=request.zoom,
+					width=1024,
+					height=1024
 				)
-				result_image = ScenarioRenderer.render_shrubbery(
-					base_image=result_image,
-					buildings=buildings,
-					overlay_image=self.overlay_image,
-					scaling=1
-				)
-			result_image.save(export_directory.joinpath(rel_path))
-			nw_latitude, nw_longitude = GeoLocationUtil.tile_value_to_degree(
-				x_cor_tile=tile.x_grid_coord + 0.5,
-				y_cor_tile=tile.y_grid_coord + 0.5,
-				zoom=request.zoom,
-				get_centre=False
-			)
-			filename_no_extension = origin_path.stem
-			world_file_name = filename_no_extension + ".pgw"
-			RequestExporter.create_world_file(
-				path=export_directory.joinpath(rel_path.parent, world_file_name),
-				latitude=nw_latitude,
-				longitude=nw_longitude,
-				zoom=request.zoom,
-				width=1024,
-				height=1024
-			)
 
 	def export_scenario(self, scenario: Scenario, export_directory: Path) -> None:
 		"""
