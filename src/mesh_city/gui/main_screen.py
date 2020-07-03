@@ -58,7 +58,7 @@ class MainScreen:
 			path=self.application.file_handler.folder_overview["users.json"],
 			type_document="users.json",
 		)
-		self.application.set_user_entity(users["John"])
+		self.application.set_user_entity(users[list(users.keys())[0]])
 
 		self.active_layers: List[str] = []
 
