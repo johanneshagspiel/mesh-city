@@ -4,10 +4,12 @@ See :class:`.CarDetector`
 """
 
 from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import tensorflow as tf
+import warnings
+with warnings.catch_warnings():
+	warnings.filterwarnings("ignore", category=FutureWarning)
+	import numpy as np
+	import pandas as pd
+	import tensorflow as tf
 
 
 class CarDetector:

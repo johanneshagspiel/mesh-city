@@ -1,9 +1,13 @@
 """
 Module containing the TutorialWindow class
 """
-from tkinter import Button, Label, Toplevel
+from tkinter import Button, Label, Toplevel, W
+from mesh_city.gui.widgets.button import Button as CButton
+from mesh_city.gui.widgets.container import Container
+from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 
 from mesh_city.gui.search_window.search_window_start import SearchWindowStart
+from mesh_city.util.screen_size_util import ScreenSizeUtil
 
 
 class TutorialWindow:
@@ -30,15 +34,35 @@ class TutorialWindow:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		self.top_label = Label(
-			self.top, text="It seems like this is the first time you use this application."
-		)
-		self.top_label.grid(row=0)
+		self.top.attributes('-topmost', True)
+		self.top.update()
+		window_width, window_height, central_width, central_height = ScreenSizeUtil.get_curr_screen_geometry(680, 120)
+		self.top.geometry("%dx%d+%d+%d" % (window_width, window_height, central_width, central_height))
 
-		self.search_button = Button(
-			self.top, text="Click here to make your first request", command=self.cleanup, bg="white"
+		self.content = Container(WidgetGeometry(670, 110, 0, 0), self.top, background="white")
+		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white"}
+
+		Label(
+			self.content, text="It seems like this is the first time you use this application.", **layer_label_style,
+		).place(width=660, height=40, x=0, y=0)
+
+		CButton(
+			WidgetGeometry(450, 50, 110, 50),
+			"Click here to make your first request",
+			lambda _: self.cleanup(),
+			self.content,
 		)
-		self.search_button.grid(row=1)
+
+
+		# self.top_label = Label(
+		# 	self.top, text="It seems like this is the first time you use this application."
+		# )
+		# self.top_label.grid(row=0)
+		#
+		# self.search_button = Button(
+		# 	self.top, text="Click here to make your first request", command=self.cleanup, bg="white"
+		# )
+		# self.search_button.grid(row=1)
 
 	def cleanup(self):
 		"""

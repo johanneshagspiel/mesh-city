@@ -85,6 +85,7 @@ class LoadWindow:
 		:return: nothing
 		"""
 		self.application.set_current_request(request=request)
-		self.main_screen.render_dynamic_widgets()
+		self.main_screen.closed_popup_successfully = True
 
+		self.main_screen.render_dynamic_widgets()
 		self.top.destroy()

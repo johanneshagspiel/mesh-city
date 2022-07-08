@@ -1,8 +1,9 @@
 """
 Entry module of the application.
 """
-
+import warnings
 from mesh_city.application import Application
+warnings.filterwarnings('ignore')
 
 
 def main() -> None:

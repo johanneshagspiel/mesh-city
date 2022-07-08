@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 from PIL import Image
 
 from mesh_city.detection.detection_pipeline import DetectionType
+from mesh_city.gui.add_new_user_window.new_user_window import NewUserWindow
 from mesh_city.gui.detection_window.detection_window import DetectionWindow
 from mesh_city.gui.eco_window.eco_window import EcoWindow
 from mesh_city.gui.export_window.export_window import ExportWindow
@@ -33,7 +34,7 @@ from mesh_city.request.layers.trees_layer import TreesLayer
 
 class MainScreen:
 	"""
-	The main screen of the application where the map is shown as well as as all the function one
+	The main screen of the application where the map is shown as well as all the function one
 	can do on the map such as loading requests or looking at different layers
 	"""
 
@@ -51,14 +52,18 @@ class MainScreen:
 		self.master.resizable(width=False, height=False)
 		self.master.iconbitmap(True, self.application.file_handler.folder_overview["icon"])
 
+		self.master.attributes('-topmost', True)
+		self.master.update()
+
+
 		for file in self.application.file_handler.folder_overview["fonts"].glob("*"):
 			load_font(file)
 
-		users = self.application.log_manager.read_log(
+		self.users = self.application.log_manager.read_log(
 			path=self.application.file_handler.folder_overview["users.json"],
 			type_document="users.json",
 		)
-		self.application.set_user_entity(users[list(users.keys())[0]])
+
 
 		self.active_layers: List[str] = []
 
@@ -70,6 +75,8 @@ class MainScreen:
 
 		self.left_container = Container(WidgetGeometry(350, 900, 0, 0), self.content)
 		self.right_container = Container(WidgetGeometry(350, 900, 1250, 0), self.content)
+
+		self.closed_popup_successfully = False
 
 		CButton(
 			WidgetGeometry(200, 50, 75, 50),
@@ -137,18 +144,19 @@ class MainScreen:
 		:return: None
 		"""
 
-		start_up_window = self.start_up()
-		self.master.wait_window(start_up_window.top)
-		if self.application.current_request.has_layer_of_type(TreesLayer):
-			self.active_layers.append("Trees")
-		if self.application.current_request.has_layer_of_type(BuildingsLayer):
-			self.active_layers.append("Buildings")
-		if self.application.current_request.has_layer_of_type(CarsLayer):
-			self.active_layers.append("Cars")
-		self._load_layers()
-		self.render_dynamic_widgets()
+		started_successfully = self.start_up()
 
-		mainloop()
+		if started_successfully:
+			if self.application.current_request.has_layer_of_type(TreesLayer):
+				self.active_layers.append("Trees")
+			if self.application.current_request.has_layer_of_type(BuildingsLayer):
+				self.active_layers.append("Buildings")
+			if self.application.current_request.has_layer_of_type(CarsLayer):
+				self.active_layers.append("Cars")
+			self._load_layers()
+			self.render_dynamic_widgets()
+
+			mainloop()
 
 	def render_dynamic_widgets(self) -> None:
 		"""
@@ -368,7 +376,36 @@ class MainScreen:
 		Method called when starting the application. Creates either tutorial window or load screen
 		:return: None
 		"""
-		if len(self.application.request_manager.requests) == 0:
-			return TutorialWindow(self.master, self.application, self)
 
-		return LoadWindow(self.master, self.application, self)
+		if len(self.users) == 0:
+			new_user_window = NewUserWindow(self.master, self.application, self)
+			self.master.wait_window(new_user_window.top)
+
+			if not self.closed_popup_successfully:
+				return False
+			else:
+				self.closed_popup_successfully = False
+				self.users = self.application.log_manager.read_log(
+					path=self.application.file_handler.folder_overview["users.json"],
+					type_document="users.json",
+				)
+
+		self.application.set_user_entity(self.users[list(self.users.keys())[0]])
+
+		if len(self.application.request_manager.requests) == 0:
+			tutorial_window = TutorialWindow(self.master, self.application, self)
+			self.master.wait_window(tutorial_window.top)
+
+			if not self.closed_popup_successfully:
+				return False
+			else:
+				self.closed_popup_successfully = False
+
+		load_window = LoadWindow(self.master, self.application, self)
+		self.master.wait_window(load_window.top)
+
+		if not self.closed_popup_successfully:
+			return False
+		else:
+			self.closed_popup_successfully = False
+			return True

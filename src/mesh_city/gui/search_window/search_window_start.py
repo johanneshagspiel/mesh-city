@@ -9,6 +9,7 @@ from mesh_city.gui.search_window.search_window_location import SearchWindowLocat
 from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
+from mesh_city.util.screen_size_util import ScreenSizeUtil
 
 
 class SearchWindowStart:
@@ -34,7 +35,10 @@ class SearchWindowStart:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		self.top.geometry("%dx%d+%d+%d" % (520, 200, 0, 0))
+		self.top.attributes('-topmost', True)
+		self.top.update()
+		window_width, window_height, central_width, central_height = ScreenSizeUtil.get_curr_screen_geometry(520, 200)
+		self.top.geometry("%dx%d+%d+%d" % (window_width, window_height, central_width, central_height))
 
 		self.content = Container(WidgetGeometry(510, 190, 0, 0), self.top, background="white")
 		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}

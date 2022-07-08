@@ -8,6 +8,7 @@ from mesh_city.gui.widgets.button import Button as CButton
 from mesh_city.gui.widgets.container import Container
 from mesh_city.gui.widgets.widget_geometry import WidgetGeometry
 from mesh_city.util.input_util import InputUtil
+from mesh_city.util.screen_size_util import ScreenSizeUtil
 
 
 class SearchWindowLocation:
@@ -32,7 +33,10 @@ class SearchWindowLocation:
 		self.top.config(padx=4)
 		self.top.config(pady=4)
 
-		self.top.geometry("%dx%d+%d+%d" % (575, 200, 0, 0))
+		self.top.attributes('-topmost', True)
+		self.top.update()
+		window_width, window_height, central_width, central_height = ScreenSizeUtil.get_curr_screen_geometry(575, 200)
+		self.top.geometry("%dx%d+%d+%d" % (window_width, window_height, central_width, central_height))
 
 		self.content = Container(WidgetGeometry(565, 190, 0, 0), self.top, background="white")
 		layer_label_style = {"font": ("Eurostile LT Std", 18), "background": "white", "anchor": W}
@@ -87,5 +91,6 @@ class SearchWindowLocation:
 				application=self.application,
 				coordinates=self.value
 			)
+			self.main_screen.closed_popup_successfully = True
 			self.top.destroy()
 			self.main_screen.master.wait_window(temp_window.top)

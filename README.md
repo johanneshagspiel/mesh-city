@@ -26,7 +26,7 @@ With the "Planet Painter", the user can:
 
 | Purpose                      | Name                                                                                       |
 |------------------------------|--------------------------------------------------------------------------------------------|
-| Programming language         | Python                                                                                     |
+| Programming language         | Python 3.7                                                                                 |
 | Dependency manager           | [Pipenv](https://pipenv.pypa.io/en/latest/)                                                |
 | Build tool                   | setuptools (`setup.py`)                                                                    |
 | GUI library                  | [tkinter](https://docs.python.org/3/library/tkinter.html)                                  |
