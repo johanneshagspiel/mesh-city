@@ -50,7 +50,7 @@ Open the repository in the terminal and create a virtual environment:
 
     pipenv --python 3.7 
 
-Some of the dependencies of this project are very hard to install from their source or using typical tools such as pip. Therefore [binary wheels](libs) are included for 64-bit Windows that are compatible with Python 3.7, which come from Christoph Gohlke's [repository of unofficial Windows binaries](https://www.lfd.uci.edu/~gohlke/pythonlibs/). By running the following command, these dependencies will be installed:
+Some of the dependencies of this project are very difficult to install from their source or using typical tools such as pip. Therefore [binary wheels](libs) are included for 64-bit Windows that are compatible with Python 3.7, which come from Christoph Gohlke's [repository of unofficial Windows binaries](https://www.lfd.uci.edu/~gohlke/pythonlibs/). By running the following command, these dependencies will be installed:
 
 	pip install libs/GDAL-3.0.4-cp37-cp37m-win_amd64.whl libs/rasterio-1.1.4-cp37-cp37m-win_amd64.whl libs/Shapely-1.7.0-cp37-cp37m-win_amd64.whl libs/Rtree-0.9.4-cp37-cp37m-win_amd64.whl libs/Fiona-1.8.13-cp37-cp37m-win_amd64.whl
 
